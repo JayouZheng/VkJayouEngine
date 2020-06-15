@@ -6,9 +6,20 @@
 
 #include <string>
 #include <iostream>
+#include <cassert>
+#include <vector>
+#include <memory>
+
+#include "vk_ptr.h"
+
+#pragma comment(lib, "vulkan-1.lib")
+
+#define _assert(x) assert(x)
 
 #define _cmd_print_line(str) std::cout << str << std::endl
 #define _cmd_print_line_ws(str) std::wcout << str << std::endl
+
+#define _exit_log(x, str) if(x) { exit(1); std::cout << str << std::endl; }
 
 #define _name_of(x) L#x
 
@@ -39,7 +50,7 @@ public:
 
 #include <windows.h>
 
-std::wstring to_wstring(const std::string& str)
+inline std::wstring to_wstring(const std::string& str)
 {
 	int bufferlen = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, NULL, 0);
 	wchar_t* buffer = new wchar_t[bufferlen];

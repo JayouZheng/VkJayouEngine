@@ -7,30 +7,51 @@
 #include "SmartPtr.h"
 #include "vulkan/vulkan.hpp"
 
+#include <type_traits>
+
 template<typename T>
 class vk_ptr : public SmartPtr<T>
 {
 
+private:
+
+	VkDevice _device = nullptr;
+	VkAllocationCallbacks* _allocation_callback = nullptr;
+
 public:
 
-	vk_ptr()
+	vk_ptr(VkDevice device)
 	{
-		
-	}
-
-	vk_ptr(T* ptr) :SmartPtr(ptr)
-	{
-		
+		_device = device;
 	}
 
 	~vk_ptr()
 	{
-		vkDestroyInstance(*(*this), nullptr);
+
+#define _vk_destroy(object) if (std::is_same<Vk##object, T>::value) vkDestroy##object(_device, *(*this), _allocation_callback)
+
+		_vk_destroy(Fence);
+		_vk_destroy(Semaphore);
+		_vk_destroy(Event);
+		_vk_destroy(QueryPool);
+		_vk_destroy(Buffer);
+		_vk_destroy(BufferView);
+		_vk_destroy(Image);
+		_vk_destroy(ImageView);
+		_vk_destroy(ShaderModule);
+		_vk_destroy(PipelineCache);
+		_vk_destroy(Pipeline);
+		_vk_destroy(PipelineLayout);
+		_vk_destroy(Sampler);
+		_vk_destroy(DescriptorSetLayout);
+		_vk_destroy(DescriptorPool);
+		_vk_destroy(Framebuffer);
+		_vk_destroy(RenderPass);
+	}
+
+
+	void vkSetAllocationCallbacks(VkAllocationCallbacks* allocCallback)
+	{
+		_allocation_callback = allocCallback;
 	}
 };
-
-template<typename T>
-SmartPtr<T> make_vk_ptr()
-{
-	
-}
