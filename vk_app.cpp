@@ -22,11 +22,17 @@ void vk_app::Begin()
 		// Query the instance extensions.
 		{
 			uint32_t extCount = 0;
+			_vk_try(vkEnumerateInstanceExtensionProperties(nullptr, &extCount, nullptr));
+			if (extCount > 0)
+			{
+				m_instanceExtProps.resize(extCount);
+				_vk_try(vkEnumerateInstanceExtensionProperties(nullptr, &extCount, m_instanceExtProps.data()));
+			}
 		}
 		
 		VkApplicationInfo appInfo = {};
 		appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-		appInfo.pApplicationName = "Application";
+		appInfo.pApplicationName = "VK_Application";
 		appInfo.applicationVersion = 1;
 		appInfo.apiVersion = VK_MAKE_VERSION(1, 0, 0);
 
@@ -38,7 +44,7 @@ void vk_app::Begin()
 		instanceCreateInfo.enabledExtensionCount = 0;
 		instanceCreateInfo.ppEnabledExtensionNames = nullptr;
 
-		_vk_try(vkCreateInstance(&instanceCreateInfo, nullptr, &m_instance));
+		_vk_try(vkCreateInstance(&instanceCreateInfo, &(VkAllocationCallbacks)m_allocator, &m_instance));
 	
 		// Enum physical devices.
 		uint32_t physicalDeviceCount = 0;
@@ -49,6 +55,7 @@ void vk_app::Begin()
 		_vk_try(vkEnumeratePhysicalDevices(m_instance, &physicalDeviceCount, m_physicalDevices.data()));
 
 		// Resize std::vector. 
+		m_PDExtProps.resize(physicalDeviceCount);
 		m_PDLayerProps.resize(physicalDeviceCount);
 		m_physicalDevicesProps.resize(physicalDeviceCount);
 		m_physicalDevicesFeatures.resize(physicalDeviceCount);
@@ -65,6 +72,17 @@ void vk_app::Begin()
 				{
 					m_PDLayerProps[i].resize(layerPropCount);
 					_vk_try(vkEnumerateDeviceLayerProperties(m_physicalDevices[i], &layerPropCount, m_PDLayerProps[i].data()));
+				}
+			}
+
+			// Query the physical device extensions.
+			{
+				uint32_t extCount = 0;
+				_vk_try(vkEnumerateDeviceExtensionProperties(m_physicalDevices[i], nullptr, &extCount, nullptr));
+				if (extCount > 0)
+				{
+					m_PDExtProps[i].resize(extCount);
+					_vk_try(vkEnumerateDeviceExtensionProperties(m_physicalDevices[i], nullptr, &extCount, m_PDExtProps[i].data()));
 				}
 			}
 

@@ -3,11 +3,13 @@
   <ItemGroup>
     <ClCompile Include="vk_app.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="app_allocator.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="vk_app.h" />
     <ClInclude Include="SmartPtr.h" />
     <ClInclude Include="vk_util.h" />
     <ClInclude Include="vk_ptr.h" />
+    <ClInclude Include="app_allocator.h" />
   </ItemGroup>
 </Project>

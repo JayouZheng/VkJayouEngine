@@ -9,8 +9,11 @@
 #include <cassert>
 #include <vector>
 #include <memory>
+#include <type_traits>
 
-#include "vk_ptr.h"
+#include "SmartPtr.h"
+
+#include "vulkan/vulkan.hpp"
 
 #pragma comment(lib, "vulkan-1.lib")
 
@@ -60,13 +63,13 @@ inline std::wstring to_wstring(const std::string& str)
 	return wstr;
 }
 
-#define _vk_throw(_func, _func_name, _file_name, _file_line) \
-{ \
-	VkResult result = (_func); \
-	if (result != VK_SUCCESS) \
-	{ \
+#define _vk_throw(_func, _func_name, _file_name, _file_line)            \
+{                                                                       \
+	VkResult result = (_func);                                          \
+	if (result != VK_SUCCESS)                                           \
+	{                                                                   \
 		throw vk_exception(result, _func_name, _file_name, _file_line); \
-	} \
+	}                                                                   \
 }
 
 template<typename TLambda>

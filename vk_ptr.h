@@ -4,10 +4,7 @@
 
 #pragma once
 
-#include "SmartPtr.h"
-#include "vulkan/vulkan.hpp"
-
-#include <type_traits>
+#include "vk_util.h"
 
 template<typename T>
 class vk_ptr : public SmartPtr<T>
