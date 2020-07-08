@@ -4,12 +4,24 @@
     <ClCompile Include="vk_app.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="app_allocator.cpp" />
+    <ClCompile Include="CommandList.cpp" />
+    <ClCompile Include="CommandQueue.cpp" />
+    <ClCompile Include="LogicalDevice.cpp" />
+    <ClCompile Include="BaseLayer.cpp" />
+    <ClCompile Include="BaseAllocator.cpp" />
+    <ClCompile Include="Global.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="vk_app.h" />
     <ClInclude Include="SmartPtr.h" />
     <ClInclude Include="vk_util.h" />
-    <ClInclude Include="vk_ptr.h" />
     <ClInclude Include="app_allocator.h" />
+    <ClInclude Include="CommandList.h" />
+    <ClInclude Include="CommandQueue.h" />
+    <ClInclude Include="LogicalDevice.h" />
+    <ClInclude Include="BaseLayer.h" />
+    <ClInclude Include="BaseAllocator.h" />
+    <ClInclude Include="VkSmartPtr.h" />
+    <ClInclude Include="Global.h" />
   </ItemGroup>
 </Project>

@@ -26,6 +26,10 @@
 
 #define _name_of(x) L#x
 
+#define _index_0 0
+#define _count_0 0
+#define _count_1 1
+
 class vk_exception
 {
 public:

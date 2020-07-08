@@ -4,35 +4,15 @@
 
 #include "app_allocator.h"
 
-#pragma region VKAPI_CALL
-
-void* VKAPI_CALL app_allocator::_Allocation(
-	void* pUserData,
-	size_t size,
-	size_t alignment,
-	VkSystemAllocationScope allocationScope)
+app_allocator::app_allocator()
 {
-	return static_cast<app_allocator*>(pUserData)->Allocation(size, alignment, allocationScope);
+
 }
 
-void* VKAPI_CALL app_allocator::_Reallocation(
-	void* pUserData,
-	void* pOriginal,
-	size_t size,
-	size_t alignment,
-	VkSystemAllocationScope allocationScope)
+app_allocator::~app_allocator()
 {
-	return static_cast<app_allocator*>(pUserData)->Reallocation(pOriginal, size, alignment, allocationScope);
+	_cmd_print_line("Alloc: " + std::to_string(m_allocCount) + " Realloc: " + std::to_string(m_reallocCount) + " Free: " + std::to_string(m_freeCount));
 }
-
-void VKAPI_CALL app_allocator::_Free(
-	void* pUserData,
-	void* pMemory)
-{
-	return static_cast<app_allocator*>(pUserData)->Free(pMemory);
-}
-
-#pragma endregion
 
 void* app_allocator::Allocation(
 	size_t size,

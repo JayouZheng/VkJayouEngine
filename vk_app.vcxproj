@@ -154,13 +154,25 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BaseAllocator.cpp" />
     <ClCompile Include="app_allocator.cpp" />
+    <ClCompile Include="BaseLayer.cpp" />
+    <ClCompile Include="CommandList.cpp" />
+    <ClCompile Include="CommandQueue.cpp" />
+    <ClCompile Include="Global.cpp" />
+    <ClCompile Include="LogicalDevice.cpp" />
     <ClCompile Include="vk_app.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BaseAllocator.h" />
+    <ClInclude Include="BaseLayer.h" />
+    <ClInclude Include="CommandList.h" />
+    <ClInclude Include="CommandQueue.h" />
+    <ClInclude Include="Global.h" />
+    <ClInclude Include="LogicalDevice.h" />
     <ClInclude Include="SmartPtr.h" />
     <ClInclude Include="vk_app.h" />
-    <ClInclude Include="vk_ptr.h" />
+    <ClInclude Include="VkSmartPtr.h" />
     <ClInclude Include="vk_util.h" />
   </ItemGroup>
   <ItemGroup>
