@@ -5,6 +5,7 @@
 #pragma once
 
 #include "vk_util.h"
+#include "Global.h"
 
 class CommandList
 {
@@ -51,7 +52,15 @@ public:
 	void UpdateBuffer(VkBuffer InBuffer, VkDeviceSize InOffset, VkDeviceSize InSize, const void* InData);
 
 
+	void 
 
+	void ClearColorImage(VkImage InImage, const float* InClearColor);
+	void ClearColorImage(VkImage InImage, const VkClearColorValue* InClearColor);
+	void ClearColorImage(VkImage InImage, const VkClearColorValue* InClearColor, const VkImageSubresourceRange& InSubresRange);
+	void ClearColorImage(VkImage InImage, const VkClearColorValue* InClearColor, uint32_t InRangeCount, const VkImageSubresourceRange* InSubresRanges);
+
+	void ClearDepthStencilImage(VkImage InImage, float InClearDepthValue, uint32_t InClearStencilValue);
+	void ClearDepthStencilImage(VkImage InImage, const VkClearDepthStencilValue* InClearValue);
 
 #pragma region PiplineBarrier
 
@@ -77,14 +86,7 @@ public:
 		VkImageLayout        oldLayout;
 		VkImageLayout        newLayout;
 		VkImage              image;
-		VkImageSubresourceRange subresourceRange =
-		{
-			VK_IMAGE_ASPECT_COLOR_BIT, // aspectMask
-			0,                         // baseMipLevel
-			VK_REMAINING_MIP_LEVELS,   // levelCount
-			0,                         // baseArrayLayer
-			VK_REMAINING_ARRAY_LAYERS  // layerCount
-		};
+		VkImageSubresourceRange subresourceRange = Util::ColorSubresRange;
 	};
 
 	void ResourceBarriers(

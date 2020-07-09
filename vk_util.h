@@ -30,6 +30,9 @@
 #define _count_0 0
 #define _count_1 1
 
+#define _offset_0 0
+#define _offset_start 0
+
 class vk_exception
 {
 public:

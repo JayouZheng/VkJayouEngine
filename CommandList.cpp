@@ -53,7 +53,7 @@ void CommandList::ResetPool()
 
 void CommandList::Free()
 {
-	vkFreeCommandBuffers(m_device, m_cmdPool, 1, &m_cmdBuffer);
+	vkFreeCommandBuffers(m_device, m_cmdPool, _count_1, &m_cmdBuffer);
 }
 
 void CommandList::Close()
@@ -64,11 +64,11 @@ void CommandList::Close()
 void CommandList::CopyBuffer(VkBuffer InSrcBuffer, VkBuffer InDstBuffer)
 {
 	VkBufferCopy copyDesc = {};
-	copyDesc.srcOffset = 0;
-	copyDesc.dstOffset = 0;
+	copyDesc.srcOffset = _offset_start;
+	copyDesc.dstOffset = _offset_start;
 	copyDesc.size = VK_WHOLE_SIZE;
 
-	vkCmdCopyBuffer(m_cmdBuffer, InSrcBuffer, InDstBuffer, 1, &copyDesc);
+	vkCmdCopyBuffer(m_cmdBuffer, InSrcBuffer, InDstBuffer, _count_1, &copyDesc);
 }
 
 void CommandList::CopyBuffer(VkBuffer InSrcBuffer, VkBuffer InDstBuffer, const VkBufferCopy& InRegion)
@@ -77,7 +77,7 @@ void CommandList::CopyBuffer(VkBuffer InSrcBuffer, VkBuffer InDstBuffer, const V
 	_exit_log(InRegion.dstOffset % 4 != 0, "CopyBuffer, DstOffset is not a multiple of 4!");
 	_exit_log(InRegion.size % 4 != 0, "CopyBuffer, Size is not a multiple of 4!");
 
-	vkCmdCopyBuffer(m_cmdBuffer, InSrcBuffer, InDstBuffer, 1, &InRegion);
+	vkCmdCopyBuffer(m_cmdBuffer, InSrcBuffer, InDstBuffer, _count_1, &InRegion);
 }
 
 void CommandList::CopyBuffer(VkBuffer InSrcBuffer, VkBuffer InDstBuffer, uint32_t InRegionCount, const VkBufferCopy* InRegions)
@@ -87,12 +87,12 @@ void CommandList::CopyBuffer(VkBuffer InSrcBuffer, VkBuffer InDstBuffer, uint32_
 
 void CommandList::ClearBufferUint32(VkBuffer InBuffer, const uint32_t InValue)
 {
-	vkCmdFillBuffer(m_cmdBuffer, InBuffer, 0, VK_WHOLE_SIZE, InValue);
+	vkCmdFillBuffer(m_cmdBuffer, InBuffer, _offset_start, VK_WHOLE_SIZE, InValue);
 }
 
 void CommandList::ClearBufferFloat(VkBuffer InBuffer, const float InValue)
 {
-	vkCmdFillBuffer(m_cmdBuffer, InBuffer, 0, VK_WHOLE_SIZE, *(const uint32_t*)&InValue);
+	vkCmdFillBuffer(m_cmdBuffer, InBuffer, _offset_start, VK_WHOLE_SIZE, *(const uint32_t*)&InValue);
 }
 
 void CommandList::ClearBufferUint32(VkBuffer InBuffer, VkDeviceSize InOffset, VkDeviceSize InSize, const uint32_t InValue)
@@ -118,6 +118,40 @@ void CommandList::UpdateBuffer(VkBuffer InBuffer, VkDeviceSize InOffset, VkDevic
 	_exit_log(InSize > 65536u, "ClearBufferFloat, The maximum size of data that can be placed in a buffer with vkCmdUpdateBuffer() is 65,536 bytes!");
 
 	vkCmdUpdateBuffer(m_cmdBuffer, InBuffer, InOffset, InSize, InData);
+}
+
+void CommandList::ClearColorImage(VkImage InImage, const float* InClearColor)
+{
+	vkCmdClearColorImage(m_cmdBuffer, InImage, VK_IMAGE_LAYOUT_GENERAL, (VkClearColorValue*)InClearColor, _count_1, &Util::ColorSubresRange);
+}
+
+void CommandList::ClearColorImage(VkImage InImage, const VkClearColorValue* InClearColor)
+{
+	vkCmdClearColorImage(m_cmdBuffer, InImage, VK_IMAGE_LAYOUT_GENERAL, InClearColor, _count_1, &Util::ColorSubresRange);
+}
+
+void CommandList::ClearColorImage(VkImage InImage, const VkClearColorValue* InClearColor, const VkImageSubresourceRange& InSubresRange)
+{
+	vkCmdClearColorImage(m_cmdBuffer, InImage, VK_IMAGE_LAYOUT_GENERAL, InClearColor, _count_1, &InSubresRange);
+}
+
+void CommandList::ClearColorImage(VkImage InImage, const VkClearColorValue* InClearColor, uint32_t InRangeCount, const VkImageSubresourceRange* InSubresRanges)
+{
+	vkCmdClearColorImage(m_cmdBuffer, InImage, VK_IMAGE_LAYOUT_GENERAL, InClearColor, InRangeCount, InSubresRanges);
+}
+
+void CommandList::ClearDepthStencilImage(VkImage InImage, float InClearDepthValue, uint32_t InClearStencilValue)
+{
+	VkClearDepthStencilValue clearValue = {};
+	clearValue.depth = InClearDepthValue;
+	clearValue.stencil = InClearStencilValue;
+
+	vkCmdClearDepthStencilImage(m_cmdBuffer, InImage, VK_IMAGE_LAYOUT_GENERAL, &clearValue, _count_1, &Util::DepthStencilSubresRange);
+}
+
+void CommandList::ClearDepthStencilImage(VkImage InImage, const VkClearDepthStencilValue* InClearValue)
+{
+	vkCmdClearDepthStencilImage(m_cmdBuffer, InImage, VK_IMAGE_LAYOUT_GENERAL, InClearValue, _count_1, &Util::DepthStencilSubresRange);
 }
 
 void CommandList::ResourceBarriers(
@@ -159,10 +193,10 @@ void CommandList::MemoryBarrier(
 		InSrcStageMask,
 		InDstStageMask,
 		InDependencyFlags,
-		1,
+		_count_1,
 		&InMemBarrier,
-		0, nullptr,
-		0, nullptr);
+		_count_0, nullptr,
+		_count_0, nullptr);
 }
 
 void CommandList::MemoryBarrier(
@@ -194,8 +228,8 @@ void CommandList::MemoryBarriers(
 		InDependencyFlags, 
 		InMemBarrierCount, 
 		InMemBarriers, 
-		0, nullptr, 
-		0, nullptr);
+		_count_0, nullptr, 
+		_count_0, nullptr);
 }
 
 void CommandList::BufferBarrier(
@@ -209,9 +243,9 @@ void CommandList::BufferBarrier(
 		InSrcStageMask, 
 		InDstStageMask, 
 		InDependencyFlags, 
-		0, nullptr, 
-		1, &InBufferMemBarrier, 
-		0, nullptr);
+		_count_0, nullptr, 
+		_count_1, &InBufferMemBarrier, 
+		_count_0, nullptr);
 }
 
 void CommandList::BufferBarrier(const SBufferBarrier& InSBufferBarrier, VkDependencyFlags InDependencyFlags /*= 0*/)
@@ -241,10 +275,10 @@ void CommandList::BufferBarriers(
 		InSrcStageMask, 
 		InDstStageMask, 
 		InDependencyFlags, 
-		0, nullptr, 
+		_count_0, nullptr, 
 		InBufferMemBarrierCount, 
 		InBufferMemBarriers, 
-		0, nullptr);
+		_count_0, nullptr);
 }
 
 void CommandList::ImageBarrier(
@@ -258,9 +292,9 @@ void CommandList::ImageBarrier(
 		InSrcStageMask, 
 		InDstStageMask, 
 		InDependencyFlags, 
-		0, nullptr, 
-		0, nullptr, 
-		1, &InImageMemBarrier);
+		_count_0, nullptr, 
+		_count_0, nullptr, 
+		_count_1, &InImageMemBarrier);
 }
 
 void CommandList::ImageBarrier(const SImageBarrier& InSImageBarrier, VkDependencyFlags InDependencyFlags /*= 0*/)
@@ -291,8 +325,8 @@ void CommandList::ImageBarriers(
 		InSrcStageMask, 
 		InDstStageMask, 
 		InDependencyFlags, 
-		0, nullptr, 
-		0, nullptr, 
+		_count_0, nullptr, 
+		_count_0, nullptr, 
 		InImageMemBarrierCount, 
 		InImageMemBarriers);
 }

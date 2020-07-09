@@ -26,3 +26,35 @@ namespace Global
 
 	bool IsZero();
 }
+
+namespace VkColor
+{
+	const float Black[4] = { 0.0f,0.0f,0.0f,1.0f };
+	const float White[4] = { 1.0f,1.0f,1.0f,1.0f };
+
+	const float Red[4] = { 1.0f,0.0f,0.0f,1.0f };
+	const float Green[4] = { 0.0f,1.0f,0.0f,1.0f };
+	const float Blue[4] = { 0.0f,0.0f,1.0f,1.0f };
+}
+
+namespace Util
+{
+	const VkImageSubresourceRange ColorSubresRange =
+	{
+		VK_IMAGE_ASPECT_COLOR_BIT,   // aspectMask
+		0,                           // baseMipLevel
+		VK_REMAINING_MIP_LEVELS,     // levelCount
+		0,                           // baseArrayLayer
+		VK_REMAINING_ARRAY_LAYERS    // layerCount
+	};
+
+	const VkImageSubresourceRange DepthStencilSubresRange =
+	{
+		VK_IMAGE_ASPECT_DEPTH_BIT | 
+		VK_IMAGE_ASPECT_STENCIL_BIT, // aspectMask
+		0,                           // baseMipLevel
+		VK_REMAINING_MIP_LEVELS,     // levelCount
+		0,                           // baseArrayLayer
+		VK_REMAINING_ARRAY_LAYERS    // layerCount
+	};
+}
