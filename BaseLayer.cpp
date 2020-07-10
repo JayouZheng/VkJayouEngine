@@ -243,7 +243,7 @@ void BaseLayer::CheckFormatSupport(const std::vector<VkFormat>& InCheckFormats, 
 	}
 }
 
-void BaseLayer::CheckImageFormatSupport(const std::vector<CheckImage>& InCheckImages, std::vector<VkImageFormatProperties>& OutImageFormatProps)
+void BaseLayer::CheckImageFormatSupport(const std::vector<SCheckImage>& InCheckImages, std::vector<VkImageFormatProperties>& OutImageFormatProps)
 {
 	OutImageFormatProps.clear();
 	for (auto& image : InCheckImages)

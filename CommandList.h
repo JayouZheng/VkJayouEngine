@@ -41,7 +41,7 @@ public:
 public:
 
 	void CopyBuffer(VkBuffer InSrcBuffer, VkBuffer InDstBuffer);
-	void CopyBuffer(VkBuffer InSrcBuffer, VkBuffer InDstBuffer, const VkBufferCopy& InRegions);	
+	void CopyBuffer(VkBuffer InSrcBuffer, VkBuffer InDstBuffer, const VkBufferCopy& InRegion);	
 	void CopyBuffer(VkBuffer InSrcBuffer, VkBuffer InDstBuffer, uint32_t InRegionCount, const VkBufferCopy* InRegions);
 
 	void ClearBufferUint32(VkBuffer InBuffer, const uint32_t InValue);
@@ -52,7 +52,13 @@ public:
 	void UpdateBuffer(VkBuffer InBuffer, VkDeviceSize InOffset, VkDeviceSize InSize, const void* InData);
 
 
-	void 
+	void CopyBufferToImage(VkBuffer InSrcBuffer, VkImage InDstImage, uint32_t InWidth, uint32_t InHeight, VkImageAspectFlags InAspectMask = VK_IMAGE_ASPECT_COLOR_BIT);
+	void CopyBufferToImage(VkBuffer InSrcBuffer, VkImage InDstImage, const VkBufferImageCopy& InRegion);
+	void CopyBufferToImage(VkBuffer InSrcBuffer, VkImage InDstImage, uint32_t InRegionCount, const VkBufferImageCopy* InRegions);
+
+	void CopyImageToBuffer(VkImage InSrcImage, uint32_t InWidth, uint32_t InHeight, VkBuffer InDstBuffer, VkImageAspectFlags InAspectMask = VK_IMAGE_ASPECT_COLOR_BIT);
+	void CopyImageToBuffer(VkImage InSrcImage, VkBuffer InDstBuffer, const VkBufferImageCopy& InRegion);
+	void CopyImageToBuffer(VkImage InSrcImage, VkBuffer InDstBuffer, uint32_t InRegionCount, const VkBufferImageCopy* InRegions);
 
 	void ClearColorImage(VkImage InImage, const float* InClearColor);
 	void ClearColorImage(VkImage InImage, const VkClearColorValue* InClearColor);

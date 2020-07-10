@@ -66,7 +66,7 @@ public:
 	// Query physical device supported buffer/image formats.
 	void CheckFormatSupport(const std::vector<VkFormat>& InCheckFormats, std::vector<VkFormatProperties>& OutFormatProps);
 
-	struct CheckImage
+	struct SCheckImage
 	{
 		VkFormat           format;
 		VkImageType        type;
@@ -75,5 +75,5 @@ public:
 		VkImageCreateFlags flags;
 	};
 
-	void CheckImageFormatSupport(const std::vector<CheckImage>& InCheckImages, std::vector<VkImageFormatProperties>& OutImageFormatProps);
+	void CheckImageFormatSupport(const std::vector<SCheckImage>& InCheckImages, std::vector<VkImageFormatProperties>& OutImageFormatProps);
 };

@@ -63,12 +63,12 @@ void CommandList::Close()
 
 void CommandList::CopyBuffer(VkBuffer InSrcBuffer, VkBuffer InDstBuffer)
 {
-	VkBufferCopy copyDesc = {};
-	copyDesc.srcOffset = _offset_start;
-	copyDesc.dstOffset = _offset_start;
-	copyDesc.size = VK_WHOLE_SIZE;
+	VkBufferCopy region = {};
+	region.srcOffset = _offset_start;
+	region.dstOffset = _offset_start;
+	region.size = VK_WHOLE_SIZE;
 
-	vkCmdCopyBuffer(m_cmdBuffer, InSrcBuffer, InDstBuffer, _count_1, &copyDesc);
+	vkCmdCopyBuffer(m_cmdBuffer, InSrcBuffer, InDstBuffer, _count_1, &region);
 }
 
 void CommandList::CopyBuffer(VkBuffer InSrcBuffer, VkBuffer InDstBuffer, const VkBufferCopy& InRegion)
@@ -118,6 +118,72 @@ void CommandList::UpdateBuffer(VkBuffer InBuffer, VkDeviceSize InOffset, VkDevic
 	_exit_log(InSize > 65536u, "ClearBufferFloat, The maximum size of data that can be placed in a buffer with vkCmdUpdateBuffer() is 65,536 bytes!");
 
 	vkCmdUpdateBuffer(m_cmdBuffer, InBuffer, InOffset, InSize, InData);
+}
+
+void CommandList::CopyBufferToImage(VkBuffer InSrcBuffer, VkImage InDstImage, uint32_t InWidth, uint32_t InHeight, VkImageAspectFlags InAspectMask /*= VK_IMAGE_ASPECT_COLOR_BIT*/)
+{
+	VkImageSubresourceLayers imageSubresLayers = {};
+	imageSubresLayers.aspectMask = InAspectMask;
+	imageSubresLayers.mipLevel = _index_0;
+	imageSubresLayers.baseArrayLayer = _index_0;
+	imageSubresLayers.layerCount = _count_1;
+
+	VkBufferImageCopy region = {};
+	region.bufferOffset = _offset_start;
+	region.bufferRowLength = 0;
+	region.bufferImageHeight = 0;
+	region.imageSubresource = imageSubresLayers;
+	region.imageOffset.x = _offset_start;
+	region.imageOffset.y = _offset_start;
+	region.imageOffset.z = 0;
+	region.imageExtent.width = InWidth;
+	region.imageExtent.height = InHeight;
+	region.imageExtent.depth = 0;
+
+	vkCmdCopyBufferToImage(m_cmdBuffer, InSrcBuffer, InDstImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+}
+
+void CommandList::CopyBufferToImage(VkBuffer InSrcBuffer, VkImage InDstImage, const VkBufferImageCopy& InRegion)
+{
+	vkCmdCopyBufferToImage(m_cmdBuffer, InSrcBuffer, InDstImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &InRegion);
+}
+
+void CommandList::CopyBufferToImage(VkBuffer InSrcBuffer, VkImage InDstImage, uint32_t InRegionCount, const VkBufferImageCopy* InRegions)
+{
+	vkCmdCopyBufferToImage(m_cmdBuffer, InSrcBuffer, InDstImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, InRegionCount, InRegions);
+}
+
+void CommandList::CopyImageToBuffer(VkImage InSrcImage, uint32_t InWidth, uint32_t InHeight, VkBuffer InDstBuffer, VkImageAspectFlags InAspectMask /*= VK_IMAGE_ASPECT_COLOR_BIT*/)
+{
+	VkImageSubresourceLayers imageSubresLayers = {};
+	imageSubresLayers.aspectMask = InAspectMask;
+	imageSubresLayers.mipLevel = _index_0;
+	imageSubresLayers.baseArrayLayer = _index_0;
+	imageSubresLayers.layerCount = _count_1;
+
+	VkBufferImageCopy region = {};
+	region.bufferOffset = _offset_start;
+	region.bufferRowLength = 0;
+	region.bufferImageHeight = 0;
+	region.imageSubresource = imageSubresLayers;
+	region.imageOffset.x = _offset_start;
+	region.imageOffset.y = _offset_start;
+	region.imageOffset.z = 0;
+	region.imageExtent.width = InWidth;
+	region.imageExtent.height = InHeight;
+	region.imageExtent.depth = 0;
+
+	vkCmdCopyImageToBuffer(m_cmdBuffer, InSrcImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, InDstBuffer, 1, &region);
+}
+
+void CommandList::CopyImageToBuffer(VkImage InSrcImage, VkBuffer InDstBuffer, const VkBufferImageCopy& InRegion)
+{
+
+}
+
+void CommandList::CopyImageToBuffer(VkImage InSrcImage, VkBuffer InDstBuffer, uint32_t InRegionCount, const VkBufferImageCopy* InRegions)
+{
+
 }
 
 void CommandList::ClearColorImage(VkImage InImage, const float* InClearColor)
