@@ -149,7 +149,9 @@ private:
 		if (Global::IsZero())
 		{
 			vkDestroyDevice(Global::GetVkDevice(), nullptr);
-			vkDestroyInstance(Global::GetVkInstance(), nullptr);
+			BaseAllocator* temp = Global::GetGlobalAllocator();
+			vkDestroyInstance(Global::GetVkInstance(), &(VkAllocationCallbacks)*temp);
+			Global::SafeFreeGlobalAllocator();
 		}	
 
 		delete _ptr;

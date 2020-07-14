@@ -3,6 +3,7 @@
 //
 
 #include "vk_app.h"
+#include "vk_util.h"
 
 int main()
 {

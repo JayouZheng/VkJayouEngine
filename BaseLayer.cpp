@@ -3,6 +3,7 @@
 //
 
 #include "BaseLayer.h"
+#include "Global.h"
 
 BaseLayer::BaseLayer()
 {
@@ -178,6 +179,8 @@ void BaseLayer::Init()
 		cmdPoolCreateInfo.queueFamilyIndex = _index_0;
 
 		_vk_try(vkCreateCommandPool(Global::GetVkDevice(), &cmdPoolCreateInfo, nullptr, m_pCmdPool));
+
+		
 	}
 
 }
@@ -185,9 +188,12 @@ void BaseLayer::Init()
 void BaseLayer::Free()
 {
 #if 0
-	// If app has none vk_ptr, this codes should be activated!
-	vkDestroyDevice(Global::GetVkDevice(), nullptr);
-	vkDestroyInstance(Global::GetVkInstance(), nullptr);
+	if (Global::IsDestroyManually())
+	{
+		// If app has none vk_ptr, this codes should be activated!
+		vkDestroyDevice(Global::GetVkDevice(), nullptr);
+		vkDestroyInstance(Global::GetVkInstance(), nullptr);
+	}
 #endif
 }
 

@@ -178,12 +178,50 @@ void CommandList::CopyImageToBuffer(VkImage InSrcImage, uint32_t InWidth, uint32
 
 void CommandList::CopyImageToBuffer(VkImage InSrcImage, VkBuffer InDstBuffer, const VkBufferImageCopy& InRegion)
 {
-
+	vkCmdCopyImageToBuffer(m_cmdBuffer, InSrcImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, InDstBuffer, 1, &InRegion);
 }
 
 void CommandList::CopyImageToBuffer(VkImage InSrcImage, VkBuffer InDstBuffer, uint32_t InRegionCount, const VkBufferImageCopy* InRegions)
 {
+	vkCmdCopyImageToBuffer(m_cmdBuffer, InSrcImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, InDstBuffer, InRegionCount, InRegions);
+}
 
+void CommandList::CopyImage(VkImage InSrcImage, VkImage InDstImage, uint32_t InWidth, uint32_t InHeight, VkImageAspectFlags InAspectMask /*= VK_IMAGE_ASPECT_COLOR_BIT*/)
+{
+	VkImageSubresourceLayers imageSubresLayers = {};
+	imageSubresLayers.aspectMask = InAspectMask;
+	imageSubresLayers.mipLevel = _index_0;
+	imageSubresLayers.baseArrayLayer = _index_0;
+	imageSubresLayers.layerCount = _count_1;
+
+	VkImageCopy region = {};
+	region.srcSubresource = imageSubresLayers;
+	region.srcOffset = { _offset_start, _offset_start, 0 };
+	region.dstSubresource = region.srcSubresource;
+	region.dstOffset = region.srcOffset;
+	region.extent = { InWidth, InHeight, 0 };
+
+	vkCmdCopyImage(m_cmdBuffer, InSrcImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, InDstImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+}
+
+void CommandList::CopyImage(VkImage InSrcImage, VkImage InDstImage, const VkImageCopy& InRegion)
+{
+	vkCmdCopyImage(m_cmdBuffer, InSrcImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, InDstImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &InRegion);
+}
+
+void CommandList::CopyImage(VkImage InSrcImage, VkImage InDstImage, uint32_t InRegionCount, const VkImageCopy* InRegions)
+{
+	vkCmdCopyImage(m_cmdBuffer, InSrcImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, InDstImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, InRegionCount, InRegions);
+}
+
+void CommandList::NonUniformImageCopy(VkImage InSrcImage, VkImage InDstImage, const VkImageBlit& InRegion, VkFilter InFilter)
+{
+	vkCmdBlitImage(m_cmdBuffer, InSrcImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, InDstImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &InRegion, InFilter);
+}
+
+void CommandList::NonUniformImageCopy(VkImage InSrcImage, VkImage InDstImage, uint32_t InRegionCount, const VkImageBlit* InRegions, VkFilter InFilter)
+{
+	vkCmdBlitImage(m_cmdBuffer, InSrcImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, InDstImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, InRegionCount, InRegions, InFilter);
 }
 
 void CommandList::ClearColorImage(VkImage InImage, const float* InClearColor)

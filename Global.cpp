@@ -3,13 +3,17 @@
 //
 
 #include "Global.h"
+#include "BaseAllocator.h"
 
 namespace
 {
 	static VkInstance g_instance = VK_NULL_HANDLE;
 	static LogicalDevice g_device = VK_NULL_HANDLE;
 
+	static BaseAllocator* g_allocator = nullptr;
+
 	static uint32_t g_count = _count_0;
+	static bool g_bDestroyManually = false;
 }
 
 VkInstance Global::GetVkInstance()
@@ -59,4 +63,33 @@ void Global::Advance()
 bool Global::IsZero()
 {
 	return g_count == 0;
+}
+
+void Global::ApplicationDestroyManually(bool InFlag)
+{
+	g_bDestroyManually = InFlag;
+}
+
+bool Global::IsDestroyManually()
+{
+	return g_bDestroyManually;
+}
+
+BaseAllocator* Global::GetGlobalAllocator()
+{
+	return g_allocator;
+}
+
+void Global::SetGlobalAllocator(BaseAllocator* InAllocator)
+{
+	g_allocator = InAllocator;
+}
+
+void Global::SafeFreeGlobalAllocator()
+{
+	if (g_allocator != nullptr)
+	{
+		delete g_allocator;
+		g_allocator = nullptr;
+	}
 }

@@ -40,6 +40,7 @@ public:
 
 public:
 
+	// Buffer.
 	void CopyBuffer(VkBuffer InSrcBuffer, VkBuffer InDstBuffer);
 	void CopyBuffer(VkBuffer InSrcBuffer, VkBuffer InDstBuffer, const VkBufferCopy& InRegion);	
 	void CopyBuffer(VkBuffer InSrcBuffer, VkBuffer InDstBuffer, uint32_t InRegionCount, const VkBufferCopy* InRegions);
@@ -51,7 +52,7 @@ public:
 
 	void UpdateBuffer(VkBuffer InBuffer, VkDeviceSize InOffset, VkDeviceSize InSize, const void* InData);
 
-
+	// Image.
 	void CopyBufferToImage(VkBuffer InSrcBuffer, VkImage InDstImage, uint32_t InWidth, uint32_t InHeight, VkImageAspectFlags InAspectMask = VK_IMAGE_ASPECT_COLOR_BIT);
 	void CopyBufferToImage(VkBuffer InSrcBuffer, VkImage InDstImage, const VkBufferImageCopy& InRegion);
 	void CopyBufferToImage(VkBuffer InSrcBuffer, VkImage InDstImage, uint32_t InRegionCount, const VkBufferImageCopy* InRegions);
@@ -59,6 +60,13 @@ public:
 	void CopyImageToBuffer(VkImage InSrcImage, uint32_t InWidth, uint32_t InHeight, VkBuffer InDstBuffer, VkImageAspectFlags InAspectMask = VK_IMAGE_ASPECT_COLOR_BIT);
 	void CopyImageToBuffer(VkImage InSrcImage, VkBuffer InDstBuffer, const VkBufferImageCopy& InRegion);
 	void CopyImageToBuffer(VkImage InSrcImage, VkBuffer InDstBuffer, uint32_t InRegionCount, const VkBufferImageCopy* InRegions);
+
+	void CopyImage(VkImage InSrcImage, VkImage InDstImage, uint32_t InWidth, uint32_t InHeight, VkImageAspectFlags InAspectMask = VK_IMAGE_ASPECT_COLOR_BIT);
+	void CopyImage(VkImage InSrcImage, VkImage InDstImage, const VkImageCopy& InRegion);
+	void CopyImage(VkImage InSrcImage, VkImage InDstImage, uint32_t InRegionCount, const VkImageCopy* InRegions);
+
+	void NonUniformImageCopy(VkImage InSrcImage, VkImage InDstImage, const VkImageBlit& InRegion, VkFilter InFilter);
+	void NonUniformImageCopy(VkImage InSrcImage, VkImage InDstImage, uint32_t InRegionCount, const VkImageBlit* InRegions, VkFilter InFilter);
 
 	void ClearColorImage(VkImage InImage, const float* InClearColor);
 	void ClearColorImage(VkImage InImage, const VkClearColorValue* InClearColor);

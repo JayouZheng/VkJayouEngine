@@ -6,25 +6,30 @@
 
 #include "LogicalDevice.h"
 
+class BaseAllocator;
+
 namespace Global
 {
 	VkInstance GetVkInstance();
-
 	void SetVkInstance(const VkInstance& InInstance);
 
 	LogicalDevice GetLogicalDevice();
-
 	void SetLogicalDevice(const LogicalDevice& InLogicalDevice);
 
 	VkDevice GetVkDevice();
-
 	void SetVkDevice(const VkDevice& InDevice);
 
 	void Decrease();
-
 	void Advance();
 
 	bool IsZero();
+
+	void ApplicationDestroyManually(bool InFlag);
+	bool IsDestroyManually();
+
+	BaseAllocator* GetGlobalAllocator();
+	void SetGlobalAllocator(BaseAllocator* InAllocator);
+	void SafeFreeGlobalAllocator();
 }
 
 namespace VkColor
