@@ -13,6 +13,7 @@
 
 #include "SmartPtr.h"
 
+#include "Platform.h"
 #include "vulkan/vulkan.hpp"
 
 #pragma comment(lib, "vulkan-1.lib")
@@ -22,7 +23,7 @@
 #define _cmd_print_line(str) std::cout << str << std::endl
 #define _cmd_print_line_ws(str) std::wcout << str << std::endl
 
-#define _exit_log(x, str) if(x) { exit(1); std::cout << str << std::endl; }
+#define _exit_log(x, str) if(x) { std::cout << str << std::endl; exit(1); }
 
 #define _name_of(x) L#x
 

@@ -23,5 +23,6 @@
     <ClInclude Include="BaseAllocator.h" />
     <ClInclude Include="VkSmartPtr.h" />
     <ClInclude Include="Global.h" />
+    <ClInclude Include="Platform.h" />
   </ItemGroup>
 </Project>

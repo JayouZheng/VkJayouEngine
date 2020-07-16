@@ -180,7 +180,13 @@ void BaseLayer::Init()
 
 		_vk_try(vkCreateCommandPool(Global::GetVkDevice(), &cmdPoolCreateInfo, nullptr, m_pCmdPool));
 
+		VkBool32 bIsDefaultQueueSupportPresentation = vkGetPhysicalDeviceWin32PresentationSupportKHR(m_physicalDevices[m_defaultPDIndex], 2);
+		_exit_log(bIsDefaultQueueSupportPresentation == VK_FALSE, "The Default Queue Do Not Support Presentation!");
 		
+		for (auto& prop : m_PDExtProps[m_defaultPDIndex])
+		{
+			_exit_log(prop.extensionName == VK_KHR_SWAPCHAIN_EXTENSION_NAME, "hahahaha!");
+		}
 	}
 
 }

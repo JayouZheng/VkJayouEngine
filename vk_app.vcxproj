@@ -170,6 +170,7 @@
     <ClInclude Include="CommandQueue.h" />
     <ClInclude Include="Global.h" />
     <ClInclude Include="LogicalDevice.h" />
+    <ClInclude Include="Platform.h" />
     <ClInclude Include="SmartPtr.h" />
     <ClInclude Include="vk_app.h" />
     <ClInclude Include="VkSmartPtr.h" />
