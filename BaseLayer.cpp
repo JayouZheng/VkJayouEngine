@@ -4,6 +4,7 @@
 
 #include "BaseLayer.h"
 #include "Global.h"
+#include "Window.h"
 
 BaseLayer::BaseLayer()
 {
@@ -47,6 +48,21 @@ void BaseLayer::Init()
 			}
 		}
 
+		// Check Extensions Support.		
+		{
+			int NumEnableExts = _array_size(BaseLayerConfig::EnableExtensions);
+			for (auto& prop : m_instanceExtProps)
+			{				
+				for (int i = 0; i < NumEnableExts; ++i)
+				{
+					if (_is_cstr_equal(prop.extensionName, BaseLayerConfig::EnableExtensions[i]))
+					{
+						m_supportEnableExts.push_back(BaseLayerConfig::EnableExtensions[i]);
+					}
+				}
+			}
+		}
+
 		VkApplicationInfo appInfo = {};
 		appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
 		appInfo.pApplicationName = "VK_Application";
@@ -58,8 +74,8 @@ void BaseLayer::Init()
 		instanceCreateInfo.pApplicationInfo = &appInfo;
 		instanceCreateInfo.enabledLayerCount = _count_0;
 		instanceCreateInfo.ppEnabledLayerNames = nullptr;
-		instanceCreateInfo.enabledExtensionCount = _count_0;
-		instanceCreateInfo.ppEnabledExtensionNames = nullptr;
+		instanceCreateInfo.enabledExtensionCount = (uint32_t)m_supportEnableExts.size();
+		instanceCreateInfo.ppEnabledExtensionNames = m_supportEnableExts.data();
 
 		VkInstance vkInstance = VK_NULL_HANDLE;
 		_vk_try(vkCreateInstance(&instanceCreateInfo, &(VkAllocationCallbacks)*m_allocator, &vkInstance));
@@ -146,11 +162,22 @@ void BaseLayer::Init()
 
 	// Create VK Logical Devices & Get Queue & Create Command Pool.
 	{
+		// Find Graphic Queue Family.
+		int graphicQueueFamilyIndex = 0;
+		for (auto& prop : m_queueFamilyProps[m_defaultPDIndex])
+		{
+			if (prop.queueFlags && VK_QUEUE_GRAPHICS_BIT)
+				m_graphicQueueFamilyIndex = graphicQueueFamilyIndex;
+			else ++graphicQueueFamilyIndex;			
+		}
+
+		_exit_log(m_graphicQueueFamilyIndex == -1, "Can't find any valid Graphic Queue Family!");
+		
 		VkDeviceQueueCreateInfo deviceQueueCreateInfo = {};
 		deviceQueueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-		deviceQueueCreateInfo.queueFamilyIndex = _index_0;       // First queue family.
-		deviceQueueCreateInfo.queueCount = _count_1;             // Only one queue to use.
-		deviceQueueCreateInfo.pQueuePriorities = nullptr;        // Default priority. 
+		deviceQueueCreateInfo.queueFamilyIndex = m_graphicQueueFamilyIndex;       // Graphic Queue Family.
+		deviceQueueCreateInfo.queueCount = _count_1;                              // Only one queue to use.
+		deviceQueueCreateInfo.pQueuePriorities = nullptr;                         // Default priority. 
 
 		// Set required physical device features.
 		m_requiredPDFeatures.multiDrawIndirect = m_physicalDevicesFeatures[m_defaultPDIndex].multiDrawIndirect;
@@ -171,28 +198,43 @@ void BaseLayer::Init()
 		_vk_try(vkCreateDevice(m_physicalDevices[m_defaultPDIndex], &deviceCreateInfo, nullptr, &vkDevice));
 		Global::SetVkDevice(vkDevice);
 
-		vkGetDeviceQueue(Global::GetVkDevice(), _index_0, _index_0, &m_queue);
+		vkGetDeviceQueue(Global::GetVkDevice(), m_graphicQueueFamilyIndex, _index_0, &m_queue);
 
 		VkCommandPoolCreateInfo cmdPoolCreateInfo = {};
 		cmdPoolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
 		cmdPoolCreateInfo.flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT & VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-		cmdPoolCreateInfo.queueFamilyIndex = _index_0;
+		cmdPoolCreateInfo.queueFamilyIndex = m_graphicQueueFamilyIndex;
 
 		_vk_try(vkCreateCommandPool(Global::GetVkDevice(), &cmdPoolCreateInfo, nullptr, m_pCmdPool));
 
-		VkBool32 bIsDefaultQueueSupportPresentation = vkGetPhysicalDeviceWin32PresentationSupportKHR(m_physicalDevices[m_defaultPDIndex], 2);
+#if VK_USE_PLATFORM_WIN32_KHR
+
+		VkBool32 bIsDefaultQueueSupportPresentation = vkGetPhysicalDeviceWin32PresentationSupportKHR(m_physicalDevices[m_defaultPDIndex], m_graphicQueueFamilyIndex);
 		_exit_log(bIsDefaultQueueSupportPresentation == VK_FALSE, "The Default Queue Do Not Support Presentation!");
 		
-		for (auto& prop : m_PDExtProps[m_defaultPDIndex])
-		{
-			_exit_log(prop.extensionName == VK_KHR_SWAPCHAIN_EXTENSION_NAME, "hahahaha!");
-		}
+		m_window = new Window;
+		VkWin32SurfaceCreateInfoKHR win32SurfaceCreateInfo = {};
+		win32SurfaceCreateInfo.sType = VK_STRUCTURE_TYPE_DISPLAY_SURFACE_CREATE_INFO_KHR;
+		win32SurfaceCreateInfo.hinstance = (HINSTANCE)m_window->GetHinstance();
+		win32SurfaceCreateInfo.hwnd = (HWND)m_window->GetHwnd();
+
+		_vk_try(vkCreateWin32SurfaceKHR(Global::GetVkInstance(), &win32SurfaceCreateInfo, nullptr, &m_surface));
+
+		m_window->Show();
+
+#endif
 	}
 
 }
 
 void BaseLayer::Free()
 {
+	if (m_window != nullptr)
+	{
+		delete m_window;
+		m_window = nullptr;
+	}
+
 #if 0
 	if (Global::IsDestroyManually())
 	{

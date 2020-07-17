@@ -8,6 +8,17 @@
 #include "VkSmartPtr.h"
 #include "BaseAllocator.h"
 
+class Window;
+
+namespace BaseLayerConfig
+{
+	static const char* EnableExtensions[] = 
+	{ 
+		// VK_KHR_SURFACE_EXTENSION_NAME, 
+		VK_KHR_WIN32_SURFACE_EXTENSION_NAME
+	};
+}
+
 class BaseLayer
 {
 
@@ -35,9 +46,15 @@ protected:
 protected:
 
 	VkQueue       m_queue = VK_NULL_HANDLE;
+	VkSurfaceKHR  m_surface = VK_NULL_HANDLE;
 
 	int32_t                                           m_defaultPDIndex = -1;
+	int32_t                                           m_graphicQueueFamilyIndex = -1;
 	VkPhysicalDeviceFeatures                          m_requiredPDFeatures = {};
+
+	std::vector<const char*>                          m_supportEnableExts;
+
+	Window*                                           m_window = nullptr;
 
 protected:
 

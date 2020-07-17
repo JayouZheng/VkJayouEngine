@@ -5,9 +5,11 @@
 #pragma once
 
 #include <string>
+#include <cstring>
 #include <iostream>
 #include <cassert>
 #include <vector>
+#include <array>
 #include <memory>
 #include <type_traits>
 
@@ -19,6 +21,11 @@
 #pragma comment(lib, "vulkan-1.lib")
 
 #define _assert(x) assert(x)
+
+// Size of a static C-style array. Don't use on pointers!
+#define _array_size(x)          ((int)(sizeof(x) / sizeof(*x)))
+
+#define _is_cstr_equal(str1, str2) !strcmp(str1, str2)
 
 #define _cmd_print_line(str) std::cout << str << std::endl
 #define _cmd_print_line_ws(str) std::wcout << str << std::endl

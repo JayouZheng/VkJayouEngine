@@ -10,6 +10,7 @@
     <ClCompile Include="BaseLayer.cpp" />
     <ClCompile Include="BaseAllocator.cpp" />
     <ClCompile Include="Global.cpp" />
+    <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="vk_app.h" />
@@ -24,5 +25,9 @@
     <ClInclude Include="VkSmartPtr.h" />
     <ClInclude Include="Global.h" />
     <ClInclude Include="Platform.h" />
+    <ClInclude Include="Window.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="resource.rc" />
   </ItemGroup>
 </Project>

@@ -162,6 +162,7 @@
     <ClCompile Include="Global.cpp" />
     <ClCompile Include="LogicalDevice.cpp" />
     <ClCompile Include="vk_app.cpp" />
+    <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseAllocator.h" />
@@ -175,12 +176,16 @@
     <ClInclude Include="vk_app.h" />
     <ClInclude Include="VkSmartPtr.h" />
     <ClInclude Include="vk_util.h" />
+    <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="app_allocator.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="resource.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
