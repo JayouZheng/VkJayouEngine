@@ -62,4 +62,17 @@ namespace Util
 		0,                           // baseArrayLayer
 		VK_REMAINING_ARRAY_LAYERS    // layerCount
 	};
+
+	template<typename TType, typename TLambda>
+	bool IsVecContain(const std::vector<TType>& InVecContain, const TType& InMember, const TLambda& InCompare)
+	{
+		for (auto& member : InVecContain)
+		{
+			if (InCompare(member, InMember))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
 }

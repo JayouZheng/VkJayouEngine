@@ -30,7 +30,7 @@ public:
 
 	VkSmartPtr()
 	{
-		_ptr_cnt = new VkCounter<T>(new T);
+		_ptr_cnt = new VkCounter<T>(nullptr);
 	}
 
 	VkSmartPtr(T *ptr)
@@ -125,24 +125,31 @@ private:
 		
 #define _vk_destroy(object) if (std::is_same<Vk##object, T>::value) vkDestroy##object(Global::GetVkDevice(), (Vk##object)*_ptr, _allocation_callback)
 
-		_vk_destroy(Fence);
-		_vk_destroy(Semaphore);
-		_vk_destroy(Event);
-		_vk_destroy(QueryPool);
-		_vk_destroy(Buffer);
-		_vk_destroy(BufferView);
-		_vk_destroy(Image);
-		_vk_destroy(ImageView);
-		_vk_destroy(ShaderModule);
-		_vk_destroy(PipelineCache);
-		_vk_destroy(Pipeline);
-		_vk_destroy(PipelineLayout);
-		_vk_destroy(Sampler);
-		_vk_destroy(DescriptorSetLayout);
-		_vk_destroy(DescriptorPool);
-		_vk_destroy(Framebuffer);
-		_vk_destroy(RenderPass);
-		_vk_destroy(CommandPool);
+		if (_ptr != nullptr)
+		{
+			_vk_destroy(Fence);
+			_vk_destroy(Semaphore);
+			_vk_destroy(Event);
+			_vk_destroy(QueryPool);
+			_vk_destroy(Buffer);
+			_vk_destroy(BufferView);
+			_vk_destroy(Image);
+			_vk_destroy(ImageView);
+			_vk_destroy(ShaderModule);
+			_vk_destroy(PipelineCache);
+			_vk_destroy(Pipeline);
+			_vk_destroy(PipelineLayout);
+			_vk_destroy(Sampler);
+			_vk_destroy(DescriptorSetLayout);
+			_vk_destroy(DescriptorPool);
+			_vk_destroy(Framebuffer);
+			_vk_destroy(RenderPass);
+			_vk_destroy(CommandPool);
+
+			_vk_destroy(SwapchainKHR);
+
+			delete _ptr;
+		}
 
 		Global::Decrease();
 
@@ -152,9 +159,8 @@ private:
 			BaseAllocator* temp = Global::GetGlobalAllocator();
 			vkDestroyInstance(Global::GetVkInstance(), &(VkAllocationCallbacks)*temp);
 			Global::SafeFreeGlobalAllocator();
-		}	
-
-		delete _ptr;
+		}
+		
 	}
 };
 

@@ -163,10 +163,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 				int width = 800;
 				int height = 600;
-				if (app)
+				//if (app)
 					//app->GetDefaultSize(width, height);
 
-					ShowWindow(hWnd, SW_SHOWNORMAL);
+				ShowWindow(hWnd, SW_SHOWNORMAL);
 
 				SetWindowPos(hWnd, HWND_TOP, 0, 0, width, height, SWP_NOMOVE | SWP_NOZORDER | SWP_FRAMECHANGED);
 			}
@@ -276,6 +276,12 @@ Window::Window()
 	}
 }
 
+Window::Window(const WindowDesc& InWindoWDesc)
+	: m_defaultDesc(InWindoWDesc)
+{
+
+}
+
 Window::~Window()
 {
 
@@ -289,6 +295,16 @@ void* Window::GetHinstance() const
 void* Window::GetHwnd() const
 {
 	return m_hwnd;
+}
+
+Window::WindowDesc Window::GetWindowDesc() const
+{
+	return m_defaultDesc;
+}
+
+void Window::SetWindowDesc(const WindowDesc& InWindoWDesc)
+{
+	m_defaultDesc = InWindoWDesc;
 }
 
 void Window::Show()

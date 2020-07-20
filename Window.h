@@ -5,6 +5,7 @@
 #pragma once
 
 #include "Platform.h"
+#include <cstdint>
 
 #if VK_USE_PLATFORM_WIN32_KHR
 
@@ -15,19 +16,23 @@ public:
 
 	struct WindowDesc
 	{		
-		int Width;
-		int Height;
+		uint32_t Width;
+		uint32_t Height;
 	};
 
 public:
 
 	Window();
+	Window(const WindowDesc& InWindoWDesc);
 	~Window();
 
 public:
 
 	void* GetHinstance() const;
 	void* GetHwnd() const;
+
+	WindowDesc GetWindowDesc() const;
+	void SetWindowDesc(const WindowDesc& InWindoWDesc);
 
 	void Show();
 
@@ -36,7 +41,7 @@ protected:
 	void* m_hinstance = nullptr;
 	void* m_hwnd = nullptr;
 
-	const WindowDesc m_defaultDesc = 
+	WindowDesc m_defaultDesc = 
 	{
 		1280,
 		720

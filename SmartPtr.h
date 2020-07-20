@@ -21,7 +21,7 @@ public:
 
 	SmartPtr()
 	{
-		_ptr_cnt = new Counter<T>(new T);
+		_ptr_cnt = new Counter<T>(nullptr);
 	}
 
 	SmartPtr(T *ptr)
@@ -108,7 +108,10 @@ private:
 
 	~Counter()
 	{
-		delete _ptr;
+		if (_ptr != nullptr)
+		{
+			delete _ptr;
+		}		
 	}
 };
 

@@ -27,6 +27,12 @@
 
 #define _is_cstr_equal(str1, str2) !strcmp(str1, str2)
 
+#define _lambda_is_cstr_equal [&](const char* a, const char* b) { return _is_cstr_equal(a, b); }
+
+#define _lambda_is_equal(Type) [&](const Type& a, const Type& b) { return a == b; }
+
+#define _lambda_is_surface_format_equal [&](const VkSurfaceFormatKHR& a, const VkSurfaceFormatKHR& b) { return (a.format == b.format) && (a.colorSpace == b.colorSpace); }
+
 #define _cmd_print_line(str) std::cout << str << std::endl
 #define _cmd_print_line_ws(str) std::wcout << str << std::endl
 

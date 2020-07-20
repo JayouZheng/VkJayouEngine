@@ -4,7 +4,6 @@
 
 #include "BaseLayer.h"
 #include "Global.h"
-#include "Window.h"
 
 BaseLayer::BaseLayer()
 {
@@ -24,6 +23,9 @@ BaseLayer::~BaseLayer()
 
 void BaseLayer::Init()
 {
+	// Global Variable.
+	uint32_t numEnableExts = _array_size(BaseLayerConfig::EnableExtensions);
+
 	// Create VK Instance & Physical Devices & Query Infos.
 	{
 		// Enum instance layer props.
@@ -48,16 +50,15 @@ void BaseLayer::Init()
 			}
 		}
 
-		// Check Extensions Support.		
-		{
-			int NumEnableExts = _array_size(BaseLayerConfig::EnableExtensions);
+		// Check Instance Extensions Support.
+		{			
 			for (auto& prop : m_instanceExtProps)
 			{				
-				for (int i = 0; i < NumEnableExts; ++i)
+				for (uint32_t i = 0; i < numEnableExts; ++i)
 				{
 					if (_is_cstr_equal(prop.extensionName, BaseLayerConfig::EnableExtensions[i]))
 					{
-						m_supportEnableExts.push_back(BaseLayerConfig::EnableExtensions[i]);
+						m_supportInsExts.push_back(BaseLayerConfig::EnableExtensions[i]);
 					}
 				}
 			}
@@ -74,8 +75,13 @@ void BaseLayer::Init()
 		instanceCreateInfo.pApplicationInfo = &appInfo;
 		instanceCreateInfo.enabledLayerCount = _count_0;
 		instanceCreateInfo.ppEnabledLayerNames = nullptr;
-		instanceCreateInfo.enabledExtensionCount = (uint32_t)m_supportEnableExts.size();
-		instanceCreateInfo.ppEnabledExtensionNames = m_supportEnableExts.data();
+
+		// Enable Instance Exts.
+		{
+			uint32_t numInsSupportExts = (uint32_t)m_supportInsExts.size();
+			instanceCreateInfo.enabledExtensionCount = numInsSupportExts;
+			instanceCreateInfo.ppEnabledExtensionNames = numInsSupportExts > 0 ? m_supportInsExts.data() : nullptr;
+		}
 
 		VkInstance vkInstance = VK_NULL_HANDLE;
 		_vk_try(vkCreateInstance(&instanceCreateInfo, &(VkAllocationCallbacks)*m_allocator, &vkInstance));
@@ -163,7 +169,7 @@ void BaseLayer::Init()
 	// Create VK Logical Devices & Get Queue & Create Command Pool.
 	{
 		// Find Graphic Queue Family.
-		int graphicQueueFamilyIndex = 0;
+		int32_t graphicQueueFamilyIndex = 0;
 		for (auto& prop : m_queueFamilyProps[m_defaultPDIndex])
 		{
 			if (prop.queueFlags && VK_QUEUE_GRAPHICS_BIT)
@@ -181,8 +187,22 @@ void BaseLayer::Init()
 
 		// Set required physical device features.
 		m_requiredPDFeatures.multiDrawIndirect = m_physicalDevicesFeatures[m_defaultPDIndex].multiDrawIndirect;
-		m_requiredPDFeatures.tessellationShader = VK_TRUE;
-		m_requiredPDFeatures.geometryShader = VK_TRUE;
+		m_requiredPDFeatures.tessellationShader = m_physicalDevicesFeatures[m_defaultPDIndex].tessellationShader;
+		m_requiredPDFeatures.geometryShader = m_physicalDevicesFeatures[m_defaultPDIndex].geometryShader;
+
+		// Check PD Extensions Support.
+		{
+			for (auto& prop : m_PDExtProps[m_defaultPDIndex])
+			{
+				for (uint32_t i = 0; i < numEnableExts; ++i)
+				{
+					if (_is_cstr_equal(prop.extensionName, BaseLayerConfig::EnableExtensions[i]))
+					{
+						m_supportPDExts.push_back(BaseLayerConfig::EnableExtensions[i]);
+					}
+				}
+			}
+		}
 
 		VkDeviceCreateInfo deviceCreateInfo = {};
 		deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -191,8 +211,13 @@ void BaseLayer::Init()
 		deviceCreateInfo.pEnabledFeatures = &m_requiredPDFeatures;
 		deviceCreateInfo.enabledLayerCount = _count_0;
 		deviceCreateInfo.ppEnabledLayerNames = nullptr;
-		deviceCreateInfo.enabledExtensionCount = _count_0;
-		deviceCreateInfo.ppEnabledExtensionNames = nullptr;
+
+		// Enable PD Exts.
+		{
+			uint32_t numPDSupportExts = (uint32_t)m_supportPDExts.size();
+			deviceCreateInfo.enabledExtensionCount = numPDSupportExts;
+			deviceCreateInfo.ppEnabledExtensionNames = numPDSupportExts > 0 ? m_supportPDExts.data() : nullptr;
+		}
 
 		VkDevice vkDevice = VK_NULL_HANDLE;
 		_vk_try(vkCreateDevice(m_physicalDevices[m_defaultPDIndex], &deviceCreateInfo, nullptr, &vkDevice));
@@ -205,36 +230,102 @@ void BaseLayer::Init()
 		cmdPoolCreateInfo.flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT & VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 		cmdPoolCreateInfo.queueFamilyIndex = m_graphicQueueFamilyIndex;
 
+		m_pCmdPool = new VkCommandPool;
 		_vk_try(vkCreateCommandPool(Global::GetVkDevice(), &cmdPoolCreateInfo, nullptr, m_pCmdPool));
 
 #if VK_USE_PLATFORM_WIN32_KHR
 
-		VkBool32 bIsDefaultQueueSupportPresentation = vkGetPhysicalDeviceWin32PresentationSupportKHR(m_physicalDevices[m_defaultPDIndex], m_graphicQueueFamilyIndex);
-		_exit_log(bIsDefaultQueueSupportPresentation == VK_FALSE, "The Default Queue Do Not Support Presentation!");
+		// Create Win32 Surface.
+		if (Util::IsVecContain<const char*>(m_supportInsExts, VK_KHR_WIN32_SURFACE_EXTENSION_NAME, _lambda_is_cstr_equal))
+		{
+			VkBool32 bIsDefaultQueueSupportPresentation = vkGetPhysicalDeviceWin32PresentationSupportKHR(m_physicalDevices[m_defaultPDIndex], m_graphicQueueFamilyIndex);
+			_exit_log(bIsDefaultQueueSupportPresentation == VK_FALSE, "The Default Queue Do Not Support Presentation!");
+
+			m_window = new Window;
+			VkWin32SurfaceCreateInfoKHR win32SurfaceCreateInfo = {};
+			win32SurfaceCreateInfo.sType = VK_STRUCTURE_TYPE_DISPLAY_SURFACE_CREATE_INFO_KHR;
+			win32SurfaceCreateInfo.hinstance = (HINSTANCE)m_window->GetHinstance();
+			win32SurfaceCreateInfo.hwnd = (HWND)m_window->GetHwnd();
+
+			_vk_try(vkCreateWin32SurfaceKHR(Global::GetVkInstance(), &win32SurfaceCreateInfo, nullptr, &m_surface));
+
+			// m_window->Show();
+		}
 		
-		m_window = new Window;
-		VkWin32SurfaceCreateInfoKHR win32SurfaceCreateInfo = {};
-		win32SurfaceCreateInfo.sType = VK_STRUCTURE_TYPE_DISPLAY_SURFACE_CREATE_INFO_KHR;
-		win32SurfaceCreateInfo.hinstance = (HINSTANCE)m_window->GetHinstance();
-		win32SurfaceCreateInfo.hwnd = (HWND)m_window->GetHwnd();
-
-		_vk_try(vkCreateWin32SurfaceKHR(Global::GetVkInstance(), &win32SurfaceCreateInfo, nullptr, &m_surface));
-
-		m_window->Show();
-
 #endif
+
+		// Create Swapchain. // OnResize Recreate Needed!!!
+		if (Util::IsVecContain<const char*>(m_supportPDExts, VK_KHR_SWAPCHAIN_EXTENSION_NAME, _lambda_is_cstr_equal))
+		{
+			m_swapchainCreateInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+			m_swapchainCreateInfo.surface = m_surface;
+			m_swapchainCreateInfo.imageArrayLayers = 1;    // Only 1 Layer.
+			m_swapchainCreateInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+			m_swapchainCreateInfo.queueFamilyIndexCount = 0;
+			m_swapchainCreateInfo.pQueueFamilyIndices = nullptr;
+			m_swapchainCreateInfo.presentMode = BaseLayerConfig::SwapchainCreateInfo.presentMode;
+			m_swapchainCreateInfo.clipped = BaseLayerConfig::SwapchainCreateInfo.clipped;
+			m_swapchainCreateInfo.oldSwapchain = nullptr;  // First time to Create.
+
+			// Check Support Surface Format For Swapchain.
+			{
+				uint32_t formatCount = _count_0;
+				_vk_try(vkGetPhysicalDeviceSurfaceFormatsKHR(m_physicalDevices[m_defaultPDIndex], m_surface, &formatCount, nullptr));
+				_exit_log(formatCount == 0, "No Surface Format Support!");
+
+				m_surfaceFormats.resize(formatCount);
+				_vk_try(vkGetPhysicalDeviceSurfaceFormatsKHR(m_physicalDevices[m_defaultPDIndex], m_surface, &formatCount, m_surfaceFormats.data()));
+
+				m_swapchainCreateInfo.imageFormat = m_surfaceFormats.front().format;
+				m_swapchainCreateInfo.imageColorSpace = m_surfaceFormats.front().colorSpace;
+
+				if (Util::IsVecContain<VkSurfaceFormatKHR>(m_surfaceFormats, BaseLayerConfig::SwapchainCreateInfo.surfaceFormat, _lambda_is_surface_format_equal))
+				{
+					m_swapchainCreateInfo.imageFormat = BaseLayerConfig::SwapchainCreateInfo.surfaceFormat.format;
+					m_swapchainCreateInfo.imageColorSpace = BaseLayerConfig::SwapchainCreateInfo.surfaceFormat.colorSpace;
+				}
+			}
+
+			// Query Surface Capabilities.
+			{
+				_vk_try(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_physicalDevices[m_defaultPDIndex], m_surface, &m_surfaceCapabilities));
+
+				m_swapchainCreateInfo.imageExtent = m_surfaceCapabilities.currentExtent;
+
+				if ((BaseLayerConfig::SwapchainCreateInfo.frameCount > m_surfaceCapabilities.minImageCount) && 
+					(BaseLayerConfig::SwapchainCreateInfo.frameCount < m_surfaceCapabilities.maxImageCount))
+					m_swapchainCreateInfo.minImageCount = BaseLayerConfig::SwapchainCreateInfo.frameCount;
+				else m_swapchainCreateInfo.minImageCount = m_surfaceCapabilities.minImageCount;
+
+				_exit_log(!(m_surfaceCapabilities.supportedUsageFlags & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT), "Surface Do Not Support Color Attachment Usage!");
+				m_swapchainCreateInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT & BaseLayerConfig::SwapchainCreateInfo.imageUsage;
+
+				if (BaseLayerConfig::SwapchainCreateInfo.surfacePreTransform & m_surfaceCapabilities.supportedTransforms)
+					m_swapchainCreateInfo.preTransform = BaseLayerConfig::SwapchainCreateInfo.surfacePreTransform;
+				else m_swapchainCreateInfo.preTransform = m_surfaceCapabilities.currentTransform;
+
+				if (BaseLayerConfig::SwapchainCreateInfo.compositeAlpha & m_surfaceCapabilities.supportedCompositeAlpha)
+					m_swapchainCreateInfo.compositeAlpha = BaseLayerConfig::SwapchainCreateInfo.compositeAlpha;
+				else m_swapchainCreateInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+			}
+			
+			m_pSwapchainKHR = new VkSwapchainKHR;
+			_vk_try(vkCreateSwapchainKHR(vkDevice, &m_swapchainCreateInfo, nullptr, m_pSwapchainKHR));
+
+			uint32_t swapchainImageCount = _count_0;
+			_vk_try(vkGetSwapchainImagesKHR(Global::GetVkDevice(), *m_pSwapchainKHR, &swapchainImageCount, nullptr));
+			m_swapchainImages.resize(swapchainImageCount);
+			_vk_try(vkGetSwapchainImagesKHR(Global::GetVkDevice(), *m_pSwapchainKHR, &swapchainImageCount, m_swapchainImages.data()));
+
+			// _vk_try(vkAcquireNextImageKHR(Global::GetVkDevice(), *m_pSwapchainKHR, timeout, semaphore, fence, pImageIndex));
+		}
+
 	}
 
 }
 
 void BaseLayer::Free()
 {
-	if (m_window != nullptr)
-	{
-		delete m_window;
-		m_window = nullptr;
-	}
-
 #if 0
 	if (Global::IsDestroyManually())
 	{
