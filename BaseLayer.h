@@ -8,6 +8,8 @@
 #include "VkSmartPtr.h"
 #include "BaseAllocator.h"
 #include "Window.h"
+#include "LogicalDevice.h"
+#include "CommandQueue.h"
 
 namespace BaseLayerConfig
 {
@@ -89,7 +91,8 @@ protected:
 
 protected:
 
-	VkQueue       m_queue = VK_NULL_HANDLE;
+	LogicalDevice m_device = VK_NULL_HANDLE;
+	CommandQueue  m_queue = VK_NULL_HANDLE;
 	VkSurfaceKHR  m_surface = VK_NULL_HANDLE;
 
 	int32_t                                           m_defaultPDIndex = -1;

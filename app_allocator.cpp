@@ -20,7 +20,7 @@ void* app_allocator::Allocation(
 	VkSystemAllocationScope allocationScope)
 {
 	m_allocCount++;
-	_cmd_print_line("Allocation Scope: " + std::to_string(allocationScope));
+	//_cmd_print_line("Allocation Scope: " + std::to_string(allocationScope));
 	return _aligned_malloc(size, alignment);
 }
 
@@ -31,13 +31,13 @@ void* app_allocator::Reallocation(
 	VkSystemAllocationScope allocationScope)
 {
 	m_reallocCount++;
-	_cmd_print_line("Reallocation Scope: " + std::to_string(allocationScope));
+	//_cmd_print_line("Reallocation Scope: " + std::to_string(allocationScope));
 	return _aligned_realloc(pOriginal, size, alignment);
 }
 
 void app_allocator::Free(void* pMemory)
 {
 	m_freeCount++;
-	_cmd_print_line("Free");
+	//_cmd_print_line("Free");
 	_aligned_free(pMemory);
 }

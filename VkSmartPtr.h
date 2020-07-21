@@ -128,7 +128,7 @@ private:
 		if (_ptr != nullptr)
 		{
 			_vk_destroy(Fence);
-			_vk_destroy(Semaphore);
+			_vk_destroy(Semaphore); // Should Wait for all reference Object freed...
 			_vk_destroy(Event);
 			_vk_destroy(QueryPool);
 			_vk_destroy(Buffer);
@@ -146,6 +146,7 @@ private:
 			_vk_destroy(RenderPass);
 			_vk_destroy(CommandPool);
 
+			// Using Semaphore...
 			_vk_destroy(SwapchainKHR);
 
 			delete _ptr;

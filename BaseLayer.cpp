@@ -222,16 +222,11 @@ void BaseLayer::Init()
 		VkDevice vkDevice = VK_NULL_HANDLE;
 		_vk_try(vkCreateDevice(m_physicalDevices[m_defaultPDIndex], &deviceCreateInfo, nullptr, &vkDevice));
 		Global::SetVkDevice(vkDevice);
+		m_device = Global::GetLogicalDevice();
 
-		vkGetDeviceQueue(Global::GetVkDevice(), m_graphicQueueFamilyIndex, _index_0, &m_queue);
+		m_queue = m_device.GetQueue(m_graphicQueueFamilyIndex);
 
-		VkCommandPoolCreateInfo cmdPoolCreateInfo = {};
-		cmdPoolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-		cmdPoolCreateInfo.flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT & VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-		cmdPoolCreateInfo.queueFamilyIndex = m_graphicQueueFamilyIndex;
-
-		m_pCmdPool = new VkCommandPool;
-		_vk_try(vkCreateCommandPool(Global::GetVkDevice(), &cmdPoolCreateInfo, nullptr, m_pCmdPool));
+		m_pCmdPool = m_device.CreateCommandPool(m_graphicQueueFamilyIndex);
 
 #if VK_USE_PLATFORM_WIN32_KHR
 
@@ -239,7 +234,7 @@ void BaseLayer::Init()
 		if (Util::IsVecContain<const char*>(m_supportInsExts, VK_KHR_WIN32_SURFACE_EXTENSION_NAME, _lambda_is_cstr_equal))
 		{
 			VkBool32 bIsDefaultQueueSupportPresentation = vkGetPhysicalDeviceWin32PresentationSupportKHR(m_physicalDevices[m_defaultPDIndex], m_graphicQueueFamilyIndex);
-			_exit_log(bIsDefaultQueueSupportPresentation == VK_FALSE, "The Default Queue Do Not Support Presentation!");
+			_exit_log(bIsDefaultQueueSupportPresentation == VK_FALSE, "The Default Queue Do Not Support Presentation (Win32)!");
 
 			m_window = new Window;
 			VkWin32SurfaceCreateInfoKHR win32SurfaceCreateInfo = {};
@@ -248,8 +243,6 @@ void BaseLayer::Init()
 			win32SurfaceCreateInfo.hwnd = (HWND)m_window->GetHwnd();
 
 			_vk_try(vkCreateWin32SurfaceKHR(Global::GetVkInstance(), &win32SurfaceCreateInfo, nullptr, &m_surface));
-
-			// m_window->Show();
 		}
 		
 #endif
@@ -309,16 +302,24 @@ void BaseLayer::Init()
 				else m_swapchainCreateInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
 			}
 			
-			m_pSwapchainKHR = new VkSwapchainKHR;
-			_vk_try(vkCreateSwapchainKHR(vkDevice, &m_swapchainCreateInfo, nullptr, m_pSwapchainKHR));
+			m_pSwapchainKHR = m_device.CreateSwapchainKHR(m_swapchainCreateInfo);
 
 			uint32_t swapchainImageCount = _count_0;
-			_vk_try(vkGetSwapchainImagesKHR(Global::GetVkDevice(), *m_pSwapchainKHR, &swapchainImageCount, nullptr));
+			m_device.GetSwapchainImagesKHR(*m_pSwapchainKHR, &swapchainImageCount, nullptr);
 			m_swapchainImages.resize(swapchainImageCount);
-			_vk_try(vkGetSwapchainImagesKHR(Global::GetVkDevice(), *m_pSwapchainKHR, &swapchainImageCount, m_swapchainImages.data()));
+			m_device.GetSwapchainImagesKHR(*m_pSwapchainKHR, &swapchainImageCount, m_swapchainImages.data());
 
-			// _vk_try(vkAcquireNextImageKHR(Global::GetVkDevice(), *m_pSwapchainKHR, timeout, semaphore, fence, pImageIndex));
+			// This Code May Be Redundant... Win32 Surface Presentation Support Has Been Queried.
+			{
+				VkBool32 surfacePresentationSupport = VK_FALSE;
+				_vk_try(vkGetPhysicalDeviceSurfaceSupportKHR(m_physicalDevices[m_defaultPDIndex], m_graphicQueueFamilyIndex, m_surface, &surfacePresentationSupport));
+				_exit_log(surfacePresentationSupport == VK_FALSE, "The Default Queue Do Not Support Presentation!");
+			}
+			
 		}
+		else _exit_log(true, "Create Swapchain Failed! Application Terminate!");
+
+		// m_window->Show();
 
 	}
 
