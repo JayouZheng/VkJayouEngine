@@ -25,7 +25,7 @@ private:
 
 private:
 
-	uint32_t m_allocCount = 0;
-	uint32_t m_reallocCount = 0;
-	uint32_t m_freeCount = 0;
+	uint32 m_allocCount = 0;
+	uint32 m_reallocCount = 0;
+	uint32 m_freeCount = 0;
 };

@@ -19,8 +19,8 @@ vk_app::~vk_app()
 
 void vk_app::Begin()
 {
-	Global::SetGlobalAllocator(new app_allocator);
-	BaseLayer base(Global::GetGlobalAllocator());
+	Global::SetAllocator(new app_allocator);
+	BaseLayer base(Global::GetAllocator());
 	base.Init();
 	base.Free();
 }

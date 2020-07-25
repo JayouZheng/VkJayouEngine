@@ -41,40 +41,40 @@ public:
 public:
 
 	// Buffer.
-	void CopyBuffer(VkBuffer InSrcBuffer, VkBuffer InDstBuffer);
-	void CopyBuffer(VkBuffer InSrcBuffer, VkBuffer InDstBuffer, const VkBufferCopy& InRegion);	
-	void CopyBuffer(VkBuffer InSrcBuffer, VkBuffer InDstBuffer, uint32_t InRegionCount, const VkBufferCopy* InRegions);
+	void CopyBuffer             (VkBuffer InSrcBuffer, VkBuffer InDstBuffer);
+	void CopyBuffer             (VkBuffer InSrcBuffer, VkBuffer InDstBuffer, const VkBufferCopy& InRegion);	
+	void CopyBuffer             (VkBuffer InSrcBuffer, VkBuffer InDstBuffer, uint32 InRegionCount, const VkBufferCopy* InRegions);
 
-	void ClearBufferUint32(VkBuffer InBuffer, const uint32_t InValue);
-	void ClearBufferFloat (VkBuffer InBuffer, const float    InValue);
-	void ClearBufferUint32(VkBuffer InBuffer, VkDeviceSize InOffset, VkDeviceSize InSize, const uint32_t InValue);
-	void ClearBufferFloat (VkBuffer InBuffer, VkDeviceSize InOffset, VkDeviceSize InSize, const float    InValue);
+	void ClearBufferUint32      (VkBuffer InBuffer, const uint32 InValue);
+	void ClearBufferFloat       (VkBuffer InBuffer, const float    InValue);
+	void ClearBufferUint32      (VkBuffer InBuffer, VkDeviceSize InOffset, VkDeviceSize InSize, const uint32 InValue);
+	void ClearBufferFloat       (VkBuffer InBuffer, VkDeviceSize InOffset, VkDeviceSize InSize, const float    InValue);
 
-	void UpdateBuffer(VkBuffer InBuffer, VkDeviceSize InOffset, VkDeviceSize InSize, const void* InData);
+	void UpdateBuffer           (VkBuffer InBuffer, VkDeviceSize InOffset, VkDeviceSize InSize, const void* InData);
 
 	// Image.
-	void CopyBufferToImage(VkBuffer InSrcBuffer, VkImage InDstImage, uint32_t InWidth, uint32_t InHeight, VkImageAspectFlags InAspectMask = VK_IMAGE_ASPECT_COLOR_BIT);
-	void CopyBufferToImage(VkBuffer InSrcBuffer, VkImage InDstImage, const VkBufferImageCopy& InRegion);
-	void CopyBufferToImage(VkBuffer InSrcBuffer, VkImage InDstImage, uint32_t InRegionCount, const VkBufferImageCopy* InRegions);
+	void CopyBufferToImage      (VkBuffer InSrcBuffer, VkImage InDstImage, uint32 InWidth, uint32 InHeight, VkImageAspectFlags InAspectMask = VK_IMAGE_ASPECT_COLOR_BIT);
+	void CopyBufferToImage      (VkBuffer InSrcBuffer, VkImage InDstImage, const VkBufferImageCopy& InRegion);
+	void CopyBufferToImage      (VkBuffer InSrcBuffer, VkImage InDstImage, uint32 InRegionCount, const VkBufferImageCopy* InRegions);
 
-	void CopyImageToBuffer(VkImage InSrcImage, uint32_t InWidth, uint32_t InHeight, VkBuffer InDstBuffer, VkImageAspectFlags InAspectMask = VK_IMAGE_ASPECT_COLOR_BIT);
-	void CopyImageToBuffer(VkImage InSrcImage, VkBuffer InDstBuffer, const VkBufferImageCopy& InRegion);
-	void CopyImageToBuffer(VkImage InSrcImage, VkBuffer InDstBuffer, uint32_t InRegionCount, const VkBufferImageCopy* InRegions);
+	void CopyImageToBuffer      (VkImage InSrcImage, uint32 InWidth, uint32 InHeight, VkBuffer InDstBuffer, VkImageAspectFlags InAspectMask = VK_IMAGE_ASPECT_COLOR_BIT);
+	void CopyImageToBuffer      (VkImage InSrcImage, VkBuffer InDstBuffer, const VkBufferImageCopy& InRegion);
+	void CopyImageToBuffer      (VkImage InSrcImage, VkBuffer InDstBuffer, uint32 InRegionCount, const VkBufferImageCopy* InRegions);
 
-	void CopyImage(VkImage InSrcImage, VkImage InDstImage, uint32_t InWidth, uint32_t InHeight, VkImageAspectFlags InAspectMask = VK_IMAGE_ASPECT_COLOR_BIT);
-	void CopyImage(VkImage InSrcImage, VkImage InDstImage, const VkImageCopy& InRegion);
-	void CopyImage(VkImage InSrcImage, VkImage InDstImage, uint32_t InRegionCount, const VkImageCopy* InRegions);
+	void CopyImage              (VkImage InSrcImage, VkImage InDstImage, uint32 InWidth, uint32 InHeight, VkImageAspectFlags InAspectMask = VK_IMAGE_ASPECT_COLOR_BIT);
+	void CopyImage              (VkImage InSrcImage, VkImage InDstImage, const VkImageCopy& InRegion);
+	void CopyImage              (VkImage InSrcImage, VkImage InDstImage, uint32 InRegionCount, const VkImageCopy* InRegions);
 
-	void NonUniformImageCopy(VkImage InSrcImage, VkImage InDstImage, const VkImageBlit& InRegion, VkFilter InFilter);
-	void NonUniformImageCopy(VkImage InSrcImage, VkImage InDstImage, uint32_t InRegionCount, const VkImageBlit* InRegions, VkFilter InFilter);
+	void NonUniformImageCopy    (VkImage InSrcImage, VkImage InDstImage, const VkImageBlit& InRegion, VkFilter InFilter);
+	void NonUniformImageCopy    (VkImage InSrcImage, VkImage InDstImage, uint32 InRegionCount, const VkImageBlit* InRegions, VkFilter InFilter);
 
-	void ClearColorImage(VkImage InImage, const float* InClearColor);
-	void ClearColorImage(VkImage InImage, const VkClearColorValue* InClearColor);
-	void ClearColorImage(VkImage InImage, const VkClearColorValue* InClearColor, const VkImageSubresourceRange& InSubresRange);
-	void ClearColorImage(VkImage InImage, const VkClearColorValue* InClearColor, uint32_t InRangeCount, const VkImageSubresourceRange* InSubresRanges);
+	void ClearColorImage        (VkImage InImage, const float* InClearColor);
+	void ClearColorImage        (VkImage InImage, const VkClearColorValue* InClearColor);
+	void ClearColorImage        (VkImage InImage, const VkClearColorValue* InClearColor, const VkImageSubresourceRange& InSubresRange);
+	void ClearColorImage        (VkImage InImage, const VkClearColorValue* InClearColor, uint32 InRangeCount, const VkImageSubresourceRange* InSubresRanges);
 
-	void ClearDepthStencilImage(VkImage InImage, float InClearDepthValue, uint32_t InClearStencilValue);
-	void ClearDepthStencilImage(VkImage InImage, const VkClearDepthStencilValue* InClearValue);
+	void ClearDepthStencilImage (VkImage InImage, float InClearDepthValue, uint32 InClearStencilValue);
+	void ClearDepthStencilImage (VkImage InImage, const VkClearDepthStencilValue* InClearValue);
 
 #pragma region PiplineBarrier
 
@@ -107,13 +107,13 @@ public:
 		VkPipelineStageFlags InSrcStageMask,
 		VkPipelineStageFlags InDstStageMask,		
 		// Memory Barrier.
-		uint32_t               InMemBarrierCount,
+		uint32               InMemBarrierCount,
 		const VkMemoryBarrier* InMemBarriers,
 		// Buffer Memory Barrier.
-		uint32_t                     InBufferMemBarrierCount,
+		uint32                     InBufferMemBarrierCount,
 		const VkBufferMemoryBarrier* InBufferMemBarriers,
 		// Image Memory Barrier.
-		uint32_t                    InImageMemBarrierCount,
+		uint32                    InImageMemBarrierCount,
 		const VkImageMemoryBarrier* InImageMemoryBarriers,
 		// Dependency Flags
 		VkDependencyFlags           InDependencyFlags = 0);
@@ -134,7 +134,7 @@ public:
 	void MemoryBarriers(
 		VkPipelineStageFlags   InSrcStageMask,
 		VkPipelineStageFlags   InDstStageMask,
-		uint32_t               InMemBarrierCount,
+		uint32               InMemBarrierCount,
 		const VkMemoryBarrier* InMemBarriers,
 		VkDependencyFlags      InDependencyFlags = 0);
 
@@ -149,7 +149,7 @@ public:
 	void BufferBarriers(
 		VkPipelineStageFlags         InSrcStageMask,
 		VkPipelineStageFlags         InDstStageMask,
-		uint32_t                     InBufferMemBarrierCount,
+		uint32                     InBufferMemBarrierCount,
 		const VkBufferMemoryBarrier* InBufferMemBarriers,
 		VkDependencyFlags            InDependencyFlags = 0);
 
@@ -164,7 +164,7 @@ public:
 	void ImageBarriers(
 		VkPipelineStageFlags        InSrcStageMask,
 		VkPipelineStageFlags        InDstStageMask,
-		uint32_t                    InImageMemBarrierCount,
+		uint32                    InImageMemBarrierCount,
 		const VkImageMemoryBarrier* InImageMemBarriers,
 		VkDependencyFlags           InDependencyFlags = 0);
 

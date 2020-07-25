@@ -5,6 +5,11 @@
 #include "BaseLayer.h"
 #include "Global.h"
 
+VkAllocationCallbacks* BaseLayer::GetVkAllocator() const
+{
+	return (m_allocator != nullptr) ? (VkAllocationCallbacks*)m_allocator : nullptr;
+}
+
 BaseLayer::BaseLayer()
 {
 
@@ -24,13 +29,13 @@ BaseLayer::~BaseLayer()
 void BaseLayer::Init()
 {
 	// Global Variable.
-	uint32_t numEnableExts = _array_size(BaseLayerConfig::EnableExtensions);
+	uint32 numEnableExts = _array_size(BaseLayerConfig::EnableExtensions);
 
 	// Create VK Instance & Physical Devices & Query Infos.
 	{
 		// Enum instance layer props.
 		{
-			uint32_t layerPropCount = _count_0;
+			uint32 layerPropCount = _count_0;
 			_vk_try(vkEnumerateInstanceLayerProperties(&layerPropCount, nullptr));
 			if (layerPropCount > 0)
 			{
@@ -41,7 +46,7 @@ void BaseLayer::Init()
 
 		// Query the instance extensions.
 		{
-			uint32_t extCount = _count_0;
+			uint32 extCount = _count_0;
 			_vk_try(vkEnumerateInstanceExtensionProperties(nullptr, &extCount, nullptr));
 			if (extCount > 0)
 			{
@@ -54,7 +59,7 @@ void BaseLayer::Init()
 		{			
 			for (auto& prop : m_instanceExtProps)
 			{				
-				for (uint32_t i = 0; i < numEnableExts; ++i)
+				for (uint32 i = 0; i < numEnableExts; ++i)
 				{
 					if (_is_cstr_equal(prop.extensionName, BaseLayerConfig::EnableExtensions[i]))
 					{
@@ -78,17 +83,17 @@ void BaseLayer::Init()
 
 		// Enable Instance Exts.
 		{
-			uint32_t numInsSupportExts = (uint32_t)m_supportInsExts.size();
+			uint32 numInsSupportExts = (uint32)m_supportInsExts.size();
 			instanceCreateInfo.enabledExtensionCount = numInsSupportExts;
 			instanceCreateInfo.ppEnabledExtensionNames = numInsSupportExts > 0 ? m_supportInsExts.data() : nullptr;
 		}
 
 		VkInstance vkInstance = VK_NULL_HANDLE;
-		_vk_try(vkCreateInstance(&instanceCreateInfo, &(VkAllocationCallbacks)*m_allocator, &vkInstance));
+		_vk_try(vkCreateInstance(&instanceCreateInfo, GetVkAllocator(), &vkInstance));
 		Global::SetVkInstance(vkInstance);
 
 		// Enum physical devices.
-		uint32_t physicalDeviceCount = _count_0;
+		uint32 physicalDeviceCount = _count_0;
 		_vk_try(vkEnumeratePhysicalDevices(Global::GetVkInstance(), &physicalDeviceCount, nullptr));
 		_exit_log(physicalDeviceCount == 0, "Can't find any physical devices on the host!");
 
@@ -103,11 +108,11 @@ void BaseLayer::Init()
 		m_physicalDevicesMemProps.resize(physicalDeviceCount);
 		m_queueFamilyProps.resize(physicalDeviceCount);
 
-		for (uint32_t i = 0; i < physicalDeviceCount; ++i)
+		for (uint32 i = 0; i < physicalDeviceCount; ++i)
 		{
 			// Enum physical device layer props.
 			{
-				uint32_t layerPropCount = _count_0;
+				uint32 layerPropCount = _count_0;
 				_vk_try(vkEnumerateDeviceLayerProperties(m_physicalDevices[i], &layerPropCount, nullptr));
 				if (layerPropCount > 0)
 				{
@@ -118,7 +123,7 @@ void BaseLayer::Init()
 
 			// Query the physical device extensions.
 			{
-				uint32_t extCount = _count_0;
+				uint32 extCount = _count_0;
 				_vk_try(vkEnumerateDeviceExtensionProperties(m_physicalDevices[i], nullptr, &extCount, nullptr));
 				if (extCount > 0)
 				{
@@ -132,7 +137,7 @@ void BaseLayer::Init()
 			vkGetPhysicalDeviceFeatures(m_physicalDevices[i], &m_physicalDevicesFeatures[i]);
 			vkGetPhysicalDeviceMemoryProperties(m_physicalDevices[i], &m_physicalDevicesMemProps[i]);
 
-			uint32_t queueFamilyPropCount = _count_0;
+			uint32 queueFamilyPropCount = _count_0;
 			vkGetPhysicalDeviceQueueFamilyProperties(m_physicalDevices[i], &queueFamilyPropCount, nullptr);
 			if (queueFamilyPropCount > 0)
 			{
@@ -141,60 +146,61 @@ void BaseLayer::Init()
 			}
 
 			// Find DISCRETE_GPU first.
-			if (m_defaultPDIndex != -1)
+			if (m_mainPDIndex != -1)
 				continue;
 			switch (m_physicalDevicesProps[i].deviceType)
 			{
 			case VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:
-				m_defaultPDIndex = i;
+				m_mainPDIndex = i;
 				break;
 			case VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU:
-				m_defaultPDIndex = i;
+				m_mainPDIndex = i;
 				break;
 			case VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU:
-				m_defaultPDIndex = i;
+				m_mainPDIndex = i;
 				break;
 			case VK_PHYSICAL_DEVICE_TYPE_CPU:
-				m_defaultPDIndex = i;
+				m_mainPDIndex = i;
 				break;
 			default:
-				m_defaultPDIndex = -1;
+				m_mainPDIndex = -1;
 				break;
 			}
 		}
 
-		_exit_log(m_defaultPDIndex == -1, "Can't find any valid physical devices on the host!");
+		_exit_log(m_mainPDIndex == -1, "Can't find any valid physical devices on the host!");
 	}
 
 	// Create VK Logical Devices & Get Queue & Create Command Pool.
 	{
 		// Find Graphic Queue Family.
-		int32_t graphicQueueFamilyIndex = 0;
-		for (auto& prop : m_queueFamilyProps[m_defaultPDIndex])
+		int32 graphicQueueFamilyIndex = 0;
+		for (auto& prop : m_queueFamilyProps[m_mainPDIndex])
 		{
-			if (prop.queueFlags && VK_QUEUE_GRAPHICS_BIT)
-				m_graphicQueueFamilyIndex = graphicQueueFamilyIndex;
+			if ((prop.queueFlags & VK_QUEUE_GRAPHICS_BIT) &&
+				(prop.queueFlags & VK_QUEUE_COMPUTE_BIT))
+				m_mainQFIndex = graphicQueueFamilyIndex;
 			else ++graphicQueueFamilyIndex;			
 		}
 
-		_exit_log(m_graphicQueueFamilyIndex == -1, "Can't find any valid Graphic Queue Family!");
+		_exit_log(m_mainQFIndex == -1, "Can't find any Valid Graphic & Compute Queue Family!");
 		
 		VkDeviceQueueCreateInfo deviceQueueCreateInfo = {};
 		deviceQueueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-		deviceQueueCreateInfo.queueFamilyIndex = m_graphicQueueFamilyIndex;       // Graphic Queue Family.
+		deviceQueueCreateInfo.queueFamilyIndex = m_mainQFIndex;       // Graphic Queue Family.
 		deviceQueueCreateInfo.queueCount = _count_1;                              // Only one queue to use.
 		deviceQueueCreateInfo.pQueuePriorities = nullptr;                         // Default priority. 
 
 		// Set required physical device features.
-		m_requiredPDFeatures.multiDrawIndirect = m_physicalDevicesFeatures[m_defaultPDIndex].multiDrawIndirect;
-		m_requiredPDFeatures.tessellationShader = m_physicalDevicesFeatures[m_defaultPDIndex].tessellationShader;
-		m_requiredPDFeatures.geometryShader = m_physicalDevicesFeatures[m_defaultPDIndex].geometryShader;
+		m_requiredPDFeatures.multiDrawIndirect = m_physicalDevicesFeatures[m_mainPDIndex].multiDrawIndirect;
+		m_requiredPDFeatures.tessellationShader = m_physicalDevicesFeatures[m_mainPDIndex].tessellationShader;
+		m_requiredPDFeatures.geometryShader = m_physicalDevicesFeatures[m_mainPDIndex].geometryShader;
 
 		// Check PD Extensions Support.
 		{
-			for (auto& prop : m_PDExtProps[m_defaultPDIndex])
+			for (auto& prop : m_PDExtProps[m_mainPDIndex])
 			{
-				for (uint32_t i = 0; i < numEnableExts; ++i)
+				for (uint32 i = 0; i < numEnableExts; ++i)
 				{
 					if (_is_cstr_equal(prop.extensionName, BaseLayerConfig::EnableExtensions[i]))
 					{
@@ -214,26 +220,27 @@ void BaseLayer::Init()
 
 		// Enable PD Exts.
 		{
-			uint32_t numPDSupportExts = (uint32_t)m_supportPDExts.size();
+			uint32 numPDSupportExts = (uint32)m_supportPDExts.size();
 			deviceCreateInfo.enabledExtensionCount = numPDSupportExts;
 			deviceCreateInfo.ppEnabledExtensionNames = numPDSupportExts > 0 ? m_supportPDExts.data() : nullptr;
 		}
 
 		VkDevice vkDevice = VK_NULL_HANDLE;
-		_vk_try(vkCreateDevice(m_physicalDevices[m_defaultPDIndex], &deviceCreateInfo, nullptr, &vkDevice));
+		_vk_try(vkCreateDevice(m_physicalDevices[m_mainPDIndex], &deviceCreateInfo, GetVkAllocator(), &vkDevice));
 		Global::SetVkDevice(vkDevice);
 		m_device = Global::GetLogicalDevice();
+		m_device.SetAllocator(m_allocator);
 
-		m_queue = m_device.GetQueue(m_graphicQueueFamilyIndex);
+		m_queue = m_device.GetQueue(m_mainQFIndex);
 
-		m_pCmdPool = m_device.CreateCommandPool(m_graphicQueueFamilyIndex);
+		m_device.CreateCommandPool(m_pCmdPool.MakeInstance(), m_mainQFIndex);
 
 #if VK_USE_PLATFORM_WIN32_KHR
 
 		// Create Win32 Surface.
 		if (Util::IsVecContain<const char*>(m_supportInsExts, VK_KHR_WIN32_SURFACE_EXTENSION_NAME, _lambda_is_cstr_equal))
 		{
-			VkBool32 bIsDefaultQueueSupportPresentation = vkGetPhysicalDeviceWin32PresentationSupportKHR(m_physicalDevices[m_defaultPDIndex], m_graphicQueueFamilyIndex);
+			VkBool32 bIsDefaultQueueSupportPresentation = vkGetPhysicalDeviceWin32PresentationSupportKHR(m_physicalDevices[m_mainPDIndex], m_mainQFIndex);
 			_exit_log(bIsDefaultQueueSupportPresentation == VK_FALSE, "The Default Queue Do Not Support Presentation (Win32)!");
 
 			m_window = new Window;
@@ -242,7 +249,7 @@ void BaseLayer::Init()
 			win32SurfaceCreateInfo.hinstance = (HINSTANCE)m_window->GetHinstance();
 			win32SurfaceCreateInfo.hwnd = (HWND)m_window->GetHwnd();
 
-			_vk_try(vkCreateWin32SurfaceKHR(Global::GetVkInstance(), &win32SurfaceCreateInfo, nullptr, &m_surface));
+			_vk_try(vkCreateWin32SurfaceKHR(Global::GetVkInstance(), &win32SurfaceCreateInfo, GetVkAllocator(), &m_surface));
 		}
 		
 #endif
@@ -262,12 +269,12 @@ void BaseLayer::Init()
 
 			// Check Support Surface Format For Swapchain.
 			{
-				uint32_t formatCount = _count_0;
-				_vk_try(vkGetPhysicalDeviceSurfaceFormatsKHR(m_physicalDevices[m_defaultPDIndex], m_surface, &formatCount, nullptr));
+				uint32 formatCount = _count_0;
+				_vk_try(vkGetPhysicalDeviceSurfaceFormatsKHR(m_physicalDevices[m_mainPDIndex], m_surface, &formatCount, nullptr));
 				_exit_log(formatCount == 0, "No Surface Format Support!");
 
 				m_surfaceFormats.resize(formatCount);
-				_vk_try(vkGetPhysicalDeviceSurfaceFormatsKHR(m_physicalDevices[m_defaultPDIndex], m_surface, &formatCount, m_surfaceFormats.data()));
+				_vk_try(vkGetPhysicalDeviceSurfaceFormatsKHR(m_physicalDevices[m_mainPDIndex], m_surface, &formatCount, m_surfaceFormats.data()));
 
 				m_swapchainCreateInfo.imageFormat = m_surfaceFormats.front().format;
 				m_swapchainCreateInfo.imageColorSpace = m_surfaceFormats.front().colorSpace;
@@ -281,7 +288,7 @@ void BaseLayer::Init()
 
 			// Query Surface Capabilities.
 			{
-				_vk_try(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_physicalDevices[m_defaultPDIndex], m_surface, &m_surfaceCapabilities));
+				_vk_try(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_physicalDevices[m_mainPDIndex], m_surface, &m_surfaceCapabilities));
 
 				m_swapchainCreateInfo.imageExtent = m_surfaceCapabilities.currentExtent;
 
@@ -302,9 +309,9 @@ void BaseLayer::Init()
 				else m_swapchainCreateInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
 			}
 			
-			m_pSwapchainKHR = m_device.CreateSwapchainKHR(m_swapchainCreateInfo);
+			m_device.CreateSwapchainKHR(m_pSwapchainKHR.MakeInstance(), m_swapchainCreateInfo);
 
-			uint32_t swapchainImageCount = _count_0;
+			uint32 swapchainImageCount = _count_0;
 			m_device.GetSwapchainImagesKHR(*m_pSwapchainKHR, &swapchainImageCount, nullptr);
 			m_swapchainImages.resize(swapchainImageCount);
 			m_device.GetSwapchainImagesKHR(*m_pSwapchainKHR, &swapchainImageCount, m_swapchainImages.data());
@@ -312,7 +319,7 @@ void BaseLayer::Init()
 			// This Code May Be Redundant... Win32 Surface Presentation Support Has Been Queried.
 			{
 				VkBool32 surfacePresentationSupport = VK_FALSE;
-				_vk_try(vkGetPhysicalDeviceSurfaceSupportKHR(m_physicalDevices[m_defaultPDIndex], m_graphicQueueFamilyIndex, m_surface, &surfacePresentationSupport));
+				_vk_try(vkGetPhysicalDeviceSurfaceSupportKHR(m_physicalDevices[m_mainPDIndex], m_mainQFIndex, m_surface, &surfacePresentationSupport));
 				_exit_log(surfacePresentationSupport == VK_FALSE, "The Default Queue Do Not Support Presentation!");
 			}
 			
@@ -331,25 +338,25 @@ void BaseLayer::Free()
 	if (Global::IsDestroyManually())
 	{
 		// If app has none vk_ptr, this codes should be activated!
-		vkDestroyDevice(Global::GetVkDevice(), nullptr);
-		vkDestroyInstance(Global::GetVkInstance(), nullptr);
+		vkDestroyDevice(Global::GetVkDevice(), Global::GetVkAllocator());
+		vkDestroyInstance(Global::GetVkInstance(), Global::GetVkAllocator());
 	}
 #endif
 }
 
-uint32_t BaseLayer::GetHeapIndexFromMemPropFlags(
+uint32 BaseLayer::GetHeapIndexFromMemPropFlags(
 	const VkMemoryRequirements& InMemRequirements, 
 	VkMemoryPropertyFlags InPreferredFlags, 
 	VkMemoryPropertyFlags InRequiredFlags)
 {
-	uint32_t selectedIndex = ~0u;
-	uint32_t memTypeIndex;
+	uint32 selectedIndex = ~0u;
+	uint32 memTypeIndex;
 
 	for (memTypeIndex = 0; memTypeIndex < VK_MAX_MEMORY_TYPES; ++memTypeIndex)
 	{
 		if (InMemRequirements.memoryTypeBits & (1 << memTypeIndex))
 		{
-			const VkMemoryType& memType = m_physicalDevicesMemProps[m_defaultPDIndex].memoryTypes[memTypeIndex];
+			const VkMemoryType& memType = m_physicalDevicesMemProps[m_mainPDIndex].memoryTypes[memTypeIndex];
 
 			// If it exactly matches my preferred properties, grab it.
 			if ((memType.propertyFlags & InPreferredFlags) == InPreferredFlags)
@@ -364,7 +371,7 @@ uint32_t BaseLayer::GetHeapIndexFromMemPropFlags(
 	{
 		if (InMemRequirements.memoryTypeBits & (1 << memTypeIndex))
 		{
-			const VkMemoryType& memType = m_physicalDevicesMemProps[m_defaultPDIndex].memoryTypes[memTypeIndex];
+			const VkMemoryType& memType = m_physicalDevicesMemProps[m_mainPDIndex].memoryTypes[memTypeIndex];
 
 			// If it has any my required properties, it'll do.
 			if ((memType.propertyFlags & InRequiredFlags) == InRequiredFlags)
@@ -384,7 +391,7 @@ void BaseLayer::CheckFormatSupport(const std::vector<VkFormat>& InCheckFormats, 
 	for (auto& format : InCheckFormats)
 	{
 		VkFormatProperties formatProps = {};
-		vkGetPhysicalDeviceFormatProperties(m_physicalDevices[m_defaultPDIndex], format, &formatProps);
+		vkGetPhysicalDeviceFormatProperties(m_physicalDevices[m_mainPDIndex], format, &formatProps);
 		OutFormatProps.push_back(formatProps);
 	}
 }
@@ -395,7 +402,7 @@ void BaseLayer::CheckImageFormatSupport(const std::vector<SCheckImage>& InCheckI
 	for (auto& image : InCheckImages)
 	{
 		VkImageFormatProperties imageFormatProps = {};
-		_vk_try(vkGetPhysicalDeviceImageFormatProperties(m_physicalDevices[m_defaultPDIndex], 
+		_vk_try(vkGetPhysicalDeviceImageFormatProperties(m_physicalDevices[m_mainPDIndex], 
 			image.format, image.type, image.tiling, image.usage, image.flags, &imageFormatProps));
 		OutImageFormatProps.push_back(imageFormatProps);
 	}

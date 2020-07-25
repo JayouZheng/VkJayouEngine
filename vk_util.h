@@ -4,48 +4,13 @@
 
 #pragma once
 
-#include <string>
-#include <cstring>
-#include <iostream>
-#include <cassert>
-#include <vector>
-#include <array>
-#include <memory>
-#include <type_traits>
-
 #include "SmartPtr.h"
 
 #include "Platform.h"
+#include "TypeDef.h"
 #include "vulkan/vulkan.hpp"
 
 #pragma comment(lib, "vulkan-1.lib")
-
-#define _assert(x) assert(x)
-
-// Size of a static C-style array. Don't use on pointers!
-#define _array_size(x)          ((int)(sizeof(x) / sizeof(*x)))
-
-#define _is_cstr_equal(str1, str2) !strcmp(str1, str2)
-
-#define _lambda_is_cstr_equal [&](const char* a, const char* b) { return _is_cstr_equal(a, b); }
-
-#define _lambda_is_equal(Type) [&](const Type& a, const Type& b) { return a == b; }
-
-#define _lambda_is_surface_format_equal [&](const VkSurfaceFormatKHR& a, const VkSurfaceFormatKHR& b) { return (a.format == b.format) && (a.colorSpace == b.colorSpace); }
-
-#define _cmd_print_line(str) std::cout << str << std::endl
-#define _cmd_print_line_ws(str) std::wcout << str << std::endl
-
-#define _exit_log(x, str) if(x) { std::cout << str << std::endl; exit(1); }
-
-#define _name_of(x) L#x
-
-#define _index_0 0
-#define _count_0 0
-#define _count_1 1
-
-#define _offset_0 0
-#define _offset_start 0
 
 class vk_exception
 {
@@ -72,6 +37,8 @@ public:
 	int m_lineNumber = -1;
 };
 
+#if VK_USE_PLATFORM_WIN32_KHR
+
 #include <windows.h>
 
 inline std::wstring to_wstring(const std::string& str)
@@ -83,6 +50,8 @@ inline std::wstring to_wstring(const std::string& str)
 	delete[] buffer;
 	return wstr;
 }
+
+#endif
 
 #define _vk_throw(_func, _func_name, _file_name, _file_line)            \
 {                                                                       \

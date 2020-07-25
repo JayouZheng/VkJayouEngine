@@ -26,7 +26,7 @@ namespace BaseLayerConfig
 
 	struct SSwapchainCreateInfo
 	{
-		uint32_t                      frameCount;
+		uint32                      frameCount;
 		VkSurfaceFormatKHR            surfaceFormat;
 		VkImageUsageFlags             imageUsage;
 		VkSurfaceTransformFlagBitsKHR surfacePreTransform;
@@ -49,10 +49,15 @@ namespace BaseLayerConfig
 
 class BaseLayer
 {
+	// PD means Physical Device.
+	// QF means Queue Family.
 
 private:
 
 	BaseAllocator* m_allocator = nullptr;
+
+	VkAllocationCallbacks* GetVkAllocator() const;
+
 
 protected:
 
@@ -95,8 +100,8 @@ protected:
 	CommandQueue  m_queue = VK_NULL_HANDLE;
 	VkSurfaceKHR  m_surface = VK_NULL_HANDLE;
 
-	int32_t                                           m_defaultPDIndex = -1;
-	int32_t                                           m_graphicQueueFamilyIndex = -1;
+	int32                                           m_mainPDIndex = -1;
+	int32                                           m_mainQFIndex = -1;
 	
 	SmartPtr<Window>                                  m_window = nullptr;
 
@@ -121,7 +126,7 @@ public:
 
 public:
 
-	uint32_t GetHeapIndexFromMemPropFlags(
+	uint32 GetHeapIndexFromMemPropFlags(
 		const VkMemoryRequirements& InMemRequirements,
 		VkMemoryPropertyFlags InPreferredFlags,
 		VkMemoryPropertyFlags InRequiredFlags);

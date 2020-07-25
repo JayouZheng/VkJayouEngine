@@ -173,6 +173,7 @@
     <ClInclude Include="LogicalDevice.h" />
     <ClInclude Include="Platform.h" />
     <ClInclude Include="SmartPtr.h" />
+    <ClInclude Include="TypeDef.h" />
     <ClInclude Include="vk_app.h" />
     <ClInclude Include="VkSmartPtr.h" />
     <ClInclude Include="vk_util.h" />

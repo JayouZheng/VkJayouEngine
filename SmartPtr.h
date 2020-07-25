@@ -6,6 +6,8 @@
 
 #pragma region SmartPtr
 
+#include "TypeDef.h"
+
 template<typename T>
 class Counter;
 
@@ -95,7 +97,7 @@ class Counter
 {
 private:
 	T *_ptr;
-	int _counter;
+	uint64 _counter;
 
 	template<typename T>
 	friend class SmartPtr;

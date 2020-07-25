@@ -12,7 +12,7 @@ namespace
 
 	static BaseAllocator* g_allocator = nullptr;
 
-	static uint32_t g_count = _count_0;
+	static uint32 g_count = _count_0;
 	static bool g_bDestroyManually = false;
 }
 
@@ -75,17 +75,22 @@ bool Global::IsDestroyManually()
 	return g_bDestroyManually;
 }
 
-BaseAllocator* Global::GetGlobalAllocator()
+BaseAllocator* Global::GetAllocator()
 {
 	return g_allocator;
 }
 
-void Global::SetGlobalAllocator(BaseAllocator* InAllocator)
+VkAllocationCallbacks* Global::GetVkAllocator()
+{
+	return (g_allocator != nullptr) ? (VkAllocationCallbacks*)g_allocator : nullptr;
+}
+
+void Global::SetAllocator(BaseAllocator* InAllocator)
 {
 	g_allocator = InAllocator;
 }
 
-void Global::SafeFreeGlobalAllocator()
+void Global::SafeFreeAllocator()
 {
 	if (g_allocator != nullptr)
 	{

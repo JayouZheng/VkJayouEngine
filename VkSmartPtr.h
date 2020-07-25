@@ -19,11 +19,12 @@ protected:
 
 	VkCounter<T> *_ptr_cnt;
 
-public:
+public: 
 
-	void BindAllocationCallbacks(VkAllocationCallbacks* allocCallback)
+	T* MakeInstance()
 	{
-		_ptr_cnt->_allocation_callback = allocCallback;
+		_ptr_cnt->_ptr = new T;
+		return _ptr_cnt->_ptr;
 	}
 
 public:
@@ -105,9 +106,7 @@ class VkCounter
 private:
 
 	T *_ptr;
-	int _counter;
-
-	VkAllocationCallbacks* _allocation_callback = nullptr;
+	uint64 _counter;
 
 	template<typename T>
 	friend class VkSmartPtr;
@@ -123,7 +122,7 @@ private:
 	~VkCounter()
 	{
 		
-#define _vk_destroy(object) if (std::is_same<Vk##object, T>::value) vkDestroy##object(Global::GetVkDevice(), (Vk##object)*_ptr, _allocation_callback)
+#define _vk_destroy(object) if (std::is_same<Vk##object, T>::value) vkDestroy##object(Global::GetVkDevice(), (Vk##object)*_ptr, Global::GetVkAllocator())
 
 		if (_ptr != nullptr)
 		{
@@ -156,10 +155,9 @@ private:
 
 		if (Global::IsZero())
 		{
-			vkDestroyDevice(Global::GetVkDevice(), nullptr);
-			BaseAllocator* temp = Global::GetGlobalAllocator();
-			vkDestroyInstance(Global::GetVkInstance(), &(VkAllocationCallbacks)*temp);
-			Global::SafeFreeGlobalAllocator();
+			vkDestroyDevice(Global::GetVkDevice(), Global::GetVkAllocator());
+			vkDestroyInstance(Global::GetVkInstance(), Global::GetVkAllocator());
+			Global::SafeFreeAllocator();
 		}
 		
 	}

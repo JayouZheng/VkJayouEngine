@@ -5,7 +5,7 @@
 #pragma once
 
 #include "Platform.h"
-#include <cstdint>
+#include "TypeDef.h"
 
 #if VK_USE_PLATFORM_WIN32_KHR
 
@@ -16,8 +16,8 @@ public:
 
 	struct WindowDesc
 	{		
-		uint32_t Width;
-		uint32_t Height;
+		uint32 Width;
+		uint32 Height;
 	};
 
 public:

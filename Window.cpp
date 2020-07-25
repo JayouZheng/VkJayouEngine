@@ -161,8 +161,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				SetWindowLongPtr(hWnd, GWL_STYLE, WS_OVERLAPPEDWINDOW);
 				SetWindowLongPtr(hWnd, GWL_EXSTYLE, 0);
 
-				int width = 800;
-				int height = 600;
+				uint32 width = 800;
+				uint32 height = 600;
 				//if (app)
 					//app->GetDefaultSize(width, height);
 
@@ -252,7 +252,7 @@ Window::Window()
 		_exit_log(!RegisterClassExW(&wcex), "Register Class Failed When Create Window!");
 
 		// Create window
-		int w, h;
+		uint32 w, h;
 		w = m_defaultDesc.Width;
 		h = m_defaultDesc.Height;
 

@@ -27,9 +27,10 @@ namespace Global
 	void ApplicationDestroyManually(bool InFlag);
 	bool IsDestroyManually();
 
-	BaseAllocator* GetGlobalAllocator();
-	void SetGlobalAllocator(BaseAllocator* InAllocator);
-	void SafeFreeGlobalAllocator();
+	BaseAllocator* GetAllocator();
+	VkAllocationCallbacks* GetVkAllocator();
+	void SetAllocator(BaseAllocator* InAllocator);
+	void SafeFreeAllocator();
 }
 
 namespace VkColor
