@@ -226,7 +226,7 @@ void BaseLayer::Init()
 		
 		m_queue = m_device.GetQueue(m_mainQFIndex);
 
-		m_device.CreateCommandPool(m_pCmdPool.MakeInstance(), m_mainQFIndex);
+		m_device.CreateCommandPool(m_mainQFIndex);
 
 #if VK_USE_PLATFORM_WIN32_KHR
 
@@ -376,6 +376,16 @@ uint32 BaseLayer::GetHeapIndexFromMemPropFlags(
 	}
 
 	return selectedIndex;
+}
+
+LogicalDevice BaseLayer::GetLogicalDevice() const
+{
+	return m_device;
+}
+
+VkPhysicalDeviceLimits BaseLayer::GetMainPDLimits() const
+{
+	return m_physicalDevicesProps[m_mainPDIndex].limits;
 }
 
 void BaseLayer::CheckFormatSupport(const std::vector<VkFormat>& InCheckFormats, std::vector<VkFormatProperties>& OutFormatProps)

@@ -98,14 +98,13 @@ protected:
 	CommandQueue   m_queue   = VK_NULL_HANDLE;
 	VkSurfaceKHR   m_surface = VK_NULL_HANDLE;
 
-	int32                                           m_mainPDIndex = -1;
-	int32                                           m_mainQFIndex = -1;
+	int32                                             m_mainPDIndex = -1;
+	int32                                             m_mainQFIndex = -1;
 	
 	SmartPtr<Window>                                  m_window = nullptr;
 
 protected:
 
-	VkSmartPtr<VkCommandPool>                         m_pCmdPool = nullptr;
 	VkSmartPtr<VkSwapchainKHR>                        m_pSwapchainKHR = nullptr;
 
 	// Swapchain Image.
@@ -128,6 +127,9 @@ public:
 		const VkMemoryRequirements& InMemRequirements,
 		VkMemoryPropertyFlags InPreferredFlags,
 		VkMemoryPropertyFlags InRequiredFlags);
+
+	LogicalDevice          GetLogicalDevice() const;
+	VkPhysicalDeviceLimits GetMainPDLimits () const;
 
 public:
 

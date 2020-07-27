@@ -3,21 +3,25 @@
 //
 
 #include "CommandList.h"
+#include "BaseLayer.h"
 
-CommandList::CommandList(VkDevice InDevice, VkCommandPool InCmdPool)
+CommandList::CommandList(BaseLayer* InBaseLayer)
+	: m_baseLayer(InBaseLayer)
 {
+	m_device = InBaseLayer->GetLogicalDevice().GetVkDevice();
+	m_cmdPool = InBaseLayer->GetLogicalDevice().GetCmdPool();
+
 	// Single Primary Command Buffer.
 	VkCommandBufferAllocateInfo cmdBufferAllocInfo = {};
 	cmdBufferAllocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 	cmdBufferAllocInfo.pNext = nullptr;
-	cmdBufferAllocInfo.commandPool = InCmdPool;
+	cmdBufferAllocInfo.commandPool = m_cmdPool;
 	cmdBufferAllocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 	cmdBufferAllocInfo.commandBufferCount = 1;
 
-	_vk_try(vkAllocateCommandBuffers(InDevice, &cmdBufferAllocInfo, &m_cmdBuffer));
+	_vk_try(vkAllocateCommandBuffers(m_device, &cmdBufferAllocInfo, &m_cmdBuffer));
 
-	m_device  = InDevice;
-	m_cmdPool = InCmdPool;
+	
 }
 
 CommandList::~CommandList()
@@ -256,6 +260,39 @@ void CommandList::ClearDepthStencilImage(VkImage InImage, float InClearDepthValu
 void CommandList::ClearDepthStencilImage(VkImage InImage, const VkClearDepthStencilValue* InClearValue)
 {
 	vkCmdClearDepthStencilImage(m_cmdBuffer, InImage, VK_IMAGE_LAYOUT_GENERAL, InClearValue, _count_1, &Util::DepthStencilSubresRange);
+}
+
+void CommandList::BindPipeline(VkPipeline InPipeline, VkPipelineBindPoint InPipBindPoint)
+{
+	vkCmdBindPipeline(m_cmdBuffer, InPipBindPoint, InPipeline);
+}
+
+void CommandList::BindComputePipeline(VkPipeline InPipeline)
+{
+	vkCmdBindPipeline(m_cmdBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, InPipeline);
+}
+
+void CommandList::BindGraphicPipeline(VkPipeline InPipeline)
+{
+	vkCmdBindPipeline(m_cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, InPipeline);
+}
+
+void CommandList::Dispatch(uint32 x, uint32 y, uint32 z)
+{
+	bool bIsOverflow = false;
+	bIsOverflow = bIsOverflow || x > m_baseLayer->GetMainPDLimits().maxComputeWorkGroupCount[0];
+	bIsOverflow = bIsOverflow || y > m_baseLayer->GetMainPDLimits().maxComputeWorkGroupCount[1];
+	bIsOverflow = bIsOverflow || z > m_baseLayer->GetMainPDLimits().maxComputeWorkGroupCount[2];
+	_exit_log(bIsOverflow, "Compute Dispatch Goes Beyond The Physical Limits!");
+	
+	vkCmdDispatch(m_cmdBuffer, x, y, z);
+}
+
+void CommandList::DispatchIndirect(VkBuffer InBuffer, VkDeviceSize InOffset)
+{
+	// Do Something Check...
+	// VkDispatchIndirectCommands
+	vkCmdDispatchIndirect(m_cmdBuffer, InBuffer, InOffset);
 }
 
 void CommandList::ResourceBarriers(

@@ -5,6 +5,7 @@
 #pragma once
 
 #include "Common.h"
+#include "VkSmartPtr.h"
 
 class CommandQueue;
 class BaseAllocator;
@@ -14,8 +15,11 @@ class LogicalDevice
 
 protected:
 
-	VkDevice       m_device    = VK_NULL_HANDLE;
-	BaseAllocator* m_allocator = nullptr;
+	VkDevice        m_device    = VK_NULL_HANDLE;
+	BaseAllocator*  m_allocator = nullptr;
+
+	VkSmartPtr<VkCommandPool>    m_pCmdPool  = nullptr;
+	VkSmartPtr<VkDescriptorPool> m_pDescPool = nullptr;
 
 public:
 
@@ -42,6 +46,8 @@ public:
 
 	bool IsNoneAllocator() const;
 
+	VkCommandPool GetCmdPool();
+
 public:
 
 	struct SPipCSCreateDesc
@@ -57,13 +63,13 @@ public:
 
 		SPipCSCreateDesc()
 		{
-			EntryPoint        = "main";
-			ShaderModule      = VK_NULL_HANDLE;
-			PipLayout         = VK_NULL_HANDLE;
-			pSpecialConstInfo = nullptr;
+			EntryPoint         = "main";
+			ShaderModule       = VK_NULL_HANDLE;
+			PipLayout          = VK_NULL_HANDLE;
+			pSpecialConstInfo  = nullptr;
 
 			BasePipelineHandle = VK_NULL_HANDLE;
-			BasePipelineIndex = -1;
+			BasePipelineIndex  = -1;
 		}
 	};
 
@@ -95,31 +101,46 @@ public:
 		}
 	};
 
-	CommandQueue    GetQueue                   (uint32 InQueueFamilyIndex, uint32 InQueueIndex = _index_0);
-	void            GetSwapchainImagesKHR      (VkSwapchainKHR InSwapchain, uint32* InOutImageCount, VkImage* OutImages);
-	uint32          GetSwapchainNextImageKHR   (VkSwapchainKHR InSwapchain, uint64 InTimeout, VkSemaphore InSemaphore, VkFence InFence);
+	CommandQueue   GetQueue                      (uint32 InQueueFamilyIndex, uint32 InQueueIndex = _index_0);
+	void           GetSwapchainImagesKHR         (VkSwapchainKHR InSwapchain, uint32* InOutImageCount, VkImage* OutImages);
+	uint32         GetSwapchainNextImageKHR      (VkSwapchainKHR InSwapchain, uint64 InTimeout, VkSemaphore InSemaphore, VkFence InFence);
 
-	void            CreateCommandPool          (VkCommandPool* OutCmdPool, const VkCommandPoolCreateInfo & InCreateInfo);
-	void            CreateCommandPool          (VkCommandPool* OutCmdPool, uint32 InQueueFamilyIndex, VkCommandPoolCreateFlags InFlags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
+	void           CreateCommandPool             (const VkCommandPoolCreateInfo& InCreateInfo);
+	void           CreateCommandPool             (uint32 InQueueFamilyIndex, VkCommandPoolCreateFlags InFlags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
 
-	void            CreateSwapchainKHR         (VkSwapchainKHR* OutSwapchain, const VkSwapchainCreateInfoKHR& InCreateInfo);
+	void           CreateSwapchainKHR            (VkSwapchainKHR* OutSwapchain, const VkSwapchainCreateInfoKHR& InCreateInfo);
 
-	void            CreateShaderModule         (VkShaderModule* OutShaderModule, const VkShaderModuleCreateInfo& InCreateInfo);
-	void            CreateShaderModule         (VkShaderModule* OutShaderModule, const uint32* InCodes, size_t InCodeSize);
+	void           CreateShaderModule            (VkShaderModule* OutShaderModule, const VkShaderModuleCreateInfo& InCreateInfo);
+	void           CreateShaderModule            (VkShaderModule* OutShaderModule, const uint32* InCodes, size_t InCodeSize);
 
-	void            CreateComputePipeline      (VkPipeline* OutPipeline, const VkComputePipelineCreateInfo& InCreateInfo, VkPipelineCache InPipCache = VK_NULL_HANDLE);
-	void            CreateComputePipelines     (VkPipeline* OutPipeline, const VkComputePipelineCreateInfo* InCreateInfos, uint32 InCreateInfoCount, VkPipelineCache InPipCache = VK_NULL_HANDLE);
-	void            CreateComputePipeline      (VkPipeline* OutPipeline, VkPipelineLayout InPipLayout, VkShaderModule InShaderModule, const char* InShaderEntryName = "main", const VkSpecializationInfo* InSpecialConstInfo = nullptr, VkPipelineCache InPipCache = VK_NULL_HANDLE);
-	void            CreateComputePipeline      (VkPipeline* OutPipeline, const SPipCSCreateDesc& InCreateDesc, VkPipelineCache InPipCache = VK_NULL_HANDLE);
-	void            CreateComputePipelines     (VkPipeline* OutPipeline, const SPipCSCreateDesc* InCreateDescs, uint32 InCreateDescCount, VkPipelineCache InPipCache = VK_NULL_HANDLE);
+	void           CreateComputePipeline         (VkPipeline* OutPipeline, const VkComputePipelineCreateInfo& InCreateInfo, VkPipelineCache InPipCache = VK_NULL_HANDLE);
+	void           CreateComputePipelines        (VkPipeline* OutPipeline, const VkComputePipelineCreateInfo* InCreateInfos, uint32 InCreateInfoCount, VkPipelineCache InPipCache = VK_NULL_HANDLE);
+	void           CreateComputePipeline         (VkPipeline* OutPipeline, VkPipelineLayout InPipLayout, VkShaderModule InShaderModule, const char* InShaderEntryName = "main", const VkSpecializationInfo* InSpecialConstInfo = nullptr, VkPipelineCache InPipCache = VK_NULL_HANDLE);
+	void           CreateComputePipeline         (VkPipeline* OutPipeline, const SPipCSCreateDesc& InCreateDesc, VkPipelineCache InPipCache = VK_NULL_HANDLE);
+	void           CreateComputePipelines        (VkPipeline* OutPipeline, const SPipCSCreateDesc* InCreateDescs, uint32 InCreateDescCount, VkPipelineCache InPipCache = VK_NULL_HANDLE);
 
-	void            CreatePipelineCache        (VkPipelineCache* OutPipCache, const VkPipelineCacheCreateInfo& InCreateInfo);
-	void            CreatePipelineCache        (VkPipelineCache* OutPipCache, const VkPhysicalDeviceProperties& InPDProp);
-	size_t          GetPipelineCacheDataSize   (VkPipelineCache InPipCache);
-	void            GetPipelineCacheData       (VkPipelineCache InPipCache, size_t InDataSize, void* OutData);
-	bool            SavePipelineCacheToFile    (VkPipelineCache InPipCache, const char* InPath);
-	void            MergePipelineCaches        (VkPipelineCache OutMergedPipCache, const VkPipelineCache* InPipCaches, uint32 InSrcPipCacheCount);
+	void           CreatePipelineCache           (VkPipelineCache* OutPipCache, const VkPipelineCacheCreateInfo& InCreateInfo);
+	void           CreatePipelineCache           (VkPipelineCache* OutPipCache, const VkPhysicalDeviceProperties& InPDProp);
+	size_t         GetPipelineCacheDataSize      (VkPipelineCache InPipCache);
+	void           GetPipelineCacheData          (VkPipelineCache InPipCache, size_t InDataSize, void* OutData);
+	bool           SavePipelineCacheToFile       (VkPipelineCache InPipCache, const char* InPath);
+	void           MergePipelineCaches           (VkPipelineCache OutMergedPipCache, const VkPipelineCache* InPipCaches, uint32 InSrcPipCacheCount);
+
+	void           CreateDescriptorSetLayout     (VkDescriptorSetLayout* OutLayout, const VkDescriptorSetLayoutCreateInfo& InCreateInfo);
+	void           CreateDescriptorSetLayout     (VkDescriptorSetLayout* OutLayout, const VkDescriptorSetLayoutBinding* InBindings, uint32 InBindingCount);
+	void           CreateSingleDescriptorLayout  (VkDescriptorSetLayout* OutLayout, VkDescriptorType InDescType, VkShaderStageFlags InShaderStage, const VkSampler* InImmutableSamplers = nullptr);
+
+	void           CreatePipelineLayout          (VkPipelineLayout* OutLayout, const VkPipelineLayoutCreateInfo& InCreateInfo);
+	void           CreatePipelineLayout          (VkPipelineLayout* OutLayout, const VkDescriptorSetLayout* InDescSetLayouts, uint32 InSetCount = _count_1, const VkPushConstantRange* InPushConstants = nullptr, uint32 InConstCount = _count_0);
+
+	void           CreateDescriptorPool          (const VkDescriptorPoolCreateInfo& InCreateInfo);
+	void           CreateDescriptorPool          (uint32 InMaxSets, const VkDescriptorPoolSize* InPerDescTypeCounts, uint32 InDescTypeCount);
+
+	void           AllocatorDescriptorSets       (VkDescriptorSet* OutDescSet, const VkDescriptorSetAllocateInfo& InAllocateInfo);
+	void           AllocatorDescriptorSets       (VkDescriptorSet* OutDescSet, );
+
 
 	void FlushAllQueue();
+	void ResetCmdPool();
 
 };

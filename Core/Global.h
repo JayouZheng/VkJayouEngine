@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include "LogicalDevice.h"
+#include "Common.h"
 
+class LogicalDevice;
 class BaseAllocator;
 
 namespace Global

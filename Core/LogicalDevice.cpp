@@ -59,6 +59,11 @@ bool LogicalDevice::IsNoneAllocator() const
 	return m_allocator == nullptr;
 }
 
+VkCommandPool LogicalDevice::GetCmdPool()
+{
+	return *m_pCmdPool;
+}
+
 CommandQueue LogicalDevice::GetQueue(uint32 InQueueFamilyIndex, uint32 InQueueIndex /*= 0*/)
 {
 	VkQueue vkQueue = VK_NULL_HANDLE;
@@ -79,19 +84,19 @@ uint32 LogicalDevice::GetSwapchainNextImageKHR(VkSwapchainKHR InSwapchain, uint6
 }
 
 
-void LogicalDevice::CreateCommandPool(VkCommandPool* OutCmdPool, const VkCommandPoolCreateInfo & InCreateInfo)
+void LogicalDevice::CreateCommandPool(const VkCommandPoolCreateInfo& InCreateInfo)
 {
-	_vk_try(vkCreateCommandPool(m_device, &InCreateInfo, m_allocator->GetVkAllocator(), OutCmdPool));
+	_vk_try(vkCreateCommandPool(m_device, &InCreateInfo, m_allocator->GetVkAllocator(), m_pCmdPool.MakeInstance()));
 }
 
-void LogicalDevice::CreateCommandPool(VkCommandPool* OutCmdPool, uint32 InQueueFamilyIndex, VkCommandPoolCreateFlags InFlags /*= VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT*/)
+void LogicalDevice::CreateCommandPool(uint32 InQueueFamilyIndex, VkCommandPoolCreateFlags InFlags /*= VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT*/)
 {
 	VkCommandPoolCreateInfo cmdPoolCreateInfo = {};
 	cmdPoolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
 	cmdPoolCreateInfo.flags = InFlags;
 	cmdPoolCreateInfo.queueFamilyIndex = InQueueFamilyIndex;
 
-	_vk_try(vkCreateCommandPool(m_device, &cmdPoolCreateInfo, m_allocator->GetVkAllocator(), OutCmdPool));
+	_vk_try(vkCreateCommandPool(m_device, &cmdPoolCreateInfo, m_allocator->GetVkAllocator(), m_pCmdPool.MakeInstance()));
 }
 
 void LogicalDevice::CreateSwapchainKHR(VkSwapchainKHR* OutSwapchain, const VkSwapchainCreateInfoKHR& InCreateInfo)
@@ -287,7 +292,77 @@ void LogicalDevice::MergePipelineCaches(VkPipelineCache OutMergedPipCache, const
 	_vk_try(vkMergePipelineCaches(m_device, OutMergedPipCache, InSrcPipCacheCount, InPipCaches));
 }
 
+void LogicalDevice::CreateDescriptorSetLayout(VkDescriptorSetLayout* OutLayout, const VkDescriptorSetLayoutCreateInfo& InCreateInfo)
+{
+	_vk_try(vkCreateDescriptorSetLayout(m_device, &InCreateInfo, m_allocator->GetVkAllocator(), OutLayout));
+}
+
+void LogicalDevice::CreateDescriptorSetLayout(VkDescriptorSetLayout* OutLayout, const VkDescriptorSetLayoutBinding* InBindings, uint32 InBindingCount)
+{
+	VkDescriptorSetLayoutCreateInfo descSetLayoutCreateInfo = {};
+	descSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	descSetLayoutCreateInfo.bindingCount = InBindingCount;
+	descSetLayoutCreateInfo.pBindings = InBindings;
+
+	_vk_try(vkCreateDescriptorSetLayout(m_device, &descSetLayoutCreateInfo, m_allocator->GetVkAllocator(), OutLayout));
+}
+
+void LogicalDevice::CreateSingleDescriptorLayout(VkDescriptorSetLayout* OutLayout, VkDescriptorType InDescType, VkShaderStageFlags InShaderStage, const VkSampler* InImmutableSamplers /*= nullptr*/)
+{
+	VkDescriptorSetLayoutBinding descSetLayoutBinding = {};
+	descSetLayoutBinding.binding = _index_0;
+	descSetLayoutBinding.descriptorType = InDescType;
+	descSetLayoutBinding.descriptorCount = _count_1;
+	descSetLayoutBinding.stageFlags = InShaderStage;
+	descSetLayoutBinding.pImmutableSamplers = InImmutableSamplers;
+
+	VkDescriptorSetLayoutCreateInfo descSetLayoutCreateInfo = {};
+	descSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	descSetLayoutCreateInfo.bindingCount = _count_1;
+	descSetLayoutCreateInfo.pBindings = &descSetLayoutBinding;
+
+	_vk_try(vkCreateDescriptorSetLayout(m_device, &descSetLayoutCreateInfo, m_allocator->GetVkAllocator(), OutLayout));
+}
+
+void LogicalDevice::CreatePipelineLayout(VkPipelineLayout* OutLayout, const VkPipelineLayoutCreateInfo& InCreateInfo)
+{
+	_vk_try(vkCreatePipelineLayout(m_device, &InCreateInfo, m_allocator->GetVkAllocator(), OutLayout));
+}
+
+void LogicalDevice::CreatePipelineLayout(VkPipelineLayout* OutLayout, const VkDescriptorSetLayout* InDescSetLayouts, uint32 InSetCount /*= _count_1*/, const VkPushConstantRange* InPushConstants /*= nullptr*/, uint32 InConstCount /*= _count_0*/)
+{
+	VkPipelineLayoutCreateInfo pipLayoutCreateInfo = {};
+	pipLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+	pipLayoutCreateInfo.setLayoutCount = InSetCount;
+	pipLayoutCreateInfo.pSetLayouts = InDescSetLayouts;
+	pipLayoutCreateInfo.pushConstantRangeCount = ((InPushConstants != nullptr) && (InConstCount == 0)) ? _count_1 : InConstCount;
+	pipLayoutCreateInfo.pPushConstantRanges = InPushConstants;
+
+	_vk_try(vkCreatePipelineLayout(m_device, &pipLayoutCreateInfo, m_allocator->GetVkAllocator(), OutLayout));
+}
+
+void LogicalDevice::CreateDescriptorPool(const VkDescriptorPoolCreateInfo& InCreateInfo)
+{
+	_vk_try(vkCreateDescriptorPool(m_device, &InCreateInfo, m_allocator->GetVkAllocator(), m_pDescPool.MakeInstance()));
+}
+
+void LogicalDevice::CreateDescriptorPool(uint32 InMaxSets, const VkDescriptorPoolSize* InPerDescTypeCounts, uint32 InDescTypeCount)
+{
+	VkDescriptorPoolCreateInfo descPoolCreateInfo = {};
+	descPoolCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+	descPoolCreateInfo.maxSets = InMaxSets;
+	descPoolCreateInfo.poolSizeCount = InDescTypeCount;
+	descPoolCreateInfo.pPoolSizes = InPerDescTypeCounts;
+
+	_vk_try(vkCreateDescriptorPool(m_device, &descPoolCreateInfo, m_allocator->GetVkAllocator(), m_pDescPool.MakeInstance()));
+}
+
 void LogicalDevice::FlushAllQueue()
 {
 	_vk_try(vkDeviceWaitIdle(m_device));
+}
+
+void LogicalDevice::ResetCmdPool()
+{
+	_vk_try(vkResetCommandPool(m_device, *m_pCmdPool, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT));
 }

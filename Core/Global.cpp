@@ -4,6 +4,7 @@
 
 #include "Global.h"
 #include "BaseAllocator.h"
+#include "LogicalDevice.h"
 
 namespace
 {
