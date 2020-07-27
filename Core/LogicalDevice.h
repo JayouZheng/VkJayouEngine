@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "vk_util.h"
+#include "Common.h"
 
 class CommandQueue;
 class BaseAllocator;
@@ -21,22 +21,26 @@ public:
 
 	LogicalDevice() = delete;
 	LogicalDevice(const VkDevice& InDevice);
+	LogicalDevice(const void* Null);
 	LogicalDevice& operator=(const VkDevice& InDevice);
 
 	virtual ~LogicalDevice() {}
 
 public:
 
-	operator VkDevice();
-	operator VkDevice*();
+	operator VkDevice() const;
 
 	bool operator==(const VkDevice& InDevice) const;
 
+	VkDevice  GetVkDevice() const;
+	VkDevice* GetAddressOfVkDevice();
+
 public:
 
-	void SetVkDevice(const VkDevice& InDevice);
+	void SetVkDevice (const VkDevice& InDevice);
 	void SetAllocator(BaseAllocator* InAllocator);
-	VkAllocationCallbacks* GetVkAllocator() const;
+
+	bool IsNoneAllocator() const;
 
 public:
 
@@ -111,6 +115,10 @@ public:
 
 	void            CreatePipelineCache        (VkPipelineCache* OutPipCache, const VkPipelineCacheCreateInfo& InCreateInfo);
 	void            CreatePipelineCache        (VkPipelineCache* OutPipCache, const VkPhysicalDeviceProperties& InPDProp);
+	size_t          GetPipelineCacheDataSize   (VkPipelineCache InPipCache);
+	void            GetPipelineCacheData       (VkPipelineCache InPipCache, size_t InDataSize, void* OutData);
+	bool            SavePipelineCacheToFile    (VkPipelineCache InPipCache, const char* InPath);
+	void            MergePipelineCaches        (VkPipelineCache OutMergedPipCache, const VkPipelineCache* InPipCaches, uint32 InSrcPipCacheCount);
 
 	void FlushAllQueue();
 

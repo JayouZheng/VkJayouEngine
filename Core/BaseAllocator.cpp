@@ -6,12 +6,22 @@
 
 BaseAllocator::BaseAllocator()
 {
-
+	m_allocator.pUserData = (void*)this;
+	m_allocator.pfnAllocation = &BaseAllocator::_Allocation;
+	m_allocator.pfnReallocation = &BaseAllocator::_Reallocation;
+	m_allocator.pfnFree = &BaseAllocator::_Free;
+	m_allocator.pfnInternalAllocation = nullptr;
+	m_allocator.pfnInternalFree = nullptr;
 }
 
 BaseAllocator::~BaseAllocator()
 {
 	
+}
+
+VkAllocationCallbacks* BaseAllocator::GetVkAllocator()
+{
+	return &m_allocator;
 }
 
 #pragma region VKAPI_CALL

@@ -2,9 +2,10 @@
 // vk_app.cpp
 //
 
+#include "Core/BaseLayer.h"
+#include "Core/Global.h"
+
 #include "vk_app.h"
-#include "BaseLayer.h"
-#include "Global.h"
 #include "app_allocator.h"
 
 vk_app::vk_app()

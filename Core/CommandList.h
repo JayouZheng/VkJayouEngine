@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "vk_util.h"
+#include "Common.h"
 #include "Global.h"
 
 class CommandList
@@ -48,7 +48,7 @@ public:
 	void ClearBufferUint32      (VkBuffer InBuffer, const uint32 InValue);
 	void ClearBufferFloat       (VkBuffer InBuffer, const float    InValue);
 	void ClearBufferUint32      (VkBuffer InBuffer, VkDeviceSize InOffset, VkDeviceSize InSize, const uint32 InValue);
-	void ClearBufferFloat       (VkBuffer InBuffer, VkDeviceSize InOffset, VkDeviceSize InSize, const float    InValue);
+	void ClearBufferFloat       (VkBuffer InBuffer, VkDeviceSize InOffset, VkDeviceSize InSize, const float  InValue);
 
 	void UpdateBuffer           (VkBuffer InBuffer, VkDeviceSize InOffset, VkDeviceSize InSize, const void* InData);
 

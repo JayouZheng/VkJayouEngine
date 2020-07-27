@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "vk_util.h"
+#include "Common.h"
 #include "VkSmartPtr.h"
 #include "BaseAllocator.h"
 #include "Window.h"
@@ -56,9 +56,6 @@ private:
 
 	BaseAllocator* m_allocator = nullptr;
 
-	VkAllocationCallbacks* GetVkAllocator() const;
-
-
 protected:
 
 	// Physical device infos.
@@ -96,9 +93,10 @@ protected:
 
 protected:
 
-	LogicalDevice m_device = VK_NULL_HANDLE;
-	CommandQueue  m_queue = VK_NULL_HANDLE;
-	VkSurfaceKHR  m_surface = VK_NULL_HANDLE;
+	LogicalDevice  m_device = _nullptr;
+
+	CommandQueue   m_queue   = VK_NULL_HANDLE;
+	VkSurfaceKHR   m_surface = VK_NULL_HANDLE;
 
 	int32                                           m_mainPDIndex = -1;
 	int32                                           m_mainQFIndex = -1;

@@ -10,27 +10,27 @@ class BaseAllocator;
 
 namespace Global
 {
-	VkInstance GetVkInstance();
-	void SetVkInstance(const VkInstance& InInstance);
+	VkInstance          GetVkInstance();
+	void                SetVkInstance(const VkInstance& InInstance);
 
-	LogicalDevice GetLogicalDevice();
-	void SetLogicalDevice(const LogicalDevice& InLogicalDevice);
+	LogicalDevice       GetLogicalDevice();
+	void                SetLogicalDevice(const LogicalDevice& InLogicalDevice);
 
-	VkDevice GetVkDevice();
-	void SetVkDevice(const VkDevice& InDevice);
+	VkDevice            GetVkDevice();
+	void                SetVkDevice(const VkDevice& InDevice);
 
-	void Decrease();
-	void Advance();
+	void                Decrease();
+	void                Advance();
 
-	bool IsZero();
+	bool                IsZero();
 
-	void ApplicationDestroyManually(bool InFlag);
-	bool IsDestroyManually();
+	void                ApplicationDestroyManually(bool InFlag);
+	bool                IsDestroyManually();
 
-	BaseAllocator* GetAllocator();
-	VkAllocationCallbacks* GetVkAllocator();
-	void SetAllocator(BaseAllocator* InAllocator);
-	void SafeFreeAllocator();
+	BaseAllocator*           GetAllocator();
+	VkAllocationCallbacks*   GetVkAllocator();
+	void                     SetAllocator(BaseAllocator* InAllocator);
+	void                     SafeFreeAllocator();
 }
 
 namespace VkColor

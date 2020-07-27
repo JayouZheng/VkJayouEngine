@@ -154,30 +154,30 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="BaseAllocator.cpp" />
     <ClCompile Include="app_allocator.cpp" />
-    <ClCompile Include="BaseLayer.cpp" />
-    <ClCompile Include="CommandList.cpp" />
-    <ClCompile Include="CommandQueue.cpp" />
-    <ClCompile Include="Global.cpp" />
-    <ClCompile Include="LogicalDevice.cpp" />
+    <ClCompile Include="Core\BaseAllocator.cpp" />
+    <ClCompile Include="Core\BaseLayer.cpp" />
+    <ClCompile Include="Core\CommandList.cpp" />
+    <ClCompile Include="Core\CommandQueue.cpp" />
+    <ClCompile Include="Core\Global.cpp" />
+    <ClCompile Include="Core\LogicalDevice.cpp" />
+    <ClCompile Include="Core\Window.cpp" />
     <ClCompile Include="vk_app.cpp" />
-    <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="BaseAllocator.h" />
-    <ClInclude Include="BaseLayer.h" />
-    <ClInclude Include="CommandList.h" />
-    <ClInclude Include="CommandQueue.h" />
-    <ClInclude Include="Global.h" />
-    <ClInclude Include="LogicalDevice.h" />
-    <ClInclude Include="Platform.h" />
-    <ClInclude Include="SmartPtr.h" />
-    <ClInclude Include="TypeDef.h" />
+    <ClInclude Include="Core\BaseAllocator.h" />
+    <ClInclude Include="Core\BaseLayer.h" />
+    <ClInclude Include="Core\CommandList.h" />
+    <ClInclude Include="Core\CommandQueue.h" />
+    <ClInclude Include="Core\Common.h" />
+    <ClInclude Include="Core\Global.h" />
+    <ClInclude Include="Core\LogicalDevice.h" />
+    <ClInclude Include="Core\Platform.h" />
+    <ClInclude Include="Core\SmartPtr.h" />
+    <ClInclude Include="Core\TypeDef.h" />
+    <ClInclude Include="Core\VkSmartPtr.h" />
+    <ClInclude Include="Core\Window.h" />
     <ClInclude Include="vk_app.h" />
-    <ClInclude Include="VkSmartPtr.h" />
-    <ClInclude Include="vk_util.h" />
-    <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />

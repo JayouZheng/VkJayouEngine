@@ -2,8 +2,8 @@
 // main.cpp
 //
 
+#include "Core/TypeDef.h"
 #include "vk_app.h"
-#include "vk_util.h"
 
 int main()
 {

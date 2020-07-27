@@ -4,29 +4,23 @@
 
 #pragma once
 
-#include "vk_util.h"
+#include "Common.h"
 
 class BaseAllocator
 {
 
 public:
 
-	// Operator that allows an instance of this class to be used as a
-	// VkAllocationCallbacks structure
-	inline operator VkAllocationCallbacks() const
-	{
-		VkAllocationCallbacks result;
-		result.pUserData = (void*)this;
-		result.pfnAllocation = &BaseAllocator::_Allocation;
-		result.pfnReallocation = &BaseAllocator::_Reallocation;
-		result.pfnFree = &BaseAllocator::_Free;
-		result.pfnInternalAllocation = nullptr;
-		result.pfnInternalFree = nullptr;
-		return result;
-	}
-
 	BaseAllocator();
 	virtual ~BaseAllocator();
+
+protected:
+
+	VkAllocationCallbacks m_allocator;
+
+public:
+
+	VkAllocationCallbacks* GetVkAllocator();
 
 private:
 
@@ -44,5 +38,5 @@ private:
 
 	virtual void* Reallocation(void* pOriginal, size_t size, size_t alignment, VkSystemAllocationScope allocationScope) = 0;
 
-	virtual void Free(void* pMemory) = 0;
+	virtual void  Free(void* pMemory) = 0;
 };

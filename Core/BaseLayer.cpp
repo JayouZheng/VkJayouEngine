@@ -5,11 +5,6 @@
 #include "BaseLayer.h"
 #include "Global.h"
 
-VkAllocationCallbacks* BaseLayer::GetVkAllocator() const
-{
-	return (m_allocator != nullptr) ? (VkAllocationCallbacks*)m_allocator : nullptr;
-}
-
 BaseLayer::BaseLayer()
 {
 
@@ -89,7 +84,7 @@ void BaseLayer::Init()
 		}
 
 		VkInstance vkInstance = VK_NULL_HANDLE;
-		_vk_try(vkCreateInstance(&instanceCreateInfo, GetVkAllocator(), &vkInstance));
+		_vk_try(vkCreateInstance(&instanceCreateInfo, m_allocator->GetVkAllocator(), &vkInstance));
 		Global::SetVkInstance(vkInstance);
 
 		// Enum physical devices.
@@ -225,12 +220,10 @@ void BaseLayer::Init()
 			deviceCreateInfo.ppEnabledExtensionNames = numPDSupportExts > 0 ? m_supportPDExts.data() : nullptr;
 		}
 
-		VkDevice vkDevice = VK_NULL_HANDLE;
-		_vk_try(vkCreateDevice(m_physicalDevices[m_mainPDIndex], &deviceCreateInfo, GetVkAllocator(), &vkDevice));
-		Global::SetVkDevice(vkDevice);
-		m_device = Global::GetLogicalDevice();
+		_vk_try(vkCreateDevice(m_physicalDevices[m_mainPDIndex], &deviceCreateInfo, m_allocator->GetVkAllocator(), m_device.GetAddressOfVkDevice()));
 		m_device.SetAllocator(m_allocator);
-
+		Global::SetLogicalDevice(m_device);
+		
 		m_queue = m_device.GetQueue(m_mainQFIndex);
 
 		m_device.CreateCommandPool(m_pCmdPool.MakeInstance(), m_mainQFIndex);
@@ -249,7 +242,7 @@ void BaseLayer::Init()
 			win32SurfaceCreateInfo.hinstance = (HINSTANCE)m_window->GetHinstance();
 			win32SurfaceCreateInfo.hwnd = (HWND)m_window->GetHwnd();
 
-			_vk_try(vkCreateWin32SurfaceKHR(Global::GetVkInstance(), &win32SurfaceCreateInfo, GetVkAllocator(), &m_surface));
+			_vk_try(vkCreateWin32SurfaceKHR(Global::GetVkInstance(), &win32SurfaceCreateInfo, m_allocator->GetVkAllocator(), &m_surface));
 		}
 		
 #endif

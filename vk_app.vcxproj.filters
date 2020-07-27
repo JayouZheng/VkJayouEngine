@@ -4,31 +4,74 @@
     <ClCompile Include="vk_app.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="app_allocator.cpp" />
-    <ClCompile Include="CommandList.cpp" />
-    <ClCompile Include="CommandQueue.cpp" />
-    <ClCompile Include="LogicalDevice.cpp" />
-    <ClCompile Include="BaseLayer.cpp" />
-    <ClCompile Include="BaseAllocator.cpp" />
-    <ClCompile Include="Global.cpp" />
-    <ClCompile Include="Window.cpp" />
+    <ClCompile Include="Core\BaseAllocator.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\BaseLayer.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\CommandList.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\CommandQueue.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Global.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\LogicalDevice.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Window.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="vk_app.h" />
-    <ClInclude Include="SmartPtr.h" />
-    <ClInclude Include="vk_util.h" />
     <ClInclude Include="app_allocator.h" />
-    <ClInclude Include="CommandList.h" />
-    <ClInclude Include="CommandQueue.h" />
-    <ClInclude Include="LogicalDevice.h" />
-    <ClInclude Include="BaseLayer.h" />
-    <ClInclude Include="BaseAllocator.h" />
-    <ClInclude Include="VkSmartPtr.h" />
-    <ClInclude Include="Global.h" />
-    <ClInclude Include="Platform.h" />
-    <ClInclude Include="Window.h" />
-    <ClInclude Include="TypeDef.h" />
+    <ClInclude Include="Core\BaseAllocator.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\BaseLayer.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\CommandList.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\CommandQueue.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Common.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Global.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\LogicalDevice.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Platform.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\SmartPtr.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\TypeDef.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\VkSmartPtr.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Window.h">
+      <Filter>Core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Core">
+      <UniqueIdentifier>{9b922a2b-d794-4f31-93f5-30305b5c7e01}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>

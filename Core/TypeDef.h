@@ -4,10 +4,14 @@
 
 #pragma once
 
-#include <string>
-#include <cstring>
-#include <iostream>
 #include <cassert>
+#include <cstring>
+#include <cstdio>
+#include <cstdlib>
+
+#include <string>
+#include <iostream>
+#include <fstream>
 #include <vector>
 #include <array>
 #include <memory>
@@ -32,6 +36,8 @@
 #define _exit_log(x, str) if(x) { std::cout << str << std::endl; exit(1); }
 
 #define _name_of(x) L#x
+
+#define _nullptr (void*)0
 
 
 #define _index_0           0
@@ -60,3 +66,10 @@ using byte = uint8;
 typedef void(__cdecl *PFVOID)(void);
 typedef void(__cdecl *PFVOIDVOID)(void);
 typedef int(__cdecl *PFINTVOID)(void);
+
+
+enum EInitFlag
+{
+	IF_Init,
+	IF_Zero
+};

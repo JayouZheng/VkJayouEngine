@@ -7,13 +7,14 @@
 
 namespace
 {
-	static VkInstance g_instance = VK_NULL_HANDLE;
-	static LogicalDevice g_device = VK_NULL_HANDLE;
+	static VkInstance     g_instance         = VK_NULL_HANDLE;
 
-	static BaseAllocator* g_allocator = nullptr;
+	static LogicalDevice  g_device           = _nullptr;
 
-	static uint32 g_count = _count_0;
-	static bool g_bDestroyManually = false;
+	static BaseAllocator* g_allocator        = nullptr;
+
+	static uint32         g_count            = _count_0;
+	static bool           g_bDestroyManually = false;
 }
 
 VkInstance Global::GetVkInstance()
@@ -37,6 +38,10 @@ LogicalDevice Global::GetLogicalDevice()
 void Global::SetLogicalDevice(const LogicalDevice& InLogicalDevice)
 {
 	g_device = InLogicalDevice;
+	if (InLogicalDevice.IsNoneAllocator())
+	{
+		g_device.SetAllocator(Global::GetAllocator());
+	}
 }
 
 VkDevice Global::GetVkDevice()
@@ -82,7 +87,7 @@ BaseAllocator* Global::GetAllocator()
 
 VkAllocationCallbacks* Global::GetVkAllocator()
 {
-	return (g_allocator != nullptr) ? (VkAllocationCallbacks*)g_allocator : nullptr;
+	return g_allocator->GetVkAllocator();
 }
 
 void Global::SetAllocator(BaseAllocator* InAllocator)
