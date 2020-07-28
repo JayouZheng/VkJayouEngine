@@ -182,7 +182,7 @@ void BaseLayer::Init()
 		
 		VkDeviceQueueCreateInfo deviceQueueCreateInfo = {};
 		deviceQueueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-		deviceQueueCreateInfo.queueFamilyIndex = m_mainQFIndex;       // Graphic Queue Family.
+		deviceQueueCreateInfo.queueFamilyIndex = m_mainQFIndex;                   // Graphic Queue Family.
 		deviceQueueCreateInfo.queueCount = _count_1;                              // Only one queue to use.
 		deviceQueueCreateInfo.pQueuePriorities = nullptr;                         // Default priority. 
 
@@ -320,13 +320,13 @@ void BaseLayer::Init()
 		else _exit_log(true, "Create Swapchain Failed! Application Terminate!");
 
 		// m_window->Show();
-
 	}
 
 }
 
 void BaseLayer::Free()
 {
+	Global::PrintLog();
 #if 0
 	if (Global::IsDestroyManually())
 	{

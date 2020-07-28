@@ -26,7 +26,7 @@ namespace BaseLayerConfig
 
 	struct SSwapchainCreateInfo
 	{
-		uint32                      frameCount;
+		uint32                        frameCount;
 		VkSurfaceFormatKHR            surfaceFormat;
 		VkImageUsageFlags             imageUsage;
 		VkSurfaceTransformFlagBitsKHR surfacePreTransform;
@@ -119,6 +119,9 @@ public:
 public:
 
 	void Init();
+
+private:
+
 	void Free();
 
 public:

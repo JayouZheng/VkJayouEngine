@@ -295,6 +295,26 @@ void CommandList::DispatchIndirect(VkBuffer InBuffer, VkDeviceSize InOffset)
 	vkCmdDispatchIndirect(m_cmdBuffer, InBuffer, InOffset);
 }
 
+void CommandList::BindDescriptorSets(VkPipelineLayout InPipLayout, VkPipelineBindPoint InPipBindPoint, const VkDescriptorSet* InDescSets, uint32 InSetCount /*= _count_1*/, uint32 InSetOffset /*= _offset_0*/, const uint32* InDynamicOffsets /*= nullptr*/, uint32 InDynamicOffsetCount /*= _count_0*/)
+{
+	vkCmdBindDescriptorSets(m_cmdBuffer, InPipBindPoint, InPipLayout, InSetOffset, InSetCount, InDescSets, InDynamicOffsetCount, InDynamicOffsets);
+}
+
+void CommandList::BindComputeDescSets(VkPipelineLayout InPipLayout, const VkDescriptorSet* InDescSets, uint32 InSetCount /*= _count_1*/, uint32 InSetOffset /*= _offset_0*/, const uint32* InDynamicOffsets /*= nullptr*/, uint32 InDynamicOffsetCount /*= _count_0*/)
+{
+	vkCmdBindDescriptorSets(m_cmdBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, InPipLayout, InSetOffset, InSetCount, InDescSets, InDynamicOffsetCount, InDynamicOffsets);
+}
+
+void CommandList::BindGraphicDescSets(VkPipelineLayout InPipLayout, const VkDescriptorSet* InDescSets, uint32 InSetCount /*= _count_1*/, uint32 InSetOffset /*= _offset_0*/, const uint32* InDynamicOffsets /*= nullptr*/, uint32 InDynamicOffsetCount /*= _count_0*/)
+{
+	vkCmdBindDescriptorSets(m_cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, InPipLayout, InSetOffset, InSetCount, InDescSets, InDynamicOffsetCount, InDynamicOffsets);
+}
+
+void CommandList::PushConstants(VkPipelineLayout InPipLayout, VkShaderStageFlags InStageFlags, const void* InValues, uint32 InSize, uint32 InOffset /*= _offset_0*/)
+{
+	vkCmdPushConstants(m_cmdBuffer, InPipLayout, InStageFlags, InOffset, InSize, InValues);
+}
+
 void CommandList::ResourceBarriers(
 	VkPipelineStageFlags InSrcStageMask, 
 	VkPipelineStageFlags InDstStageMask,
@@ -308,7 +328,7 @@ void CommandList::ResourceBarriers(
 	uint32 InImageMemBarrierCount, 
 	const VkImageMemoryBarrier* InImageMemoryBarriers, 
 	/* Dependency Flags */ 
-	VkDependencyFlags InDependencyFlags /*= 0*/)
+	VkDependencyFlags InDependencyFlags /*= _flag_none*/)
 {
 	vkCmdPipelineBarrier(
 		m_cmdBuffer, 
@@ -327,7 +347,7 @@ void CommandList::MemoryBarrier(
 	VkPipelineStageFlags InSrcStageMask, 
 	VkPipelineStageFlags InDstStageMask, 
 	const VkMemoryBarrier& InMemBarrier, 
-	VkDependencyFlags InDependencyFlags /*= 0*/)
+	VkDependencyFlags InDependencyFlags /*= _flag_none*/)
 {
 	vkCmdPipelineBarrier(
 		m_cmdBuffer,
@@ -345,7 +365,7 @@ void CommandList::MemoryBarrier(
 	VkPipelineStageFlags InDstStageMask, 
 	VkAccessFlags InSrcAccessMask, 
 	VkAccessFlags InDstAccessMask, 
-	VkDependencyFlags InDependencyFlags /*= 0*/)
+	VkDependencyFlags InDependencyFlags /*= _flag_none*/)
 {
 	VkMemoryBarrier memBarrier = {};
 	memBarrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
@@ -360,7 +380,7 @@ void CommandList::MemoryBarriers(
 	VkPipelineStageFlags InDstStageMask, 
 	uint32 InMemBarrierCount, 
 	const VkMemoryBarrier* InMemBarriers, 
-	VkDependencyFlags InDependencyFlags /*= 0*/)
+	VkDependencyFlags InDependencyFlags /*= _flag_none*/)
 {
 	vkCmdPipelineBarrier(
 		m_cmdBuffer, 
@@ -377,7 +397,7 @@ void CommandList::BufferBarrier(
 	VkPipelineStageFlags InSrcStageMask, 
 	VkPipelineStageFlags InDstStageMask, 
 	const VkBufferMemoryBarrier& InBufferMemBarrier, 
-	VkDependencyFlags InDependencyFlags /*= 0*/)
+	VkDependencyFlags InDependencyFlags /*= _flag_none*/)
 {
 	vkCmdPipelineBarrier(
 		m_cmdBuffer, 
@@ -389,7 +409,7 @@ void CommandList::BufferBarrier(
 		_count_0, nullptr);
 }
 
-void CommandList::BufferBarrier(const SBufferBarrier& InSBufferBarrier, VkDependencyFlags InDependencyFlags /*= 0*/)
+void CommandList::BufferBarrier(const SBufferBarrier& InSBufferBarrier, VkDependencyFlags InDependencyFlags /*= _flag_none*/)
 {
 	VkBufferMemoryBarrier bufferMemBarrier = {};
 	bufferMemBarrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
@@ -409,7 +429,7 @@ void CommandList::BufferBarriers(
 	VkPipelineStageFlags InDstStageMask, 
 	uint32 InBufferMemBarrierCount, 
 	const VkBufferMemoryBarrier* InBufferMemBarriers, 
-	VkDependencyFlags InDependencyFlags /*= 0*/)
+	VkDependencyFlags InDependencyFlags /*= _flag_none*/)
 {
 	vkCmdPipelineBarrier(
 		m_cmdBuffer, 
@@ -426,7 +446,7 @@ void CommandList::ImageBarrier(
 	VkPipelineStageFlags InSrcStageMask, 
 	VkPipelineStageFlags InDstStageMask, 
 	const VkImageMemoryBarrier& InImageMemBarrier, 
-	VkDependencyFlags InDependencyFlags /*= 0*/)
+	VkDependencyFlags InDependencyFlags /*= _flag_none*/)
 {
 	vkCmdPipelineBarrier(
 		m_cmdBuffer, 
@@ -438,7 +458,7 @@ void CommandList::ImageBarrier(
 		_count_1, &InImageMemBarrier);
 }
 
-void CommandList::ImageBarrier(const SImageBarrier& InSImageBarrier, VkDependencyFlags InDependencyFlags /*= 0*/)
+void CommandList::ImageBarrier(const SImageBarrier& InSImageBarrier, VkDependencyFlags InDependencyFlags /*= _flag_none*/)
 {
 	VkImageMemoryBarrier imageMemBarrier = {};
 	imageMemBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -459,7 +479,7 @@ void CommandList::ImageBarriers(
 	VkPipelineStageFlags InDstStageMask, 
 	uint32 InImageMemBarrierCount, 
 	const VkImageMemoryBarrier* InImageMemBarriers, 
-	VkDependencyFlags InDependencyFlags /*= 0*/)
+	VkDependencyFlags InDependencyFlags /*= _flag_none*/)
 {
 	vkCmdPipelineBarrier(
 		m_cmdBuffer, 

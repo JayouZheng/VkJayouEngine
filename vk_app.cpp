@@ -23,7 +23,6 @@ void vk_app::Begin()
 	Global::SetAllocator(new app_allocator);
 	BaseLayer base(Global::GetAllocator());
 	base.Init();
-	base.Free();
 }
 
 void vk_app::End()

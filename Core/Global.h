@@ -28,10 +28,13 @@ namespace Global
 	void                ApplicationDestroyManually(bool InFlag);
 	bool                IsDestroyManually();
 
+	void                CacheLog(const std::string& InLog);
+	void                PrintLog();
+
 	BaseAllocator*           GetAllocator();
 	VkAllocationCallbacks*   GetVkAllocator();
 	void                     SetAllocator(BaseAllocator* InAllocator);
-	void                     SafeFreeAllocator();
+	void                     SafeFreeAllocator();                
 }
 
 namespace VkColor

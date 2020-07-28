@@ -121,7 +121,10 @@ private:
 
 	~VkCounter()
 	{
-		
+
+#ifdef _vk_destroy
+#undef _vk_destroy
+#endif
 #define _vk_destroy(object) if (std::is_same<Vk##object, T>::value) vkDestroy##object(Global::GetVkDevice(), (Vk##object)*_ptr, Global::GetVkAllocator())
 
 		if (_ptr != nullptr)

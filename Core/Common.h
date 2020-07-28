@@ -75,4 +75,4 @@ void vk_try(const TLambda& lambda, const wchar_t* func_name, const std::wstring&
 	}
 }
 
-#define _vk_try(x) vk_try(x, _name_of(x), to_wstring(__FILE__), __LINE__);
+#define _vk_try(x) vk_try(x, _wname_of(x), to_wstring(__FILE__), __LINE__);

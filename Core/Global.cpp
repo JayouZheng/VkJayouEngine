@@ -16,6 +16,9 @@ namespace
 
 	static uint32         g_count            = _count_0;
 	static bool           g_bDestroyManually = false;
+
+
+	static std::vector<std::string>          g_logs;
 }
 
 VkInstance Global::GetVkInstance()
@@ -79,6 +82,21 @@ void Global::ApplicationDestroyManually(bool InFlag)
 bool Global::IsDestroyManually()
 {
 	return g_bDestroyManually;
+}
+
+void Global::CacheLog(const std::string& InLog)
+{
+	g_logs.push_back(InLog);
+}
+
+void Global::PrintLog()
+{
+	uint32 logID = 0;
+	for (auto& log : g_logs)
+	{
+		_cmd_print_line("Global Cached " + std::to_string(g_logs.size()) + " Logs:");
+		_cmd_print_line(std::to_string(logID) + ". " + log);
+	}
 }
 
 BaseAllocator* Global::GetAllocator()

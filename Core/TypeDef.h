@@ -35,7 +35,12 @@
 
 #define _exit_log(x, str) if(x) { std::cout << str << std::endl; exit(1); }
 
-#define _name_of(x) L#x
+#define _return_log(str) { Global::CacheLog(str); return; }
+
+#define _name_of(x)   #x
+#define _wname_of(x) L#x
+
+#define _str_name_of(x) std::string(_name_of(x))
 
 #define _nullptr (void*)0
 
@@ -45,6 +50,7 @@
 #define _count_1           1
 #define _offset_0          0
 #define _offset_start      0
+#define _flag_none         0
 #define _max_path          260
 
 

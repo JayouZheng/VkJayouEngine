@@ -50,7 +50,7 @@ public:
 	void CopyBuffer             (VkBuffer InSrcBuffer, VkBuffer InDstBuffer, uint32 InRegionCount, const VkBufferCopy* InRegions);
 
 	void ClearBufferUint32      (VkBuffer InBuffer, const uint32 InValue);
-	void ClearBufferFloat       (VkBuffer InBuffer, const float    InValue);
+	void ClearBufferFloat       (VkBuffer InBuffer, const float  InValue);
 	void ClearBufferUint32      (VkBuffer InBuffer, VkDeviceSize InOffset, VkDeviceSize InSize, const uint32 InValue);
 	void ClearBufferFloat       (VkBuffer InBuffer, VkDeviceSize InOffset, VkDeviceSize InSize, const float  InValue);
 
@@ -86,6 +86,12 @@ public:
 
 	void Dispatch               (uint32 x, uint32 y, uint32 z);
 	void DispatchIndirect       (VkBuffer InBuffer, VkDeviceSize InOffset);
+
+	void BindDescriptorSets     (VkPipelineLayout InPipLayout, VkPipelineBindPoint InPipBindPoint, const VkDescriptorSet* InDescSets, uint32 InSetCount = _count_1, uint32 InSetOffset = _offset_0, const uint32* InDynamicOffsets = nullptr, uint32 InDynamicOffsetCount = _count_0);
+	void BindComputeDescSets    (VkPipelineLayout InPipLayout, const VkDescriptorSet* InDescSets, uint32 InSetCount = _count_1, uint32 InSetOffset = _offset_0, const uint32* InDynamicOffsets = nullptr, uint32 InDynamicOffsetCount = _count_0);
+	void BindGraphicDescSets    (VkPipelineLayout InPipLayout, const VkDescriptorSet* InDescSets, uint32 InSetCount = _count_1, uint32 InSetOffset = _offset_0, const uint32* InDynamicOffsets = nullptr, uint32 InDynamicOffsetCount = _count_0);
+
+	void PushConstants          (VkPipelineLayout InPipLayout, VkShaderStageFlags InStageFlags, const void* InValues, uint32 InSize, uint32 InOffset = _offset_0);
 
 #pragma region PiplineBarrier
 
@@ -127,61 +133,61 @@ public:
 		uint32                       InImageMemBarrierCount,
 		const VkImageMemoryBarrier*  InImageMemoryBarriers,
 		// Dependency Flags
-		VkDependencyFlags            InDependencyFlags = 0);
+		VkDependencyFlags            InDependencyFlags = _flag_none);
 
 	void MemoryBarrier(
 		VkPipelineStageFlags   InSrcStageMask,
 		VkPipelineStageFlags   InDstStageMask,
 		const VkMemoryBarrier& InMemBarrier,
-		VkDependencyFlags      InDependencyFlags = 0);
+		VkDependencyFlags      InDependencyFlags = _flag_none);
 
 	void MemoryBarrier(
 		VkPipelineStageFlags   InSrcStageMask,
 		VkPipelineStageFlags   InDstStageMask,
 		VkAccessFlags          InSrcAccessMask,
 		VkAccessFlags          InDstAccessMask,
-		VkDependencyFlags      InDependencyFlags = 0);
+		VkDependencyFlags      InDependencyFlags = _flag_none);
 
 	void MemoryBarriers(
 		VkPipelineStageFlags   InSrcStageMask,
 		VkPipelineStageFlags   InDstStageMask,
 		uint32                 InMemBarrierCount,
 		const VkMemoryBarrier* InMemBarriers,
-		VkDependencyFlags      InDependencyFlags = 0);
+		VkDependencyFlags      InDependencyFlags = _flag_none);
 
 	void BufferBarrier(
 		VkPipelineStageFlags         InSrcStageMask,
 		VkPipelineStageFlags         InDstStageMask,
 		const VkBufferMemoryBarrier& InBufferMemBarrier,
-		VkDependencyFlags            InDependencyFlags = 0);
+		VkDependencyFlags            InDependencyFlags = _flag_none);
 
 	void BufferBarrier(
 		const SBufferBarrier&        InSBufferBarrier, 
-		VkDependencyFlags            InDependencyFlags = 0);
+		VkDependencyFlags            InDependencyFlags = _flag_none);
 
 	void BufferBarriers(
 		VkPipelineStageFlags         InSrcStageMask,
 		VkPipelineStageFlags         InDstStageMask,
 		uint32                       InBufferMemBarrierCount,
 		const VkBufferMemoryBarrier* InBufferMemBarriers,
-		VkDependencyFlags            InDependencyFlags = 0);
+		VkDependencyFlags            InDependencyFlags = _flag_none);
 
 	void ImageBarrier(
 		VkPipelineStageFlags         InSrcStageMask,
 		VkPipelineStageFlags         InDstStageMask,
 		const VkImageMemoryBarrier&  InImageMemBarrier,
-		VkDependencyFlags            InDependencyFlags = 0);
+		VkDependencyFlags            InDependencyFlags = _flag_none);
 
 	void ImageBarrier(
 		const SImageBarrier&         InSImageBarrier, 
-		VkDependencyFlags            InDependencyFlags = 0);
+		VkDependencyFlags            InDependencyFlags = _flag_none);
 
 	void ImageBarriers(
 		VkPipelineStageFlags         InSrcStageMask,
 		VkPipelineStageFlags         InDstStageMask,
 		uint32                       InImageMemBarrierCount,
 		const VkImageMemoryBarrier*  InImageMemBarriers,
-		VkDependencyFlags            InDependencyFlags = 0);
+		VkDependencyFlags            InDependencyFlags = _flag_none);
 
 #pragma endregion
 
