@@ -2,8 +2,7 @@
 // LogicalDevice.cpp
 //
 
-#include "LogicalDevice.h"
-#include "CommandQueue.h"
+#include "BaseLayer.h"
 
 LogicalDevice::LogicalDevice(const VkDevice& InDevice)
 	: m_device(InDevice)
@@ -46,6 +45,11 @@ bool LogicalDevice::operator==(const VkDevice& InDevice) const
 void LogicalDevice::SetVkDevice(const VkDevice& InDevice)
 {
 	m_device = InDevice;
+}
+
+void LogicalDevice::SetBaseLayer(BaseLayer* InBaseLayer)
+{
+	m_baseLayer = InBaseLayer;
 }
 
 void LogicalDevice::SetAllocator(BaseAllocator* InAllocator)
@@ -470,8 +474,156 @@ void LogicalDevice::CreatePointWrapSampler(VkSampler* OutSampler)
 	samplerCreateInfo.compareEnable = VK_FALSE;
 	samplerCreateInfo.compareOp = VK_COMPARE_OP_NEVER;                       // It does not matter.
 	samplerCreateInfo.minLod = 0.0f;
-	samplerCreateInfo.maxLod = 16; // ?
+	samplerCreateInfo.maxLod = GConfig::Sampler::SamplerMaxLod;
 	samplerCreateInfo.borderColor = VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK; // It does not matter.
+	samplerCreateInfo.unnormalizedCoordinates = VK_FALSE;
+
+	_vk_try(vkCreateSampler(m_device, &samplerCreateInfo, m_allocator->GetVkAllocator(), OutSampler));
+}
+
+void LogicalDevice::CreatePointClampSampler(VkSampler* OutSampler)
+{
+	VkSamplerCreateInfo samplerCreateInfo = {};
+	samplerCreateInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+	samplerCreateInfo.magFilter = VK_FILTER_NEAREST;
+	samplerCreateInfo.minFilter = VK_FILTER_NEAREST;
+	samplerCreateInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
+	samplerCreateInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+	samplerCreateInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+	samplerCreateInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+	samplerCreateInfo.mipLodBias = 0;
+	samplerCreateInfo.anisotropyEnable = VK_FALSE;
+	samplerCreateInfo.maxAnisotropy = 1.0f;
+	samplerCreateInfo.compareEnable = VK_FALSE;
+	samplerCreateInfo.compareOp = VK_COMPARE_OP_NEVER;                       // It does not matter.
+	samplerCreateInfo.minLod = 0.0f;
+	samplerCreateInfo.maxLod = GConfig::Sampler::SamplerMaxLod;
+	samplerCreateInfo.borderColor = VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK; // It does not matter.
+	samplerCreateInfo.unnormalizedCoordinates = VK_FALSE;
+
+	_vk_try(vkCreateSampler(m_device, &samplerCreateInfo, m_allocator->GetVkAllocator(), OutSampler));
+}
+
+void LogicalDevice::CreateLinearWrapSampler(VkSampler* OutSampler)
+{
+	VkSamplerCreateInfo samplerCreateInfo = {};
+	samplerCreateInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+	samplerCreateInfo.magFilter = VK_FILTER_LINEAR;
+	samplerCreateInfo.minFilter = VK_FILTER_LINEAR;
+	samplerCreateInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+	samplerCreateInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	samplerCreateInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	samplerCreateInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	samplerCreateInfo.mipLodBias = 0;
+	samplerCreateInfo.anisotropyEnable = VK_FALSE;
+	samplerCreateInfo.maxAnisotropy = 1.0f;
+	samplerCreateInfo.compareEnable = VK_FALSE;
+	samplerCreateInfo.compareOp = VK_COMPARE_OP_NEVER;                       // It does not matter.
+	samplerCreateInfo.minLod = 0.0f;
+	samplerCreateInfo.maxLod = GConfig::Sampler::SamplerMaxLod;
+	samplerCreateInfo.borderColor = VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK; // It does not matter.
+	samplerCreateInfo.unnormalizedCoordinates = VK_FALSE;
+
+	_vk_try(vkCreateSampler(m_device, &samplerCreateInfo, m_allocator->GetVkAllocator(), OutSampler));
+}
+
+void LogicalDevice::CreateLinearClampSampler(VkSampler* OutSampler)
+{
+	VkSamplerCreateInfo samplerCreateInfo = {};
+	samplerCreateInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+	samplerCreateInfo.magFilter = VK_FILTER_LINEAR;
+	samplerCreateInfo.minFilter = VK_FILTER_LINEAR;
+	samplerCreateInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+	samplerCreateInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+	samplerCreateInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+	samplerCreateInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+	samplerCreateInfo.mipLodBias = 0;
+	samplerCreateInfo.anisotropyEnable = VK_FALSE;
+	samplerCreateInfo.maxAnisotropy = 1.0f;
+	samplerCreateInfo.compareEnable = VK_FALSE;
+	samplerCreateInfo.compareOp = VK_COMPARE_OP_NEVER;                       // It does not matter.
+	samplerCreateInfo.minLod = 0.0f;
+	samplerCreateInfo.maxLod = GConfig::Sampler::SamplerMaxLod;
+	samplerCreateInfo.borderColor = VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK; // It does not matter.
+	samplerCreateInfo.unnormalizedCoordinates = VK_FALSE;
+
+	_vk_try(vkCreateSampler(m_device, &samplerCreateInfo, m_allocator->GetVkAllocator(), OutSampler));
+}
+
+void LogicalDevice::CreateAnisotropicWrapSampler(VkSampler* OutSampler)
+{
+	if (m_baseLayer == nullptr)
+		_return_log("Funs: " + _str_name_of(CreateAnisotropicWrapSampler) + " expect to Query Physical Device Limits!");
+
+	float maxAnisotropy = std::min(GConfig::Sampler::MaxAnisotropy, m_baseLayer->GetMainPDLimits().maxSamplerAnisotropy);
+
+	VkSamplerCreateInfo samplerCreateInfo = {};
+	samplerCreateInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+	samplerCreateInfo.magFilter = VK_FILTER_LINEAR;
+	samplerCreateInfo.minFilter = VK_FILTER_LINEAR;
+	samplerCreateInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+	samplerCreateInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	samplerCreateInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	samplerCreateInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	samplerCreateInfo.mipLodBias = 0;
+	samplerCreateInfo.anisotropyEnable = VK_TRUE;                            // Anisotropic Filtering.
+	samplerCreateInfo.maxAnisotropy = maxAnisotropy;                         // Anisotropic Filtering.
+	samplerCreateInfo.compareEnable = VK_FALSE;
+	samplerCreateInfo.compareOp = VK_COMPARE_OP_NEVER;                       // It does not matter.
+	samplerCreateInfo.minLod = 0.0f;
+	samplerCreateInfo.maxLod = GConfig::Sampler::SamplerMaxLod;
+	samplerCreateInfo.borderColor = VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK; // It does not matter.
+	samplerCreateInfo.unnormalizedCoordinates = VK_FALSE;
+
+	_vk_try(vkCreateSampler(m_device, &samplerCreateInfo, m_allocator->GetVkAllocator(), OutSampler));
+}
+
+void LogicalDevice::CreateAnisotropicClampSampler(VkSampler* OutSampler)
+{
+	if (m_baseLayer == nullptr)
+		_return_log("Funs: " + _str_name_of(CreateAnisotropicClampSampler) + " expect to Query Physical Device Limits!");
+
+	float maxAnisotropy = std::min(GConfig::Sampler::MaxAnisotropy, m_baseLayer->GetMainPDLimits().maxSamplerAnisotropy);
+
+	VkSamplerCreateInfo samplerCreateInfo = {};
+	samplerCreateInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+	samplerCreateInfo.magFilter = VK_FILTER_LINEAR;
+	samplerCreateInfo.minFilter = VK_FILTER_LINEAR;
+	samplerCreateInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+	samplerCreateInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+	samplerCreateInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+	samplerCreateInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+	samplerCreateInfo.mipLodBias = 0;
+	samplerCreateInfo.anisotropyEnable = VK_TRUE;                            // Anisotropic Filtering.
+	samplerCreateInfo.maxAnisotropy = maxAnisotropy;                         // Anisotropic Filtering.
+	samplerCreateInfo.compareEnable = VK_FALSE;
+	samplerCreateInfo.compareOp = VK_COMPARE_OP_NEVER;                       // It does not matter.
+	samplerCreateInfo.minLod = 0.0f;
+	samplerCreateInfo.maxLod = GConfig::Sampler::SamplerMaxLod;
+	samplerCreateInfo.borderColor = VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK; // It does not matter.
+	samplerCreateInfo.unnormalizedCoordinates = VK_FALSE;
+
+	_vk_try(vkCreateSampler(m_device, &samplerCreateInfo, m_allocator->GetVkAllocator(), OutSampler));
+}
+
+void LogicalDevice::CreatePCFSampler(VkSampler* OutSampler)
+{
+	VkSamplerCreateInfo samplerCreateInfo = {};
+	samplerCreateInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+	samplerCreateInfo.magFilter = VK_FILTER_NEAREST;
+	samplerCreateInfo.minFilter = VK_FILTER_NEAREST;
+	samplerCreateInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
+	samplerCreateInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+	samplerCreateInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+	samplerCreateInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+	samplerCreateInfo.mipLodBias = 0;
+	samplerCreateInfo.anisotropyEnable = VK_FALSE;
+	samplerCreateInfo.maxAnisotropy = 1.0f;                                  // 16.0f ?
+	samplerCreateInfo.compareEnable = VK_FALSE;
+	samplerCreateInfo.compareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
+	samplerCreateInfo.minLod = 0.0f;
+	samplerCreateInfo.maxLod = GConfig::Sampler::SamplerMaxLod;
+	samplerCreateInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK;
 	samplerCreateInfo.unnormalizedCoordinates = VK_FALSE;
 
 	_vk_try(vkCreateSampler(m_device, &samplerCreateInfo, m_allocator->GetVkAllocator(), OutSampler));

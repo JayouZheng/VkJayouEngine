@@ -2,7 +2,6 @@
 // CommandList.cpp
 //
 
-#include "CommandList.h"
 #include "BaseLayer.h"
 
 CommandList::CommandList(BaseLayer* InBaseLayer)

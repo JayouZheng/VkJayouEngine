@@ -4,13 +4,11 @@
 
 #include "Global.h"
 #include "BaseAllocator.h"
-#include "LogicalDevice.h"
 
 namespace
 {
 	static VkInstance     g_instance         = VK_NULL_HANDLE;
-
-	static LogicalDevice  g_device           = _nullptr;
+	static VkDevice       g_device           = VK_NULL_HANDLE;
 
 	static BaseAllocator* g_allocator        = nullptr;
 
@@ -32,31 +30,15 @@ void Global::SetVkInstance(const VkInstance& InInstance)
 	g_instance = InInstance;
 }
 
-
-LogicalDevice Global::GetLogicalDevice()
+VkDevice Global::GetVkDevice()
 {
 	_exit_log(g_device == VK_NULL_HANDLE, "return [g_device] is null!");
 	return g_device;
 }
 
-void Global::SetLogicalDevice(const LogicalDevice& InLogicalDevice)
-{
-	g_device = InLogicalDevice;
-	if (InLogicalDevice.IsNoneAllocator())
-	{
-		g_device.SetAllocator(Global::GetAllocator());
-	}
-}
-
-VkDevice Global::GetVkDevice()
-{
-	_exit_log(g_device == VK_NULL_HANDLE, "return [g_device] is null!");
-	return (VkDevice)g_device;
-}
-
 void Global::SetVkDevice(const VkDevice& InDevice)
 {
-	g_device.SetVkDevice(InDevice);
+	g_device = InDevice;
 }
 
 void Global::Decrease()

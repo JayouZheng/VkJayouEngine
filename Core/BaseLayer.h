@@ -10,6 +10,7 @@
 #include "Window.h"
 #include "LogicalDevice.h"
 #include "CommandQueue.h"
+#include "CommandList.h"
 
 namespace BaseLayerConfig
 {

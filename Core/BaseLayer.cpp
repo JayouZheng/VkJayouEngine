@@ -221,8 +221,9 @@ void BaseLayer::Init()
 		}
 
 		_vk_try(vkCreateDevice(m_physicalDevices[m_mainPDIndex], &deviceCreateInfo, m_allocator->GetVkAllocator(), m_device.GetAddressOfVkDevice()));
+		m_device.SetBaseLayer(this);
 		m_device.SetAllocator(m_allocator);
-		Global::SetLogicalDevice(m_device);
+		Global::SetVkDevice(m_device.GetVkDevice());
 		
 		m_queue = m_device.GetQueue(m_mainQFIndex);
 
@@ -318,6 +319,8 @@ void BaseLayer::Init()
 			
 		}
 		else _exit_log(true, "Create Swapchain Failed! Application Terminate!");
+
+
 
 		// m_window->Show();
 	}

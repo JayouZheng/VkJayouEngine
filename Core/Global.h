@@ -6,16 +6,12 @@
 
 #include "Common.h"
 
-class LogicalDevice;
 class BaseAllocator;
 
 namespace Global
 {
 	VkInstance          GetVkInstance();
 	void                SetVkInstance(const VkInstance& InInstance);
-
-	LogicalDevice       GetLogicalDevice();
-	void                SetLogicalDevice(const LogicalDevice& InLogicalDevice);
 
 	VkDevice            GetVkDevice();
 	void                SetVkDevice(const VkDevice& InDevice);

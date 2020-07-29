@@ -40,6 +40,8 @@ public:
 #if VK_USE_PLATFORM_WIN32_KHR
 
 #include <windows.h>
+#undef min
+#undef max
 
 inline std::wstring to_wstring(const std::string& str)
 {

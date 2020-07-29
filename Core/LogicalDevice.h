@@ -8,6 +8,16 @@
 #include "VkSmartPtr.h"
 #include "BaseAllocator.h"
 
+namespace GConfig
+{
+	namespace Sampler
+	{
+		static float SamplerMaxLod = 16.0f;
+		static float MaxAnisotropy = 8.0f;
+	}
+}
+
+class BaseLayer;
 class CommandQueue;
 
 class LogicalDevice
@@ -16,6 +26,7 @@ class LogicalDevice
 protected:
 
 	VkDevice        m_device    = VK_NULL_HANDLE;
+	BaseLayer*      m_baseLayer = nullptr;
 	BaseAllocator*  m_allocator = nullptr;
 
 	VkSmartPtr<VkCommandPool>    m_pCmdPool  = nullptr;
@@ -41,8 +52,9 @@ public:
 
 public:
 
-	void SetVkDevice (const VkDevice& InDevice);
-	void SetAllocator(BaseAllocator* InAllocator);
+	void SetVkDevice  (const VkDevice& InDevice);
+	void SetBaseLayer (BaseLayer* InBaseLayer);
+	void SetAllocator (BaseAllocator* InAllocator);
 
 	bool IsNoneAllocator() const;
 
@@ -150,6 +162,13 @@ public:
 
 	void           CreateSampler                 (VkSampler* OutSampler, const VkSamplerCreateInfo& InCreateInfo);
 	void           CreatePointWrapSampler        (VkSampler* OutSampler);
+	void           CreatePointClampSampler       (VkSampler* OutSampler);
+	void           CreateLinearWrapSampler       (VkSampler* OutSampler);
+	void           CreateLinearClampSampler      (VkSampler* OutSampler);
+	void           CreateAnisotropicWrapSampler  (VkSampler* OutSampler);
+	void           CreateAnisotropicClampSampler (VkSampler* OutSampler);
+	void           CreatePCFSampler              (VkSampler* OutSampler);
+
 
 	template<typename VkType>
 	void DestroyVkObject(VkType InObject);
