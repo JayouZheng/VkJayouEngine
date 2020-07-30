@@ -93,6 +93,8 @@ public:
 
 	void PushConstants          (VkPipelineLayout InPipLayout, VkShaderStageFlags InStageFlags, const void* InValues, uint32 InSize, uint32 InOffset = _offset_0);
 
+	void Draw();
+
 #pragma region PiplineBarrier
 
 public:

@@ -169,6 +169,9 @@ public:
 	void           CreateAnisotropicClampSampler (VkSampler* OutSampler);
 	void           CreatePCFSampler              (VkSampler* OutSampler);
 
+	void           CreateRenderPass              (VkRenderPass* OutRenderPass, const VkRenderPassCreateInfo& InCreateInfo);
+	void           CreateRenderPass              (VkRenderPass* OutRenderPass);
+
 
 	template<typename VkType>
 	void DestroyVkObject(VkType InObject);
