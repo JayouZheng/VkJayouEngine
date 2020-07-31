@@ -93,7 +93,11 @@ public:
 
 	void PushConstants          (VkPipelineLayout InPipLayout, VkShaderStageFlags InStageFlags, const void* InValues, uint32 InSize, uint32 InOffset = _offset_0);
 
-	void Draw();
+	void DrawVertexInstanced    (uint32 InStartVertex, uint32 InVertexCount, uint32 InStartInstance = _offset_start, uint32 InInstanceCount = _count_1);
+	void DrawIndexedInstanced   (uint32 InStartIndex, uint32 InIndexCount, uint32 InStartVertex = _offset_start, uint32 InStartInstance = _offset_start, uint32 InInstanceCount = _count_1);
+	void DrawVertexIndirect     (VkBuffer InBuffer, VkDeviceSize InOffset, uint32 InDrawCount, uint32 InStride);
+	void DrawIndexedIndirect    (VkBuffer InBuffer, VkDeviceSize InOffset, uint32 InDrawCount, uint32 InStride);
+
 
 #pragma region PiplineBarrier
 

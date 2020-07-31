@@ -170,7 +170,10 @@ public:
 	void           CreatePCFSampler              (VkSampler* OutSampler);
 
 	void           CreateRenderPass              (VkRenderPass* OutRenderPass, const VkRenderPassCreateInfo& InCreateInfo);
-	void           CreateRenderPass              (VkRenderPass* OutRenderPass);
+	void           CreateSingleRenderPass        (VkRenderPass* OutRenderPass, VkFormat InColorFormat, VkFormat InDepthFormat);
+
+	void           CreateFrameBuffer             (VkFramebuffer* OutFrameBuffer, const VkFramebufferCreateInfo& InCreateInfo);
+	void           CreateFrameBuffer             (VkFramebuffer* OutFrameBuffer, VkRenderPass InRenderPass, const VkImageView* InImageViews, uint32 InViewCount, VkExtent3D InSize);
 
 
 	template<typename VkType>
@@ -212,3 +215,6 @@ void LogicalDevice::DestroyVkObject(VkType InObject)
 	// Using Semaphore...
 	_vk_destroy(SwapchainKHR);
 }
+
+#define CreateRenderTarget    CreateFrameBuffer
+typedef VkFramebuffer         VkRenderTarget;

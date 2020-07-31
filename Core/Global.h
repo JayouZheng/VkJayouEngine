@@ -30,7 +30,13 @@ namespace Global
 	BaseAllocator*           GetAllocator();
 	VkAllocationCallbacks*   GetVkAllocator();
 	void                     SetAllocator(BaseAllocator* InAllocator);
-	void                     SafeFreeAllocator();                
+	void                     SafeFreeAllocator();
+
+	template<typename T>
+	bool IsVkGuaranteedMinimum(T InValue, T InMinimum)
+	{
+		return InValue >= InMinimum;
+	}
 }
 
 namespace VkColor

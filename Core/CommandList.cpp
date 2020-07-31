@@ -314,6 +314,26 @@ void CommandList::PushConstants(VkPipelineLayout InPipLayout, VkShaderStageFlags
 	vkCmdPushConstants(m_cmdBuffer, InPipLayout, InStageFlags, InOffset, InSize, InValues);
 }
 
+void CommandList::DrawVertexInstanced(uint32 InStartVertex, uint32 InVertexCount, uint32 InStartInstance /*= _offset_start*/, uint32 InInstanceCount /*= _count_1*/)
+{
+	vkCmdDraw(m_cmdBuffer, InVertexCount, InInstanceCount, InStartVertex, InStartInstance);
+}
+
+void CommandList::DrawIndexedInstanced(uint32 InStartIndex, uint32 InIndexCount, uint32 InStartVertex /*= _offset_start*/, uint32 InStartInstance /*= _offset_start*/, uint32 InInstanceCount /*= _count_1*/)
+{
+	vkCmdDrawIndexed(m_cmdBuffer, InIndexCount, InInstanceCount, InStartIndex, InStartVertex, InStartInstance);
+}
+
+void CommandList::DrawVertexIndirect(VkBuffer InBuffer, VkDeviceSize InOffset, uint32 InDrawCount, uint32 InStride)
+{
+	vkCmdDrawIndirect(m_cmdBuffer, InBuffer, InOffset, InDrawCount, InStride);
+}
+
+void CommandList::DrawIndexedIndirect(VkBuffer InBuffer, VkDeviceSize InOffset, uint32 InDrawCount, uint32 InStride)
+{
+	vkCmdDrawIndexedIndirect(m_cmdBuffer, InBuffer, InOffset, InDrawCount, InStride);
+}
+
 void CommandList::ResourceBarriers(
 	VkPipelineStageFlags InSrcStageMask, 
 	VkPipelineStageFlags InDstStageMask,

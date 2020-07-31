@@ -629,6 +629,118 @@ void LogicalDevice::CreatePCFSampler(VkSampler* OutSampler)
 	_vk_try(vkCreateSampler(m_device, &samplerCreateInfo, m_allocator->GetVkAllocator(), OutSampler));
 }
 
+void LogicalDevice::CreateRenderPass(VkRenderPass* OutRenderPass, const VkRenderPassCreateInfo& InCreateInfo)
+{
+	_vk_try(vkCreateRenderPass(m_device, &InCreateInfo, m_allocator->GetVkAllocator(), OutRenderPass));
+}
+
+void LogicalDevice::CreateSingleRenderPass(VkRenderPass* OutRenderPass, VkFormat InColorFormat, VkFormat InDepthFormat)
+{
+	std::array<VkAttachmentDescription, 2> attachments{};
+	// Color attachment.
+	attachments[0].format = InColorFormat;
+	attachments[0].samples = VK_SAMPLE_COUNT_1_BIT;
+	attachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	attachments[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+	attachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	attachments[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	attachments[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	attachments[0].finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+	// Depth attachment.
+	attachments[1].format = InDepthFormat;
+	attachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
+	attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	attachments[1].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	attachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	attachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	attachments[1].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	attachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+	// Subpasses.
+	std::array<VkSubpassDescription, 1> subpassDescriptions{};
+
+	// First subpass...
+	// ----------------------------------------------------------------------------------------
+
+	// std::array<VkAttachmentReference, 1> inputReferences{};
+	std::array<VkAttachmentReference, 1> colorReferences{};
+	// std::array<VkAttachmentReference, 1> resolveReferences{};
+	std::array<VkAttachmentReference, 1> depthStencilReferences{};
+	// std::array<VkAttachmentReference, 1> preserveAttachmentIndices{};
+
+	colorReferences[0] = { 0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL };
+	depthStencilReferences[0] = { 1, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL };
+
+	subpassDescriptions[0].flags = _flag_none;
+	subpassDescriptions[0].pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+	subpassDescriptions[0].inputAttachmentCount = _count_0;
+	subpassDescriptions[0].pInputAttachments = nullptr;
+	subpassDescriptions[0].colorAttachmentCount = _count_1;
+	subpassDescriptions[0].pColorAttachments = colorReferences.data();
+	subpassDescriptions[0].pResolveAttachments = nullptr;
+	subpassDescriptions[0].pDepthStencilAttachment = depthStencilReferences.data();
+	subpassDescriptions[0].preserveAttachmentCount = _count_0;
+	subpassDescriptions[0].pPreserveAttachments = nullptr;
+
+	// Subpass dependencies for layout transitions
+	std::array<VkSubpassDependency, 1> dependencies;
+
+	dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
+	dependencies[0].dstSubpass = _index_0;
+	dependencies[0].srcStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+	dependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	dependencies[0].srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+	dependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+	dependencies[0].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;      // FrameBuffer Local.
+
+	VkRenderPassCreateInfo renderPassInfo = {};
+	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+	renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+	renderPassInfo.pAttachments = attachments.data();
+	renderPassInfo.subpassCount = static_cast<uint32_t>(subpassDescriptions.size());
+	renderPassInfo.pSubpasses = subpassDescriptions.data();
+	renderPassInfo.dependencyCount = static_cast<uint32_t>(dependencies.size());
+	renderPassInfo.pDependencies = dependencies.data();
+
+	_vk_try(vkCreateRenderPass(m_device, &renderPassInfo, m_allocator->GetVkAllocator(), OutRenderPass));
+}
+
+void LogicalDevice::CreateFrameBuffer(VkFramebuffer* OutFrameBuffer, const VkFramebufferCreateInfo& InCreateInfo)
+{
+	if (m_baseLayer == nullptr)
+		_return_log("Funs: " + _str_name_of(CreateFrameBuffer) + " expect to Query Physical Device Limits!");
+
+	VkFramebufferCreateInfo frameBufferCreateInfo = InCreateInfo;
+
+	_is_guaranteed_min(frameBufferCreateInfo.width,  4096, m_baseLayer->GetMainPDLimits().maxFramebufferWidth );
+	_is_guaranteed_min(frameBufferCreateInfo.height, 4096, m_baseLayer->GetMainPDLimits().maxFramebufferHeight);
+	_is_guaranteed_min(frameBufferCreateInfo.layers, 256,  m_baseLayer->GetMainPDLimits().maxFramebufferLayers);
+
+	_vk_try(vkCreateFramebuffer(m_device, &frameBufferCreateInfo, m_allocator->GetVkAllocator(), OutFrameBuffer));
+}
+
+void LogicalDevice::CreateFrameBuffer(VkFramebuffer* OutFrameBuffer, VkRenderPass InRenderPass, const VkImageView* InImageViews, uint32 InViewCount, VkExtent3D InSize)
+{
+	if (m_baseLayer == nullptr)
+		_return_log("Funs: " + _str_name_of(CreateFrameBuffer) + " expect to Query Physical Device Limits!");
+
+	VkFramebufferCreateInfo frameBufferCreateInfo = {};
+	frameBufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+	frameBufferCreateInfo.renderPass = InRenderPass;
+	frameBufferCreateInfo.attachmentCount = InViewCount;
+	frameBufferCreateInfo.pAttachments = InImageViews;
+	frameBufferCreateInfo.width = InSize.width;
+	frameBufferCreateInfo.height = InSize.height;
+	frameBufferCreateInfo.layers = InSize.depth;
+
+	_is_guaranteed_min(frameBufferCreateInfo.width,  4096, m_baseLayer->GetMainPDLimits().maxFramebufferWidth );
+	_is_guaranteed_min(frameBufferCreateInfo.height, 4096, m_baseLayer->GetMainPDLimits().maxFramebufferHeight);
+	_is_guaranteed_min(frameBufferCreateInfo.layers, 256,  m_baseLayer->GetMainPDLimits().maxFramebufferLayers);
+
+	_vk_try(vkCreateFramebuffer(m_device, &frameBufferCreateInfo, m_allocator->GetVkAllocator(), OutFrameBuffer));
+}
+
 void LogicalDevice::FlushAllQueue()
 {
 	_vk_try(vkDeviceWaitIdle(m_device));
