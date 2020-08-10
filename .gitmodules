@@ -1,3 +1,6 @@
 [submodule "ThirdParty/jsoncpp"]
 	path = ThirdParty/jsoncpp
 	url = https://github.com/open-source-parsers/jsoncpp.git
+[submodule "Layers/Fossilize"]
+	path = Layers/Fossilize
+	url = https://github.com/ValveSoftware/Fossilize.git
