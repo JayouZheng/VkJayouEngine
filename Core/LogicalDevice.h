@@ -62,7 +62,7 @@ public:
 
 public:
 
-	struct SPipCSCreateDesc
+	struct SPipelineComputeDesc
 	{
 		std::string           EntryPoint;
 		VkShaderModule        ShaderModule;
@@ -73,7 +73,7 @@ public:
 		VkPipeline            BasePipelineHandle;
 		int32                 BasePipelineIndex;
 
-		SPipCSCreateDesc()
+		SPipelineComputeDesc()
 		{
 			EntryPoint         = "main";
 			ShaderModule       = VK_NULL_HANDLE;
@@ -85,7 +85,34 @@ public:
 		}
 	};
 
-	struct SPipCacheHeader
+	struct SPipelineGraphicDesc
+	{
+		VkRenderPass          RenderPass;
+
+		std::string           EntryPoint;
+		VkShaderModule        ShaderModule;
+		VkPipelineLayout      PipLayout;
+		VkSpecializationInfo* pSpecialConstInfo;
+
+		// Pipeline Derivatives.
+		VkPipeline            BasePipelineHandle;
+		int32                 BasePipelineIndex;
+
+		SPipelineGraphicDesc()
+		{
+			RenderPass = VK_NULL_HANDLE;
+
+			EntryPoint = "main";
+			ShaderModule = VK_NULL_HANDLE;
+			PipLayout = VK_NULL_HANDLE;
+			pSpecialConstInfo = nullptr;
+
+			BasePipelineHandle = VK_NULL_HANDLE;
+			BasePipelineIndex = -1;
+		}
+	};
+
+	struct SPipelineCacheHeader
 	{
 		uint32 Length;
 		uint32 Version;
@@ -93,7 +120,7 @@ public:
 		uint32 DeviceID;
 		uint8  UUID[VK_UUID_SIZE];
 
-		SPipCacheHeader(const VkPhysicalDeviceProperties& InPDProp)
+		SPipelineCacheHeader(const VkPhysicalDeviceProperties& InPDProp)
 		{
 			Length   = 32;
 			Version  = VK_PIPELINE_CACHE_HEADER_VERSION_ONE;
@@ -129,7 +156,7 @@ public:
 
 	void           CreateComputePipelines        (VkPipeline* OutPipeline, const VkComputePipelineCreateInfo* InCreateInfos, uint32 InCreateInfoCount = _count_1, VkPipelineCache InPipCache = VK_NULL_HANDLE);
 	void           CreateComputePipeline         (VkPipeline* OutPipeline, VkPipelineLayout InPipLayout, VkShaderModule InShaderModule, const char* InShaderEntryName = "main", const VkSpecializationInfo* InSpecialConstInfo = nullptr, VkPipelineCache InPipCache = VK_NULL_HANDLE);
-	void           CreateComputePipelines        (VkPipeline* OutPipeline, const SPipCSCreateDesc* InCreateDescs, uint32 InCreateDescCount = _count_1, VkPipelineCache InPipCache = VK_NULL_HANDLE);
+	void           CreateComputePipelines        (VkPipeline* OutPipeline, const SPipelineComputeDesc* InDescs, uint32 InDescCount = _count_1, VkPipelineCache InPipCache = VK_NULL_HANDLE);
 
 	void           CreatePipelineCache           (VkPipelineCache* OutPipCache, const VkPipelineCacheCreateInfo& InCreateInfo);
 	void           CreatePipelineCache           (VkPipelineCache* OutPipCache, const VkPhysicalDeviceProperties& InPDProp);
@@ -175,6 +202,9 @@ public:
 	void           CreateFrameBuffer             (VkFramebuffer* OutFrameBuffer, const VkFramebufferCreateInfo& InCreateInfo);
 	void           CreateFrameBuffer             (VkFramebuffer* OutFrameBuffer, VkRenderPass InRenderPass, const VkImageView* InImageViews, uint32 InViewCount, VkExtent3D InSize);
 
+	void           CreateGraphicPipelines        (VkPipeline* OutPipeline, const VkGraphicsPipelineCreateInfo* InCreateInfos, uint32 InCreateInfoCount = _count_1, VkPipelineCache InPipCache = VK_NULL_HANDLE);
+	void           CreateGraphicPipelines        (VkPipeline* OutPipeline, const SPipelineGraphicDesc* InDescs, uint32 InDescCount = _count_1, VkPipelineCache InPipCache = VK_NULL_HANDLE);
+
 
 	template<typename VkType>
 	void DestroyVkObject(VkType InObject);
@@ -184,7 +214,7 @@ public:
 };
 
 
-// This is an alternative vkDestroy Solution to VkSmartPtr.
+// This is an alternative vkDestroy Solution/Version to VkSmartPtr.
 template<typename VkType>
 void LogicalDevice::DestroyVkObject(VkType InObject)
 {

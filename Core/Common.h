@@ -12,6 +12,10 @@
 
 #pragma comment(lib, "vulkan-1.lib")
 
+#include "../Layers/Fossilize/fossilize.hpp"
+
+#pragma comment(lib, "fossilize.lib")
+
 class vk_exception
 {
 public:

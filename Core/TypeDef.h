@@ -52,7 +52,7 @@
 #define _offset_0          0
 #define _offset_start      0
 #define _flag_none         0
-#define _max_path          260
+#define _max_path          256
 
 
 #include "vulkan/vk_platform.h"

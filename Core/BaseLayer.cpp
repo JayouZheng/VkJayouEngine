@@ -5,6 +5,10 @@
 #include "BaseLayer.h"
 #include "Global.h"
 
+
+// Test.
+#include "../ThirdParty/json/json.h"
+
 BaseLayer::BaseLayer()
 {
 
@@ -25,6 +29,7 @@ void BaseLayer::Init()
 {
 	// Global Variable.
 	uint32 numEnableExts = _array_size(BaseLayerConfig::EnableExtensions);
+	uint32 numEnableLayers = _array_size(BaseLayerConfig::EnableLayers);
 
 	// Create VK Instance & Physical Devices & Query Infos.
 	{
@@ -59,6 +64,20 @@ void BaseLayer::Init()
 					if (_is_cstr_equal(prop.extensionName, BaseLayerConfig::EnableExtensions[i]))
 					{
 						m_supportInsExts.push_back(BaseLayerConfig::EnableExtensions[i]);
+					}
+				}
+			}
+		}
+
+		// Check Instance Layers Support.
+		{
+			for (auto& prop : m_instanceLayerProps)
+			{
+				for (uint32 i = 0; i < numEnableLayers; ++i)
+				{
+					if (_is_cstr_equal(prop.layerName, BaseLayerConfig::EnableLayers[i]))
+					{
+						m_supportInsLayers.push_back(BaseLayerConfig::EnableLayers[i]);
 					}
 				}
 			}
@@ -205,6 +224,20 @@ void BaseLayer::Init()
 			}
 		}
 
+		// Check PD Layers Support.
+		{
+			for (auto& prop : m_PDLayerProps[m_mainPDIndex])
+			{
+				for (uint32 i = 0; i < numEnableLayers; ++i)
+				{
+					if (_is_cstr_equal(prop.layerName, BaseLayerConfig::EnableLayers[i]))
+					{
+						m_supportPDLayers.push_back(BaseLayerConfig::EnableLayers[i]);
+					}
+				}
+			}
+		}
+
 		VkDeviceCreateInfo deviceCreateInfo = {};
 		deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 		deviceCreateInfo.queueCreateInfoCount = _count_1;
@@ -320,9 +353,32 @@ void BaseLayer::Init()
 		}
 		else _exit_log(true, "Create Swapchain Failed! Application Terminate!");
 
+		// TODO:
+		const std::string rawJson = R"({"Age": 20, "Name": "colin"})";
+		const auto rawJsonLength = static_cast<int>(rawJson.length());
+		constexpr bool shouldUseOldWay = false;
+		JSONCPP_STRING err;
+		Json::Value root;
 
+		if (shouldUseOldWay) {
+			//Json::Reader reader;
+			//reader.parse(rawJson, root);
+		}
+		else {
+			Json::CharReaderBuilder builder;
+			const std::unique_ptr<Json::CharReader> reader(builder.newCharReader());
+			if (!reader->parse(rawJson.c_str(), rawJson.c_str() + rawJsonLength, &root,
+				&err)) {
+				std::cout << "error" << std::endl;
+			}
+		}
+		const std::string name = root["Name"].asString();
+		const int age = root["Age"].asInt();
 
-		// m_window->Show();
+		std::cout << name << std::endl;
+		std::cout << age << std::endl;
+
+		//m_window->Show();
 	}
 
 }

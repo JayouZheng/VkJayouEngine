@@ -25,6 +25,12 @@ namespace BaseLayerConfig
 		VK_KHR_DISPLAY_SWAPCHAIN_EXTENSION_NAME
 	};
 
+	static const char* EnableLayers[] =
+	{
+		"VK_LAYER_RENDERDOC_Capture",
+		"VK_LAYER_VALVE_steam_fossilize"
+	};
+
 	struct SSwapchainCreateInfo
 	{
 		uint32                        frameCount;
@@ -80,6 +86,10 @@ protected:
 	// Support Extensions.
 	std::vector<const char*>                          m_supportInsExts;
 	std::vector<const char*>                          m_supportPDExts;
+
+	// Support Layers.
+	std::vector<const char*>                          m_supportInsLayers;
+	std::vector<const char*>                          m_supportPDLayers;
 
 	// Surface Support Format KHR.
 	std::vector<VkSurfaceFormatKHR>                   m_surfaceFormats;

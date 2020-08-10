@@ -146,27 +146,27 @@ void LogicalDevice::CreateComputePipeline(VkPipeline* OutPipeline, VkPipelineLay
 	_vk_try(vkCreateComputePipelines(m_device, InPipCache, _count_1, &pipCSCreateInfo, m_allocator->GetVkAllocator(), OutPipeline));
 }
 
-void LogicalDevice::CreateComputePipelines(VkPipeline* OutPipeline, const SPipCSCreateDesc* InCreateDescs, uint32 InCreateDescCount/*= _count_1*/, VkPipelineCache InPipCache /*= VK_NULL_HANDLE*/)
+void LogicalDevice::CreateComputePipelines(VkPipeline* OutPipeline, const SPipelineComputeDesc* InDescs, uint32 InDescCount/*= _count_1*/, VkPipelineCache InPipCache /*= VK_NULL_HANDLE*/)
 {
 	VkPipelineShaderStageCreateInfo pipSSCreateInfo = {};
 	pipSSCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 	pipSSCreateInfo.stage = VK_SHADER_STAGE_COMPUTE_BIT;
 
-	VkComputePipelineCreateInfo* pPipCSCreateInfos = new VkComputePipelineCreateInfo[InCreateDescCount];
-	for (uint32 i = 0; i < InCreateDescCount; ++i)
+	VkComputePipelineCreateInfo* pPipCSCreateInfos = new VkComputePipelineCreateInfo[InDescCount];
+	for (uint32 i = 0; i < InDescCount; ++i)
 	{
-		pipSSCreateInfo.module = InCreateDescs[i].ShaderModule;
-		pipSSCreateInfo.pName = InCreateDescs[i].EntryPoint.c_str();
-		pipSSCreateInfo.pSpecializationInfo = InCreateDescs[i].pSpecialConstInfo;
+		pipSSCreateInfo.module = InDescs[i].ShaderModule;
+		pipSSCreateInfo.pName = InDescs[i].EntryPoint.c_str();
+		pipSSCreateInfo.pSpecializationInfo = InDescs[i].pSpecialConstInfo;
 
 		pPipCSCreateInfos[i].sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
 		pPipCSCreateInfos[i].stage = pipSSCreateInfo;
-		pPipCSCreateInfos[i].layout = InCreateDescs[i].PipLayout;
-		pPipCSCreateInfos[i].basePipelineHandle = InCreateDescs[i].BasePipelineHandle;
-		pPipCSCreateInfos[i].basePipelineIndex = InCreateDescs[i].BasePipelineIndex;
+		pPipCSCreateInfos[i].layout = InDescs[i].PipLayout;
+		pPipCSCreateInfos[i].basePipelineHandle = InDescs[i].BasePipelineHandle;
+		pPipCSCreateInfos[i].basePipelineIndex = InDescs[i].BasePipelineIndex;
 	}
 
-	_vk_try(vkCreateComputePipelines(m_device, InPipCache, InCreateDescCount, pPipCSCreateInfos, m_allocator->GetVkAllocator(), OutPipeline));
+	_vk_try(vkCreateComputePipelines(m_device, InPipCache, InDescCount, pPipCSCreateInfos, m_allocator->GetVkAllocator(), OutPipeline));
 	delete[] pPipCSCreateInfos;
 }
 
@@ -177,7 +177,7 @@ void LogicalDevice::CreatePipelineCache(VkPipelineCache* OutPipCache, const VkPi
 
 void LogicalDevice::CreatePipelineCache(VkPipelineCache* OutPipCache, const VkPhysicalDeviceProperties& InPDProp)
 {
-	SPipCacheHeader pipCacheHeader = SPipCacheHeader(InPDProp);
+	SPipelineCacheHeader pipCacheHeader = SPipelineCacheHeader(InPDProp);
 
 	VkPipelineCacheCreateInfo pipCacheCreateInfo = {};
 	pipCacheCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
@@ -553,7 +553,10 @@ void LogicalDevice::CreateLinearClampSampler(VkSampler* OutSampler)
 void LogicalDevice::CreateAnisotropicWrapSampler(VkSampler* OutSampler)
 {
 	if (m_baseLayer == nullptr)
+	{
+		OutSampler = VK_NULL_HANDLE;
 		_return_log("Funs: " + _str_name_of(CreateAnisotropicWrapSampler) + " expect to Query Physical Device Limits!");
+	}
 
 	float maxAnisotropy = std::min(GConfig::Sampler::MaxAnisotropy, m_baseLayer->GetMainPDLimits().maxSamplerAnisotropy);
 
@@ -581,7 +584,10 @@ void LogicalDevice::CreateAnisotropicWrapSampler(VkSampler* OutSampler)
 void LogicalDevice::CreateAnisotropicClampSampler(VkSampler* OutSampler)
 {
 	if (m_baseLayer == nullptr)
+	{
+		OutSampler = VK_NULL_HANDLE;
 		_return_log("Funs: " + _str_name_of(CreateAnisotropicClampSampler) + " expect to Query Physical Device Limits!");
+	}	
 
 	float maxAnisotropy = std::min(GConfig::Sampler::MaxAnisotropy, m_baseLayer->GetMainPDLimits().maxSamplerAnisotropy);
 
@@ -709,8 +715,11 @@ void LogicalDevice::CreateSingleRenderPass(VkRenderPass* OutRenderPass, VkFormat
 void LogicalDevice::CreateFrameBuffer(VkFramebuffer* OutFrameBuffer, const VkFramebufferCreateInfo& InCreateInfo)
 {
 	if (m_baseLayer == nullptr)
+	{
+		OutFrameBuffer = VK_NULL_HANDLE;
 		_return_log("Funs: " + _str_name_of(CreateFrameBuffer) + " expect to Query Physical Device Limits!");
-
+	}
+		
 	VkFramebufferCreateInfo frameBufferCreateInfo = InCreateInfo;
 
 	_is_guaranteed_min(frameBufferCreateInfo.width,  4096, m_baseLayer->GetMainPDLimits().maxFramebufferWidth );
@@ -723,8 +732,11 @@ void LogicalDevice::CreateFrameBuffer(VkFramebuffer* OutFrameBuffer, const VkFra
 void LogicalDevice::CreateFrameBuffer(VkFramebuffer* OutFrameBuffer, VkRenderPass InRenderPass, const VkImageView* InImageViews, uint32 InViewCount, VkExtent3D InSize)
 {
 	if (m_baseLayer == nullptr)
+	{
+		OutFrameBuffer = VK_NULL_HANDLE;
 		_return_log("Funs: " + _str_name_of(CreateFrameBuffer) + " expect to Query Physical Device Limits!");
-
+	}
+		
 	VkFramebufferCreateInfo frameBufferCreateInfo = {};
 	frameBufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 	frameBufferCreateInfo.renderPass = InRenderPass;
@@ -739,6 +751,113 @@ void LogicalDevice::CreateFrameBuffer(VkFramebuffer* OutFrameBuffer, VkRenderPas
 	_is_guaranteed_min(frameBufferCreateInfo.layers, 256,  m_baseLayer->GetMainPDLimits().maxFramebufferLayers);
 
 	_vk_try(vkCreateFramebuffer(m_device, &frameBufferCreateInfo, m_allocator->GetVkAllocator(), OutFrameBuffer));
+}
+
+void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const VkGraphicsPipelineCreateInfo* InCreateInfos, uint32 InCreateInfoCount /*= _count_1*/, VkPipelineCache InPipCache /*= VK_NULL_HANDLE*/)
+{
+	_vk_try(vkCreateGraphicsPipelines(m_device, InPipCache, InCreateInfoCount, InCreateInfos, m_allocator->GetVkAllocator(), OutPipeline));
+}
+
+void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const SPipelineGraphicDesc* InDescs, uint32 InDescCount /*= _count_1*/, VkPipelineCache InPipCache /*= VK_NULL_HANDLE*/)
+{
+	const SPipelineGraphicDesc& InDesc = InDescs[0];
+
+	VkPipelineShaderStageCreateInfo shaderStageCreateInfo = 
+	{ 
+		VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,// sType
+		nullptr,// pNext
+		0,// flags
+		VK_SHADER_STAGE_VERTEX_BIT,// stage
+		InDesc.ShaderModule,// module
+		InDesc.EntryPoint.c_str(),// pName
+		InDesc.pSpecialConstInfo// pSpecializationInfo
+	};
+
+	static const VkPipelineVertexInputStateCreateInfo vertexInputStateCreateInfo = 
+	{ 
+		VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,// sType
+		nullptr,// pNext
+		0,// flags
+		0,//vertexBindingDescriptionCount
+		nullptr,// pVertexBindingDescriptions
+		0,//vertexAttributeDescriptionCount
+		nullptr// pVertexAttributeDescriptions
+	};
+
+	static const VkPipelineInputAssemblyStateCreateInfo inputAssemblyStateCreateInfo = 
+	{ 
+		VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,// sType
+		nullptr,// pNext
+		0,// flags
+		VK_PRIMITIVE_TOPOLOGY_POINT_LIST,// topology
+		VK_FALSE// primitiveRestartEnable
+	};
+
+	static const VkViewport dummyViewport = 
+	{ 
+		0.0f, 0.0f,// x, y
+		1.0f, 1.0f,// width, height
+		0.1f, 1000.0f// minDepth, maxDepth
+	};
+
+	static const VkRect2D dummyScissor = 
+	{
+		{ 0, 0 },// offset
+		{ 1, 1 }// extent
+	};
+
+	static const VkPipelineViewportStateCreateInfo viewportStateCreateInfo = 
+	{ 
+		VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,// sType
+		nullptr,// pNext
+		0,// flags
+		1,// viewportCount
+		&dummyViewport,// pViewports
+		1,// scissorCount
+		&dummyScissor// pScissors
+	};
+
+	static const VkPipelineRasterizationStateCreateInfo rasterizationStateCreateInfo = 
+	{ 
+		VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,// sType
+		nullptr,// pNext
+		0,// flags
+		VK_FALSE,// depthClampEnable
+		VK_TRUE,// rasterizerDiscardEnable
+		VK_POLYGON_MODE_FILL,// polygonMode
+		VK_CULL_MODE_NONE,// cullMode
+		VK_FRONT_FACE_COUNTER_CLOCKWISE,// frontFace
+		VK_FALSE,// depthBiasEnable
+		0.0f,// depthBiasConstantFactor
+		0.0f,// depthBiasClamp
+		0.0f,// depthBiasSlopeFactor
+		0.0f// lineWidth
+	};
+
+	static const VkGraphicsPipelineCreateInfo graphicsPipelineCreateInfo = 
+	{ 
+		VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,// sType
+		nullptr,// pNext
+		0,// flags
+		1,// stageCount
+		&shaderStageCreateInfo,// pStages
+		&vertexInputStateCreateInfo,// pVertexInputState
+		&inputAssemblyStateCreateInfo,// pInputAssemblyState
+		nullptr,// pTessellationState
+		&viewportStateCreateInfo,// pViewportState
+		&rasterizationStateCreateInfo,// pRasterizationState
+		nullptr,// pMultisampleState
+		nullptr,// pDepthStencilState
+		nullptr,// pColorBlendState
+		nullptr,// pDynamicState
+		InDesc.PipLayout,// layout
+		InDesc.RenderPass,// renderPass
+		0,// subpass
+		InDesc.BasePipelineHandle,// basePipelineHandle
+		InDesc.BasePipelineIndex// basePipelineIndex
+	};
+
+	_vk_try(vkCreateGraphicsPipelines(m_device, InPipCache, _count_1, &graphicsPipelineCreateInfo, m_allocator->GetVkAllocator(), OutPipeline));
 }
 
 void LogicalDevice::FlushAllQueue()
