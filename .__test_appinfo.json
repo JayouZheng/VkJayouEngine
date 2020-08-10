@@ -1,0 +1,18 @@
+
+{
+	"asset": "FossilizeApplicationInfoFilter",
+	"version" : 1,
+	"blacklistedApplicationNames" : [ "A",  "B", "C" ],
+	"blacklistedEngineNames" : [ "D", "E", "F" ],
+	"applicationFilters" : {
+		"test1" : { "minimumApplicationVersion" : 10 },
+		"test2" : { "minimumApplicationVersion" : 10, "minimumEngineVersion" : 1000 },
+		"test3" : { "minimumApiVersion" : 50 }
+	},
+	"engineFilters" : {
+		"test1" : { "minimumEngineVersion" : 10 },
+		"test2" : { "minimumEngineVersion" : 10, "minimumApplicationVersion" : 1000 },
+		"test3" : { "minimumApiVersion" : 50 }
+	}
+}
+

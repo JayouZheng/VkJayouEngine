@@ -107,12 +107,12 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(VK_SDK_PATH)/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(VK_SDK_PATH)/include;$(ProjectDir)/ThirdParty/jsoncpp/include;$(ProjectDir)/Layers;$(ProjectDir)/Layers/Fossilize/rapidjson/include;$(ProjectDir)/ThirdParty/jsoncpp/src/lib_json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(VK_SDK_PATH)/Lib;$(ProjectDir)/Layers/Fossilize/lib/$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(VK_SDK_PATH)/Lib;$(ProjectDir)/Layers/Fossilize/Build/$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -145,14 +145,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(VK_SDK_PATH)/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(VK_SDK_PATH)/include;$(ProjectDir)/ThirdParty/jsoncpp/include;$(ProjectDir)/Layers;$(ProjectDir)/Layers/Fossilize/rapidjson/include;$(ProjectDir)/ThirdParty/jsoncpp/src/lib_json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(VK_SDK_PATH)/Lib;$(ProjectDir)/Layers/Fossilize/lib/$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(VK_SDK_PATH)/Lib;$(ProjectDir)/Layers/Fossilize/Build/$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -164,9 +164,9 @@
     <ClCompile Include="Core\Global.cpp" />
     <ClCompile Include="Core\LogicalDevice.cpp" />
     <ClCompile Include="Core\Window.cpp" />
-    <ClCompile Include="ThirdParty\json\json_reader.cpp" />
-    <ClCompile Include="ThirdParty\json\json_value.cpp" />
-    <ClCompile Include="ThirdParty\json\json_writer.cpp" />
+    <ClCompile Include="ThirdParty\jsoncpp\src\lib_json\json_reader.cpp" />
+    <ClCompile Include="ThirdParty\jsoncpp\src\lib_json\json_value.cpp" />
+    <ClCompile Include="ThirdParty\jsoncpp\src\lib_json\json_writer.cpp" />
     <ClCompile Include="vk_app.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -179,6 +179,7 @@
     <ClInclude Include="Core\LogicalDevice.h" />
     <ClInclude Include="Core\Platform.h" />
     <ClInclude Include="Core\SmartPtr.h" />
+    <ClInclude Include="Core\Tuple.h" />
     <ClInclude Include="Core\TypeDef.h" />
     <ClInclude Include="Core\VkSmartPtr.h" />
     <ClInclude Include="Core\Window.h" />
@@ -193,58 +194,58 @@
     <ClInclude Include="Layers\Fossilize\fossilize_inttypes.h" />
     <ClInclude Include="Layers\Fossilize\fossilize_types.hpp" />
     <ClInclude Include="Layers\Fossilize\path.hpp" />
-    <ClInclude Include="Layers\Fossilize\rapidjson\allocators.h" />
-    <ClInclude Include="Layers\Fossilize\rapidjson\cursorstreamwrapper.h" />
-    <ClInclude Include="Layers\Fossilize\rapidjson\document.h" />
-    <ClInclude Include="Layers\Fossilize\rapidjson\encodedstream.h" />
-    <ClInclude Include="Layers\Fossilize\rapidjson\encodings.h" />
-    <ClInclude Include="Layers\Fossilize\rapidjson\error\en.h" />
-    <ClInclude Include="Layers\Fossilize\rapidjson\error\error.h" />
-    <ClInclude Include="Layers\Fossilize\rapidjson\filereadstream.h" />
-    <ClInclude Include="Layers\Fossilize\rapidjson\filewritestream.h" />
-    <ClInclude Include="Layers\Fossilize\rapidjson\fwd.h" />
-    <ClInclude Include="Layers\Fossilize\rapidjson\internal\biginteger.h" />
-    <ClInclude Include="Layers\Fossilize\rapidjson\internal\clzll.h" />
-    <ClInclude Include="Layers\Fossilize\rapidjson\internal\diyfp.h" />
-    <ClInclude Include="Layers\Fossilize\rapidjson\internal\dtoa.h" />
-    <ClInclude Include="Layers\Fossilize\rapidjson\internal\ieee754.h" />
-    <ClInclude Include="Layers\Fossilize\rapidjson\internal\itoa.h" />
-    <ClInclude Include="Layers\Fossilize\rapidjson\internal\meta.h" />
-    <ClInclude Include="Layers\Fossilize\rapidjson\internal\pow10.h" />
-    <ClInclude Include="Layers\Fossilize\rapidjson\internal\regex.h" />
-    <ClInclude Include="Layers\Fossilize\rapidjson\internal\stack.h" />
-    <ClInclude Include="Layers\Fossilize\rapidjson\internal\strfunc.h" />
-    <ClInclude Include="Layers\Fossilize\rapidjson\internal\strtod.h" />
-    <ClInclude Include="Layers\Fossilize\rapidjson\internal\swap.h" />
-    <ClInclude Include="Layers\Fossilize\rapidjson\istreamwrapper.h" />
-    <ClInclude Include="Layers\Fossilize\rapidjson\memorybuffer.h" />
-    <ClInclude Include="Layers\Fossilize\rapidjson\memorystream.h" />
-    <ClInclude Include="Layers\Fossilize\rapidjson\msinttypes\inttypes.h" />
-    <ClInclude Include="Layers\Fossilize\rapidjson\msinttypes\stdint.h" />
-    <ClInclude Include="Layers\Fossilize\rapidjson\ostreamwrapper.h" />
-    <ClInclude Include="Layers\Fossilize\rapidjson\pointer.h" />
-    <ClInclude Include="Layers\Fossilize\rapidjson\prettywriter.h" />
-    <ClInclude Include="Layers\Fossilize\rapidjson\rapidjson.h" />
-    <ClInclude Include="Layers\Fossilize\rapidjson\reader.h" />
-    <ClInclude Include="Layers\Fossilize\rapidjson\schema.h" />
-    <ClInclude Include="Layers\Fossilize\rapidjson\stream.h" />
-    <ClInclude Include="Layers\Fossilize\rapidjson\stringbuffer.h" />
-    <ClInclude Include="Layers\Fossilize\rapidjson\writer.h" />
+    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\allocators.h" />
+    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\cursorstreamwrapper.h" />
+    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\document.h" />
+    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\encodedstream.h" />
+    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\encodings.h" />
+    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\error\en.h" />
+    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\error\error.h" />
+    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\filereadstream.h" />
+    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\filewritestream.h" />
+    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\fwd.h" />
+    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\internal\biginteger.h" />
+    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\internal\clzll.h" />
+    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\internal\diyfp.h" />
+    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\internal\dtoa.h" />
+    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\internal\ieee754.h" />
+    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\internal\itoa.h" />
+    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\internal\meta.h" />
+    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\internal\pow10.h" />
+    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\internal\regex.h" />
+    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\internal\stack.h" />
+    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\internal\strfunc.h" />
+    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\internal\strtod.h" />
+    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\internal\swap.h" />
+    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\istreamwrapper.h" />
+    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\memorybuffer.h" />
+    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\memorystream.h" />
+    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\msinttypes\inttypes.h" />
+    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\msinttypes\stdint.h" />
+    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\ostreamwrapper.h" />
+    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\pointer.h" />
+    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\prettywriter.h" />
+    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\rapidjson.h" />
+    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\reader.h" />
+    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\schema.h" />
+    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\stream.h" />
+    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\stringbuffer.h" />
+    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\writer.h" />
     <ClInclude Include="Layers\Fossilize\util\intrusive_list.hpp" />
     <ClInclude Include="Layers\Fossilize\util\object_cache.hpp" />
     <ClInclude Include="Layers\Fossilize\util\object_pool.hpp" />
     <ClInclude Include="Layers\Fossilize\varint.hpp" />
-    <ClInclude Include="ThirdParty\json\allocator.h" />
-    <ClInclude Include="ThirdParty\json\assertions.h" />
-    <ClInclude Include="ThirdParty\json\config.h" />
-    <ClInclude Include="ThirdParty\json\forwards.h" />
-    <ClInclude Include="ThirdParty\json\json.h" />
-    <ClInclude Include="ThirdParty\json\json_features.h" />
-    <ClInclude Include="ThirdParty\json\json_tool.h" />
-    <ClInclude Include="ThirdParty\json\reader.h" />
-    <ClInclude Include="ThirdParty\json\value.h" />
-    <ClInclude Include="ThirdParty\json\version.h" />
-    <ClInclude Include="ThirdParty\json\writer.h" />
+    <ClInclude Include="ThirdParty\jsoncpp\include\json\allocator.h" />
+    <ClInclude Include="ThirdParty\jsoncpp\include\json\assertions.h" />
+    <ClInclude Include="ThirdParty\jsoncpp\include\json\config.h" />
+    <ClInclude Include="ThirdParty\jsoncpp\include\json\forwards.h" />
+    <ClInclude Include="ThirdParty\jsoncpp\include\json\json.h" />
+    <ClInclude Include="ThirdParty\jsoncpp\include\json\json_features.h" />
+    <ClInclude Include="ThirdParty\jsoncpp\include\json\reader.h" />
+    <ClInclude Include="ThirdParty\jsoncpp\include\json\value.h" />
+    <ClInclude Include="ThirdParty\jsoncpp\include\json\version.h" />
+    <ClInclude Include="ThirdParty\jsoncpp\include\json\writer.h" />
+    <ClInclude Include="ThirdParty\jsoncpp\src\lib_json\json_tool.h" />
     <ClInclude Include="vk_app.h" />
   </ItemGroup>
   <ItemGroup>
@@ -257,7 +258,7 @@
     <ResourceCompile Include="resource.rc" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="ThirdParty\json\json_valueiterator.inl" />
+    <None Include="ThirdParty\jsoncpp\src\lib_json\json_valueiterator.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

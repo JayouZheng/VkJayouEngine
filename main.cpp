@@ -2,8 +2,12 @@
 // main.cpp
 //
 
+#if 1
+
  #include "Core/TypeDef.h"
  #include "vk_app.h"
+
+#include "Core/Tuple.h"
  
  int main()
  {
@@ -13,9 +17,27 @@
  		vk_app app;
  		app.Begin();
  	}
+
+	using namespace std;
+
+	Tuple<int, float, const char*, int, int> test;
+	//Tuple<int, char> test2;
+
+	test.get<0>() = 1;
+	test.get<1>() = 2.2365f;
+	test.get<2>() = "Hello World!";
+
+	cout << test.size() << endl;
+	cout << test.get<0>() << endl;
+	cout << test.get<1>() << endl;
+	cout << test.get<2>() << endl;
  
  	system("pause");
  }
+
+#endif
+
+#pragma region Fossilize Test
 
 #if 0
 
@@ -33,9 +55,11 @@
 #define LOGE(...) fprintf(stderr, "Fossilize ERROR: " __VA_ARGS__)
 #endif
 
-#include "Layers/Fossilize/fossilize_application_filter.hpp"
+#include "Fossilize/fossilize_application_filter.hpp"
 #include "vulkan/vulkan.h"
 #include <stdlib.h>
+
+#pragma comment(lib, "fossilize.lib")
 
 static bool write_string_to_file(const char *path, const char *str)
 {
@@ -158,3 +182,5 @@ int main()
 }
 
 #endif
+
+#pragma endregion

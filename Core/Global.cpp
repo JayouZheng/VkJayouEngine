@@ -104,3 +104,8 @@ void Global::SafeFreeAllocator()
 		g_allocator = nullptr;
 	}
 }
+
+void Util::tprintf(const char* format)
+{
+	std::cout << format;
+}
