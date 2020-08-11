@@ -104,9 +104,9 @@ protected:
 
 protected:
 
-	LogicalDevice  m_device = _nullptr;
+	LogicalDevice  m_device  = _nullptr;
+	CommandQueue   m_queue   = nullptr;
 
-	CommandQueue   m_queue   = VK_NULL_HANDLE;
 	VkSurfaceKHR   m_surface = VK_NULL_HANDLE;
 
 	int32                                             m_mainPDIndex = -1;

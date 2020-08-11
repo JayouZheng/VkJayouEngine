@@ -73,3 +73,35 @@ struct Tuple : TupleImpl <range <sizeof...(T)>, T...>
 {
 	static constexpr std::size_t size() { return sizeof...(T); }
 };
+
+#pragma region Understand Tuple
+
+#if 0
+inline void tuple_test()
+{
+	using namespace std;
+
+	id<int>::type c;
+	sizes<1, 2, 3>::type b;
+	id<sizes<5, 6, 7>>::type d;
+	type_of<Range <10, 0, sizes<>> > a;
+
+	type_of<Choose<2, int, float, char, double>> x;
+	Choose<1, float, char, double> t;
+	Choose<0, char, double> y;
+	Choose<0, double> h;
+
+	Tuple<int, float, const char*, int, int> test;
+
+	test.get<0>() = 1;
+	test.get<1>() = 2.2365f;
+	test.get<2>() = "Hello World!";
+
+	cout << test.size() << endl;
+	cout << test.get<0>() << endl;
+	cout << test.get<1>() << endl;
+	cout << test.get<2>() << endl;
+}
+#endif
+
+#pragma endregion

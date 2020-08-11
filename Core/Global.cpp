@@ -105,7 +105,23 @@ void Global::SafeFreeAllocator()
 	}
 }
 
-void Util::tprintf(const char* format)
+void Util::PrintArgs(const char* InFormat)
 {
-	std::cout << format;
+	std::cout << InFormat;
+}
+
+bool Util::ParseJson(const std::string& InPath, Json::Value& OutRoot)
+{
+	std::ifstream ifs;
+	ifs.open(InPath);
+
+	Json::CharReaderBuilder builder;
+	JSONCPP_STRING errs;
+
+	if (!parseFromStream(builder, ifs, &OutRoot, &errs))
+	{
+		_breturn_log(EXIT_FAILURE, errs);
+	}
+
+	return EXIT_SUCCESS;
 }

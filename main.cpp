@@ -17,20 +17,6 @@
  		vk_app app;
  		app.Begin();
  	}
-
-	using namespace std;
-
-	Tuple<int, float, const char*, int, int> test;
-	//Tuple<int, char> test2;
-
-	test.get<0>() = 1;
-	test.get<1>() = 2.2365f;
-	test.get<2>() = "Hello World!";
-
-	cout << test.size() << endl;
-	cout << test.get<0>() << endl;
-	cout << test.get<1>() << endl;
-	cout << test.get<2>() << endl;
  
  	system("pause");
  }

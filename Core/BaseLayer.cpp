@@ -5,10 +5,6 @@
 #include "BaseLayer.h"
 #include "Global.h"
 
-
-// Test.
-#include "json/json.h"
-
 BaseLayer::BaseLayer()
 {
 
@@ -354,23 +350,21 @@ void BaseLayer::Init()
 		else _exit_log(true, "Create Swapchain Failed! Application Terminate!");
 
 		// TODO:
-		const std::string rawJson = R"({"Age": 20, "Name": "colin"})";
-		const auto rawJsonLength = static_cast<int>(rawJson.length());
-		JSONCPP_STRING err;
 		Json::Value root;
 
-		Json::CharReaderBuilder builder;
-		const std::unique_ptr<Json::CharReader> reader(builder.newCharReader());
-		if (!reader->parse(rawJson.c_str(), rawJson.c_str() + rawJsonLength, &root, &err)) 
-			std::cout << "error" << std::endl;
+		Util::ParseJson("test.json", root);
+		if (root["versions"] == Json::nullValue)
+		{
+			_cmd_print_line("none versions");
+			_cmd_print_line(root["versions"]);
+		}
+		if (root["setLayout"] == Json::nullValue)
+		{
+			_cmd_print_line("none setLayout");
+			_cmd_print_line(root["setLayout"]);
+		}
 
-		const std::string name = root["Name"].asString();
-		const int age = root["Age"].asInt();
-
-		std::cout << name << std::endl;
-		std::cout << age << std::endl;
-
-		Util::tprintf("% world% %\n", "Hello", '!', 123);
+		Util::PrintArgs(" version: %\n maxAnisotropy: %\n maxLod: %\n", root["version"], root["samplers"]["ca45ee26b8ff6465"]["maxAnisotropy"], root["samplers"]["ca45ee26b8ff6465"]["maxLod"]);
 
 		//m_window->Show();
 	}

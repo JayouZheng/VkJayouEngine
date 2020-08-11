@@ -5,6 +5,7 @@
 #pragma once
 
 #include "Common.h"
+#include "json/json.h"
 
 class BaseAllocator;
 
@@ -83,18 +84,21 @@ namespace Util
 		return false;
 	}
 
-	void tprintf(const char* format); // base function
+	void PrintArgs(const char* InFormat); // base function
 
 	template<typename T, typename... Targs>
-	void tprintf(const char* format, T value, Targs... Fargs) // recursive variadic function
+	void PrintArgs(const char* InFormat, T InValue, Targs... InFargs) // recursive variadic function
 	{
-		for (; *format != '\0'; format++) {
-			if (*format == '%') {
-				std::cout << value;
-				tprintf(format + 1, Fargs...); // recursive call
+		for (; *InFormat != '\0'; InFormat++) {
+			if (*InFormat == '%') {
+				std::cout << InValue;
+				PrintArgs(InFormat + 1, InFargs...); // recursive call
 				return;
 			}
-			std::cout << *format;
+			std::cout << *InFormat;
 		}
 	}
+
+
+	bool ParseJson(const std::string& InPath, Json::Value& OutRoot);
 }

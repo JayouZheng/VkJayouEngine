@@ -36,6 +36,8 @@
 #define _exit_log(x, str) if(x) { std::cout << str << std::endl; exit(1); }
 
 #define _return_log(str) { Global::CacheLog(str); return; }
+#define _breturn_log(b, str) { Global::CacheLog(str); return b; }
+
 #define _is_guaranteed_min(x, min_val, y) { if (Global::IsVkGuaranteedMinimum<uint32>(x, min_val)) x = std::min(x, y); }
 
 #define _name_of(x)   #x
