@@ -78,3 +78,36 @@ void vk_try(const TLambda& lambda, const wchar_t* func_name, const std::wstring&
 }
 
 #define _vk_try(x) vk_try(x, _wname_of(x), to_wstring(__FILE__), __LINE__);
+
+
+//////////////////////////////////////////////////////////////////////////////////
+
+namespace VkUtil
+{
+	const std::unordered_map<std::string, VkShaderStageFlagBits> ShaderStageMap =
+	{
+		{ "null",                    VK_SHADER_STAGE_VERTEX_BIT                  },
+		{ "vertex",                  VK_SHADER_STAGE_VERTEX_BIT                  },
+		{ "pixel",                   VK_SHADER_STAGE_FRAGMENT_BIT                },
+		{ "fragment",                VK_SHADER_STAGE_FRAGMENT_BIT                },
+		{ "tessellation_control",    VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT    },
+		{ "tessellation_evaluation", VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT },
+		{ "geometry",                VK_SHADER_STAGE_GEOMETRY_BIT                },
+		{ "compute",                 VK_SHADER_STAGE_COMPUTE_BIT                 },
+		{ "mesh",                    VK_SHADER_STAGE_MESH_BIT_NV                 },
+		{ "raygen",                  VK_SHADER_STAGE_RAYGEN_BIT_NV               }
+	};
+
+	inline VkShaderStageFlagBits GetShaderStage(const std::string& InKey)
+	{
+		VkShaderStageFlagBits result;
+		try
+		{
+			result = VkUtil::ShaderStageMap.at(InKey);
+		}
+		catch (const std::out_of_range& msg)
+		{
+
+		}
+	}
+}

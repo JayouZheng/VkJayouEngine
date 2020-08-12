@@ -204,6 +204,7 @@ public:
 
 	void           CreateGraphicPipelines        (VkPipeline* OutPipeline, const VkGraphicsPipelineCreateInfo* InCreateInfos, uint32 InCreateInfoCount = _count_1, VkPipelineCache InPipCache = VK_NULL_HANDLE);
 	void           CreateGraphicPipelines        (VkPipeline* OutPipeline, const SPipelineGraphicDesc* InDescs, uint32 InDescCount = _count_1, VkPipelineCache InPipCache = VK_NULL_HANDLE);
+	void           CreateGraphicPipelines        (VkPipeline* OutPipeline, const std::string& InJsonPath, VkPipelineCache InPipCache = VK_NULL_HANDLE);
 
 
 	template<typename VkType>

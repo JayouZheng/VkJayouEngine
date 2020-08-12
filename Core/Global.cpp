@@ -120,7 +120,7 @@ bool Util::ParseJson(const std::string& InPath, Json::Value& OutRoot)
 
 	if (!parseFromStream(builder, ifs, &OutRoot, &errs))
 	{
-		_breturn_log(EXIT_FAILURE, errs);
+		_returnb_log(EXIT_FAILURE, errs);
 	}
 
 	return EXIT_SUCCESS;

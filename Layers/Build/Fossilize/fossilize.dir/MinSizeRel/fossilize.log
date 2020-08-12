@@ -1,8 +1,0 @@
-﻿  Building Custom Rule C:/0A-Work/Mines/Repos/vk/vk_app/Layers/Fossilize/CMakeLists.txt
-  fossilize.cpp
-  fossilize_application_filter.cpp
-  varint.cpp
-  fossilize_db.cpp
-  path.cpp
-  fossilize_external_replayer.cpp
-  fossilize.vcxproj -> C:\0A-Work\Mines\Repos\vk\vk_app\Layers\Build\Fossilize\MinSizeRel\fossilize.lib

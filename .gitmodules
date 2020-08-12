@@ -4,6 +4,3 @@
 [submodule "Layers/Fossilize"]
 	path = Layers/Fossilize
 	url = https://github.com/ValveSoftware/Fossilize.git
-[submodule "ThirdParty/inicpp"]
-	path = ThirdParty/inicpp
-	url = https://github.com/SemaiCZE/inicpp.git

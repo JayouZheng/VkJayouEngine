@@ -350,22 +350,7 @@ void BaseLayer::Init()
 		else _exit_log(true, "Create Swapchain Failed! Application Terminate!");
 
 		// TODO:
-		Json::Value root;
-
-		Util::ParseJson("test.json", root);
-		if (root["versions"] == Json::nullValue)
-		{
-			_cmd_print_line("none versions");
-			_cmd_print_line(root["versions"]);
-		}
-		if (root["setLayout"] == Json::nullValue)
-		{
-			_cmd_print_line("none setLayout");
-			_cmd_print_line(root["setLayout"]);
-		}
-
-		Util::PrintArgs(" version: %\n maxAnisotropy: %\n maxLod: %\n", root["version"], root["samplers"]["ca45ee26b8ff6465"]["maxAnisotropy"], root["samplers"]["ca45ee26b8ff6465"]["maxLod"]);
-
+		
 		//m_window->Show();
 	}
 

@@ -26,13 +26,13 @@
       <Filter>Core</Filter>
     </ClCompile>
     <ClCompile Include="ThirdParty\jsoncpp\src\lib_json\json_reader.cpp">
-      <Filter>ThirdParty\json\src</Filter>
+      <Filter>ThirdParty\jsoncpp\src</Filter>
     </ClCompile>
     <ClCompile Include="ThirdParty\jsoncpp\src\lib_json\json_value.cpp">
-      <Filter>ThirdParty\json\src</Filter>
+      <Filter>ThirdParty\jsoncpp\src</Filter>
     </ClCompile>
     <ClCompile Include="ThirdParty\jsoncpp\src\lib_json\json_writer.cpp">
-      <Filter>ThirdParty\json\src</Filter>
+      <Filter>ThirdParty\jsoncpp\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -120,34 +120,34 @@
       <Filter>Layers\Fossilize\util</Filter>
     </ClInclude>
     <ClInclude Include="ThirdParty\jsoncpp\include\json\allocator.h">
-      <Filter>ThirdParty\json</Filter>
+      <Filter>ThirdParty\jsoncpp</Filter>
     </ClInclude>
     <ClInclude Include="ThirdParty\jsoncpp\include\json\assertions.h">
-      <Filter>ThirdParty\json</Filter>
+      <Filter>ThirdParty\jsoncpp</Filter>
     </ClInclude>
     <ClInclude Include="ThirdParty\jsoncpp\include\json\config.h">
-      <Filter>ThirdParty\json</Filter>
+      <Filter>ThirdParty\jsoncpp</Filter>
     </ClInclude>
     <ClInclude Include="ThirdParty\jsoncpp\include\json\forwards.h">
-      <Filter>ThirdParty\json</Filter>
+      <Filter>ThirdParty\jsoncpp</Filter>
     </ClInclude>
     <ClInclude Include="ThirdParty\jsoncpp\include\json\json.h">
-      <Filter>ThirdParty\json</Filter>
+      <Filter>ThirdParty\jsoncpp</Filter>
     </ClInclude>
     <ClInclude Include="ThirdParty\jsoncpp\include\json\json_features.h">
-      <Filter>ThirdParty\json</Filter>
+      <Filter>ThirdParty\jsoncpp</Filter>
     </ClInclude>
     <ClInclude Include="ThirdParty\jsoncpp\include\json\reader.h">
-      <Filter>ThirdParty\json</Filter>
+      <Filter>ThirdParty\jsoncpp</Filter>
     </ClInclude>
     <ClInclude Include="ThirdParty\jsoncpp\include\json\value.h">
-      <Filter>ThirdParty\json</Filter>
+      <Filter>ThirdParty\jsoncpp</Filter>
     </ClInclude>
     <ClInclude Include="ThirdParty\jsoncpp\include\json\version.h">
-      <Filter>ThirdParty\json</Filter>
+      <Filter>ThirdParty\jsoncpp</Filter>
     </ClInclude>
     <ClInclude Include="ThirdParty\jsoncpp\include\json\writer.h">
-      <Filter>ThirdParty\json</Filter>
+      <Filter>ThirdParty\jsoncpp</Filter>
     </ClInclude>
     <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\allocators.h">
       <Filter>Layers\Fossilize\rapidjson</Filter>
@@ -261,10 +261,13 @@
       <Filter>Layers\Fossilize\rapidjson\error</Filter>
     </ClInclude>
     <ClInclude Include="ThirdParty\jsoncpp\src\lib_json\json_tool.h">
-      <Filter>ThirdParty\json\src</Filter>
+      <Filter>ThirdParty\jsoncpp\src</Filter>
     </ClInclude>
     <ClInclude Include="Core\Tuple.h">
       <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\iniparser\ini.hpp">
+      <Filter>ThirdParty\iniparser</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -298,16 +301,19 @@
     <Filter Include="ThirdParty">
       <UniqueIdentifier>{c43a1332-d2ca-476a-9145-8baf510d57f8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ThirdParty\json">
+    <Filter Include="ThirdParty\jsoncpp">
       <UniqueIdentifier>{72b5cebe-515f-4640-b876-aa5db2887f96}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ThirdParty\json\src">
+    <Filter Include="ThirdParty\jsoncpp\src">
       <UniqueIdentifier>{bca29c13-92b6-4f64-ad10-64521062bbb1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\iniparser">
+      <UniqueIdentifier>{11d8534b-39ab-4183-ac55-75773f010e30}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ThirdParty\jsoncpp\src\lib_json\json_valueiterator.inl">
-      <Filter>ThirdParty\json\src</Filter>
+      <Filter>ThirdParty\jsoncpp\src</Filter>
     </None>
   </ItemGroup>
 </Project>

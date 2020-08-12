@@ -860,6 +860,53 @@ void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const SPipel
 	_vk_try(vkCreateGraphicsPipelines(m_device, InPipCache, _count_1, &graphicsPipelineCreateInfo, m_allocator->GetVkAllocator(), OutPipeline));
 }
 
+void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::string& InJsonPath, VkPipelineCache InPipCache)
+{
+	Json::Value root;
+	Util::ParseJson(InJsonPath, root);
+
+	_breturn_log(
+		(root["graphic_pipeline_infos_count"] == Json::nullValue) && 
+		(root["graphic_pipeline_infos_count"].asUInt() == 0), 
+		"json file: [graphic_pipeline_infos_count] can not be 0, or null");
+	_jverify_return_log(root["graphic_pipeline_infos"], "json file: [graphic_pipeline_infos] can not be null!");
+
+	uint32 numGInfo = root["graphic_pipeline_infos_count"].asUInt();
+	VkGraphicsPipelineCreateInfo* GInfos = new VkGraphicsPipelineCreateInfo[numGInfo];
+
+	for (uint32 i = 0; i < numGInfo; ++i)
+	{
+		auto ginfo = root["graphic_pipeline_infos"][i];
+		GInfos[i].sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+		GInfos[i].pNext = nullptr;
+		GInfos[i].flags = _jget_uint(ginfo["pipeline_create_flags"]);
+
+		_breturn_log(
+			(ginfo["pipeline_stages_count"] == Json::nullValue) &&
+			(ginfo["pipeline_stages_count"].asUInt() == 0),
+			"json file: [pipeline_stages_count] can not be 0, or null");
+		_jverify_return_log(ginfo["pipeline_stages_infos"], "json file: [pipeline_stages_infos] can not be null!");
+
+		uint32 numStageInfo = ginfo["pipeline_stages_count"].asUInt();
+		VkPipelineShaderStageCreateInfo* SInfos = new VkPipelineShaderStageCreateInfo[numStageInfo];
+
+		for (uint32 j = 0; j < numStageInfo; j++)
+		{
+			auto sinfo = ginfo[j];
+			SInfos[j].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+			SInfos[j].pNext = nullptr;
+			SInfos[j].flags = _jget_uint(sinfo["stage_create_flags"]);
+			SInfos[j].stage = VkUtil::ShaderStageMap[_jget_stirng(sinfo["stage_type"])];
+		}
+
+		delete[] SInfos;
+		SInfos = nullptr;
+	}
+
+	delete[] GInfos;
+	GInfos = nullptr;
+}
+
 void LogicalDevice::FlushAllQueue()
 {
 	_vk_try(vkDeviceWaitIdle(m_device));

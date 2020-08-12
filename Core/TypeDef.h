@@ -14,8 +14,12 @@
 #include <fstream>
 #include <vector>
 #include <array>
+#include <unordered_map>
 #include <memory>
 #include <type_traits>
+
+// Core Level Using, Json Parser...
+#include "json/json.h"
 
 #define _assert(x) assert(x)
 
@@ -33,12 +37,21 @@
 #define _cmd_print_line(str) std::cout << str << std::endl
 #define _cmd_print_line_ws(str) std::wcout << str << std::endl
 
-#define _exit_log(x, str) if(x) { std::cout << str << std::endl; exit(1); }
+#define _exit_log(b, log) if(b) { std::cout << log << std::endl; exit(1); }
 
-#define _return_log(str) { Global::CacheLog(str); return; }
-#define _breturn_log(b, str) { Global::CacheLog(str); return b; }
+#define _return_log(log) { Global::CacheLog(log); return; }
+#define _breturn_log(b, log) if (b) { Global::CacheLog(log); return; }
+#define _returnb_log(ret_b, log) { Global::CacheLog(log); return ret_b; }
 
 #define _is_guaranteed_min(x, min_val, y) { if (Global::IsVkGuaranteedMinimum<uint32>(x, min_val)) x = std::min(x, y); }
+
+// Json Cpp Util Defines.
+#define _jverify_return_log(json_key, log) if (json_key == Json::nullValue) { Global::CacheLog(log); return; }
+#define _jget_int(json_key) (json_key == Json::nullValue) ? 0 : json_key.asInt()
+#define _jget_uint(json_key) (json_key == Json::nullValue) ? 0u : json_key.asUInt()
+#define _jget_float(json_key) (json_key == Json::nullValue) ? 0.0f : json_key.asFloat()
+#define _jget_stirng(json_key) (json_key == Json::nullValue) ? "null" : std::string(json_key.asCString())
+
 
 #define _name_of(x)   #x
 #define _wname_of(x) L#x
