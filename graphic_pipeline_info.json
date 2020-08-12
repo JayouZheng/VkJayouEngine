@@ -1,0 +1,15 @@
+{
+    "graphic_pipeline_infos_count": 1,
+	"graphic_pipeline_infos": [
+        {
+            "pipeline_create_flags": 0,
+            "pipeline_stages_count": 1,
+            "pipeline_stages_infos": [
+                {
+                    "stage_create_flags": 0,
+                    "stage_type": "vertex"
+                }
+            ]
+        }
+    ]
+}
