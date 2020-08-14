@@ -21,7 +21,7 @@ namespace
 
 VkInstance Global::GetVkInstance()
 {
-	_exit_log(g_instance == VK_NULL_HANDLE, "return [g_instance] is null!");
+	_bexit_log(g_instance == VK_NULL_HANDLE, "return [g_instance] is null!");
 	return g_instance;
 }
 
@@ -32,7 +32,7 @@ void Global::SetVkInstance(const VkInstance& InInstance)
 
 VkDevice Global::GetVkDevice()
 {
-	_exit_log(g_device == VK_NULL_HANDLE, "return [g_device] is null!");
+	_bexit_log(g_device == VK_NULL_HANDLE, "return [g_device] is null!");
 	return g_device;
 }
 
@@ -77,7 +77,7 @@ void Global::PrintLog()
 	for (auto& log : g_logs)
 	{
 		_cmd_print_line("Global Cached " + std::to_string(g_logs.size()) + " Logs:");
-		_cmd_print_line(std::to_string(logID) + ". " + log);
+		_cmd_print_line(std::to_string(logID++) + ". " + log);
 	}
 }
 
@@ -120,7 +120,7 @@ bool Util::ParseJson(const std::string& InPath, Json::Value& OutRoot)
 
 	if (!parseFromStream(builder, ifs, &OutRoot, &errs))
 	{
-		_returnb_log(EXIT_FAILURE, errs);
+		_returnx_log(EXIT_FAILURE, errs);
 	}
 
 	return EXIT_SUCCESS;

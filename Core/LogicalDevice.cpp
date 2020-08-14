@@ -122,6 +122,36 @@ void LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const ui
 	_vk_try(vkCreateShaderModule(m_device, &shaderModuleCreateInfo, m_allocator->GetVkAllocator(), OutShaderModule));
 }
 
+void LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const char* InShaderPath)
+{
+	std::ifstream is(InShaderPath, std::ios::binary | std::ios::in | std::ios::ate);
+
+	if (is.is_open())
+	{
+		size_t size = is.tellg();
+		_breturn_log(size == -1, _str_name_of(CreateShaderModule) + ", file size go to -1(at std::istream::tellg)!");
+
+		is.seekg(0, std::ios::beg);
+		char* shaderCode = new char[size];
+		is.read(shaderCode, size);
+		is.close();
+
+		VkShaderModuleCreateInfo shaderModuleCreateInfo{};
+		shaderModuleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+		shaderModuleCreateInfo.codeSize = size;
+		shaderModuleCreateInfo.pCode = (uint32*)shaderCode;
+
+		_vk_try(vkCreateShaderModule(m_device, &shaderModuleCreateInfo, m_allocator->GetVkAllocator(), OutShaderModule));
+
+		delete[] shaderCode;
+	}
+	else
+	{
+		*OutShaderModule = VK_NULL_HANDLE;
+		_return_log("Error: Could not open shader file \"" + std::string(InShaderPath) + "\"");
+	}
+}
+
 void LogicalDevice::CreateComputePipelines(VkPipeline* OutPipeline, const VkComputePipelineCreateInfo* InCreateInfos, uint32 InCreateInfoCount /*= _count_1*/, VkPipelineCache InPipCache /*= VK_NULL_HANDLE*/)
 {
 	_vk_try(vkCreateComputePipelines(m_device, InPipCache, InCreateInfoCount, InCreateInfos, m_allocator->GetVkAllocator(), OutPipeline));
@@ -863,48 +893,131 @@ void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const SPipel
 void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::string& InJsonPath, VkPipelineCache InPipCache)
 {
 	Json::Value root;
-	Util::ParseJson(InJsonPath, root);
+	Util::ParseJson(InJsonPath, root); // !!!
 
-	_breturn_log(
-		(root["graphic_pipeline_infos_count"] == Json::nullValue) && 
-		(root["graphic_pipeline_infos_count"].asUInt() == 0), 
-		"json file: [graphic_pipeline_infos_count] can not be 0, or null");
 	_jverify_return_log(root["graphic_pipeline_infos"], "json file: [graphic_pipeline_infos] can not be null!");
+	_breturn_log(!root["graphic_pipeline_infos"].isArray(), "json file: [graphic_pipeline_infos] should be an array!");
 
-	uint32 numGInfo = root["graphic_pipeline_infos_count"].asUInt();
-	VkGraphicsPipelineCreateInfo* GInfos = new VkGraphicsPipelineCreateInfo[numGInfo];
+	uint32 numGInfo = root["graphic_pipeline_infos"].size();
 
-	for (uint32 i = 0; i < numGInfo; ++i)
+	VkGraphicsPipelineCreateInfo*    pGraphicInfos = new VkGraphicsPipelineCreateInfo[numGInfo];
+	VkPipelineShaderStageCreateInfo* pShaderInfos  = nullptr;;
+	VkSpecializationMapEntry*        pSpecMaps     = nullptr;
+	uint32*                          pSpecData     = nullptr;
+
+	VkSpecializationInfo specInfo = {};
+
+	for (uint32 i = 0; i < numGInfo; i++)
 	{
-		auto ginfo = root["graphic_pipeline_infos"][i];
-		GInfos[i].sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-		GInfos[i].pNext = nullptr;
-		GInfos[i].flags = _jget_uint(ginfo["pipeline_create_flags"]);
+		auto& graphicInfo = root["graphic_pipeline_infos"][i];
 
-		_breturn_log(
-			(ginfo["pipeline_stages_count"] == Json::nullValue) &&
-			(ginfo["pipeline_stages_count"].asUInt() == 0),
-			"json file: [pipeline_stages_count] can not be 0, or null");
-		_jverify_return_log(ginfo["pipeline_stages_infos"], "json file: [pipeline_stages_infos] can not be null!");
+		pGraphicInfos[i].sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+		pGraphicInfos[i].pNext = nullptr;
+		pGraphicInfos[i].flags = _jget_uint(graphicInfo["pipeline_flags"]);
 
-		uint32 numStageInfo = ginfo["pipeline_stages_count"].asUInt();
-		VkPipelineShaderStageCreateInfo* SInfos = new VkPipelineShaderStageCreateInfo[numStageInfo];
+		_jverify_return_log(graphicInfo["pipeline_stages_infos"], "json file: [pipeline_stages_infos] can not be null!");
+		_breturn_log(!graphicInfo["pipeline_stages_infos"].isArray(), "json file: [pipeline_stages_infos] should be an array!");
+
+		uint32 numStageInfo = graphicInfo["pipeline_stages_infos"].size();
+		pShaderInfos        = new VkPipelineShaderStageCreateInfo[numStageInfo];
+
+		pGraphicInfos[i].stageCount = numStageInfo;
+		pGraphicInfos[i].pStages    = pShaderInfos;
 
 		for (uint32 j = 0; j < numStageInfo; j++)
 		{
-			auto sinfo = ginfo[j];
-			SInfos[j].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-			SInfos[j].pNext = nullptr;
-			SInfos[j].flags = _jget_uint(sinfo["stage_create_flags"]);
-			SInfos[j].stage = VkUtil::ShaderStageMap[_jget_stirng(sinfo["stage_type"])];
+			auto& shaderInfo = graphicInfo["pipeline_stages_infos"][j];
+
+			VkShaderModule shaderModule;
+			this->CreateShaderModule(&shaderModule, _jget_cstring(shaderInfo["stage_code_path"]));
+
+			pShaderInfos[j].sType  = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+			pShaderInfos[j].pNext  = nullptr;
+			pShaderInfos[j].flags  = _jget_uint(shaderInfo["stage_flags"]);
+			pShaderInfos[j].stage  = Util::GetShaderStage(_jget_string(shaderInfo["stage_type"]));
+			pShaderInfos[j].module = shaderModule;
+			pShaderInfos[j].pName  = _jget_cstring_default(shaderInfo["entrypoint"], "main");
+			pShaderInfos[j].pSpecializationInfo = &specInfo;
+			
+			if (shaderInfo["specialization_constants"] != Json::nullValue)
+			{
+				if (shaderInfo["specialization_constants"].isArray())
+				{
+					uint32 numSpecConst = shaderInfo["specialization_constants"].size();
+					pSpecMaps           = new VkSpecializationMapEntry[numSpecConst];
+					pSpecData           = new uint32[numSpecConst];
+			
+					specInfo.mapEntryCount = numSpecConst;
+					specInfo.pMapEntries   = pSpecMaps;
+					specInfo.dataSize      = numSpecConst * 4; // 4 byte per const, 32 bit value.
+					specInfo.pData         = pSpecData;
+
+					for (uint32 k = 0; k < numSpecConst; k++)
+					{
+						auto& value = shaderInfo["specialization_constants"][k];
+
+						pSpecMaps[k].constantID = k;						
+						pSpecMaps[k].offset     = k * 4; // 4 byte per const, 32 bit value.
+						pSpecMaps[k].size       = 4;     // 4 byte per const, 32 bit value.
+
+						//////////////////////////////////////////////////////////////
+						// json value reinterpretation.
+						switch (value.type())
+						{
+						case Json::ValueType::intValue:     pSpecMaps[k].size = sizeof(int32);    _reinterpret_data(pSpecData[k], value.asInt());   break;
+						case Json::ValueType::uintValue:    pSpecMaps[k].size = sizeof(uint32);   _reinterpret_data(pSpecData[k], value.asUInt());  break;
+						case Json::ValueType::realValue:    pSpecMaps[k].size = sizeof(float);    _reinterpret_data(pSpecData[k], value.asFloat()); break;
+						case Json::ValueType::booleanValue: pSpecMaps[k].size = sizeof(VkBool32); _reinterpret_data(pSpecData[k], value.asBool());  break;
+						default: _return_log("json file: not support [specialization_constants] value type!");
+						}
+						//////////////////////////////////////////////////////////////
+					}
+				}
+				else
+				{
+					auto& value = shaderInfo["specialization_constants"];
+
+					VkSpecializationMapEntry specMap = {};
+					specMap.constantID = 0;
+					specMap.offset     = 0; // 4 byte per const, 32 bit value.
+					specMap.size       = 4; // 4 byte per const, 32 bit value.
+
+					uint32 specData = 0;
+
+					specInfo.mapEntryCount = 1;
+					specInfo.pMapEntries   = &specMap;
+					specInfo.dataSize      = 4;
+					specInfo.pData         = &specData;
+
+					//////////////////////////////////////////////////////////////
+					// json value reinterpretation.
+					switch (value.type())
+					{
+					case Json::ValueType::intValue:     _reinterpret_data(specData, value.asInt());   break;
+					case Json::ValueType::uintValue:    _reinterpret_data(specData, value.asUInt());  break;
+					case Json::ValueType::realValue:    _reinterpret_data(specData, value.asFloat()); break;
+					case Json::ValueType::booleanValue: _reinterpret_data(specData, value.asBool());  break;
+					default: _return_log("json file: not support [specialization_constants] value type!");
+					}
+					//////////////////////////////////////////////////////////////
+				}			
+			}
+			else
+			{
+				pShaderInfos[j].pSpecializationInfo = nullptr;
+			}
 		}
 
-		delete[] SInfos;
-		SInfos = nullptr;
+		
 	}
 
-	delete[] GInfos;
-	GInfos = nullptr;
+
+	// TODO:
+
+	_safe_delete_array(pGraphicInfos);
+	_safe_delete_array(pShaderInfos);
+	_safe_delete_array(pSpecMaps);
+	_safe_delete_array(pSpecData);
 }
 
 void LogicalDevice::FlushAllQueue()

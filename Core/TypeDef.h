@@ -37,11 +37,12 @@
 #define _cmd_print_line(str) std::cout << str << std::endl
 #define _cmd_print_line_ws(str) std::wcout << str << std::endl
 
-#define _exit_log(b, log) if(b) { std::cout << log << std::endl; exit(1); }
+#define _bexit_log(b, log) if(b) { std::cout << log << std::endl; exit(1); }
 
 #define _return_log(log) { Global::CacheLog(log); return; }
 #define _breturn_log(b, log) if (b) { Global::CacheLog(log); return; }
-#define _returnb_log(ret_b, log) { Global::CacheLog(log); return ret_b; }
+#define _returnx_log(ret, log) { Global::CacheLog(log); return ret; }
+
 
 #define _is_guaranteed_min(x, min_val, y) { if (Global::IsVkGuaranteedMinimum<uint32>(x, min_val)) x = std::min(x, y); }
 
@@ -50,7 +51,17 @@
 #define _jget_int(json_key) (json_key == Json::nullValue) ? 0 : json_key.asInt()
 #define _jget_uint(json_key) (json_key == Json::nullValue) ? 0u : json_key.asUInt()
 #define _jget_float(json_key) (json_key == Json::nullValue) ? 0.0f : json_key.asFloat()
-#define _jget_stirng(json_key) (json_key == Json::nullValue) ? "null" : std::string(json_key.asCString())
+
+#define _jget_cstring_default(json_key, default) (json_key == Json::nullValue) ? default : (*json_key.asCString() == 0 ? default : json_key.asCString())
+#define _jget_cstring(json_key) _jget_cstring_default(json_key, "null")
+#define _jget_string(json_key) std::string(_jget_cstring_default(json_key, "null"))
+
+
+#define _reinterpret_data(dst, source) { auto data = source; std::memcpy(&dst, &data, sizeof dst); }
+
+// Safe delete.
+#define _safe_delete(ptr) if (ptr != nullptr) { delete ptr; ptr = nullptr; }
+#define _safe_delete_array(ptr) if (ptr != nullptr) { delete[] ptr; ptr = nullptr; }
 
 
 #define _name_of(x)   #x

@@ -105,7 +105,7 @@ void BaseLayer::Init()
 		// Enum physical devices.
 		uint32 physicalDeviceCount = _count_0;
 		_vk_try(vkEnumeratePhysicalDevices(Global::GetVkInstance(), &physicalDeviceCount, nullptr));
-		_exit_log(physicalDeviceCount == 0, "Can't find any physical devices on the host!");
+		_bexit_log(physicalDeviceCount == 0, "Can't find any physical devices on the host!");
 
 		m_physicalDevices.resize(physicalDeviceCount);
 		_vk_try(vkEnumeratePhysicalDevices(Global::GetVkInstance(), &physicalDeviceCount, m_physicalDevices.data()));
@@ -178,7 +178,7 @@ void BaseLayer::Init()
 			}
 		}
 
-		_exit_log(m_mainPDIndex == -1, "Can't find any valid physical devices on the host!");
+		_bexit_log(m_mainPDIndex == -1, "Can't find any valid physical devices on the host!");
 	}
 
 	// Create VK Logical Devices & Get Queue & Create Command Pool.
@@ -193,7 +193,7 @@ void BaseLayer::Init()
 			else ++graphicQueueFamilyIndex;			
 		}
 
-		_exit_log(m_mainQFIndex == -1, "Can't find any Valid Graphic & Compute Queue Family!");
+		_bexit_log(m_mainQFIndex == -1, "Can't find any Valid Graphic & Compute Queue Family!");
 		
 		VkDeviceQueueCreateInfo deviceQueueCreateInfo = {};
 		deviceQueueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
@@ -264,7 +264,7 @@ void BaseLayer::Init()
 		if (Util::IsVecContain<const char*>(m_supportInsExts, VK_KHR_WIN32_SURFACE_EXTENSION_NAME, _lambda_is_cstr_equal))
 		{
 			VkBool32 bIsDefaultQueueSupportPresentation = vkGetPhysicalDeviceWin32PresentationSupportKHR(m_physicalDevices[m_mainPDIndex], m_mainQFIndex);
-			_exit_log(bIsDefaultQueueSupportPresentation == VK_FALSE, "The Default Queue Do Not Support Presentation (Win32)!");
+			_bexit_log(bIsDefaultQueueSupportPresentation == VK_FALSE, "The Default Queue Do Not Support Presentation (Win32)!");
 
 			m_window = new Window;
 			VkWin32SurfaceCreateInfoKHR win32SurfaceCreateInfo = {};
@@ -294,7 +294,7 @@ void BaseLayer::Init()
 			{
 				uint32 formatCount = _count_0;
 				_vk_try(vkGetPhysicalDeviceSurfaceFormatsKHR(m_physicalDevices[m_mainPDIndex], m_surface, &formatCount, nullptr));
-				_exit_log(formatCount == 0, "No Surface Format Support!");
+				_bexit_log(formatCount == 0, "No Surface Format Support!");
 
 				m_surfaceFormats.resize(formatCount);
 				_vk_try(vkGetPhysicalDeviceSurfaceFormatsKHR(m_physicalDevices[m_mainPDIndex], m_surface, &formatCount, m_surfaceFormats.data()));
@@ -320,7 +320,7 @@ void BaseLayer::Init()
 					m_swapchainCreateInfo.minImageCount = BaseLayerConfig::SwapchainCreateInfo.frameCount;
 				else m_swapchainCreateInfo.minImageCount = m_surfaceCapabilities.minImageCount;
 
-				_exit_log(!(m_surfaceCapabilities.supportedUsageFlags & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT), "Surface Do Not Support Color Attachment Usage!");
+				_bexit_log(!(m_surfaceCapabilities.supportedUsageFlags & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT), "Surface Do Not Support Color Attachment Usage!");
 				m_swapchainCreateInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT & BaseLayerConfig::SwapchainCreateInfo.imageUsage;
 
 				if (BaseLayerConfig::SwapchainCreateInfo.surfacePreTransform & m_surfaceCapabilities.supportedTransforms)
@@ -343,13 +343,14 @@ void BaseLayer::Init()
 			{
 				VkBool32 surfacePresentationSupport = VK_FALSE;
 				_vk_try(vkGetPhysicalDeviceSurfaceSupportKHR(m_physicalDevices[m_mainPDIndex], m_mainQFIndex, m_surface, &surfacePresentationSupport));
-				_exit_log(surfacePresentationSupport == VK_FALSE, "The Default Queue Do Not Support Presentation!");
+				_bexit_log(surfacePresentationSupport == VK_FALSE, "The Default Queue Do Not Support Presentation!");
 			}
 			
 		}
-		else _exit_log(true, "Create Swapchain Failed! Application Terminate!");
+		else _bexit_log(true, "Create Swapchain Failed! Application Terminate!");
 
 		// TODO:
+		m_device.CreateGraphicPipelines(nullptr, "Json/graphic_pipeline_info.json");
 		
 		//m_window->Show();
 	}

@@ -70,6 +70,35 @@ namespace Util
 		VK_REMAINING_ARRAY_LAYERS    // layerCount
 	};
 
+	const std::unordered_map<std::string, VkShaderStageFlagBits> ShaderStageMap =
+	{
+		{ "null",                    VK_SHADER_STAGE_VERTEX_BIT                  },
+		{ "vertex",                  VK_SHADER_STAGE_VERTEX_BIT                  },
+		{ "pixel",                   VK_SHADER_STAGE_FRAGMENT_BIT                },
+		{ "fragment",                VK_SHADER_STAGE_FRAGMENT_BIT                },
+		{ "tessellation_control",    VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT    },
+		{ "tessellation_evaluation", VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT },
+		{ "geometry",                VK_SHADER_STAGE_GEOMETRY_BIT                },
+		{ "compute",                 VK_SHADER_STAGE_COMPUTE_BIT                 },
+		{ "mesh",                    VK_SHADER_STAGE_MESH_BIT_NV                 },
+		{ "raygen",                  VK_SHADER_STAGE_RAYGEN_BIT_NV               }
+	};
+
+	inline VkShaderStageFlagBits GetShaderStage(const std::string& InKey)
+	{
+		VkShaderStageFlagBits result;
+		try
+		{
+			result = Util::ShaderStageMap.at(InKey);
+			return result;
+		}
+		catch (const std::out_of_range& msg)
+		{
+			result = VK_SHADER_STAGE_VERTEX_BIT;
+			_returnx_log(result, std::string(msg.what()) + ", pipeline stage type invalid! default set to \"vertex\"!");
+		}
+	}
+
 	template<typename TType, typename TLambda>
 	bool IsVecContain(const std::vector<TType>& InVecContain, const TType& InMember, const TLambda& InCompare)
 	{
