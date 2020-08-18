@@ -1,8 +1,10 @@
 {
-	"graphic_pipeline_infos": [
+    "graphic_pipeline_infos": 
+    [
         {
             "pipeline_flags": 0,
-            "pipeline_stages_infos": [
+            "pipeline_stages_infos": 
+            [
                 {
                     "stage_flags": 0,
                     "stage_type": "vertex",
@@ -10,7 +12,25 @@
                     "entrypoint": "main",
                     "specialization_constants": [ 0.235, 60, false ]
                 }
-            ]
+            ],
+            "vertex_input_attributes": 
+            [
+                {
+                    "binding_id": 0,
+                    "attributes": [ "position", "color" ]
+                }
+            ],
+            "pipeline_input_assembly": 
+            {
+                "flags": 0,
+                "primitive_topology": "triangle_list",
+                "primitive_restart_enable": false
+            },
+            "tessellation_state":
+            {
+                "flags": 0,
+                "patch_control_points_count": 3
+            }
         }
     ]
 }

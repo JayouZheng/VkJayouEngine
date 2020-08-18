@@ -24,7 +24,7 @@ BaseLayer::~BaseLayer()
 void BaseLayer::Init()
 {
 	// Global Variable.
-	uint32 numEnableExts = _array_size(BaseLayerConfig::EnableExtensions);
+	uint32 numEnableExts   = _array_size(BaseLayerConfig::EnableExtensions);
 	uint32 numEnableLayers = _array_size(BaseLayerConfig::EnableLayers);
 
 	// Create VK Instance & Physical Devices & Query Infos.
@@ -79,22 +79,22 @@ void BaseLayer::Init()
 			}
 		}
 
-		VkApplicationInfo appInfo = {};
-		appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-		appInfo.pApplicationName = "VK_Application";
+		VkApplicationInfo appInfo  = {};
+		appInfo.sType              = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+		appInfo.pApplicationName   = "VK_Application";
 		appInfo.applicationVersion = 1;
-		appInfo.apiVersion = VK_MAKE_VERSION(1, 0, 0);
+		appInfo.apiVersion         = VK_MAKE_VERSION(1, 0, 0);
 
 		VkInstanceCreateInfo instanceCreateInfo = {};
-		instanceCreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-		instanceCreateInfo.pApplicationInfo = &appInfo;
-		instanceCreateInfo.enabledLayerCount = _count_0;
-		instanceCreateInfo.ppEnabledLayerNames = nullptr;
+		instanceCreateInfo.sType                = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+		instanceCreateInfo.pApplicationInfo     = &appInfo;
+		instanceCreateInfo.enabledLayerCount    = _count_0;
+		instanceCreateInfo.ppEnabledLayerNames  = nullptr;
 
 		// Enable Instance Exts.
 		{
 			uint32 numInsSupportExts = (uint32)m_supportInsExts.size();
-			instanceCreateInfo.enabledExtensionCount = numInsSupportExts;
+			instanceCreateInfo.enabledExtensionCount   = numInsSupportExts;
 			instanceCreateInfo.ppEnabledExtensionNames = numInsSupportExts > 0 ? m_supportInsExts.data() : nullptr;
 		}
 
@@ -115,6 +115,7 @@ void BaseLayer::Init()
 		m_PDLayerProps.resize(physicalDeviceCount);
 		m_physicalDevicesProps.resize(physicalDeviceCount);
 		m_physicalDevicesFeatures.resize(physicalDeviceCount);
+		m_PDVulkan12Features.resize(physicalDeviceCount);
 		m_physicalDevicesMemProps.resize(physicalDeviceCount);
 		m_queueFamilyProps.resize(physicalDeviceCount);
 
@@ -143,8 +144,15 @@ void BaseLayer::Init()
 			}
 
 			// Get physical device's Props & Features & Queue Family Props.
+			for (uint32 j = 0; j < physicalDeviceCount; ++j)
+			{
+				m_physicalDevicesFeatures[j].sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+				m_PDVulkan12Features[j].sType      = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES;
+				m_physicalDevicesFeatures[j].pNext = &m_PDVulkan12Features[j];
+			}				
+
 			vkGetPhysicalDeviceProperties(m_physicalDevices[i], &m_physicalDevicesProps[i]);
-			vkGetPhysicalDeviceFeatures(m_physicalDevices[i], &m_physicalDevicesFeatures[i]);
+			vkGetPhysicalDeviceFeatures2(m_physicalDevices[i], &m_physicalDevicesFeatures[i]);
 			vkGetPhysicalDeviceMemoryProperties(m_physicalDevices[i], &m_physicalDevicesMemProps[i]);
 
 			uint32 queueFamilyPropCount = _count_0;
@@ -196,15 +204,19 @@ void BaseLayer::Init()
 		_bexit_log(m_mainQFIndex == -1, "Can't find any Valid Graphic & Compute Queue Family!");
 		
 		VkDeviceQueueCreateInfo deviceQueueCreateInfo = {};
-		deviceQueueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-		deviceQueueCreateInfo.queueFamilyIndex = m_mainQFIndex;                   // Graphic Queue Family.
-		deviceQueueCreateInfo.queueCount = _count_1;                              // Only one queue to use.
-		deviceQueueCreateInfo.pQueuePriorities = nullptr;                         // Default priority. 
+		deviceQueueCreateInfo.sType                   = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+		deviceQueueCreateInfo.queueFamilyIndex        = m_mainQFIndex;                   // Graphic Queue Family.
+		deviceQueueCreateInfo.queueCount              = _count_1;                        // Only one queue to use.
+		deviceQueueCreateInfo.pQueuePriorities        = nullptr;                         // Default priority. 
 
 		// Set required physical device features.
-		m_requiredPDFeatures.multiDrawIndirect = m_physicalDevicesFeatures[m_mainPDIndex].multiDrawIndirect;
-		m_requiredPDFeatures.tessellationShader = m_physicalDevicesFeatures[m_mainPDIndex].tessellationShader;
-		m_requiredPDFeatures.geometryShader = m_physicalDevicesFeatures[m_mainPDIndex].geometryShader;
+		m_requiredPDFeatures.sType                       = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+		m_requiredPDVk12Features.sType                   = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES;
+		m_requiredPDFeatures.features.multiDrawIndirect  = m_physicalDevicesFeatures[m_mainPDIndex].features.multiDrawIndirect;
+		m_requiredPDFeatures.features.tessellationShader = m_physicalDevicesFeatures[m_mainPDIndex].features.tessellationShader;
+		m_requiredPDFeatures.features.geometryShader     = m_physicalDevicesFeatures[m_mainPDIndex].features.geometryShader;
+		m_requiredPDVk12Features.descriptorIndexing      = m_PDVulkan12Features[m_mainPDIndex].descriptorIndexing;
+		m_requiredPDFeatures.pNext                       = &m_requiredPDVk12Features;
 
 		// Check PD Extensions Support.
 		{
@@ -234,18 +246,20 @@ void BaseLayer::Init()
 			}
 		}
 
-		VkDeviceCreateInfo deviceCreateInfo = {};
-		deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+		VkDeviceCreateInfo deviceCreateInfo   = {};
+		deviceCreateInfo.sType                = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 		deviceCreateInfo.queueCreateInfoCount = _count_1;
-		deviceCreateInfo.pQueueCreateInfos = &deviceQueueCreateInfo;
-		deviceCreateInfo.pEnabledFeatures = &m_requiredPDFeatures;
-		deviceCreateInfo.enabledLayerCount = _count_0;
-		deviceCreateInfo.ppEnabledLayerNames = nullptr;
+		deviceCreateInfo.pQueueCreateInfos    = &deviceQueueCreateInfo;
+		// deviceCreateInfo.pEnabledFeatures  = &m_requiredPDFeatures;
+		// VkPhysicalDeviceVulkan12Features,    descriptorIndexing.
+		deviceCreateInfo.pNext                = &m_requiredPDFeatures;
+		deviceCreateInfo.enabledLayerCount    = _count_0;
+		deviceCreateInfo.ppEnabledLayerNames  = nullptr;
 
 		// Enable PD Exts.
 		{
 			uint32 numPDSupportExts = (uint32)m_supportPDExts.size();
-			deviceCreateInfo.enabledExtensionCount = numPDSupportExts;
+			deviceCreateInfo.enabledExtensionCount   = numPDSupportExts;
 			deviceCreateInfo.ppEnabledExtensionNames = numPDSupportExts > 0 ? m_supportPDExts.data() : nullptr;
 		}
 
@@ -280,15 +294,15 @@ void BaseLayer::Init()
 		// Create Swapchain. // OnResize Recreate Needed!!!
 		if (Util::IsVecContain<const char*>(m_supportPDExts, VK_KHR_SWAPCHAIN_EXTENSION_NAME, _lambda_is_cstr_equal))
 		{
-			m_swapchainCreateInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-			m_swapchainCreateInfo.surface = m_surface;
-			m_swapchainCreateInfo.imageArrayLayers = 1;    // Only 1 Layer.
-			m_swapchainCreateInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+			m_swapchainCreateInfo.sType                 = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+			m_swapchainCreateInfo.surface               = m_surface;
+			m_swapchainCreateInfo.imageArrayLayers      = 1;        // Only 1 Layer.
+			m_swapchainCreateInfo.imageSharingMode      = VK_SHARING_MODE_EXCLUSIVE;
 			m_swapchainCreateInfo.queueFamilyIndexCount = 0;
-			m_swapchainCreateInfo.pQueueFamilyIndices = nullptr;
-			m_swapchainCreateInfo.presentMode = BaseLayerConfig::SwapchainCreateInfo.presentMode;
-			m_swapchainCreateInfo.clipped = BaseLayerConfig::SwapchainCreateInfo.clipped;
-			m_swapchainCreateInfo.oldSwapchain = nullptr;  // First time to Create.
+			m_swapchainCreateInfo.pQueueFamilyIndices   = nullptr;
+			m_swapchainCreateInfo.presentMode           = BaseLayerConfig::SwapchainCreateInfo.presentMode;
+			m_swapchainCreateInfo.clipped               = BaseLayerConfig::SwapchainCreateInfo.clipped;
+			m_swapchainCreateInfo.oldSwapchain          = nullptr;  // First time to Create.
 
 			// Check Support Surface Format For Swapchain.
 			{

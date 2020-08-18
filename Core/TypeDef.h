@@ -16,6 +16,7 @@
 #include <array>
 #include <unordered_map>
 #include <memory>
+#include <tuple>
 #include <type_traits>
 
 // Core Level Using, Json Parser...
@@ -43,6 +44,9 @@
 #define _breturn_log(b, log) if (b) { Global::CacheLog(log); return; }
 #define _returnx_log(ret, log) { Global::CacheLog(log); return ret; }
 
+#define _bcontinue_log(b, log) if (b) { Global::CacheLog(log); continue; }
+#define _bbreak_log(b, log) if (b) { Global::CacheLog(log); break; }
+
 
 #define _is_guaranteed_min(x, min_val, y) { if (Global::IsVkGuaranteedMinimum<uint32>(x, min_val)) x = std::min(x, y); }
 
@@ -55,6 +59,7 @@
 #define _jget_cstring_default(json_key, default) (json_key == Json::nullValue) ? default : (*json_key.asCString() == 0 ? default : json_key.asCString())
 #define _jget_cstring(json_key) _jget_cstring_default(json_key, "null")
 #define _jget_string(json_key) std::string(_jget_cstring_default(json_key, "null"))
+#define _jget_string_default(json_key, default) std::string(_jget_cstring_default(json_key, default))
 
 
 #define _reinterpret_data(dst, source) { auto data = source; std::memcpy(&dst, &data, sizeof dst); }

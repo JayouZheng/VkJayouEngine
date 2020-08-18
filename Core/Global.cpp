@@ -112,16 +112,22 @@ void Util::PrintArgs(const char* InFormat)
 
 bool Util::ParseJson(const std::string& InPath, Json::Value& OutRoot)
 {
-	std::ifstream ifs;
-	ifs.open(InPath);
-
-	Json::CharReaderBuilder builder;
-	JSONCPP_STRING errs;
-
-	if (!parseFromStream(builder, ifs, &OutRoot, &errs))
+	std::ifstream ifs(InPath, std::ifstream::in);
+	
+	if (ifs.is_open())
 	{
-		_returnx_log(EXIT_FAILURE, errs);
-	}
+		Json::CharReaderBuilder builder;
+		JSONCPP_STRING errs;
 
-	return EXIT_SUCCESS;
+		if (!parseFromStream(builder, ifs, &OutRoot, &errs))
+		{
+			_returnx_log(false, errs);
+		}
+
+		return true;
+	}
+	else
+	{
+		_returnx_log(false, "Error: Could not open Json file \"" + InPath + "\"");
+	}
 }

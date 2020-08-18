@@ -68,7 +68,8 @@ protected:
 	// Physical device infos.
 	std::vector<VkPhysicalDevice>                     m_physicalDevices;
 	std::vector<VkPhysicalDeviceProperties>           m_physicalDevicesProps;
-	std::vector<VkPhysicalDeviceFeatures>             m_physicalDevicesFeatures;
+	std::vector<VkPhysicalDeviceFeatures2>            m_physicalDevicesFeatures;
+	std::vector<VkPhysicalDeviceVulkan12Features>     m_PDVulkan12Features;
 	std::vector<VkPhysicalDeviceMemoryProperties>     m_physicalDevicesMemProps;
 
 	// Queue family props.
@@ -81,7 +82,8 @@ protected:
 	std::vector<std::vector<VkExtensionProperties>>   m_PDExtProps;
 
 	// Required PD Features.
-	VkPhysicalDeviceFeatures                          m_requiredPDFeatures = {};
+	VkPhysicalDeviceFeatures2                         m_requiredPDFeatures     = {};
+	VkPhysicalDeviceVulkan12Features                  m_requiredPDVk12Features = {};
 
 	// Support Extensions.
 	std::vector<const char*>                          m_supportInsExts;

@@ -160,18 +160,18 @@ void LogicalDevice::CreateComputePipelines(VkPipeline* OutPipeline, const VkComp
 void LogicalDevice::CreateComputePipeline(VkPipeline* OutPipeline, VkPipelineLayout InPipLayout, VkShaderModule InShaderModule, const char* InShaderEntryName /*= "main"*/, const VkSpecializationInfo* InSpecialConstInfo /*= nullptr*/, VkPipelineCache InPipCache /*= VK_NULL_HANDLE*/)
 {
 	VkPipelineShaderStageCreateInfo pipSSCreateInfo = {};
-	pipSSCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-	pipSSCreateInfo.stage = VK_SHADER_STAGE_COMPUTE_BIT;
+	pipSSCreateInfo.sType  = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+	pipSSCreateInfo.stage  = VK_SHADER_STAGE_COMPUTE_BIT;
 	pipSSCreateInfo.module = InShaderModule;
-	pipSSCreateInfo.pName = InShaderEntryName;
+	pipSSCreateInfo.pName  = InShaderEntryName;
 	pipSSCreateInfo.pSpecializationInfo = InSpecialConstInfo;
 
 	VkComputePipelineCreateInfo pipCSCreateInfo = {};
-	pipCSCreateInfo.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
-	pipCSCreateInfo.stage = pipSSCreateInfo;
+	pipCSCreateInfo.sType  = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
+	pipCSCreateInfo.stage  = pipSSCreateInfo;
 	pipCSCreateInfo.layout = InPipLayout;
 	pipCSCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
-	pipCSCreateInfo.basePipelineIndex = -1;
+	pipCSCreateInfo.basePipelineIndex  = -1;
 
 	_vk_try(vkCreateComputePipelines(m_device, InPipCache, _count_1, &pipCSCreateInfo, m_allocator->GetVkAllocator(), OutPipeline));
 }
@@ -186,14 +186,14 @@ void LogicalDevice::CreateComputePipelines(VkPipeline* OutPipeline, const SPipel
 	for (uint32 i = 0; i < InDescCount; ++i)
 	{
 		pipSSCreateInfo.module = InDescs[i].ShaderModule;
-		pipSSCreateInfo.pName = InDescs[i].EntryPoint.c_str();
+		pipSSCreateInfo.pName  = InDescs[i].EntryPoint.c_str();
 		pipSSCreateInfo.pSpecializationInfo = InDescs[i].pSpecialConstInfo;
 
-		pPipCSCreateInfos[i].sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
-		pPipCSCreateInfos[i].stage = pipSSCreateInfo;
+		pPipCSCreateInfos[i].sType  = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
+		pPipCSCreateInfos[i].stage  = pipSSCreateInfo;
 		pPipCSCreateInfos[i].layout = InDescs[i].PipLayout;
 		pPipCSCreateInfos[i].basePipelineHandle = InDescs[i].BasePipelineHandle;
-		pPipCSCreateInfos[i].basePipelineIndex = InDescs[i].BasePipelineIndex;
+		pPipCSCreateInfos[i].basePipelineIndex  = InDescs[i].BasePipelineIndex;
 	}
 
 	_vk_try(vkCreateComputePipelines(m_device, InPipCache, InDescCount, pPipCSCreateInfos, m_allocator->GetVkAllocator(), OutPipeline));
@@ -210,9 +210,9 @@ void LogicalDevice::CreatePipelineCache(VkPipelineCache* OutPipCache, const VkPh
 	SPipelineCacheHeader pipCacheHeader = SPipelineCacheHeader(InPDProp);
 
 	VkPipelineCacheCreateInfo pipCacheCreateInfo = {};
-	pipCacheCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
+	pipCacheCreateInfo.sType           = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
 	pipCacheCreateInfo.initialDataSize = pipCacheHeader.GetDataSize();
-	pipCacheCreateInfo.pInitialData = pipCacheHeader.GetData();
+	pipCacheCreateInfo.pInitialData    = pipCacheHeader.GetData();
 
 	_vk_try(vkCreatePipelineCache(m_device, &pipCacheCreateInfo, m_allocator->GetVkAllocator(), OutPipCache));
 }
@@ -309,9 +309,9 @@ void LogicalDevice::CreateDescriptorSetLayout(VkDescriptorSetLayout* OutLayout, 
 void LogicalDevice::CreateDescriptorSetLayout(VkDescriptorSetLayout* OutLayout, const VkDescriptorSetLayoutBinding* InBindings, uint32 InBindingCount)
 {
 	VkDescriptorSetLayoutCreateInfo descSetLayoutCreateInfo = {};
-	descSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	descSetLayoutCreateInfo.sType        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 	descSetLayoutCreateInfo.bindingCount = InBindingCount;
-	descSetLayoutCreateInfo.pBindings = InBindings;
+	descSetLayoutCreateInfo.pBindings    = InBindings;
 
 	_vk_try(vkCreateDescriptorSetLayout(m_device, &descSetLayoutCreateInfo, m_allocator->GetVkAllocator(), OutLayout));
 }
@@ -319,16 +319,16 @@ void LogicalDevice::CreateDescriptorSetLayout(VkDescriptorSetLayout* OutLayout, 
 void LogicalDevice::CreateSingleDescriptorLayout(VkDescriptorSetLayout* OutLayout, VkDescriptorType InDescType, VkShaderStageFlags InShaderStage, const VkSampler* InImmutableSamplers /*= nullptr*/)
 {
 	VkDescriptorSetLayoutBinding descSetLayoutBinding = {};
-	descSetLayoutBinding.binding = _index_0;
-	descSetLayoutBinding.descriptorType = InDescType;
-	descSetLayoutBinding.descriptorCount = _count_1;
-	descSetLayoutBinding.stageFlags = InShaderStage;
+	descSetLayoutBinding.binding            = _index_0;
+	descSetLayoutBinding.descriptorType     = InDescType;
+	descSetLayoutBinding.descriptorCount    = _count_1;
+	descSetLayoutBinding.stageFlags         = InShaderStage;
 	descSetLayoutBinding.pImmutableSamplers = InImmutableSamplers;
 
 	VkDescriptorSetLayoutCreateInfo descSetLayoutCreateInfo = {};
-	descSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	descSetLayoutCreateInfo.sType        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 	descSetLayoutCreateInfo.bindingCount = _count_1;
-	descSetLayoutCreateInfo.pBindings = &descSetLayoutBinding;
+	descSetLayoutCreateInfo.pBindings    = &descSetLayoutBinding;
 
 	_vk_try(vkCreateDescriptorSetLayout(m_device, &descSetLayoutCreateInfo, m_allocator->GetVkAllocator(), OutLayout));
 }
@@ -341,11 +341,11 @@ void LogicalDevice::CreatePipelineLayout(VkPipelineLayout* OutLayout, const VkPi
 void LogicalDevice::CreatePipelineLayout(VkPipelineLayout* OutLayout, const VkDescriptorSetLayout* InDescSetLayouts, uint32 InSetCount /*= _count_1*/, const VkPushConstantRange* InPushConstants /*= nullptr*/, uint32 InConstCount /*= _count_0*/)
 {
 	VkPipelineLayoutCreateInfo pipLayoutCreateInfo = {};
-	pipLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-	pipLayoutCreateInfo.setLayoutCount = InSetCount;
-	pipLayoutCreateInfo.pSetLayouts = InDescSetLayouts;
+	pipLayoutCreateInfo.sType                  = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+	pipLayoutCreateInfo.setLayoutCount         = InSetCount;
+	pipLayoutCreateInfo.pSetLayouts            = InDescSetLayouts;
 	pipLayoutCreateInfo.pushConstantRangeCount = ((InPushConstants != nullptr) && (InConstCount == 0)) ? _count_1 : InConstCount;
-	pipLayoutCreateInfo.pPushConstantRanges = InPushConstants;
+	pipLayoutCreateInfo.pPushConstantRanges    = InPushConstants;
 
 	_vk_try(vkCreatePipelineLayout(m_device, &pipLayoutCreateInfo, m_allocator->GetVkAllocator(), OutLayout));
 }
@@ -358,10 +358,10 @@ void LogicalDevice::CreateDescriptorPool(const VkDescriptorPoolCreateInfo& InCre
 void LogicalDevice::CreateDescriptorPool(uint32 InMaxSets, const VkDescriptorPoolSize* InPerDescTypeCounts, uint32 InDescTypeCount)
 {
 	VkDescriptorPoolCreateInfo descPoolCreateInfo = {};
-	descPoolCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-	descPoolCreateInfo.maxSets = InMaxSets;
+	descPoolCreateInfo.sType         = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+	descPoolCreateInfo.maxSets       = InMaxSets;
 	descPoolCreateInfo.poolSizeCount = InDescTypeCount;
-	descPoolCreateInfo.pPoolSizes = InPerDescTypeCounts;
+	descPoolCreateInfo.pPoolSizes    = InPerDescTypeCounts;
 
 	_vk_try(vkCreateDescriptorPool(m_device, &descPoolCreateInfo, m_allocator->GetVkAllocator(), m_pDescPool.MakeInstance()));
 }
@@ -374,10 +374,10 @@ void LogicalDevice::AllocatorDescriptorSets(VkDescriptorSet* OutDescSet, const V
 void LogicalDevice::AllocatorDescriptorSets(VkDescriptorSet* OutDescSet, const VkDescriptorSetLayout* InSetLayouts, uint32 InSetCount /*= _count_1*/)
 {
 	VkDescriptorSetAllocateInfo descSetAllocateInfo = {};
-	descSetAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-	descSetAllocateInfo.descriptorPool = *m_pDescPool;
+	descSetAllocateInfo.sType              = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+	descSetAllocateInfo.descriptorPool     = *m_pDescPool;
 	descSetAllocateInfo.descriptorSetCount = InSetCount;
-	descSetAllocateInfo.pSetLayouts = InSetLayouts;
+	descSetAllocateInfo.pSetLayouts        = InSetLayouts;
 
 	_vk_try(vkAllocateDescriptorSets(m_device, &descSetAllocateInfo, OutDescSet));
 }
@@ -405,17 +405,17 @@ void LogicalDevice::UpdateImageOfDescSet(VkDescriptorSet InDescSet, uint32 InBin
 		(InImageDescType != VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE) &&
 		(InImageDescType != VK_DESCRIPTOR_TYPE_STORAGE_IMAGE) &&
 		(InImageDescType != VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT))
-		_return_log("Funs: " + _str_name_of(UpdateImageOfDescSet) + " expect image descriptor type!");
+		_return_log("Func: " + _str_name_of(UpdateImageOfDescSet) + " expect image descriptor type!");
 
 	VkWriteDescriptorSet writeDescSet = {};
-	writeDescSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-	writeDescSet.dstSet = InDescSet;
-	writeDescSet.dstBinding = InBindingIndex;
-	writeDescSet.dstArrayElement = InSetOffset;
-	writeDescSet.descriptorCount = InImageCount;
-	writeDescSet.descriptorType = InImageDescType;
-	writeDescSet.pImageInfo = InImageInfos;
-	writeDescSet.pBufferInfo = nullptr;
+	writeDescSet.sType            = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	writeDescSet.dstSet           = InDescSet;
+	writeDescSet.dstBinding       = InBindingIndex;
+	writeDescSet.dstArrayElement  = InSetOffset;
+	writeDescSet.descriptorCount  = InImageCount;
+	writeDescSet.descriptorType   = InImageDescType;
+	writeDescSet.pImageInfo       = InImageInfos;
+	writeDescSet.pBufferInfo      = nullptr;
 	writeDescSet.pTexelBufferView = nullptr;
 
 	vkUpdateDescriptorSets(m_device, _count_1, &writeDescSet, _count_0, nullptr);
@@ -427,17 +427,17 @@ void LogicalDevice::UpdateBufferOfDescSet(VkDescriptorSet InDescSet, uint32 InBi
 		(InBufferDescType != VK_DESCRIPTOR_TYPE_STORAGE_BUFFER) &&
 		(InBufferDescType != VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC) &&
 		(InBufferDescType != VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC))
-		_return_log("Funs: " + _str_name_of(UpdateBufferOfDescSet) + " expect buffer descriptor type!");
+		_return_log("Func: " + _str_name_of(UpdateBufferOfDescSet) + " expect buffer descriptor type!");
 
 	VkWriteDescriptorSet writeDescSet = {};
-	writeDescSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-	writeDescSet.dstSet = InDescSet;
-	writeDescSet.dstBinding = InBindingIndex;
-	writeDescSet.dstArrayElement = InSetOffset;
-	writeDescSet.descriptorCount = InBufferCount;
-	writeDescSet.descriptorType = InBufferDescType;
-	writeDescSet.pImageInfo = nullptr;
-	writeDescSet.pBufferInfo = InBufferInfos;
+	writeDescSet.sType            = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	writeDescSet.dstSet           = InDescSet;
+	writeDescSet.dstBinding       = InBindingIndex;
+	writeDescSet.dstArrayElement  = InSetOffset;
+	writeDescSet.descriptorCount  = InBufferCount;
+	writeDescSet.descriptorType   = InBufferDescType;
+	writeDescSet.pImageInfo       = nullptr;
+	writeDescSet.pBufferInfo      = InBufferInfos;
 	writeDescSet.pTexelBufferView = nullptr;
 
 	vkUpdateDescriptorSets(m_device, _count_1, &writeDescSet, _count_0, nullptr);
@@ -447,17 +447,17 @@ void LogicalDevice::UpdateTexelBufferOfDescSet(VkDescriptorSet InDescSet, uint32
 {
 	if ((InTBufferDescType != VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER) &&
 		(InTBufferDescType != VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER))
-		_return_log("Funs: " + _str_name_of(UpdateTexelBufferOfDescSet) + " expect texel buffer descriptor type!");
+		_return_log("Func: " + _str_name_of(UpdateTexelBufferOfDescSet) + " expect texel buffer descriptor type!");
 
 	VkWriteDescriptorSet writeDescSet = {};
-	writeDescSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-	writeDescSet.dstSet = InDescSet;
-	writeDescSet.dstBinding = InBindingIndex;
-	writeDescSet.dstArrayElement = InSetOffset;
-	writeDescSet.descriptorCount = InTBufferCount;
-	writeDescSet.descriptorType = InTBufferDescType;
-	writeDescSet.pImageInfo = nullptr;
-	writeDescSet.pBufferInfo = nullptr;
+	writeDescSet.sType            = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	writeDescSet.dstSet           = InDescSet;
+	writeDescSet.dstBinding       = InBindingIndex;
+	writeDescSet.dstArrayElement  = InSetOffset;
+	writeDescSet.descriptorCount  = InTBufferCount;
+	writeDescSet.descriptorType   = InTBufferDescType;
+	writeDescSet.pImageInfo       = nullptr;
+	writeDescSet.pBufferInfo      = nullptr;
 	writeDescSet.pTexelBufferView = InTBufferViews;
 
 	vkUpdateDescriptorSets(m_device, _count_1, &writeDescSet, _count_0, nullptr);
@@ -471,12 +471,12 @@ void LogicalDevice::CopyDescriptorSets(const VkCopyDescriptorSet* InDescCopies, 
 void LogicalDevice::CopyDescriptorSet(VkDescriptorSet InSrcSet, uint32 InSrcBindingIndex, VkDescriptorSet InDstSet, uint32 InDstBindingIndex, uint32 InCopyDescCount, uint32 InSrcSetOffset /*= _offset_0*/, uint32 InDstSetOffset /*= _offset_0*/)
 {
 	VkCopyDescriptorSet copyDescSet = {};
-	copyDescSet.sType = VK_STRUCTURE_TYPE_COPY_DESCRIPTOR_SET;
-	copyDescSet.srcSet = InSrcSet;
-	copyDescSet.srcBinding = InSrcBindingIndex;
+	copyDescSet.sType           = VK_STRUCTURE_TYPE_COPY_DESCRIPTOR_SET;
+	copyDescSet.srcSet          = InSrcSet;
+	copyDescSet.srcBinding      = InSrcBindingIndex;
 	copyDescSet.srcArrayElement = InSrcSetOffset;
-	copyDescSet.dstSet = InDstSet;
-	copyDescSet.dstBinding = InDstBindingIndex;
+	copyDescSet.dstSet          = InDstSet;
+	copyDescSet.dstBinding      = InDstBindingIndex;
 	copyDescSet.dstArrayElement = InDstSetOffset;
 	copyDescSet.descriptorCount = InCopyDescCount;
 
@@ -490,22 +490,22 @@ void LogicalDevice::CreateSampler(VkSampler* OutSampler, const VkSamplerCreateIn
 
 void LogicalDevice::CreatePointWrapSampler(VkSampler* OutSampler)
 {
-	VkSamplerCreateInfo samplerCreateInfo = {};
-	samplerCreateInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-	samplerCreateInfo.magFilter = VK_FILTER_NEAREST;
-	samplerCreateInfo.minFilter = VK_FILTER_NEAREST;
-	samplerCreateInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
-	samplerCreateInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	samplerCreateInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	samplerCreateInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	samplerCreateInfo.mipLodBias = 0;
-	samplerCreateInfo.anisotropyEnable = VK_FALSE;
-	samplerCreateInfo.maxAnisotropy = 1.0f;
-	samplerCreateInfo.compareEnable = VK_FALSE;
-	samplerCreateInfo.compareOp = VK_COMPARE_OP_NEVER;                       // It does not matter.
-	samplerCreateInfo.minLod = 0.0f;
-	samplerCreateInfo.maxLod = GConfig::Sampler::SamplerMaxLod;
-	samplerCreateInfo.borderColor = VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK; // It does not matter.
+	VkSamplerCreateInfo samplerCreateInfo     = {};
+	samplerCreateInfo.sType                   = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+	samplerCreateInfo.magFilter               = VK_FILTER_NEAREST;
+	samplerCreateInfo.minFilter               = VK_FILTER_NEAREST;
+	samplerCreateInfo.mipmapMode              = VK_SAMPLER_MIPMAP_MODE_NEAREST;
+	samplerCreateInfo.addressModeU            = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	samplerCreateInfo.addressModeV            = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	samplerCreateInfo.addressModeW            = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	samplerCreateInfo.mipLodBias              = 0;
+	samplerCreateInfo.anisotropyEnable        = VK_FALSE;
+	samplerCreateInfo.maxAnisotropy           = 1.0f;
+	samplerCreateInfo.compareEnable           = VK_FALSE;
+	samplerCreateInfo.compareOp               = VK_COMPARE_OP_NEVER;                     // It does not matter.
+	samplerCreateInfo.minLod                  = 0.0f;
+	samplerCreateInfo.maxLod                  = GConfig::Sampler::SamplerMaxLod;
+	samplerCreateInfo.borderColor             = VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK; // It does not matter.
 	samplerCreateInfo.unnormalizedCoordinates = VK_FALSE;
 
 	_vk_try(vkCreateSampler(m_device, &samplerCreateInfo, m_allocator->GetVkAllocator(), OutSampler));
@@ -513,22 +513,22 @@ void LogicalDevice::CreatePointWrapSampler(VkSampler* OutSampler)
 
 void LogicalDevice::CreatePointClampSampler(VkSampler* OutSampler)
 {
-	VkSamplerCreateInfo samplerCreateInfo = {};
-	samplerCreateInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-	samplerCreateInfo.magFilter = VK_FILTER_NEAREST;
-	samplerCreateInfo.minFilter = VK_FILTER_NEAREST;
-	samplerCreateInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
-	samplerCreateInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-	samplerCreateInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-	samplerCreateInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-	samplerCreateInfo.mipLodBias = 0;
-	samplerCreateInfo.anisotropyEnable = VK_FALSE;
-	samplerCreateInfo.maxAnisotropy = 1.0f;
-	samplerCreateInfo.compareEnable = VK_FALSE;
-	samplerCreateInfo.compareOp = VK_COMPARE_OP_NEVER;                       // It does not matter.
-	samplerCreateInfo.minLod = 0.0f;
-	samplerCreateInfo.maxLod = GConfig::Sampler::SamplerMaxLod;
-	samplerCreateInfo.borderColor = VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK; // It does not matter.
+	VkSamplerCreateInfo samplerCreateInfo     = {};
+	samplerCreateInfo.sType                   = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+	samplerCreateInfo.magFilter               = VK_FILTER_NEAREST;
+	samplerCreateInfo.minFilter               = VK_FILTER_NEAREST;
+	samplerCreateInfo.mipmapMode              = VK_SAMPLER_MIPMAP_MODE_NEAREST;
+	samplerCreateInfo.addressModeU            = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+	samplerCreateInfo.addressModeV            = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+	samplerCreateInfo.addressModeW            = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+	samplerCreateInfo.mipLodBias              = 0;
+	samplerCreateInfo.anisotropyEnable        = VK_FALSE;
+	samplerCreateInfo.maxAnisotropy           = 1.0f;
+	samplerCreateInfo.compareEnable           = VK_FALSE;
+	samplerCreateInfo.compareOp               = VK_COMPARE_OP_NEVER;                     // It does not matter.
+	samplerCreateInfo.minLod                  = 0.0f;
+	samplerCreateInfo.maxLod                  = GConfig::Sampler::SamplerMaxLod;
+	samplerCreateInfo.borderColor             = VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK; // It does not matter.
 	samplerCreateInfo.unnormalizedCoordinates = VK_FALSE;
 
 	_vk_try(vkCreateSampler(m_device, &samplerCreateInfo, m_allocator->GetVkAllocator(), OutSampler));
@@ -536,22 +536,22 @@ void LogicalDevice::CreatePointClampSampler(VkSampler* OutSampler)
 
 void LogicalDevice::CreateLinearWrapSampler(VkSampler* OutSampler)
 {
-	VkSamplerCreateInfo samplerCreateInfo = {};
-	samplerCreateInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-	samplerCreateInfo.magFilter = VK_FILTER_LINEAR;
-	samplerCreateInfo.minFilter = VK_FILTER_LINEAR;
-	samplerCreateInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-	samplerCreateInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	samplerCreateInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	samplerCreateInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	samplerCreateInfo.mipLodBias = 0;
-	samplerCreateInfo.anisotropyEnable = VK_FALSE;
-	samplerCreateInfo.maxAnisotropy = 1.0f;
-	samplerCreateInfo.compareEnable = VK_FALSE;
-	samplerCreateInfo.compareOp = VK_COMPARE_OP_NEVER;                       // It does not matter.
-	samplerCreateInfo.minLod = 0.0f;
-	samplerCreateInfo.maxLod = GConfig::Sampler::SamplerMaxLod;
-	samplerCreateInfo.borderColor = VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK; // It does not matter.
+	VkSamplerCreateInfo samplerCreateInfo     = {};
+	samplerCreateInfo.sType                   = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+	samplerCreateInfo.magFilter               = VK_FILTER_LINEAR;
+	samplerCreateInfo.minFilter               = VK_FILTER_LINEAR;
+	samplerCreateInfo.mipmapMode              = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+	samplerCreateInfo.addressModeU            = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	samplerCreateInfo.addressModeV            = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	samplerCreateInfo.addressModeW            = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	samplerCreateInfo.mipLodBias              = 0;
+	samplerCreateInfo.anisotropyEnable        = VK_FALSE;
+	samplerCreateInfo.maxAnisotropy           = 1.0f;
+	samplerCreateInfo.compareEnable           = VK_FALSE;
+	samplerCreateInfo.compareOp               = VK_COMPARE_OP_NEVER;                     // It does not matter.
+	samplerCreateInfo.minLod                  = 0.0f;
+	samplerCreateInfo.maxLod                  = GConfig::Sampler::SamplerMaxLod;
+	samplerCreateInfo.borderColor             = VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK; // It does not matter.
 	samplerCreateInfo.unnormalizedCoordinates = VK_FALSE;
 
 	_vk_try(vkCreateSampler(m_device, &samplerCreateInfo, m_allocator->GetVkAllocator(), OutSampler));
@@ -559,22 +559,22 @@ void LogicalDevice::CreateLinearWrapSampler(VkSampler* OutSampler)
 
 void LogicalDevice::CreateLinearClampSampler(VkSampler* OutSampler)
 {
-	VkSamplerCreateInfo samplerCreateInfo = {};
-	samplerCreateInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-	samplerCreateInfo.magFilter = VK_FILTER_LINEAR;
-	samplerCreateInfo.minFilter = VK_FILTER_LINEAR;
-	samplerCreateInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-	samplerCreateInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-	samplerCreateInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-	samplerCreateInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-	samplerCreateInfo.mipLodBias = 0;
-	samplerCreateInfo.anisotropyEnable = VK_FALSE;
-	samplerCreateInfo.maxAnisotropy = 1.0f;
-	samplerCreateInfo.compareEnable = VK_FALSE;
-	samplerCreateInfo.compareOp = VK_COMPARE_OP_NEVER;                       // It does not matter.
-	samplerCreateInfo.minLod = 0.0f;
-	samplerCreateInfo.maxLod = GConfig::Sampler::SamplerMaxLod;
-	samplerCreateInfo.borderColor = VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK; // It does not matter.
+	VkSamplerCreateInfo samplerCreateInfo     = {};
+	samplerCreateInfo.sType                   = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+	samplerCreateInfo.magFilter               = VK_FILTER_LINEAR;
+	samplerCreateInfo.minFilter               = VK_FILTER_LINEAR;
+	samplerCreateInfo.mipmapMode              = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+	samplerCreateInfo.addressModeU            = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+	samplerCreateInfo.addressModeV            = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+	samplerCreateInfo.addressModeW            = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+	samplerCreateInfo.mipLodBias              = 0;
+	samplerCreateInfo.anisotropyEnable        = VK_FALSE;
+	samplerCreateInfo.maxAnisotropy           = 1.0f;
+	samplerCreateInfo.compareEnable           = VK_FALSE;
+	samplerCreateInfo.compareOp               = VK_COMPARE_OP_NEVER;                     // It does not matter.
+	samplerCreateInfo.minLod                  = 0.0f;
+	samplerCreateInfo.maxLod                  = GConfig::Sampler::SamplerMaxLod;
+	samplerCreateInfo.borderColor             = VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK; // It does not matter.
 	samplerCreateInfo.unnormalizedCoordinates = VK_FALSE;
 
 	_vk_try(vkCreateSampler(m_device, &samplerCreateInfo, m_allocator->GetVkAllocator(), OutSampler));
@@ -585,27 +585,27 @@ void LogicalDevice::CreateAnisotropicWrapSampler(VkSampler* OutSampler)
 	if (m_baseLayer == nullptr)
 	{
 		OutSampler = VK_NULL_HANDLE;
-		_return_log("Funs: " + _str_name_of(CreateAnisotropicWrapSampler) + " expect to Query Physical Device Limits!");
+		_return_log("Func: " + _str_name_of(CreateAnisotropicWrapSampler) + " expect to Query Physical Device Limits!");
 	}
 
 	float maxAnisotropy = std::min(GConfig::Sampler::MaxAnisotropy, m_baseLayer->GetMainPDLimits().maxSamplerAnisotropy);
 
-	VkSamplerCreateInfo samplerCreateInfo = {};
-	samplerCreateInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-	samplerCreateInfo.magFilter = VK_FILTER_LINEAR;
-	samplerCreateInfo.minFilter = VK_FILTER_LINEAR;
-	samplerCreateInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-	samplerCreateInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	samplerCreateInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	samplerCreateInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	samplerCreateInfo.mipLodBias = 0;
-	samplerCreateInfo.anisotropyEnable = VK_TRUE;                            // Anisotropic Filtering.
-	samplerCreateInfo.maxAnisotropy = maxAnisotropy;                         // Anisotropic Filtering.
-	samplerCreateInfo.compareEnable = VK_FALSE;
-	samplerCreateInfo.compareOp = VK_COMPARE_OP_NEVER;                       // It does not matter.
-	samplerCreateInfo.minLod = 0.0f;
-	samplerCreateInfo.maxLod = GConfig::Sampler::SamplerMaxLod;
-	samplerCreateInfo.borderColor = VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK; // It does not matter.
+	VkSamplerCreateInfo samplerCreateInfo     = {};
+	samplerCreateInfo.sType                   = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+	samplerCreateInfo.magFilter               = VK_FILTER_LINEAR;
+	samplerCreateInfo.minFilter               = VK_FILTER_LINEAR;
+	samplerCreateInfo.mipmapMode              = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+	samplerCreateInfo.addressModeU            = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	samplerCreateInfo.addressModeV            = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	samplerCreateInfo.addressModeW            = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	samplerCreateInfo.mipLodBias              = 0;
+	samplerCreateInfo.anisotropyEnable        = VK_TRUE;                                 // Anisotropic Filtering.
+	samplerCreateInfo.maxAnisotropy           = maxAnisotropy;                           // Anisotropic Filtering.
+	samplerCreateInfo.compareEnable           = VK_FALSE;
+	samplerCreateInfo.compareOp               = VK_COMPARE_OP_NEVER;                     // It does not matter.
+	samplerCreateInfo.minLod                  = 0.0f;
+	samplerCreateInfo.maxLod                  = GConfig::Sampler::SamplerMaxLod;
+	samplerCreateInfo.borderColor             = VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK; // It does not matter.
 	samplerCreateInfo.unnormalizedCoordinates = VK_FALSE;
 
 	_vk_try(vkCreateSampler(m_device, &samplerCreateInfo, m_allocator->GetVkAllocator(), OutSampler));
@@ -616,27 +616,27 @@ void LogicalDevice::CreateAnisotropicClampSampler(VkSampler* OutSampler)
 	if (m_baseLayer == nullptr)
 	{
 		OutSampler = VK_NULL_HANDLE;
-		_return_log("Funs: " + _str_name_of(CreateAnisotropicClampSampler) + " expect to Query Physical Device Limits!");
+		_return_log("Func: " + _str_name_of(CreateAnisotropicClampSampler) + " expect to Query Physical Device Limits!");
 	}	
 
 	float maxAnisotropy = std::min(GConfig::Sampler::MaxAnisotropy, m_baseLayer->GetMainPDLimits().maxSamplerAnisotropy);
 
-	VkSamplerCreateInfo samplerCreateInfo = {};
-	samplerCreateInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-	samplerCreateInfo.magFilter = VK_FILTER_LINEAR;
-	samplerCreateInfo.minFilter = VK_FILTER_LINEAR;
-	samplerCreateInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-	samplerCreateInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-	samplerCreateInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-	samplerCreateInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-	samplerCreateInfo.mipLodBias = 0;
-	samplerCreateInfo.anisotropyEnable = VK_TRUE;                            // Anisotropic Filtering.
-	samplerCreateInfo.maxAnisotropy = maxAnisotropy;                         // Anisotropic Filtering.
-	samplerCreateInfo.compareEnable = VK_FALSE;
-	samplerCreateInfo.compareOp = VK_COMPARE_OP_NEVER;                       // It does not matter.
-	samplerCreateInfo.minLod = 0.0f;
-	samplerCreateInfo.maxLod = GConfig::Sampler::SamplerMaxLod;
-	samplerCreateInfo.borderColor = VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK; // It does not matter.
+	VkSamplerCreateInfo samplerCreateInfo     = {};
+	samplerCreateInfo.sType                   = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+	samplerCreateInfo.magFilter               = VK_FILTER_LINEAR;
+	samplerCreateInfo.minFilter               = VK_FILTER_LINEAR;
+	samplerCreateInfo.mipmapMode              = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+	samplerCreateInfo.addressModeU            = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+	samplerCreateInfo.addressModeV            = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+	samplerCreateInfo.addressModeW            = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+	samplerCreateInfo.mipLodBias              = 0;
+	samplerCreateInfo.anisotropyEnable        = VK_TRUE;                                 // Anisotropic Filtering.
+	samplerCreateInfo.maxAnisotropy           = maxAnisotropy;                           // Anisotropic Filtering.
+	samplerCreateInfo.compareEnable           = VK_FALSE;
+	samplerCreateInfo.compareOp               = VK_COMPARE_OP_NEVER;                     // It does not matter.
+	samplerCreateInfo.minLod                  = 0.0f;
+	samplerCreateInfo.maxLod                  = GConfig::Sampler::SamplerMaxLod;
+	samplerCreateInfo.borderColor             = VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK; // It does not matter.
 	samplerCreateInfo.unnormalizedCoordinates = VK_FALSE;
 
 	_vk_try(vkCreateSampler(m_device, &samplerCreateInfo, m_allocator->GetVkAllocator(), OutSampler));
@@ -644,22 +644,22 @@ void LogicalDevice::CreateAnisotropicClampSampler(VkSampler* OutSampler)
 
 void LogicalDevice::CreatePCFSampler(VkSampler* OutSampler)
 {
-	VkSamplerCreateInfo samplerCreateInfo = {};
-	samplerCreateInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-	samplerCreateInfo.magFilter = VK_FILTER_NEAREST;
-	samplerCreateInfo.minFilter = VK_FILTER_NEAREST;
-	samplerCreateInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
-	samplerCreateInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
-	samplerCreateInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
-	samplerCreateInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
-	samplerCreateInfo.mipLodBias = 0;
-	samplerCreateInfo.anisotropyEnable = VK_FALSE;
-	samplerCreateInfo.maxAnisotropy = 1.0f;                                  // 16.0f ?
-	samplerCreateInfo.compareEnable = VK_FALSE;
-	samplerCreateInfo.compareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
-	samplerCreateInfo.minLod = 0.0f;
-	samplerCreateInfo.maxLod = GConfig::Sampler::SamplerMaxLod;
-	samplerCreateInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK;
+	VkSamplerCreateInfo samplerCreateInfo     = {};
+	samplerCreateInfo.sType                   = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+	samplerCreateInfo.magFilter               = VK_FILTER_NEAREST;
+	samplerCreateInfo.minFilter               = VK_FILTER_NEAREST;
+	samplerCreateInfo.mipmapMode              = VK_SAMPLER_MIPMAP_MODE_NEAREST;
+	samplerCreateInfo.addressModeU            = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+	samplerCreateInfo.addressModeV            = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+	samplerCreateInfo.addressModeW            = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+	samplerCreateInfo.mipLodBias              = 0;
+	samplerCreateInfo.anisotropyEnable        = VK_FALSE;
+	samplerCreateInfo.maxAnisotropy           = 1.0f; // 16.0f ?
+	samplerCreateInfo.compareEnable           = VK_FALSE;
+	samplerCreateInfo.compareOp               = VK_COMPARE_OP_LESS_OR_EQUAL;
+	samplerCreateInfo.minLod                  = 0.0f;
+	samplerCreateInfo.maxLod                  = GConfig::Sampler::SamplerMaxLod;
+	samplerCreateInfo.borderColor             = VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK;
 	samplerCreateInfo.unnormalizedCoordinates = VK_FALSE;
 
 	_vk_try(vkCreateSampler(m_device, &samplerCreateInfo, m_allocator->GetVkAllocator(), OutSampler));
@@ -674,24 +674,24 @@ void LogicalDevice::CreateSingleRenderPass(VkRenderPass* OutRenderPass, VkFormat
 {
 	std::array<VkAttachmentDescription, 2> attachments{};
 	// Color attachment.
-	attachments[0].format = InColorFormat;
-	attachments[0].samples = VK_SAMPLE_COUNT_1_BIT;
-	attachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-	attachments[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-	attachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	attachments[0].format         = InColorFormat;
+	attachments[0].samples        = VK_SAMPLE_COUNT_1_BIT;
+	attachments[0].loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	attachments[0].storeOp        = VK_ATTACHMENT_STORE_OP_STORE;
+	attachments[0].stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 	attachments[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-	attachments[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	attachments[0].finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+	attachments[0].initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED;
+	attachments[0].finalLayout    = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
 	// Depth attachment.
-	attachments[1].format = InDepthFormat;
-	attachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
-	attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-	attachments[1].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-	attachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	attachments[1].format         = InDepthFormat;
+	attachments[1].samples        = VK_SAMPLE_COUNT_1_BIT;
+	attachments[1].loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	attachments[1].storeOp        = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	attachments[1].stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 	attachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-	attachments[1].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	attachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+	attachments[1].initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED;
+	attachments[1].finalLayout    = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
 	// Subpasses.
 	std::array<VkSubpassDescription, 1> subpassDescriptions{};
@@ -705,39 +705,39 @@ void LogicalDevice::CreateSingleRenderPass(VkRenderPass* OutRenderPass, VkFormat
 	std::array<VkAttachmentReference, 1> depthStencilReferences{};
 	// std::array<VkAttachmentReference, 1> preserveAttachmentIndices{};
 
-	colorReferences[0] = { 0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL };
+	colorReferences[0]        = { 0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL         };
 	depthStencilReferences[0] = { 1, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL };
 
-	subpassDescriptions[0].flags = _flag_none;
-	subpassDescriptions[0].pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-	subpassDescriptions[0].inputAttachmentCount = _count_0;
-	subpassDescriptions[0].pInputAttachments = nullptr;
-	subpassDescriptions[0].colorAttachmentCount = _count_1;
-	subpassDescriptions[0].pColorAttachments = colorReferences.data();
-	subpassDescriptions[0].pResolveAttachments = nullptr;
+	subpassDescriptions[0].flags                   = _flag_none;
+	subpassDescriptions[0].pipelineBindPoint       = VK_PIPELINE_BIND_POINT_GRAPHICS;
+	subpassDescriptions[0].inputAttachmentCount    = _count_0;
+	subpassDescriptions[0].pInputAttachments       = nullptr;
+	subpassDescriptions[0].colorAttachmentCount    = _count_1;
+	subpassDescriptions[0].pColorAttachments       = colorReferences.data();
+	subpassDescriptions[0].pResolveAttachments     = nullptr;
 	subpassDescriptions[0].pDepthStencilAttachment = depthStencilReferences.data();
 	subpassDescriptions[0].preserveAttachmentCount = _count_0;
-	subpassDescriptions[0].pPreserveAttachments = nullptr;
+	subpassDescriptions[0].pPreserveAttachments    = nullptr;
 
 	// Subpass dependencies for layout transitions
 	std::array<VkSubpassDependency, 1> dependencies;
 
-	dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
-	dependencies[0].dstSubpass = _index_0;
-	dependencies[0].srcStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-	dependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-	dependencies[0].srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-	dependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+	dependencies[0].srcSubpass      = VK_SUBPASS_EXTERNAL;
+	dependencies[0].dstSubpass      = _index_0;
+	dependencies[0].srcStageMask    = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+	dependencies[0].dstStageMask    = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	dependencies[0].srcAccessMask   = VK_ACCESS_MEMORY_READ_BIT;
+	dependencies[0].dstAccessMask   = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 	dependencies[0].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;      // FrameBuffer Local.
 
 	VkRenderPassCreateInfo renderPassInfo = {};
-	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+	renderPassInfo.sType           = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
 	renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-	renderPassInfo.pAttachments = attachments.data();
-	renderPassInfo.subpassCount = static_cast<uint32_t>(subpassDescriptions.size());
-	renderPassInfo.pSubpasses = subpassDescriptions.data();
+	renderPassInfo.pAttachments    = attachments.data();
+	renderPassInfo.subpassCount    = static_cast<uint32_t>(subpassDescriptions.size());
+	renderPassInfo.pSubpasses      = subpassDescriptions.data();
 	renderPassInfo.dependencyCount = static_cast<uint32_t>(dependencies.size());
-	renderPassInfo.pDependencies = dependencies.data();
+	renderPassInfo.pDependencies   = dependencies.data();
 
 	_vk_try(vkCreateRenderPass(m_device, &renderPassInfo, m_allocator->GetVkAllocator(), OutRenderPass));
 }
@@ -747,7 +747,7 @@ void LogicalDevice::CreateFrameBuffer(VkFramebuffer* OutFrameBuffer, const VkFra
 	if (m_baseLayer == nullptr)
 	{
 		OutFrameBuffer = VK_NULL_HANDLE;
-		_return_log("Funs: " + _str_name_of(CreateFrameBuffer) + " expect to Query Physical Device Limits!");
+		_return_log("Func: " + _str_name_of(CreateFrameBuffer) + " expect to Query Physical Device Limits!");
 	}
 		
 	VkFramebufferCreateInfo frameBufferCreateInfo = InCreateInfo;
@@ -764,17 +764,17 @@ void LogicalDevice::CreateFrameBuffer(VkFramebuffer* OutFrameBuffer, VkRenderPas
 	if (m_baseLayer == nullptr)
 	{
 		OutFrameBuffer = VK_NULL_HANDLE;
-		_return_log("Funs: " + _str_name_of(CreateFrameBuffer) + " expect to Query Physical Device Limits!");
+		_return_log("Func: " + _str_name_of(CreateFrameBuffer) + " expect to Query Physical Device Limits!");
 	}
 		
 	VkFramebufferCreateInfo frameBufferCreateInfo = {};
-	frameBufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-	frameBufferCreateInfo.renderPass = InRenderPass;
+	frameBufferCreateInfo.sType           = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+	frameBufferCreateInfo.renderPass      = InRenderPass;
 	frameBufferCreateInfo.attachmentCount = InViewCount;
-	frameBufferCreateInfo.pAttachments = InImageViews;
-	frameBufferCreateInfo.width = InSize.width;
-	frameBufferCreateInfo.height = InSize.height;
-	frameBufferCreateInfo.layers = InSize.depth;
+	frameBufferCreateInfo.pAttachments    = InImageViews;
+	frameBufferCreateInfo.width           = InSize.width;
+	frameBufferCreateInfo.height          = InSize.height;
+	frameBufferCreateInfo.layers          = InSize.depth;
 
 	_is_guaranteed_min(frameBufferCreateInfo.width,  4096, m_baseLayer->GetMainPDLimits().maxFramebufferWidth );
 	_is_guaranteed_min(frameBufferCreateInfo.height, 4096, m_baseLayer->GetMainPDLimits().maxFramebufferHeight);
@@ -892,33 +892,41 @@ void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const SPipel
 
 void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::string& InJsonPath, VkPipelineCache InPipCache)
 {
+	if (OutPipeline != nullptr) *OutPipeline = VK_NULL_HANDLE;
 	Json::Value root;
-	Util::ParseJson(InJsonPath, root); // !!!
+	_breturn_log(!Util::ParseJson(InJsonPath, root), _str_name_of(CreateGraphicPipelines) + " Failed! Not Valid File Path!");
 
 	_jverify_return_log(root["graphic_pipeline_infos"], "json file: [graphic_pipeline_infos] can not be null!");
-	_breturn_log(!root["graphic_pipeline_infos"].isArray(), "json file: [graphic_pipeline_infos] should be an array!");
-
-	uint32 numGInfo = root["graphic_pipeline_infos"].size();
+	
+	bool bIsArray   = root["graphic_pipeline_infos"].isArray();
+	uint32 numGInfo = bIsArray ? root["graphic_pipeline_infos"].size() : _count_1;
 
 	VkGraphicsPipelineCreateInfo*    pGraphicInfos = new VkGraphicsPipelineCreateInfo[numGInfo];
 	VkPipelineShaderStageCreateInfo* pShaderInfos  = nullptr;;
 	VkSpecializationMapEntry*        pSpecMaps     = nullptr;
 	uint32*                          pSpecData     = nullptr;
+	VkSpecializationInfo             specInfo      = {};
 
-	VkSpecializationInfo specInfo = {};
+	VkPipelineVertexInputStateCreateInfo vertexInputStateInfo   = {};
+	VkVertexInputBindingDescription*     pVertexInputBinding    = nullptr;
+	VkVertexInputAttributeDescription*   pVertexInputAttributes = nullptr;
+
+	VkPipelineInputAssemblyStateCreateInfo pipelineIAStateInfo   = {};
+	VkPipelineTessellationStateCreateInfo  pipelineTessStateInfo = {};
 
 	for (uint32 i = 0; i < numGInfo; i++)
 	{
-		auto& graphicInfo = root["graphic_pipeline_infos"][i];
+		auto& graphicInfo = bIsArray ? root["graphic_pipeline_infos"][i] : root["graphic_pipeline_infos"];
 
 		pGraphicInfos[i].sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 		pGraphicInfos[i].pNext = nullptr;
 		pGraphicInfos[i].flags = _jget_uint(graphicInfo["pipeline_flags"]);
 
+		// Pipeline Stage.
 		_jverify_return_log(graphicInfo["pipeline_stages_infos"], "json file: [pipeline_stages_infos] can not be null!");
-		_breturn_log(!graphicInfo["pipeline_stages_infos"].isArray(), "json file: [pipeline_stages_infos] should be an array!");
-
-		uint32 numStageInfo = graphicInfo["pipeline_stages_infos"].size();
+		
+		bIsArray            = graphicInfo["pipeline_stages_infos"].isArray();
+		uint32 numStageInfo = bIsArray ? graphicInfo["pipeline_stages_infos"].size() : _count_1;
 		pShaderInfos        = new VkPipelineShaderStageCreateInfo[numStageInfo];
 
 		pGraphicInfos[i].stageCount = numStageInfo;
@@ -926,7 +934,7 @@ void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 
 		for (uint32 j = 0; j < numStageInfo; j++)
 		{
-			auto& shaderInfo = graphicInfo["pipeline_stages_infos"][j];
+			auto& shaderInfo = bIsArray ? graphicInfo["pipeline_stages_infos"][j] : graphicInfo["pipeline_stages_infos"];
 
 			VkShaderModule shaderModule;
 			this->CreateShaderModule(&shaderModule, _jget_cstring(shaderInfo["stage_code_path"]));
@@ -940,75 +948,125 @@ void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 			pShaderInfos[j].pSpecializationInfo = &specInfo;
 			
 			if (shaderInfo["specialization_constants"] != Json::nullValue)
-			{
-				if (shaderInfo["specialization_constants"].isArray())
+			{			
+				bIsArray            = shaderInfo["specialization_constants"].isArray();
+				uint32 numSpecConst = bIsArray ? shaderInfo["specialization_constants"].size() : _count_1;
+
+				pSpecMaps = new VkSpecializationMapEntry[numSpecConst];
+				pSpecData = new uint32[numSpecConst];
+
+				specInfo.mapEntryCount = numSpecConst;
+				specInfo.pMapEntries   = pSpecMaps;
+				specInfo.dataSize      = numSpecConst * 4; // 4 byte per const, 32 bit value.
+				specInfo.pData         = pSpecData;
+
+				for (uint32 k = 0; k < numSpecConst; k++)
 				{
-					uint32 numSpecConst = shaderInfo["specialization_constants"].size();
-					pSpecMaps           = new VkSpecializationMapEntry[numSpecConst];
-					pSpecData           = new uint32[numSpecConst];
-			
-					specInfo.mapEntryCount = numSpecConst;
-					specInfo.pMapEntries   = pSpecMaps;
-					specInfo.dataSize      = numSpecConst * 4; // 4 byte per const, 32 bit value.
-					specInfo.pData         = pSpecData;
+					auto& value = bIsArray ? shaderInfo["specialization_constants"][k] : shaderInfo["specialization_constants"];
 
-					for (uint32 k = 0; k < numSpecConst; k++)
-					{
-						auto& value = shaderInfo["specialization_constants"][k];
-
-						pSpecMaps[k].constantID = k;						
-						pSpecMaps[k].offset     = k * 4; // 4 byte per const, 32 bit value.
-						pSpecMaps[k].size       = 4;     // 4 byte per const, 32 bit value.
-
-						//////////////////////////////////////////////////////////////
-						// json value reinterpretation.
-						switch (value.type())
-						{
-						case Json::ValueType::intValue:     pSpecMaps[k].size = sizeof(int32);    _reinterpret_data(pSpecData[k], value.asInt());   break;
-						case Json::ValueType::uintValue:    pSpecMaps[k].size = sizeof(uint32);   _reinterpret_data(pSpecData[k], value.asUInt());  break;
-						case Json::ValueType::realValue:    pSpecMaps[k].size = sizeof(float);    _reinterpret_data(pSpecData[k], value.asFloat()); break;
-						case Json::ValueType::booleanValue: pSpecMaps[k].size = sizeof(VkBool32); _reinterpret_data(pSpecData[k], value.asBool());  break;
-						default: _return_log("json file: not support [specialization_constants] value type!");
-						}
-						//////////////////////////////////////////////////////////////
-					}
-				}
-				else
-				{
-					auto& value = shaderInfo["specialization_constants"];
-
-					VkSpecializationMapEntry specMap = {};
-					specMap.constantID = 0;
-					specMap.offset     = 0; // 4 byte per const, 32 bit value.
-					specMap.size       = 4; // 4 byte per const, 32 bit value.
-
-					uint32 specData = 0;
-
-					specInfo.mapEntryCount = 1;
-					specInfo.pMapEntries   = &specMap;
-					specInfo.dataSize      = 4;
-					specInfo.pData         = &specData;
+					pSpecMaps[k].constantID = k;
+					pSpecMaps[k].offset     = k * 4; // 4 byte per const, 32 bit value.
+					pSpecMaps[k].size       = 4;     // 4 byte per const, 32 bit value.
 
 					//////////////////////////////////////////////////////////////
 					// json value reinterpretation.
 					switch (value.type())
 					{
-					case Json::ValueType::intValue:     _reinterpret_data(specData, value.asInt());   break;
-					case Json::ValueType::uintValue:    _reinterpret_data(specData, value.asUInt());  break;
-					case Json::ValueType::realValue:    _reinterpret_data(specData, value.asFloat()); break;
-					case Json::ValueType::booleanValue: _reinterpret_data(specData, value.asBool());  break;
+					case Json::ValueType::intValue:     pSpecMaps[k].size = sizeof(int32);    _reinterpret_data(pSpecData[k], value.asInt());   break;
+					case Json::ValueType::uintValue:    pSpecMaps[k].size = sizeof(uint32);   _reinterpret_data(pSpecData[k], value.asUInt());  break;
+					case Json::ValueType::realValue:    pSpecMaps[k].size = sizeof(float);    _reinterpret_data(pSpecData[k], value.asFloat()); break;
+					case Json::ValueType::booleanValue: pSpecMaps[k].size = sizeof(VkBool32); _reinterpret_data(pSpecData[k], value.asBool());  break;
 					default: _return_log("json file: not support [specialization_constants] value type!");
 					}
 					//////////////////////////////////////////////////////////////
-				}			
+				}				
 			}
 			else
 			{
 				pShaderInfos[j].pSpecializationInfo = nullptr;
-			}
+			}		
 		}
 
+		// Vertex Input State.
+		pGraphicInfos[i].pVertexInputState = &vertexInputStateInfo;
+		_jverify_return_log(graphicInfo["vertex_input_attributes"], "json file: [vertex_input_attributes] can not be null!");
+
+		// Bindings.
+		bIsArray            = graphicInfo["vertex_input_attributes"].isArray();
+		uint32 numBinding   = bIsArray ? graphicInfo["vertex_input_attributes"].size() : _count_1;
+		pVertexInputBinding = new VkVertexInputBindingDescription[numBinding];
+
+		for (uint32 j = 0; j < numBinding; j++)
+		{
+			auto& binding    = bIsArray ? graphicInfo["vertex_input_attributes"][j] : graphicInfo["vertex_input_attributes"];
+			uint32 bindingID = binding["binding_id"] != Json::nullValue ? binding["binding_id"].asUInt() : j;
+
+			_bbreak_log(j >= 16u, "current app vertex input binding number is limit to 16!");
+			_bcontinue_log(bindingID >= 16u, "current app vertex input binding number is limit to 16!");
+
+			// Vertex Attributes.
+			bIsArray               = binding["attributes"].isArray();
+			uint32 numAttribute    = bIsArray ? binding["attributes"].size() : _count_1;
+			pVertexInputAttributes = new VkVertexInputAttributeDescription[numAttribute];
+
+			uint32  attributeOffset  = 0;
+			uint32& allAttributeSize = attributeOffset;
+			for (uint32 k = 0; k < numAttribute; k++)
+			{
+				std::string attribute = bIsArray ? binding["attributes"][k].asString() : binding["attributes"].asString();
+
+				pVertexInputAttributes[k].binding  = _index_0;
+				pVertexInputAttributes[k].location = k;
+				pVertexInputAttributes[k].format   = Util::GetVertexAttributeVkFormat(attribute);
+				pVertexInputAttributes[k].offset   = attributeOffset;
+
+				attributeOffset += Util::GetVertexAttributeSize(attribute);
+			}
+				
+			pVertexInputBinding[j].binding   = bindingID;
+			pVertexInputBinding[j].stride    = allAttributeSize;
+			pVertexInputBinding[j].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+			vertexInputStateInfo.sType                           = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+			vertexInputStateInfo.vertexBindingDescriptionCount   = numBinding;
+			vertexInputStateInfo.pVertexBindingDescriptions      = pVertexInputBinding;
+			vertexInputStateInfo.vertexAttributeDescriptionCount = numAttribute;
+			vertexInputStateInfo.pVertexAttributeDescriptions    = pVertexInputAttributes;
+		}
 		
+		// IA State.
+		pGraphicInfos[i].pInputAssemblyState = &pipelineIAStateInfo;
+		auto& pipelineIAInfo                 = graphicInfo["pipeline_input_assembly"];
+
+		pipelineIAStateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+		pipelineIAStateInfo.pNext = nullptr;
+
+		if (pipelineIAInfo != Json::nullValue)
+		{
+			pipelineIAStateInfo.flags                  = _jget_uint(pipelineIAInfo["flags"]);
+			pipelineIAStateInfo.topology               = Util::GetPrimitiveTopology(_jget_string_default(pipelineIAInfo["primitive_topology"], Util::DefaultPrimitiveTopology));
+			pipelineIAStateInfo.primitiveRestartEnable = _jget_uint(pipelineIAInfo["primitive_restart_enable"]);
+		}
+		else
+		{
+			pipelineIAStateInfo.flags                  = _flag_none;
+			pipelineIAStateInfo.topology               = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+			pipelineIAStateInfo.primitiveRestartEnable = VK_FALSE;
+		}
+
+		// Tessellation State.
+		auto& pipelineTSInfo = graphicInfo["tessellation_state"];
+		if (pipelineTSInfo != Json::nullValue)
+		{
+			pGraphicInfos[i].pTessellationState      = &pipelineTessStateInfo;
+			pipelineTessStateInfo.sType              = VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_STATE_CREATE_INFO;
+			pipelineTessStateInfo.flags              = _jget_uint(pipelineTSInfo["flags"]);
+			pipelineTessStateInfo.patchControlPoints = _jget_uint(pipelineTSInfo["patch_control_points_count"]);
+		}
+		else
+		{
+			pGraphicInfos[i].pTessellationState = nullptr;
+		}
 	}
 
 
@@ -1018,6 +1076,8 @@ void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 	_safe_delete_array(pShaderInfos);
 	_safe_delete_array(pSpecMaps);
 	_safe_delete_array(pSpecData);
+	_safe_delete_array(pVertexInputBinding);
+	_safe_delete_array(pVertexInputAttributes);
 }
 
 void LogicalDevice::FlushAllQueue()
