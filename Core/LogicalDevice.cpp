@@ -7,13 +7,15 @@
 LogicalDevice::LogicalDevice(const VkDevice& InDevice)
 	: m_device(InDevice)
 {
-	
+
 }
 
 LogicalDevice::LogicalDevice(const void* Null)
 {
-	m_device = VK_NULL_HANDLE;
+	m_device    = VK_NULL_HANDLE;
+	m_baseLayer = nullptr;
 	m_allocator = nullptr;
+	m_window    = nullptr;
 }
 
 LogicalDevice& LogicalDevice::operator=(const VkDevice& InDevice)
@@ -57,6 +59,11 @@ void LogicalDevice::SetAllocator(BaseAllocator* InAllocator)
 	m_allocator = InAllocator;
 }
 
+void LogicalDevice::SetWindow(Window* InWindow)
+{
+	m_window = InWindow;
+}
+
 bool LogicalDevice::IsNoneAllocator() const
 {
 	return m_allocator == nullptr;
@@ -65,6 +72,19 @@ bool LogicalDevice::IsNoneAllocator() const
 VkCommandPool LogicalDevice::GetCmdPool()
 {
 	return *m_pCmdPool;
+}
+
+void LogicalDevice::InitViewport(VkViewport& OutViewport, VkRect2D& OutScissor, uint32 InWidth, uint32 InHeight)
+{
+	OutViewport.x = 0;
+	OutViewport.y = 0;
+	OutViewport.width  = (float)InWidth;
+	OutViewport.height = (float)InHeight;
+	OutViewport.minDepth = 0.0f;
+	OutViewport.maxDepth = 1.0f;
+
+	OutScissor.offset = { 0, 0 };
+	OutScissor.extent = { InWidth, InHeight };
 }
 
 CommandQueue LogicalDevice::GetQueue(uint32 InQueueFamilyIndex, uint32 InQueueIndex /*= 0*/)
@@ -911,8 +931,18 @@ void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 	VkVertexInputBindingDescription*     pVertexInputBinding    = nullptr;
 	VkVertexInputAttributeDescription*   pVertexInputAttributes = nullptr;
 
-	VkPipelineInputAssemblyStateCreateInfo pipelineIAStateInfo   = {};
-	VkPipelineTessellationStateCreateInfo  pipelineTessStateInfo = {};
+	VkPipelineInputAssemblyStateCreateInfo pipelineIAStateInfo       = {};
+	VkPipelineTessellationStateCreateInfo  pipelineTessStateInfo     = {};
+	VkPipelineViewportStateCreateInfo      pipelineViewportStateInfo = {};
+
+	VkViewport defaultViewport = {};
+	VkRect2D   defaultScissor  = {};
+	this->InitViewport(defaultViewport, defaultScissor, m_window->GetWindowDesc().Width, m_window->GetWindowDesc().Height);
+
+	VkPipelineRasterizationStateCreateInfo pipelineRSStateInfo           = GConfig::Pipeline::DefaultRasterizationStateInfo;
+	VkPipelineMultisampleStateCreateInfo   pipelineMultisampleStateInfo  = GConfig::Pipeline::DefaultMultisampleStateInfo;
+	VkSampleMask*                          pSampleMasks                  = nullptr;
+	VkPipelineDepthStencilStateCreateInfo  pipelineDepthStencilStateInfo = 
 
 	for (uint32 i = 0; i < numGInfo; i++)
 	{
@@ -1036,16 +1066,15 @@ void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 		
 		// IA State.
 		pGraphicInfos[i].pInputAssemblyState = &pipelineIAStateInfo;
-		auto& pipelineIAInfo                 = graphicInfo["pipeline_input_assembly"];
+		pipelineIAStateInfo.sType            = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+		pipelineIAStateInfo.pNext            = nullptr;
 
-		pipelineIAStateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-		pipelineIAStateInfo.pNext = nullptr;
-
-		if (pipelineIAInfo != Json::nullValue)
+		auto& inputAssemblyInfo = graphicInfo["pipeline_input_assembly"];
+		if (inputAssemblyInfo != Json::nullValue)
 		{
-			pipelineIAStateInfo.flags                  = _jget_uint(pipelineIAInfo["flags"]);
-			pipelineIAStateInfo.topology               = Util::GetPrimitiveTopology(_jget_string_default(pipelineIAInfo["primitive_topology"], Util::DefaultPrimitiveTopology));
-			pipelineIAStateInfo.primitiveRestartEnable = _jget_uint(pipelineIAInfo["primitive_restart_enable"]);
+			pipelineIAStateInfo.flags                  = _jget_uint(inputAssemblyInfo["flags"]);
+			pipelineIAStateInfo.topology               = Util::GetPrimitiveTopology(_jget_string_default(inputAssemblyInfo["primitive_topology"], Util::DefaultPrimitiveTopology));
+			pipelineIAStateInfo.primitiveRestartEnable = _jget_uint(inputAssemblyInfo["primitive_restart_enable"]);
 		}
 		else
 		{
@@ -1055,17 +1084,104 @@ void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 		}
 
 		// Tessellation State.
-		auto& pipelineTSInfo = graphicInfo["tessellation_state"];
-		if (pipelineTSInfo != Json::nullValue)
+		auto& tessellationInfo = graphicInfo["tessellation_state"];
+		if (tessellationInfo != Json::nullValue)
 		{
 			pGraphicInfos[i].pTessellationState      = &pipelineTessStateInfo;
 			pipelineTessStateInfo.sType              = VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_STATE_CREATE_INFO;
-			pipelineTessStateInfo.flags              = _jget_uint(pipelineTSInfo["flags"]);
-			pipelineTessStateInfo.patchControlPoints = _jget_uint(pipelineTSInfo["patch_control_points_count"]);
+			pipelineTessStateInfo.flags              = _jget_uint(tessellationInfo["flags"]);
+			pipelineTessStateInfo.patchControlPoints = _jget_uint(tessellationInfo["patch_control_points_count"]);
 		}
 		else
 		{
 			pGraphicInfos[i].pTessellationState = nullptr;
+		}
+
+		// Viewport State.
+		pGraphicInfos[i].pViewportState      = &pipelineViewportStateInfo;
+		pipelineViewportStateInfo.sType      = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+		pipelineViewportStateInfo.pNext      = nullptr;
+		pipelineViewportStateInfo.pViewports = &defaultViewport;
+		pipelineViewportStateInfo.pScissors  = &defaultScissor;
+
+		auto& viewportInfo = graphicInfo["viewport_state"];
+		if (viewportInfo != Json::nullValue)
+		{
+			
+			bIsArray           = viewportInfo["viewports"].isArray();
+			uint32 numViewport = bIsArray ? viewportInfo["viewports"].size() : _count_1;
+
+			pipelineViewportStateInfo.flags         = _jget_uint(viewportInfo["flags"]);
+			pipelineViewportStateInfo.viewportCount = numViewport;
+			pipelineViewportStateInfo.scissorCount  = numViewport;
+
+			for (uint32 j = 0; j < numViewport; j++)
+			{
+				auto& viewport = bIsArray ? viewportInfo["viewports"][j] : viewportInfo["viewports"];
+				auto& scissor  = viewportInfo["scissor_rectangles"].isArray() ? viewportInfo["scissor_rectangles"][j] : viewportInfo["scissor_rectangles"];
+
+				_breturn_log(!viewport["position"].isArray(),    "json file: viewport [position] must be an array [ first, second ]!"   );
+				_breturn_log(!viewport["size"].isArray(),        "json file: viewport [size] must be an array [ first, second ]!"       );
+				_breturn_log(!viewport["depth_range"].isArray(), "json file: viewport [depth_range] must be an array [ first, second ]!");
+				_breturn_log(!scissor["offset"].isArray(),       "json file: scissor [offset] must be an array [ first, second ]!"      );
+				_breturn_log(!scissor["size"].isArray(),         "json file: scissor [size] must be an array [ first, second ]!"        );
+
+				defaultViewport.x        = _jget_float(viewport["position"][0]);
+				defaultViewport.y        = _jget_float(viewport["position"][1]);
+				defaultViewport.width    = _jis_auto  (viewport["size"][0]) ? (float)m_window->GetWindowDesc().Width  : _jget_float(viewport["size"][0]);
+				defaultViewport.height   = _jis_auto  (viewport["size"][1]) ? (float)m_window->GetWindowDesc().Height : _jget_float(viewport["size"][1]);
+				defaultViewport.minDepth = _jget_float(viewport["depth_range"][0]);
+				defaultViewport.maxDepth = _jget_float(viewport["depth_range"][1]);
+
+				defaultScissor.offset.x      = _jget_int(scissor["offset"][0]);
+				defaultScissor.offset.y      = _jget_int(scissor["offset"][1]);
+				defaultScissor.extent.width  = _jis_auto(scissor["size"][0]) ? m_window->GetWindowDesc().Width  : _jget_uint(scissor["size"][0]);
+				defaultScissor.extent.height = _jis_auto(scissor["size"][1]) ? m_window->GetWindowDesc().Height : _jget_uint(scissor["size"][1]);
+			}
+		}
+		else
+		{
+			pipelineViewportStateInfo.flags         = _flag_none;
+			pipelineViewportStateInfo.viewportCount = _count_1;
+			pipelineViewportStateInfo.scissorCount  = _count_1;			
+		}
+
+		// RS State.
+		pGraphicInfos[i].pRasterizationState = &pipelineRSStateInfo;
+		auto& rasterizationInfo = graphicInfo["rasterization_state"];
+		if (rasterizationInfo != Json::nullValue)
+		{
+			pipelineRSStateInfo.flags                   = _jget_uint(rasterizationInfo["flags"]);
+			pipelineRSStateInfo.depthClampEnable        = _jget_uint(rasterizationInfo["depth_clamp_enable"]);
+			pipelineRSStateInfo.rasterizerDiscardEnable = _jget_uint(rasterizationInfo["rasterizer_discard_enable"]);
+			pipelineRSStateInfo.polygonMode             = Util::GetPolygonMode(_jget_string_default(rasterizationInfo["polygon_mode"], Util::DefaultPolygonMode));
+			pipelineRSStateInfo.cullMode                = Util::GetCullMode(_jget_string_default(rasterizationInfo["cull_mode"], Util::DefaultCullMode));
+			pipelineRSStateInfo.frontFace               = Util::GetFrontFace(_jget_string_default(rasterizationInfo["front_face"], Util::DefaultFrontFace));
+			pipelineRSStateInfo.depthBiasEnable         = _jget_uint(rasterizationInfo["depth_bias_enable"]);
+			pipelineRSStateInfo.depthBiasConstantFactor = _jget_float(rasterizationInfo["depth_bias_constant_factor"]);
+			pipelineRSStateInfo.depthBiasClamp          = _jget_float(rasterizationInfo["depth_bias_clamp"]);
+			pipelineRSStateInfo.depthBiasSlopeFactor    = _jget_float(rasterizationInfo["depth_bias_slope_factor"]);
+			pipelineRSStateInfo.lineWidth               = _jget_float(rasterizationInfo["line_width"]);
+		}
+
+		// Multisample State.
+		pGraphicInfos[i].pMultisampleState = &pipelineMultisampleStateInfo;
+		auto& multisampleInfo = graphicInfo["multisample_state"];
+		if (multisampleInfo != Json::nullValue)
+		{
+			bIsArray = multisampleInfo["sample_masks"].isArray();
+			uint32 numSampleMask = bIsArray ? multisampleInfo["sample_masks"].size() : _count_1;
+			pSampleMasks = numSampleMask != 0u ? new VkSampleMask[numSampleMask] : nullptr;
+			for (uint32 j = 0; j < numSampleMask; j++)
+				pSampleMasks[j] = bIsArray ? multisampleInfo["sample_masks"][j].asUInt() : multisampleInfo["sample_masks"].asUInt();
+
+			pipelineMultisampleStateInfo.flags                 = _jget_uint(multisampleInfo["flags"]);
+			pipelineMultisampleStateInfo.rasterizationSamples  = Util::GetMultisampleCount(_jget_uint(multisampleInfo["multisample_count"]));
+			pipelineMultisampleStateInfo.sampleShadingEnable   = _jget_uint(multisampleInfo["sample_shading_enable"]);
+			pipelineMultisampleStateInfo.minSampleShading      = _jget_float(multisampleInfo["min_sample_shading_factor"]);
+			pipelineMultisampleStateInfo.pSampleMask           = pSampleMasks;
+			pipelineMultisampleStateInfo.alphaToCoverageEnable = _jget_uint(multisampleInfo["alpha_to_coverage_enable"]);
+			pipelineMultisampleStateInfo.alphaToOneEnable      = _jget_uint(multisampleInfo["alpha_to_one_enable"]);		
 		}
 	}
 
@@ -1078,6 +1194,7 @@ void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 	_safe_delete_array(pSpecData);
 	_safe_delete_array(pVertexInputBinding);
 	_safe_delete_array(pVertexInputAttributes);
+	_safe_delete_array(pSampleMasks);
 }
 
 void LogicalDevice::FlushAllQueue()

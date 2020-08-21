@@ -15,6 +15,39 @@ namespace GConfig
 		static float SamplerMaxLod = 16.0f;
 		static float MaxAnisotropy = 8.0f;
 	}
+
+	namespace Pipeline
+	{
+		static const VkPipelineRasterizationStateCreateInfo DefaultRasterizationStateInfo =
+		{
+			VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO, // sType
+			nullptr,                                                    // pNext
+			_flag_none,                                                 // flags
+			VK_FALSE,                                                   // depthClampEnable
+			VK_TRUE,                                                    // rasterizerDiscardEnable
+			VK_POLYGON_MODE_FILL,                                       // polygonMode
+			VK_CULL_MODE_NONE,                                          // cullMode
+			VK_FRONT_FACE_COUNTER_CLOCKWISE,                            // frontFace
+			VK_FALSE,                                                   // depthBiasEnable
+			0.0f,                                                       // depthBiasConstantFactor
+			0.0f,                                                       // depthBiasClamp
+			0.0f,                                                       // depthBiasSlopeFactor
+			0.0f                                                        // lineWidth
+		};
+
+		static const VkPipelineMultisampleStateCreateInfo DefaultMultisampleStateInfo =
+		{
+			VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO, // sType
+			nullptr,												  // pNext
+			_flag_none,												  // flags
+			VK_SAMPLE_COUNT_1_BIT,									  // rasterizationSamples
+			VK_FALSE,												  // sampleShadingEnable
+			0.0f,													  // minSampleShading
+			nullptr,												  // pSampleMask
+			VK_FALSE,												  // alphaToCoverageEnable
+			VK_FALSE												  // alphaToOneEnable
+		};
+	}
 }
 
 class BaseLayer;
@@ -28,6 +61,7 @@ protected:
 	VkDevice        m_device    = VK_NULL_HANDLE;
 	BaseLayer*      m_baseLayer = nullptr;
 	BaseAllocator*  m_allocator = nullptr;
+	Window*         m_window    = nullptr;
 
 	VkSmartPtr<VkCommandPool>    m_pCmdPool  = nullptr;
 	VkSmartPtr<VkDescriptorPool> m_pDescPool = nullptr;
@@ -52,13 +86,16 @@ public:
 
 public:
 
-	void SetVkDevice  (const VkDevice& InDevice);
-	void SetBaseLayer (BaseLayer* InBaseLayer);
-	void SetAllocator (BaseAllocator* InAllocator);
+	void SetVkDevice  (const VkDevice& InDevice   );
+	void SetBaseLayer (BaseLayer*      InBaseLayer);
+	void SetAllocator (BaseAllocator*  InAllocator);
+	void SetWindow    (Window*         InWindow   );
 
 	bool IsNoneAllocator() const;
 
 	VkCommandPool GetCmdPool();
+
+	void InitViewport(VkViewport& OutViewport, VkRect2D& OutScissor, uint32 InWidth, uint32 InHeight);
 
 public:
 

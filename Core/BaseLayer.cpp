@@ -281,6 +281,7 @@ void BaseLayer::Init()
 			_bexit_log(bIsDefaultQueueSupportPresentation == VK_FALSE, "The Default Queue Do Not Support Presentation (Win32)!");
 
 			m_window = new Window;
+			m_device.SetWindow(m_window);
 			VkWin32SurfaceCreateInfoKHR win32SurfaceCreateInfo = {};
 			win32SurfaceCreateInfo.sType = VK_STRUCTURE_TYPE_DISPLAY_SURFACE_CREATE_INFO_KHR;
 			win32SurfaceCreateInfo.hinstance = (HINSTANCE)m_window->GetHinstance();

@@ -70,109 +70,20 @@ namespace Util
 		VK_REMAINING_ARRAY_LAYERS    // layerCount
 	};
 
-	const std::unordered_map<std::string, VkShaderStageFlagBits> ShaderStageMap =
-	{
-		{ "null",                    VK_SHADER_STAGE_VERTEX_BIT                  },
-		{ "vertex",                  VK_SHADER_STAGE_VERTEX_BIT                  },
-		{ "pixel",                   VK_SHADER_STAGE_FRAGMENT_BIT                },
-		{ "fragment",                VK_SHADER_STAGE_FRAGMENT_BIT                },
-		{ "tessellation_control",    VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT    },
-		{ "tessellation_evaluation", VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT },
-		{ "geometry",                VK_SHADER_STAGE_GEOMETRY_BIT                },
-		{ "compute",                 VK_SHADER_STAGE_COMPUTE_BIT                 },
-		{ "mesh",                    VK_SHADER_STAGE_MESH_BIT_NV                 },
-		{ "raygen",                  VK_SHADER_STAGE_RAYGEN_BIT_NV               }
-	};
-
-	// Key, VkFormat, Size.
-	const std::unordered_map<std::string, std::tuple<VkFormat, uint32> > VertexAttributeMap =
-	{
-		{ "position",  std::make_tuple(VK_FORMAT_R32G32B32_SFLOAT,  12u) },
-		{ "color",     std::make_tuple(VK_FORMAT_R8G8B8A8_UNORM,     4u) },
-		{ "color8u",   std::make_tuple(VK_FORMAT_R8G8B8A8_UINT,      4u) },
-		{ "color32",   std::make_tuple(VK_FORMAT_R32G32B32_SFLOAT,  12u) },
-		{ "normal",    std::make_tuple(VK_FORMAT_R32G32B32_SFLOAT,  12u) },
-		{ "tangent",   std::make_tuple(VK_FORMAT_R32G32B32_SFLOAT,  12u) },
-		{ "uv",        std::make_tuple(VK_FORMAT_R32G32_SFLOAT,      8u) }
-	};
-
-	const std::unordered_map<std::string, VkPrimitiveTopology> PrimitiveTopologyMap =
-	{
-		{ "point_list",          VK_PRIMITIVE_TOPOLOGY_POINT_LIST                    },
-		{ "line_list",           VK_PRIMITIVE_TOPOLOGY_LINE_LIST                     },
-		{ "line_strip",          VK_PRIMITIVE_TOPOLOGY_LINE_STRIP                    },
-		{ "triangle_list",       VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST                 },
-		{ "triangle_strip",      VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP                },
-		{ "triangle_fan",        VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN                  },
-		{ "line_list_adj",       VK_PRIMITIVE_TOPOLOGY_LINE_LIST_WITH_ADJACENCY      },
-		{ "line_strip_adj",      VK_PRIMITIVE_TOPOLOGY_LINE_STRIP_WITH_ADJACENCY     },
-		{ "triangle_list_adj",   VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST_WITH_ADJACENCY  },
-		{ "triangle_strip_adj",  VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP_WITH_ADJACENCY },
-		{ "patch_list",          VK_PRIMITIVE_TOPOLOGY_PATCH_LIST                    }
-	};
-
 	const std::string DefaultShaderEntryPoint  = "main";
 	const std::string DefaultPrimitiveTopology = "triangle_list";
+	const std::string DefaultPolygonMode       = "fill";
+	const std::string DefaultCullMode          = "cull_none";
+	const std::string DefaultFrontFace         = "counter_clockwise";
 
-	inline VkShaderStageFlagBits GetShaderStage(const std::string& InKey)
-	{
-		VkShaderStageFlagBits result;
-		try
-		{
-			result = Util::ShaderStageMap.at(InKey);
-			return result;
-		}
-		catch (const std::out_of_range& msg)
-		{
-			result = VK_SHADER_STAGE_VERTEX_BIT;
-			_returnx_log(result, std::string(msg.what()) + ", pipeline stage type invalid! default set to \"vertex\"!");
-		}
-	}
-
-	inline VkFormat GetVertexAttributeVkFormat(const std::string& InKey)
-	{
-		VkFormat result;
-		try
-		{
-			result = std::get<0>(Util::VertexAttributeMap.at(InKey));
-			return result;
-		}
-		catch (const std::out_of_range& msg)
-		{
-			result = VK_FORMAT_UNDEFINED;
-			_returnx_log(result, std::string(msg.what()) + ", Func: " + _str_name_of(GetVertexAttributeVkFormat) + " input is not valid!");
-		}
-	}
-
-	inline uint32 GetVertexAttributeSize(const std::string& InKey)
-	{
-		uint32 result;
-		try
-		{
-			result = std::get<1>(Util::VertexAttributeMap.at(InKey));
-			return result;
-		}
-		catch (const std::out_of_range& msg)
-		{
-			result = 0;
-			_returnx_log(result, std::string(msg.what()) + ", Func: " + _str_name_of(GetVertexAttributeSize) + " input is not valid!");
-		}
-	}
-
-	inline VkPrimitiveTopology GetPrimitiveTopology(const std::string& InKey)
-	{
-		VkPrimitiveTopology result;
-		try
-		{
-			result = Util::PrimitiveTopologyMap.at(InKey);
-			return result;
-		}
-		catch (const std::out_of_range& msg)
-		{
-			result = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-			_returnx_log(result, std::string(msg.what()) + ", pipeline input assembly, primitive topology invalid! default set to \"" + Util::DefaultPrimitiveTopology + "\"!");
-		}
-	}
+	VkShaderStageFlagBits GetShaderStage             (const std::string& InKey);
+	VkFormat              GetVertexAttributeVkFormat (const std::string& InKey);
+	uint32                GetVertexAttributeSize     (const std::string& InKey);
+	VkPrimitiveTopology   GetPrimitiveTopology       (const std::string& InKey);
+	VkPolygonMode         GetPolygonMode             (const std::string& InKey);
+	VkCullModeFlagBits    GetCullMode                (const std::string& InKey);
+	VkFrontFace           GetFrontFace               (const std::string& InKey);
+	VkSampleCountFlagBits GetMultisampleCount        (uint32 InCount);
 
 	template<typename TType, typename TLambda>
 	bool IsVecContain(const std::vector<TType>& InVecContain, const TType& InMember, const TLambda& InCompare)

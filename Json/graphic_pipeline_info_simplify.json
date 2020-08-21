@@ -1,0 +1,30 @@
+{
+    "graphic_pipeline_infos": 
+    {
+        "pipeline_stages_infos": 
+        [
+            {
+                "stage_type":      "vertex",
+                "stage_code_path": "Core/Shaders/triangle.vert.spv"
+            },
+            {
+                "stage_type":      "pixel",
+                "stage_code_path": "Core/Shaders/triangle.frag.spv"
+            }
+        ],
+        "vertex_input_attributes": 
+        {
+            "attributes": [ "position", "color" ]
+        },
+        "pipeline_input_assembly": 
+        {
+            "primitive_topology": "triangle_list"
+        },
+        "rasterization_state":
+        {
+            "polygon_mode": "line",
+            "cull_mode":    "cull_front",
+            "front_face":   "counter_clockwise"
+        }
+    }
+}
