@@ -79,25 +79,25 @@
                 "flags": 0,
                 "depth_test_enable": true,
                 "depth_write_enable": true,
-                "depth_compare_op": "",
+                "depth_compare_op": "<=",
                 "depth_bounds_test_enable": false,
                 "stencil_test_enable": false,
                 "stencil_test_state":
                 {
                     "front":
                     {
-                        "fail_op": "",
-                        "pass_op": "",
-                        "depth_fail_op": "",
-                        "compare_op": "",
-                        "compare_mask": 0,
-                        "write_mask": 0,
-                        "reference": 0
+                        "fail_op": "keep",
+                        "pass_op": "replace",
+                        "depth_fail_op": "keep",
+                        "compare_op": "!=",
+                        "compare_mask": "0xff",
+                        "write_mask": "0xff",
+                        "reference": 1
                     },
                     "back": "auto"
                 },
-                "min_depth_bounds": "",
-                "max_depth_bounds": ""
+                "min_depth_bounds": 0.0,
+                "max_depth_bounds": 0.0
             }
         }
     ]

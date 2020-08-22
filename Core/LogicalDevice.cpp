@@ -942,7 +942,7 @@ void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 	VkPipelineRasterizationStateCreateInfo pipelineRSStateInfo           = GConfig::Pipeline::DefaultRasterizationStateInfo;
 	VkPipelineMultisampleStateCreateInfo   pipelineMultisampleStateInfo  = GConfig::Pipeline::DefaultMultisampleStateInfo;
 	VkSampleMask*                          pSampleMasks                  = nullptr;
-	VkPipelineDepthStencilStateCreateInfo  pipelineDepthStencilStateInfo = 
+	VkPipelineDepthStencilStateCreateInfo  pipelineDepthStencilStateInfo = GConfig::Pipeline::DefaultDepthStencilStateInfo;
 
 	for (uint32 i = 0; i < numGInfo; i++)
 	{
@@ -1182,6 +1182,52 @@ void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 			pipelineMultisampleStateInfo.pSampleMask           = pSampleMasks;
 			pipelineMultisampleStateInfo.alphaToCoverageEnable = _jget_uint(multisampleInfo["alpha_to_coverage_enable"]);
 			pipelineMultisampleStateInfo.alphaToOneEnable      = _jget_uint(multisampleInfo["alpha_to_one_enable"]);		
+		}
+
+		// Depth Stencil State.
+		pGraphicInfos[i].pDepthStencilState = &pipelineDepthStencilStateInfo;
+		auto& depthStencilInfo = graphicInfo["depth_stencil_state"];
+		if (depthStencilInfo != Json::nullValue)
+		{
+			pipelineDepthStencilStateInfo.flags                 = _jget_uint(depthStencilInfo["flags"]);
+			pipelineDepthStencilStateInfo.depthTestEnable       = _jget_uint(depthStencilInfo["depth_test_enable"]);
+			pipelineDepthStencilStateInfo.depthWriteEnable      = _jget_uint(depthStencilInfo["depth_write_enable"]);
+			pipelineDepthStencilStateInfo.depthCompareOp        = Util::GetCompareOp(_jget_string_default(depthStencilInfo["depth_compare_op"], Util::DefaultCompareOp));
+			pipelineDepthStencilStateInfo.depthBoundsTestEnable = _jget_uint(depthStencilInfo["depth_bounds_test_enable"]);
+			pipelineDepthStencilStateInfo.stencilTestEnable     = _jget_uint(depthStencilInfo["stencil_test_enable"]);
+			pipelineDepthStencilStateInfo.minDepthBounds        = _jget_float(depthStencilInfo["min_depth_bounds"]);
+			pipelineDepthStencilStateInfo.maxDepthBounds        = _jget_float(depthStencilInfo["max_depth_bounds"]);
+
+			auto& stencilInfo = depthStencilInfo["stencil_test_state"];
+			if (stencilInfo != Json::nullValue)
+			{
+				if (!_jis_auto(stencilInfo["front"]))
+				{
+					pipelineDepthStencilStateInfo.front.failOp      = Util::GetStencilOp(_jget_string_default(stencilInfo["front"]["fail_op"], Util::DefaultStencilOp));
+					pipelineDepthStencilStateInfo.front.passOp      = Util::GetStencilOp(_jget_string_default(stencilInfo["front"]["pass_op"], Util::DefaultStencilOp));
+					pipelineDepthStencilStateInfo.front.depthFailOp = Util::GetStencilOp(_jget_string_default(stencilInfo["front"]["depth_fail_op"], Util::DefaultStencilOp));
+					pipelineDepthStencilStateInfo.front.compareOp   = Util::GetCompareOp(_jget_string_default(stencilInfo["front"]["compare_op"], Util::DefaultCompareOp));
+					pipelineDepthStencilStateInfo.front.compareMask = _jget_hex(stencilInfo["front"]["compare_mask"]);
+					pipelineDepthStencilStateInfo.front.writeMask   = _jget_hex(stencilInfo["front"]["write_mask"]);
+					pipelineDepthStencilStateInfo.front.reference   = _jget_uint(stencilInfo["front"]["reference"]);
+				}
+
+				if (!_jis_auto(stencilInfo["back"]))
+				{
+					pipelineDepthStencilStateInfo.back.failOp      = Util::GetStencilOp(_jget_string_default(stencilInfo["back"]["fail_op"], Util::DefaultStencilOp));
+					pipelineDepthStencilStateInfo.back.passOp      = Util::GetStencilOp(_jget_string_default(stencilInfo["back"]["pass_op"], Util::DefaultStencilOp));
+					pipelineDepthStencilStateInfo.back.depthFailOp = Util::GetStencilOp(_jget_string_default(stencilInfo["back"]["depth_fail_op"], Util::DefaultStencilOp));
+					pipelineDepthStencilStateInfo.back.compareOp   = Util::GetCompareOp(_jget_string_default(stencilInfo["back"]["compare_op"], Util::DefaultCompareOp));
+					pipelineDepthStencilStateInfo.back.compareMask = _jget_hex(stencilInfo["back"]["compare_mask"]);
+					pipelineDepthStencilStateInfo.back.writeMask   = _jget_hex(stencilInfo["back"]["write_mask"]);
+					pipelineDepthStencilStateInfo.back.reference   = _jget_uint(stencilInfo["back"]["reference"]);
+				}			
+
+				if (_jis_auto(stencilInfo["front"]))
+					pipelineDepthStencilStateInfo.front = pipelineDepthStencilStateInfo.back;
+				if (_jis_auto(stencilInfo["back"]))
+					pipelineDepthStencilStateInfo.back  = pipelineDepthStencilStateInfo.front;
+			}
 		}
 	}
 

@@ -75,6 +75,8 @@ namespace Util
 	const std::string DefaultPolygonMode       = "fill";
 	const std::string DefaultCullMode          = "cull_none";
 	const std::string DefaultFrontFace         = "counter_clockwise";
+	const std::string DefaultCompareOp         = "less_equal";
+	const std::string DefaultStencilOp         = "keep";
 
 	VkShaderStageFlagBits GetShaderStage             (const std::string& InKey);
 	VkFormat              GetVertexAttributeVkFormat (const std::string& InKey);
@@ -84,6 +86,8 @@ namespace Util
 	VkCullModeFlagBits    GetCullMode                (const std::string& InKey);
 	VkFrontFace           GetFrontFace               (const std::string& InKey);
 	VkSampleCountFlagBits GetMultisampleCount        (uint32 InCount);
+	VkCompareOp           GetCompareOp               (const std::string& InKey);
+	VkStencilOp           GetStencilOp               (const std::string& InKey);
 
 	template<typename TType, typename TLambda>
 	bool IsVecContain(const std::vector<TType>& InVecContain, const TType& InMember, const TLambda& InCompare)
@@ -113,6 +117,7 @@ namespace Util
 		}
 	}
 
-
 	bool ParseJson(const std::string& InPath, Json::Value& OutRoot);
+
+	uint32 StringToHex(const std::string& InHexStr);
 }

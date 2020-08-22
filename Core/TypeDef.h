@@ -61,7 +61,8 @@
 #define _jget_string(json_key) std::string(_jget_cstring_default(json_key, "null"))
 #define _jget_string_default(json_key, default) std::string(_jget_cstring_default(json_key, default))
 
-#define _jis_auto(json_key) _jget_string(json_key) == "auto"
+#define _jis_auto(json_key) (_jget_string(json_key) == "auto")
+#define _jget_hex(json_key) json_key.isString() ? Util::StringToHex(_jget_string_default(json_key, "0x00")) : _jget_uint(json_key);
 
 
 #define _reinterpret_data(dst, source) { auto data = source; std::memcpy(&dst, &data, sizeof dst); }

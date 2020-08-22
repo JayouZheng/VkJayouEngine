@@ -35,17 +35,44 @@ namespace GConfig
 			0.0f                                                        // lineWidth
 		};
 
-		static const VkPipelineMultisampleStateCreateInfo DefaultMultisampleStateInfo =
+		static const VkPipelineMultisampleStateCreateInfo   DefaultMultisampleStateInfo =
 		{
-			VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO, // sType
-			nullptr,												  // pNext
-			_flag_none,												  // flags
-			VK_SAMPLE_COUNT_1_BIT,									  // rasterizationSamples
-			VK_FALSE,												  // sampleShadingEnable
-			0.0f,													  // minSampleShading
-			nullptr,												  // pSampleMask
-			VK_FALSE,												  // alphaToCoverageEnable
-			VK_FALSE												  // alphaToOneEnable
+			VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,  // sType
+			nullptr,												   // pNext
+			_flag_none,												   // flags
+			VK_SAMPLE_COUNT_1_BIT,									   // rasterizationSamples
+			VK_FALSE,												   // sampleShadingEnable
+			0.0f,													   // minSampleShading
+			nullptr,												   // pSampleMask
+			VK_FALSE,												   // alphaToCoverageEnable
+			VK_FALSE												   // alphaToOneEnable
+		};
+
+		static const VkStencilOpState                       DefaultStencilOpState =
+		{
+			VK_STENCIL_OP_KEEP,										   // failOp
+			VK_STENCIL_OP_KEEP,										   // passOp
+			VK_STENCIL_OP_KEEP,										   // depthFailOp
+			VK_COMPARE_OP_ALWAYS,									   // compareOp
+			0x00,													   // compareMask
+			0x00,													   // writeMask
+			0u														   // reference
+		};
+
+		static const VkPipelineDepthStencilStateCreateInfo  DefaultDepthStencilStateInfo = 
+		{
+			VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO, // sType
+			nullptr,													// pNext
+			_flag_none,													// flags
+			VK_TRUE,													// depthTestEnable
+			VK_TRUE,													// depthWriteEnable
+			VK_COMPARE_OP_LESS_OR_EQUAL,								// depthCompareOp
+			VK_FALSE,													// depthBoundsTestEnable
+			VK_FALSE,													// stencilTestEnable
+			DefaultStencilOpState,										// front
+			DefaultStencilOpState,										// back
+			0.0f,														// minDepthBounds
+			0.0f														// maxDepthBounds
 		};
 	}
 }

@@ -80,6 +80,40 @@ namespace
 		{ "counter_clockwise",  VK_FRONT_FACE_COUNTER_CLOCKWISE },
 		{ "clockwise",          VK_FRONT_FACE_CLOCKWISE         }
 	};
+
+	const std::unordered_map<std::string, VkCompareOp> CompareOpMap =
+	{
+		{ "never",			   VK_COMPARE_OP_NEVER            },
+		{ "less",			   VK_COMPARE_OP_LESS			  },
+		{ "<",				   VK_COMPARE_OP_LESS			  },
+		{ "equal",			   VK_COMPARE_OP_EQUAL			  },
+		{ "==",				   VK_COMPARE_OP_EQUAL			  },
+		{ "less_equal",  	   VK_COMPARE_OP_LESS_OR_EQUAL	  },
+		{ "<=",	               VK_COMPARE_OP_LESS_OR_EQUAL	  },
+		{ "greater",		   VK_COMPARE_OP_GREATER		  },
+		{ ">",       		   VK_COMPARE_OP_GREATER		  },
+		{ "not_equal",		   VK_COMPARE_OP_NOT_EQUAL		  },
+		{ "!=",		           VK_COMPARE_OP_NOT_EQUAL		  },
+		{ "greater_equal",     VK_COMPARE_OP_GREATER_OR_EQUAL },
+		{ ">=",                VK_COMPARE_OP_GREATER_OR_EQUAL },
+		{ "always",			   VK_COMPARE_OP_ALWAYS			  }
+	};
+
+	const std::unordered_map<std::string, VkStencilOp> StencilOpMap =
+	{
+		{"keep",             VK_STENCIL_OP_KEEP                },
+		{"zero",             VK_STENCIL_OP_ZERO                },
+		{"replace",          VK_STENCIL_OP_REPLACE             },
+		{"increment_clamp",  VK_STENCIL_OP_INCREMENT_AND_CLAMP },
+		{"++clamp",          VK_STENCIL_OP_INCREMENT_AND_CLAMP },
+		{"decrement_clamp",  VK_STENCIL_OP_DECREMENT_AND_CLAMP },
+		{"--clamp",          VK_STENCIL_OP_DECREMENT_AND_CLAMP },
+		{"invert",           VK_STENCIL_OP_INVERT              },
+		{"increment_wrap",   VK_STENCIL_OP_INCREMENT_AND_WRAP  },
+		{"++wrap",           VK_STENCIL_OP_INCREMENT_AND_WRAP  },
+		{"decrement_wrap",   VK_STENCIL_OP_DECREMENT_AND_WRAP  },
+		{"--wrap",           VK_STENCIL_OP_DECREMENT_AND_WRAP  }
+	};
 }
 
 VkInstance Global::GetVkInstance()
@@ -294,6 +328,36 @@ VkSampleCountFlagBits Util::GetMultisampleCount(uint32 InCount)
 	return VK_SAMPLE_COUNT_1_BIT;
 }
 
+VkCompareOp Util::GetCompareOp(const std::string& InKey)
+{
+	VkCompareOp result;
+	try
+	{
+		result = CompareOpMap.at(InKey);
+		return result;
+	}
+	catch (const std::out_of_range& msg)
+	{
+		result = VK_COMPARE_OP_LESS_OR_EQUAL;
+		_returnx_log(result, std::string(msg.what()) + ", pipeline depth stencil state, compare op invalid! default set to \"" + Util::DefaultCompareOp + "\"!");
+	}
+}
+
+VkStencilOp Util::GetStencilOp(const std::string& InKey)
+{
+	VkStencilOp result;
+	try
+	{
+		result = StencilOpMap.at(InKey);
+		return result;
+	}
+	catch (const std::out_of_range& msg)
+	{
+		result = VK_STENCIL_OP_KEEP;
+		_returnx_log(result, std::string(msg.what()) + ", pipeline depth stencil state, stencil op invalid! default set to \"" + Util::DefaultStencilOp + "\"!");
+	}
+}
+
 void Util::PrintArgs(const char* InFormat)
 {
 	std::cout << InFormat;
@@ -319,4 +383,13 @@ bool Util::ParseJson(const std::string& InPath, Json::Value& OutRoot)
 	{
 		_returnx_log(false, "Error: Could not open Json file \"" + InPath + "\"");
 	}
+}
+
+uint32 Util::StringToHex(const std::string& InHexStr)
+{
+	std::stringstream strs;
+	strs << InHexStr;
+	uint32 value;
+	strs >> std::hex >> value;
+	return value;
 }
