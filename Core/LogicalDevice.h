@@ -18,45 +18,89 @@ namespace GConfig
 
 	namespace Pipeline
 	{
+		static const VkPipelineInputAssemblyStateCreateInfo DefaultInputAssemblyStateInfo =
+		{
+			VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO, // sType
+			nullptr,                                                     // pNext
+			_flag_none,                                                  // flags
+			VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,                         // topology
+			VK_FALSE                                                     // primitiveRestartEnable
+		};
+
+		static const VkPipelineTessellationStateCreateInfo  DefaultTessellationStateInfo =
+		{
+			VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_STATE_CREATE_INFO,   // sType
+			nullptr,                                                     // pNext
+			_flag_none,                                                  // flags
+			0u                                                           // patchControlPoints
+		};
+
+		static const VkViewport                             DefaultViewport = 
+		{
+			0.0f,                                                        // x
+			0.0f,                                                        // y
+			1280.0f,                                                     // width
+			720.0f,                                                      // height
+			0.0f,                                                        // minDepth
+			1.0f                                                         // maxDepth
+		};
+
+		static const VkRect2D                               DefaultScissor =
+		{
+			{ 0, 0 },                                                    // offset
+			{ 1280u, 720u }                                              // extent
+		};
+
+		static const VkPipelineViewportStateCreateInfo      DefaultViewportStateInfo =
+		{
+			VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,       // sType
+			nullptr,                                                     // pNext
+			_flag_none,                                                  // flags
+			_count_1,                                                    // viewportCount
+			&DefaultViewport,                                            // pViewports
+			_count_1,                                                    // scissorCount
+			&DefaultScissor                                              // pScissors
+		};
+
 		static const VkPipelineRasterizationStateCreateInfo DefaultRasterizationStateInfo =
 		{
-			VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO, // sType
-			nullptr,                                                    // pNext
-			_flag_none,                                                 // flags
-			VK_FALSE,                                                   // depthClampEnable
-			VK_TRUE,                                                    // rasterizerDiscardEnable
-			VK_POLYGON_MODE_FILL,                                       // polygonMode
-			VK_CULL_MODE_NONE,                                          // cullMode
-			VK_FRONT_FACE_COUNTER_CLOCKWISE,                            // frontFace
-			VK_FALSE,                                                   // depthBiasEnable
-			0.0f,                                                       // depthBiasConstantFactor
-			0.0f,                                                       // depthBiasClamp
-			0.0f,                                                       // depthBiasSlopeFactor
-			0.0f                                                        // lineWidth
+			VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,  // sType
+			nullptr,                                                     // pNext
+			_flag_none,                                                  // flags
+			VK_FALSE,                                                    // depthClampEnable
+			VK_TRUE,                                                     // rasterizerDiscardEnable
+			VK_POLYGON_MODE_FILL,                                        // polygonMode
+			VK_CULL_MODE_NONE,                                           // cullMode
+			VK_FRONT_FACE_COUNTER_CLOCKWISE,                             // frontFace
+			VK_FALSE,                                                    // depthBiasEnable
+			0.0f,                                                        // depthBiasConstantFactor
+			0.0f,                                                        // depthBiasClamp
+			0.0f,                                                        // depthBiasSlopeFactor
+			0.0f                                                         // lineWidth
 		};
 
 		static const VkPipelineMultisampleStateCreateInfo   DefaultMultisampleStateInfo =
 		{
-			VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,  // sType
-			nullptr,												   // pNext
-			_flag_none,												   // flags
-			VK_SAMPLE_COUNT_1_BIT,									   // rasterizationSamples
-			VK_FALSE,												   // sampleShadingEnable
-			0.0f,													   // minSampleShading
-			nullptr,												   // pSampleMask
-			VK_FALSE,												   // alphaToCoverageEnable
-			VK_FALSE												   // alphaToOneEnable
+			VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,   // sType
+			nullptr,												    // pNext
+			_flag_none,												    // flags
+			VK_SAMPLE_COUNT_1_BIT,									    // rasterizationSamples
+			VK_FALSE,												    // sampleShadingEnable
+			0.0f,													    // minSampleShading
+			nullptr,												    // pSampleMask
+			VK_FALSE,												    // alphaToCoverageEnable
+			VK_FALSE												    // alphaToOneEnable
 		};
 
 		static const VkStencilOpState                       DefaultStencilOpState =
 		{
-			VK_STENCIL_OP_KEEP,										   // failOp
-			VK_STENCIL_OP_KEEP,										   // passOp
-			VK_STENCIL_OP_KEEP,										   // depthFailOp
-			VK_COMPARE_OP_ALWAYS,									   // compareOp
-			0x00,													   // compareMask
-			0x00,													   // writeMask
-			0u														   // reference
+			VK_STENCIL_OP_KEEP,										    // failOp
+			VK_STENCIL_OP_KEEP,										    // passOp
+			VK_STENCIL_OP_KEEP,										    // depthFailOp
+			VK_COMPARE_OP_ALWAYS,									    // compareOp
+			0x00,													    // compareMask
+			0x00,													    // writeMask
+			0u														    // reference
 		};
 
 		static const VkPipelineDepthStencilStateCreateInfo  DefaultDepthStencilStateInfo = 
@@ -73,6 +117,48 @@ namespace GConfig
 			DefaultStencilOpState,										// back
 			0.0f,														// minDepthBounds
 			0.0f														// maxDepthBounds
+		};
+
+		static const VkPipelineColorBlendAttachmentState    DefaultColorBlendAttachmentState =
+		{
+			VK_TRUE,                                                    // blendEnable
+			VK_BLEND_FACTOR_SRC_ALPHA,                                  // srcColorBlendFactor
+			VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,                        // dstColorBlendFactor
+			VK_BLEND_OP_ADD,                                            // colorBlendOp
+			VK_BLEND_FACTOR_ONE,                                        // srcAlphaBlendFactor
+			VK_BLEND_FACTOR_ZERO,                                       // dstAlphaBlendFactor
+			VK_BLEND_OP_ADD,                                            // alphaBlendOp
+			VK_COLOR_COMPONENT_R_BIT |                                  // colorWriteMask
+			VK_COLOR_COMPONENT_G_BIT | 
+			VK_COLOR_COMPONENT_B_BIT | 
+			VK_COLOR_COMPONENT_A_BIT
+		};
+
+		static const VkPipelineColorBlendStateCreateInfo    DefaultColorBlendStateInfo =
+		{
+			VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,   // sType
+			nullptr,                                                    // pNext
+			_flag_none,                                                 // flags
+			VK_FALSE,                                                   // logicOpEnable
+			VK_LOGIC_OP_CLEAR,                                          // logicOp
+			_count_1,                                                   // attachmentCount
+			&DefaultColorBlendAttachmentState,                          // pAttachments
+			{ 0.0f, 0.0f, 0.0f, 0.0f }                                  // blendConstants[4]
+		};
+
+		static const std::array<VkDynamicState, 2>          DefaultDynamicState =
+		{
+			VK_DYNAMIC_STATE_VIEWPORT,
+			VK_DYNAMIC_STATE_SCISSOR
+		};
+
+		static const VkPipelineDynamicStateCreateInfo       DefaultDynamicStateInfo =
+		{
+			VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,       // sType
+			nullptr,                                                    // pNext
+			_flag_none,                                                 // flags
+			static_cast<uint32>(DefaultDynamicState.size()),            // dynamicStateCount
+			DefaultDynamicState.data(),                                 // pDynamicStates
 		};
 	}
 }
@@ -122,7 +208,7 @@ public:
 
 	VkCommandPool GetCmdPool();
 
-	void InitViewport(VkViewport& OutViewport, VkRect2D& OutScissor, uint32 InWidth, uint32 InHeight);
+	void SetViewport(VkViewport& OutViewport, VkRect2D& OutScissor, uint32 InWidth, uint32 InHeight);
 
 public:
 

@@ -74,10 +74,10 @@ VkCommandPool LogicalDevice::GetCmdPool()
 	return *m_pCmdPool;
 }
 
-void LogicalDevice::InitViewport(VkViewport& OutViewport, VkRect2D& OutScissor, uint32 InWidth, uint32 InHeight)
+void LogicalDevice::SetViewport(VkViewport& OutViewport, VkRect2D& OutScissor, uint32 InWidth, uint32 InHeight)
 {
-	OutViewport.x = 0;
-	OutViewport.y = 0;
+	OutViewport.x = 0.0f;
+	OutViewport.y = 0.0f;
 	OutViewport.width  = (float)InWidth;
 	OutViewport.height = (float)InHeight;
 	OutViewport.minDepth = 0.0f;
@@ -921,28 +921,33 @@ void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 	bool bIsArray   = root["graphic_pipeline_infos"].isArray();
 	uint32 numGInfo = bIsArray ? root["graphic_pipeline_infos"].size() : _count_1;
 
-	VkGraphicsPipelineCreateInfo*    pGraphicInfos = new VkGraphicsPipelineCreateInfo[numGInfo];
+	VkGraphicsPipelineCreateInfo*    pGraphicInfos = _safe_new(VkGraphicsPipelineCreateInfo, numGInfo);
 	VkPipelineShaderStageCreateInfo* pShaderInfos  = nullptr;;
 	VkSpecializationMapEntry*        pSpecMaps     = nullptr;
 	uint32*                          pSpecData     = nullptr;
 	VkSpecializationInfo             specInfo      = {};
 
 	VkPipelineVertexInputStateCreateInfo vertexInputStateInfo   = {};
-	VkVertexInputBindingDescription*     pVertexInputBinding    = nullptr;
+	VkVertexInputBindingDescription*     pVertexInputBindings    = nullptr;
 	VkVertexInputAttributeDescription*   pVertexInputAttributes = nullptr;
 
-	VkPipelineInputAssemblyStateCreateInfo pipelineIAStateInfo       = {};
-	VkPipelineTessellationStateCreateInfo  pipelineTessStateInfo     = {};
-	VkPipelineViewportStateCreateInfo      pipelineViewportStateInfo = {};
+	VkPipelineInputAssemblyStateCreateInfo pipelineIAStateInfo       = GConfig::Pipeline::DefaultInputAssemblyStateInfo;
+	VkPipelineTessellationStateCreateInfo  pipelineTessStateInfo     = GConfig::Pipeline::DefaultTessellationStateInfo;
+	VkPipelineViewportStateCreateInfo      pipelineViewportStateInfo = GConfig::Pipeline::DefaultViewportStateInfo;
 
-	VkViewport defaultViewport = {};
-	VkRect2D   defaultScissor  = {};
-	this->InitViewport(defaultViewport, defaultScissor, m_window->GetWindowDesc().Width, m_window->GetWindowDesc().Height);
+	VkViewport currentViewport = {};
+	VkRect2D   currentScissor  = {};
+	this->SetViewport(currentViewport, currentScissor, m_window->GetWindowDesc().Width, m_window->GetWindowDesc().Height);
 
 	VkPipelineRasterizationStateCreateInfo pipelineRSStateInfo           = GConfig::Pipeline::DefaultRasterizationStateInfo;
 	VkPipelineMultisampleStateCreateInfo   pipelineMultisampleStateInfo  = GConfig::Pipeline::DefaultMultisampleStateInfo;
 	VkSampleMask*                          pSampleMasks                  = nullptr;
 	VkPipelineDepthStencilStateCreateInfo  pipelineDepthStencilStateInfo = GConfig::Pipeline::DefaultDepthStencilStateInfo;
+	VkPipelineColorBlendStateCreateInfo    pipelineColorBlendStateInfo   = GConfig::Pipeline::DefaultColorBlendStateInfo;
+	VkPipelineColorBlendAttachmentState*   pColorBlendAttachmentStates   = nullptr;
+	VkPipelineDynamicStateCreateInfo       pipelineDynamicStateInfo      = GConfig::Pipeline::DefaultDynamicStateInfo;
+	VkDynamicState*                        pDynamicStates                = nullptr;
+	VkPipelineLayoutCreateInfo             pipelineLayoutInfo            = {};
 
 	for (uint32 i = 0; i < numGInfo; i++)
 	{
@@ -957,7 +962,7 @@ void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 		
 		bIsArray            = graphicInfo["pipeline_stages_infos"].isArray();
 		uint32 numStageInfo = bIsArray ? graphicInfo["pipeline_stages_infos"].size() : _count_1;
-		pShaderInfos        = new VkPipelineShaderStageCreateInfo[numStageInfo];
+		pShaderInfos        = _safe_new(VkPipelineShaderStageCreateInfo, numStageInfo);
 
 		pGraphicInfos[i].stageCount = numStageInfo;
 		pGraphicInfos[i].pStages    = pShaderInfos;
@@ -982,8 +987,8 @@ void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 				bIsArray            = shaderInfo["specialization_constants"].isArray();
 				uint32 numSpecConst = bIsArray ? shaderInfo["specialization_constants"].size() : _count_1;
 
-				pSpecMaps = new VkSpecializationMapEntry[numSpecConst];
-				pSpecData = new uint32[numSpecConst];
+				pSpecMaps = _safe_new(VkSpecializationMapEntry, numSpecConst);
+				pSpecData = _safe_new(uint32, numSpecConst);
 
 				specInfo.mapEntryCount = numSpecConst;
 				specInfo.pMapEntries   = pSpecMaps;
@@ -1022,9 +1027,9 @@ void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 		_jverify_return_log(graphicInfo["vertex_input_attributes"], "json file: [vertex_input_attributes] can not be null!");
 
 		// Bindings.
-		bIsArray            = graphicInfo["vertex_input_attributes"].isArray();
-		uint32 numBinding   = bIsArray ? graphicInfo["vertex_input_attributes"].size() : _count_1;
-		pVertexInputBinding = new VkVertexInputBindingDescription[numBinding];
+		bIsArray             = graphicInfo["vertex_input_attributes"].isArray();
+		uint32 numBinding    = bIsArray ? graphicInfo["vertex_input_attributes"].size() : _count_1;
+		pVertexInputBindings = _safe_new(VkVertexInputBindingDescription, numBinding);
 
 		for (uint32 j = 0; j < numBinding; j++)
 		{
@@ -1037,7 +1042,7 @@ void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 			// Vertex Attributes.
 			bIsArray               = binding["attributes"].isArray();
 			uint32 numAttribute    = bIsArray ? binding["attributes"].size() : _count_1;
-			pVertexInputAttributes = new VkVertexInputAttributeDescription[numAttribute];
+			pVertexInputAttributes = _safe_new(VkVertexInputAttributeDescription, numAttribute);
 
 			uint32  attributeOffset  = 0;
 			uint32& allAttributeSize = attributeOffset;
@@ -1053,34 +1058,25 @@ void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 				attributeOffset += Util::GetVertexAttributeSize(attribute);
 			}
 				
-			pVertexInputBinding[j].binding   = bindingID;
-			pVertexInputBinding[j].stride    = allAttributeSize;
-			pVertexInputBinding[j].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+			pVertexInputBindings[j].binding   = bindingID;
+			pVertexInputBindings[j].stride    = allAttributeSize;
+			pVertexInputBindings[j].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
 			vertexInputStateInfo.sType                           = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 			vertexInputStateInfo.vertexBindingDescriptionCount   = numBinding;
-			vertexInputStateInfo.pVertexBindingDescriptions      = pVertexInputBinding;
+			vertexInputStateInfo.pVertexBindingDescriptions      = pVertexInputBindings;
 			vertexInputStateInfo.vertexAttributeDescriptionCount = numAttribute;
 			vertexInputStateInfo.pVertexAttributeDescriptions    = pVertexInputAttributes;
 		}
 		
 		// IA State.
 		pGraphicInfos[i].pInputAssemblyState = &pipelineIAStateInfo;
-		pipelineIAStateInfo.sType            = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-		pipelineIAStateInfo.pNext            = nullptr;
-
-		auto& inputAssemblyInfo = graphicInfo["pipeline_input_assembly"];
+		auto& inputAssemblyInfo              = graphicInfo["pipeline_input_assembly"];
 		if (inputAssemblyInfo != Json::nullValue)
 		{
 			pipelineIAStateInfo.flags                  = _jget_uint(inputAssemblyInfo["flags"]);
 			pipelineIAStateInfo.topology               = Util::GetPrimitiveTopology(_jget_string_default(inputAssemblyInfo["primitive_topology"], Util::DefaultPrimitiveTopology));
 			pipelineIAStateInfo.primitiveRestartEnable = _jget_uint(inputAssemblyInfo["primitive_restart_enable"]);
-		}
-		else
-		{
-			pipelineIAStateInfo.flags                  = _flag_none;
-			pipelineIAStateInfo.topology               = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-			pipelineIAStateInfo.primitiveRestartEnable = VK_FALSE;
 		}
 
 		// Tessellation State.
@@ -1098,22 +1094,18 @@ void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 		}
 
 		// Viewport State.
-		pGraphicInfos[i].pViewportState      = &pipelineViewportStateInfo;
-		pipelineViewportStateInfo.sType      = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-		pipelineViewportStateInfo.pNext      = nullptr;
-		pipelineViewportStateInfo.pViewports = &defaultViewport;
-		pipelineViewportStateInfo.pScissors  = &defaultScissor;
-
-		auto& viewportInfo = graphicInfo["viewport_state"];
+		pGraphicInfos[i].pViewportState = &pipelineViewportStateInfo;
+		auto& viewportInfo              = graphicInfo["viewport_state"];
 		if (viewportInfo != Json::nullValue)
 		{
-			
 			bIsArray           = viewportInfo["viewports"].isArray();
 			uint32 numViewport = bIsArray ? viewportInfo["viewports"].size() : _count_1;
 
 			pipelineViewportStateInfo.flags         = _jget_uint(viewportInfo["flags"]);
 			pipelineViewportStateInfo.viewportCount = numViewport;
 			pipelineViewportStateInfo.scissorCount  = numViewport;
+			pipelineViewportStateInfo.pViewports    = &currentViewport;
+			pipelineViewportStateInfo.pScissors     = &currentScissor;
 
 			for (uint32 j = 0; j < numViewport; j++)
 			{
@@ -1123,32 +1115,26 @@ void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 				_breturn_log(!viewport["position"].isArray(),    "json file: viewport [position] must be an array [ first, second ]!"   );
 				_breturn_log(!viewport["size"].isArray(),        "json file: viewport [size] must be an array [ first, second ]!"       );
 				_breturn_log(!viewport["depth_range"].isArray(), "json file: viewport [depth_range] must be an array [ first, second ]!");
-				_breturn_log(!scissor["offset"].isArray(),       "json file: scissor [offset] must be an array [ first, second ]!"      );
-				_breturn_log(!scissor["size"].isArray(),         "json file: scissor [size] must be an array [ first, second ]!"        );
+				_breturn_log(!scissor ["offset"].isArray(),      "json file: scissor [offset] must be an array [ first, second ]!"      );
+				_breturn_log(!scissor ["size"].isArray(),        "json file: scissor [size] must be an array [ first, second ]!"        );
 
-				defaultViewport.x        = _jget_float(viewport["position"][0]);
-				defaultViewport.y        = _jget_float(viewport["position"][1]);
-				defaultViewport.width    = _jis_auto  (viewport["size"][0]) ? (float)m_window->GetWindowDesc().Width  : _jget_float(viewport["size"][0]);
-				defaultViewport.height   = _jis_auto  (viewport["size"][1]) ? (float)m_window->GetWindowDesc().Height : _jget_float(viewport["size"][1]);
-				defaultViewport.minDepth = _jget_float(viewport["depth_range"][0]);
-				defaultViewport.maxDepth = _jget_float(viewport["depth_range"][1]);
+				currentViewport.x        = _jget_float(viewport["position"][0]);
+				currentViewport.y        = _jget_float(viewport["position"][1]);
+				currentViewport.width    = _jis_auto  (viewport["size"][0]) ? (float)m_window->GetWindowDesc().Width  : _jget_float(viewport["size"][0]);
+				currentViewport.height   = _jis_auto  (viewport["size"][1]) ? (float)m_window->GetWindowDesc().Height : _jget_float(viewport["size"][1]);
+				currentViewport.minDepth = _jget_float(viewport["depth_range"][0]);
+				currentViewport.maxDepth = _jget_float(viewport["depth_range"][1]);
 
-				defaultScissor.offset.x      = _jget_int(scissor["offset"][0]);
-				defaultScissor.offset.y      = _jget_int(scissor["offset"][1]);
-				defaultScissor.extent.width  = _jis_auto(scissor["size"][0]) ? m_window->GetWindowDesc().Width  : _jget_uint(scissor["size"][0]);
-				defaultScissor.extent.height = _jis_auto(scissor["size"][1]) ? m_window->GetWindowDesc().Height : _jget_uint(scissor["size"][1]);
+				currentScissor.offset.x      = _jget_int(scissor["offset"][0]);
+				currentScissor.offset.y      = _jget_int(scissor["offset"][1]);
+				currentScissor.extent.width  = _jis_auto(scissor["size"][0]) ? m_window->GetWindowDesc().Width  : _jget_uint(scissor["size"][0]);
+				currentScissor.extent.height = _jis_auto(scissor["size"][1]) ? m_window->GetWindowDesc().Height : _jget_uint(scissor["size"][1]);
 			}
-		}
-		else
-		{
-			pipelineViewportStateInfo.flags         = _flag_none;
-			pipelineViewportStateInfo.viewportCount = _count_1;
-			pipelineViewportStateInfo.scissorCount  = _count_1;			
 		}
 
 		// RS State.
 		pGraphicInfos[i].pRasterizationState = &pipelineRSStateInfo;
-		auto& rasterizationInfo = graphicInfo["rasterization_state"];
+		auto& rasterizationInfo              = graphicInfo["rasterization_state"];
 		if (rasterizationInfo != Json::nullValue)
 		{
 			pipelineRSStateInfo.flags                   = _jget_uint(rasterizationInfo["flags"]);
@@ -1166,12 +1152,12 @@ void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 
 		// Multisample State.
 		pGraphicInfos[i].pMultisampleState = &pipelineMultisampleStateInfo;
-		auto& multisampleInfo = graphicInfo["multisample_state"];
+		auto& multisampleInfo              = graphicInfo["multisample_state"];
 		if (multisampleInfo != Json::nullValue)
 		{
-			bIsArray = multisampleInfo["sample_masks"].isArray();
+			bIsArray             = multisampleInfo["sample_masks"].isArray();
 			uint32 numSampleMask = bIsArray ? multisampleInfo["sample_masks"].size() : _count_1;
-			pSampleMasks = numSampleMask != 0u ? new VkSampleMask[numSampleMask] : nullptr;
+			pSampleMasks         = _safe_new(VkSampleMask, numSampleMask);
 			for (uint32 j = 0; j < numSampleMask; j++)
 				pSampleMasks[j] = bIsArray ? multisampleInfo["sample_masks"][j].asUInt() : multisampleInfo["sample_masks"].asUInt();
 
@@ -1186,7 +1172,7 @@ void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 
 		// Depth Stencil State.
 		pGraphicInfos[i].pDepthStencilState = &pipelineDepthStencilStateInfo;
-		auto& depthStencilInfo = graphicInfo["depth_stencil_state"];
+		auto& depthStencilInfo              = graphicInfo["depth_stencil_state"];
 		if (depthStencilInfo != Json::nullValue)
 		{
 			pipelineDepthStencilStateInfo.flags                 = _jget_uint(depthStencilInfo["flags"]);
@@ -1229,8 +1215,70 @@ void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 					pipelineDepthStencilStateInfo.back  = pipelineDepthStencilStateInfo.front;
 			}
 		}
+
+		// Color Blend State.
+		pGraphicInfos[i].pColorBlendState = &pipelineColorBlendStateInfo;
+		auto& colorBlendInfo              = graphicInfo["color_blend_state"];
+		if (colorBlendInfo != Json::nullValue)
+		{
+			bIsArray                    = colorBlendInfo["attachments"].isArray();
+			uint32 numAttachment        = bIsArray ? colorBlendInfo["attachments"].size() : _count_1;
+			pColorBlendAttachmentStates = _safe_new(VkPipelineColorBlendAttachmentState, numAttachment);
+			for (uint32 j = 0; j < numAttachment; j++)
+			{
+				auto& attachment = bIsArray ? colorBlendInfo["attachments"][j] : colorBlendInfo["attachments"];
+
+				pColorBlendAttachmentStates[j].blendEnable         = _jget_uint(attachment["blend_enable"]);
+				pColorBlendAttachmentStates[j].srcColorBlendFactor = attachment["src_color_factor"].isUInt() ? static_cast<VkBlendFactor>(_jget_uint(attachment["src_color_factor"])) : Util::GetBlendFactor(_jget_string_default(attachment["src_color_factor"], Util::DefaultBlendFactor));
+				pColorBlendAttachmentStates[j].dstColorBlendFactor = attachment["dst_color_factor"].isUInt() ? static_cast<VkBlendFactor>(_jget_uint(attachment["dst_color_factor"])) : Util::GetBlendFactor(_jget_string_default(attachment["dst_color_factor"], Util::DefaultBlendFactor));
+				pColorBlendAttachmentStates[j].colorBlendOp        = Util::GetBlendOp(_jget_string_default(attachment["color_blend_op"], Util::DefaultBlendOp));
+				pColorBlendAttachmentStates[j].srcAlphaBlendFactor = attachment["src_alpha_factor"].isUInt() ? static_cast<VkBlendFactor>(_jget_uint(attachment["src_alpha_factor"])) : Util::GetBlendFactor(_jget_string_default(attachment["src_alpha_factor"], Util::DefaultBlendFactor));
+				pColorBlendAttachmentStates[j].dstAlphaBlendFactor = attachment["dst_alpha_factor"].isUInt() ? static_cast<VkBlendFactor>(_jget_uint(attachment["dst_alpha_factor"])) : Util::GetBlendFactor(_jget_string_default(attachment["dst_alpha_factor"], Util::DefaultBlendFactor));
+				pColorBlendAttachmentStates[j].alphaBlendOp        = Util::GetBlendOp(_jget_string_default(attachment["alpha_blend_op"], Util::DefaultBlendOp));
+				pColorBlendAttachmentStates[j].colorWriteMask      = Util::GetColorComponentMask(_jget_string_default(attachment["component_mask"], Util::DefaultColorComponentMask));
+			}
+
+			pipelineColorBlendStateInfo.flags           = _jget_uint(colorBlendInfo["flags"]);
+			pipelineColorBlendStateInfo.logicOpEnable   = _jget_uint(colorBlendInfo["logic_op_enable"]);
+			pipelineColorBlendStateInfo.logicOp         = Util::GetLogicOp(_jget_string_default(colorBlendInfo["logic_op"], Util::DefaultLogicOp));
+			pipelineColorBlendStateInfo.attachmentCount = numAttachment;
+			pipelineColorBlendStateInfo.pAttachments    = pColorBlendAttachmentStates;
+
+			bIsArray           = colorBlendInfo["blend_constants"].isArray();
+			uint32 numConstant = bIsArray ? colorBlendInfo["blend_constants"].size() : _count_1;
+			for (uint32 j = 0; j < numConstant; j++)
+			{
+				if (j >= 4) break;
+				pipelineColorBlendStateInfo.blendConstants[j] = _jget_float(bIsArray ? colorBlendInfo["blend_constants"][j] : colorBlendInfo["blend_constants"]);
+			}
+		}
+
+		// Dynamic State.
+		pGraphicInfos[i].pDynamicState = &pipelineDynamicStateInfo;
+		auto& dynamicStateInfo         = graphicInfo["dynamic_state"];
+		if (dynamicStateInfo != Json::nullValue)
+		{
+			bIsArray               = dynamicStateInfo["state"].isArray();
+			uint32 numDynamicState = bIsArray ? dynamicStateInfo["state"].size() : _count_1;
+			pDynamicStates         = _safe_new(VkDynamicState, numDynamicState);
+			for (uint32 j = 0; j < numDynamicState; j++)
+				pDynamicStates[j] = Util::GetDynamicState(_jget_string_default(bIsArray ? dynamicStateInfo["state"][j] : dynamicStateInfo["state"], Util::DefaultDynamicState));
+
+			pipelineDynamicStateInfo.flags             = _jget_uint(dynamicStateInfo["flags"]);
+			pipelineDynamicStateInfo.dynamicStateCount = numDynamicState;
+			pipelineDynamicStateInfo.pDynamicStates    = pDynamicStates;
+		}
+
+		// Pipeline Layout.
+		 
+
+		this->CreatePipelineLayout();
 	}
 
+
+
+
+	// _vk_try(vkCreateGraphicsPipelines(m_device, InPipCache, numGInfo, pGraphicInfos, m_allocator->GetVkAllocator(), OutPipeline));
 
 	// TODO:
 
@@ -1238,9 +1286,11 @@ void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 	_safe_delete_array(pShaderInfos);
 	_safe_delete_array(pSpecMaps);
 	_safe_delete_array(pSpecData);
-	_safe_delete_array(pVertexInputBinding);
+	_safe_delete_array(pVertexInputBindings);
 	_safe_delete_array(pVertexInputAttributes);
 	_safe_delete_array(pSampleMasks);
+	_safe_delete_array(pColorBlendAttachmentStates);
+	_safe_delete_array(pDynamicStates);
 }
 
 void LogicalDevice::FlushAllQueue()

@@ -98,6 +98,31 @@
                 },
                 "min_depth_bounds": 0.0,
                 "max_depth_bounds": 0.0
+            },
+            "color_blend_state":
+            {
+                "flags": 0,
+                "logic_op_enable": false,
+                "logic_op": "clear",
+                "attachments": 
+                [
+                    {
+                        "blend_enable": true,
+                        "src_color_factor": "src_alpha",
+                        "dst_color_factor": "one_minus_src_alpha",
+                        "color_blend_op": "+",
+                        "src_alpha_factor": "0",
+                        "dst_alpha_factor": 1,
+                        "alpha_blend_op": "add",
+                        "component_mask": "rgba"
+                    }
+                ],
+                "blend_constants": [ 0.3, 0.5, 0.9, 1.2 ]
+            },
+            "dynamic_state":
+            {
+                "flags": 0,
+                "state": [ "scissor", "viewport" ]
             }
         }
     ]

@@ -103,6 +103,7 @@ namespace
 	{
 		{"keep",             VK_STENCIL_OP_KEEP                },
 		{"zero",             VK_STENCIL_OP_ZERO                },
+		{"0",                VK_STENCIL_OP_ZERO                },
 		{"replace",          VK_STENCIL_OP_REPLACE             },
 		{"increment_clamp",  VK_STENCIL_OP_INCREMENT_AND_CLAMP },
 		{"++clamp",          VK_STENCIL_OP_INCREMENT_AND_CLAMP },
@@ -113,6 +114,153 @@ namespace
 		{"++wrap",           VK_STENCIL_OP_INCREMENT_AND_WRAP  },
 		{"decrement_wrap",   VK_STENCIL_OP_DECREMENT_AND_WRAP  },
 		{"--wrap",           VK_STENCIL_OP_DECREMENT_AND_WRAP  }
+	};
+
+	const std::unordered_map<std::string, VkLogicOp> LogicOpMap =
+	{
+		{"clear",         VK_LOGIC_OP_CLEAR         },
+		{"and",           VK_LOGIC_OP_AND           },
+		{"&",             VK_LOGIC_OP_AND           },
+		{"and_reverse",   VK_LOGIC_OP_AND_REVERSE   },
+		{"copy",          VK_LOGIC_OP_COPY          },
+		{"and_inverted",  VK_LOGIC_OP_AND_INVERTED  },
+		{"no_op",         VK_LOGIC_OP_NO_OP         },
+		{"xor",           VK_LOGIC_OP_XOR           },
+		{"^",             VK_LOGIC_OP_XOR           },
+		{"or",            VK_LOGIC_OP_OR            },
+		{"|",             VK_LOGIC_OP_OR            },
+		{"nor",           VK_LOGIC_OP_NOR           },
+		{"equivalent",    VK_LOGIC_OP_EQUIVALENT    },
+		{"==",            VK_LOGIC_OP_EQUIVALENT    },
+		{"invert",        VK_LOGIC_OP_INVERT        },
+		{"~",             VK_LOGIC_OP_INVERT        },
+		{"or_reverse",    VK_LOGIC_OP_OR_REVERSE    },
+		{"copy_inverted", VK_LOGIC_OP_COPY_INVERTED },
+		{"or_inverted",   VK_LOGIC_OP_OR_INVERTED   },
+		{"nand",          VK_LOGIC_OP_NAND          },
+		{"set",           VK_LOGIC_OP_SET           }
+	};
+
+	const std::unordered_map<std::string, VkBlendFactor> BlendFactorMap =
+	{
+		{ "zero",                      VK_BLEND_FACTOR_ZERO                     },
+		{ "0",                         VK_BLEND_FACTOR_ZERO                     },
+		{ "one",                       VK_BLEND_FACTOR_ONE                      },
+		{ "1",                         VK_BLEND_FACTOR_ONE                      },
+		{ "src_color",                 VK_BLEND_FACTOR_SRC_COLOR                },
+		{ "one_minus_src_color",       VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR      },
+		{ "dst_color",                 VK_BLEND_FACTOR_DST_COLOR                },
+		{ "one_minus_dst_color",       VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR      },
+		{ "src_alpha",                 VK_BLEND_FACTOR_SRC_ALPHA                },
+		{ "one_minus_src_alpha",       VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA      },
+		{ "dst_alpha",                 VK_BLEND_FACTOR_DST_ALPHA                },
+		{ "one_minus_dst_alpha",       VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA      },
+		{ "constant_color",            VK_BLEND_FACTOR_CONSTANT_COLOR           },
+		{ "one_minus_constant_color",  VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_COLOR },
+		{ "constant_alpha",            VK_BLEND_FACTOR_CONSTANT_ALPHA           },
+		{ "one_minus_constant_alpha",  VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_ALPHA },
+		{ "src_alpha_saturate",        VK_BLEND_FACTOR_SRC_ALPHA_SATURATE       },
+		{ "src1_color",                VK_BLEND_FACTOR_SRC1_COLOR               },
+		{ "one_minus_src1_color",      VK_BLEND_FACTOR_ONE_MINUS_SRC1_COLOR     },
+		{ "src1_alpha",                VK_BLEND_FACTOR_SRC1_ALPHA               },
+		{ "one_minus_src1_alpha",      VK_BLEND_FACTOR_ONE_MINUS_SRC1_ALPHA     }
+	};
+
+	const std::unordered_map<std::string, VkBlendOp> BlendOpMap =
+	{
+		{ "add",                VK_BLEND_OP_ADD                    },
+		{ "+",                  VK_BLEND_OP_ADD                    },
+		{ "subtract",           VK_BLEND_OP_SUBTRACT               },
+		{ "-",                  VK_BLEND_OP_SUBTRACT               },
+		{ "reverse_subtract",   VK_BLEND_OP_REVERSE_SUBTRACT       },
+		{ "min",                VK_BLEND_OP_MIN                    },
+		{ "max",                VK_BLEND_OP_MAX                    },
+		{ "zero",               VK_BLEND_OP_ZERO_EXT               },
+		{ "src",                VK_BLEND_OP_SRC_EXT                },
+		{ "dst",                VK_BLEND_OP_DST_EXT                },
+		{ "src_over",           VK_BLEND_OP_SRC_OVER_EXT           },
+		{ "dst_over",           VK_BLEND_OP_DST_OVER_EXT           },
+		{ "src_in",             VK_BLEND_OP_SRC_IN_EXT             },
+		{ "dst_in",             VK_BLEND_OP_DST_IN_EXT             },
+		{ "src_out",            VK_BLEND_OP_SRC_OUT_EXT            },
+		{ "dst_out",            VK_BLEND_OP_DST_OUT_EXT            },
+		{ "src_atop",           VK_BLEND_OP_SRC_ATOP_EXT           },
+		{ "dst_atop",           VK_BLEND_OP_DST_ATOP_EXT           },
+		{ "xor",                VK_BLEND_OP_XOR_EXT                },
+		{ "multiply",           VK_BLEND_OP_MULTIPLY_EXT           },
+		{ "screen",             VK_BLEND_OP_SCREEN_EXT             },
+		{ "overlay",            VK_BLEND_OP_OVERLAY_EXT            },
+		{ "darken",             VK_BLEND_OP_DARKEN_EXT             },
+		{ "lighten",            VK_BLEND_OP_LIGHTEN_EXT            },
+		{ "colordodge",         VK_BLEND_OP_COLORDODGE_EXT         },
+		{ "colorburn",          VK_BLEND_OP_COLORBURN_EXT          },
+		{ "hardlight",          VK_BLEND_OP_HARDLIGHT_EXT          },
+		{ "softlight",          VK_BLEND_OP_SOFTLIGHT_EXT          },
+		{ "difference",         VK_BLEND_OP_DIFFERENCE_EXT         },
+		{ "exclusion",          VK_BLEND_OP_EXCLUSION_EXT          },
+		{ "invert",             VK_BLEND_OP_INVERT_EXT             },
+		{ "invert_rgb",         VK_BLEND_OP_INVERT_RGB_EXT         },
+		{ "lineardodge",        VK_BLEND_OP_LINEARDODGE_EXT        },
+		{ "linearburn",         VK_BLEND_OP_LINEARBURN_EXT         },
+		{ "vividlight",         VK_BLEND_OP_VIVIDLIGHT_EXT         },
+		{ "linearlight",        VK_BLEND_OP_LINEARLIGHT_EXT        },
+		{ "pinlight",           VK_BLEND_OP_PINLIGHT_EXT           },
+		{ "hardmix",            VK_BLEND_OP_HARDMIX_EXT            },
+		{ "hsl_hue",            VK_BLEND_OP_HSL_HUE_EXT            },
+		{ "hsl_saturation",     VK_BLEND_OP_HSL_SATURATION_EXT     },
+		{ "hsl_color",          VK_BLEND_OP_HSL_COLOR_EXT          },
+		{ "hsl_luminosity",     VK_BLEND_OP_HSL_LUMINOSITY_EXT     },
+		{ "plus",               VK_BLEND_OP_PLUS_EXT               },
+		{ "plus_clamped",       VK_BLEND_OP_PLUS_CLAMPED_EXT       },
+		{ "plus_clamped_alpha", VK_BLEND_OP_PLUS_CLAMPED_ALPHA_EXT },
+		{ "plus_darker",        VK_BLEND_OP_PLUS_DARKER_EXT        },
+		{ "minus",              VK_BLEND_OP_MINUS_EXT              },
+		{ "minus_clamped",      VK_BLEND_OP_MINUS_CLAMPED_EXT      },
+		{ "contrast",           VK_BLEND_OP_CONTRAST_EXT           },
+		{ "invert_ovg",         VK_BLEND_OP_INVERT_OVG_EXT         },
+		{ "red",                VK_BLEND_OP_RED_EXT                },
+		{ "green",              VK_BLEND_OP_GREEN_EXT              },
+		{ "blue",               VK_BLEND_OP_BLUE_EXT               }
+	};
+
+	const std::unordered_map<std::string, VkColorComponentFlagBits> ColorComponentMaskMap =
+	{
+		{ "r", VK_COLOR_COMPONENT_R_BIT },
+		{ "g", VK_COLOR_COMPONENT_G_BIT },
+		{ "b", VK_COLOR_COMPONENT_B_BIT },
+		{ "a", VK_COLOR_COMPONENT_A_BIT }
+	};
+
+	const std::unordered_map<std::string, VkDynamicState> DynamicStateMap =
+	{
+		{ "viewport",                         VK_DYNAMIC_STATE_VIEWPORT                         },
+		{ "scissor",                          VK_DYNAMIC_STATE_SCISSOR                          },
+		{ "line_width",                       VK_DYNAMIC_STATE_LINE_WIDTH                       },
+		{ "depth_bias",                       VK_DYNAMIC_STATE_DEPTH_BIAS                       },
+		{ "blend_constants",                  VK_DYNAMIC_STATE_BLEND_CONSTANTS                  },
+		{ "depth_bounds",                     VK_DYNAMIC_STATE_DEPTH_BOUNDS                     },
+		{ "stencil_compare_mask",             VK_DYNAMIC_STATE_STENCIL_COMPARE_MASK             },
+		{ "stencil_write_mask",               VK_DYNAMIC_STATE_STENCIL_WRITE_MASK               },
+		{ "stencil_reference",                VK_DYNAMIC_STATE_STENCIL_REFERENCE                },
+		{ "viewport_w_scaling_nv",            VK_DYNAMIC_STATE_VIEWPORT_W_SCALING_NV            },
+		{ "discard_rectangle_ext",            VK_DYNAMIC_STATE_DISCARD_RECTANGLE_EXT            },
+		{ "sample_locations_ext",             VK_DYNAMIC_STATE_SAMPLE_LOCATIONS_EXT             },
+		{ "viewport_shading_rate_palette_nv", VK_DYNAMIC_STATE_VIEWPORT_SHADING_RATE_PALETTE_NV },
+		{ "viewport_coarse_sample_order_nv",  VK_DYNAMIC_STATE_VIEWPORT_COARSE_SAMPLE_ORDER_NV  },
+		{ "exclusive_scissor_nv",             VK_DYNAMIC_STATE_EXCLUSIVE_SCISSOR_NV             },
+		{ "line_stipple_ext",                 VK_DYNAMIC_STATE_LINE_STIPPLE_EXT                 },
+		{ "cull_mode_ext",                    VK_DYNAMIC_STATE_CULL_MODE_EXT                    },
+		{ "front_face_ext",                   VK_DYNAMIC_STATE_FRONT_FACE_EXT                   },
+		{ "primitive_topology_ext",           VK_DYNAMIC_STATE_PRIMITIVE_TOPOLOGY_EXT           },
+		{ "viewport_with_count_ext",          VK_DYNAMIC_STATE_VIEWPORT_WITH_COUNT_EXT          },
+		{ "scissor_with_count_ext",           VK_DYNAMIC_STATE_SCISSOR_WITH_COUNT_EXT           },
+		{ "vertex_input_binding_stride_ext",  VK_DYNAMIC_STATE_VERTEX_INPUT_BINDING_STRIDE_EXT  },
+		{ "depth_test_enable_ext",            VK_DYNAMIC_STATE_DEPTH_TEST_ENABLE_EXT            },
+		{ "depth_write_enable_ext",           VK_DYNAMIC_STATE_DEPTH_WRITE_ENABLE_EXT           },
+		{ "depth_compare_op_ext",             VK_DYNAMIC_STATE_DEPTH_COMPARE_OP_EXT             },
+		{ "depth_bounds_test_enable_ext",     VK_DYNAMIC_STATE_DEPTH_BOUNDS_TEST_ENABLE_EXT     },
+		{ "stencil_test_enable_ext",          VK_DYNAMIC_STATE_STENCIL_TEST_ENABLE_EXT          },
+		{ "state_stencil_op_ext",             VK_DYNAMIC_STATE_STENCIL_OP_EXT                   }
 	};
 }
 
@@ -355,6 +503,90 @@ VkStencilOp Util::GetStencilOp(const std::string& InKey)
 	{
 		result = VK_STENCIL_OP_KEEP;
 		_returnx_log(result, std::string(msg.what()) + ", pipeline depth stencil state, stencil op invalid! default set to \"" + Util::DefaultStencilOp + "\"!");
+	}
+}
+
+VkLogicOp Util::GetLogicOp(const std::string& InKey)
+{
+	VkLogicOp result;
+	try
+	{
+		result = LogicOpMap.at(InKey);
+		return result;
+	}
+	catch (const std::out_of_range& msg)
+	{
+		result = VK_LOGIC_OP_CLEAR;
+		_returnx_log(result, std::string(msg.what()) + ", pipeline color blend state, logic op invalid! default set to \"" + Util::DefaultLogicOp + "\"!");
+	}
+}
+
+VkBlendFactor Util::GetBlendFactor(const std::string& InKey)
+{
+	VkBlendFactor result;
+	try
+	{
+		result = BlendFactorMap.at(InKey);
+		return result;
+	}
+	catch (const std::out_of_range& msg)
+	{
+		result = VK_BLEND_FACTOR_ZERO;
+		_returnx_log(result, std::string(msg.what()) + ", pipeline color blend state, blend factor invalid! default set to \"" + Util::DefaultBlendFactor + "\"!");
+	}
+}
+
+VkBlendOp Util::GetBlendOp(const std::string& InKey)
+{
+	VkBlendOp result;
+	try
+	{
+		result = BlendOpMap.at(InKey);
+		return result;
+	}
+	catch (const std::out_of_range& msg)
+	{
+		result = VK_BLEND_OP_ADD;
+		_returnx_log(result, std::string(msg.what()) + ", pipeline color blend state, blend op invalid! default set to \"" + Util::DefaultBlendOp + "\"!");
+	}
+}
+
+VkColorComponentFlags Util::GetColorComponentMask(const std::string& InKey)
+{
+	VkColorComponentFlags result = 0;
+	for (size_t i = 0; i < InKey.length(); i++)
+	{
+		try
+		{
+			result |= ColorComponentMaskMap.at(InKey.substr(i, _count_1));
+		}
+		catch (const std::out_of_range& msg)
+		{
+			_bcontinue_log(true, std::string(msg.what()) + ", pipeline color blend state, component mask detects an invalid char present, please fill this field with \"r,g,b,a\"!");
+		}
+	}
+
+	if (result == 0)
+	{
+		result = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+		_returnx_log(result, "pipeline color blend state, component mask invalid! default set to \"" + Util::DefaultColorComponentMask + "\"!");
+	}
+
+	return result;
+}
+
+VkDynamicState Util::GetDynamicState(const std::string& InKey)
+{
+	VkDynamicState result;
+	try
+	{
+		result = DynamicStateMap.at(InKey);
+		return result;
+	}
+	catch (const std::out_of_range& msg)
+	{
+		result = VK_DYNAMIC_STATE_VIEWPORT;
+		_returnx_log(result, std::string(msg.what()) + ", pipeline dynamic state, state invalid! default set to \"" + Util::DefaultDynamicState + "\"!");
 	}
 }
 
