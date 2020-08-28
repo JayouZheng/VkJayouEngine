@@ -183,6 +183,7 @@
     <ClInclude Include="Core\LogicalDevice.h" />
     <ClInclude Include="Core\Platform.h" />
     <ClInclude Include="Core\SmartPtr.h" />
+    <ClInclude Include="Core\SPVParser.h" />
     <ClInclude Include="Core\Tuple.h" />
     <ClInclude Include="Core\TypeDef.h" />
     <ClInclude Include="Core\VkSmartPtr.h" />

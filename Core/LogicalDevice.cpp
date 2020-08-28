@@ -156,12 +156,7 @@ void LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const ch
 		is.read(shaderCode, size);
 		is.close();
 
-		VkShaderModuleCreateInfo shaderModuleCreateInfo{};
-		shaderModuleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-		shaderModuleCreateInfo.codeSize = size;
-		shaderModuleCreateInfo.pCode = (uint32*)shaderCode;
-
-		_vk_try(vkCreateShaderModule(m_device, &shaderModuleCreateInfo, m_allocator->GetVkAllocator(), OutShaderModule));
+		this->CreateShaderModule(OutShaderModule, (uint32*)shaderCode, size);
 
 		delete[] shaderCode;
 	}
@@ -1272,7 +1267,7 @@ void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 		// Pipeline Layout.
 		 
 
-		this->CreatePipelineLayout();
+		// this->CreatePipelineLayout();
 	}
 
 

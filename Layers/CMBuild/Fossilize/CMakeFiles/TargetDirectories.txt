@@ -1,7 +1,0 @@
-C:/0A-Work/Mines/Repos/vk/vk_app/Layers/Build/Fossilize/CMakeFiles/INSTALL.dir
-C:/0A-Work/Mines/Repos/vk/vk_app/Layers/Build/Fossilize/CMakeFiles/miniz.dir
-C:/0A-Work/Mines/Repos/vk/vk_app/Layers/Build/Fossilize/CMakeFiles/fossilize.dir
-C:/0A-Work/Mines/Repos/vk/vk_app/Layers/Build/Fossilize/CMakeFiles/ALL_BUILD.dir
-C:/0A-Work/Mines/Repos/vk/vk_app/Layers/Build/Fossilize/CMakeFiles/ZERO_CHECK.dir
-C:/0A-Work/Mines/Repos/vk/vk_app/Layers/Build/Fossilize/layer/CMakeFiles/VkLayer_fossilize.dir
-C:/0A-Work/Mines/Repos/vk/vk_app/Layers/Build/Fossilize/layer/CMakeFiles/INSTALL.dir

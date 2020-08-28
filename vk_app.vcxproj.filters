@@ -269,6 +269,9 @@
     <ClInclude Include="ThirdParty\iniparser\ini.hpp">
       <Filter>ThirdParty\iniparser</Filter>
     </ClInclude>
+    <ClInclude Include="Core\SPVParser.h">
+      <Filter>Core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
