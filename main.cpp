@@ -2,7 +2,7 @@
 // main.cpp
 //
 
-#if 0
+#if 1
 
  #include "Core/TypeDef.h"
  #include "vk_app.h"
@@ -23,7 +23,7 @@
 
 #pragma region Fossilize Test
 
-#if 1
+#if 0
 
 #ifndef VK_LAYER_fossilize
 #define VK_LAYER_fossilize "VK_LAYER_fossilize"
