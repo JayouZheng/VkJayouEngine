@@ -5,6 +5,18 @@
 #include "BaseLayer.h"
 #include "Global.h"
 
+#if VK_USE_PLATFORM_WIN32_KHR
+
+// Enable run-time memory check for debug builds.
+#if defined(DEBUG) || defined(_DEBUG)
+
+#define _CRTDBG_MAP_ALLOC
+#include <crtdbg.h>
+
+#endif
+
+#endif
+
 BaseLayer::BaseLayer()
 {
 
@@ -23,6 +35,13 @@ BaseLayer::~BaseLayer()
 
 void BaseLayer::Init()
 {
+	// Enable run-time memory check for debug builds.
+#if defined(DEBUG) | defined(_DEBUG)
+	_CrtSetDbgFlag(_CRTDBG_LEAK_CHECK_DF | _CRTDBG_ALLOC_MEM_DF);
+#endif
+
+	CachedModulePath();
+
 	// Global Variable.
 	uint32 numEnableExts   = _array_size(BaseLayerConfig::EnableExtensions);
 	uint32 numEnableLayers = _array_size(BaseLayerConfig::EnableLayers);
@@ -370,6 +389,48 @@ void BaseLayer::Init()
 		//m_window->Show();
 	}
 
+}
+
+void BaseLayer::CachedModulePath()
+{
+#if VK_USE_PLATFORM_WIN32_KHR
+
+	std::string modulePath = ""; // It needs to be left empty here.
+	std::string moduleName = "null";
+
+	char exePath[_max_path];
+
+	GetModuleFileNameA(NULL, exePath, _max_path);
+
+	modulePath = std::string(exePath);
+	std::string::size_type found = modulePath.find_last_of("\\/");
+	if (found != std::string::npos)
+	{
+		moduleName = modulePath.substr(found + 1);
+		modulePath = modulePath.substr(0, found + 1);
+	}
+
+	// Add path that will remove form modulePath.
+	std::vector<std::string> deleteDirs =
+	{
+		"x64\\Debug\\",
+		"x64\\Release\\"
+	};
+
+	for (auto& dir : deleteDirs)
+	{
+		found = std::string::npos;
+		found = modulePath.rfind(dir);
+		if (found != std::string::npos)
+			modulePath.erase(found, dir.size());
+	}
+
+	Global::ModuleInfo moduleInfo;
+	moduleInfo.Path = modulePath;
+	moduleInfo.Name = moduleName;
+	Global::CacheModuleInfo(moduleInfo);
+
+#endif
 }
 
 void BaseLayer::Free()

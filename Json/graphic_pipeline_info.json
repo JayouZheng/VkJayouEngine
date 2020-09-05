@@ -8,7 +8,7 @@
                 {
                     "stage_flags": 0,
                     "stage_type":      "vertex",
-                    "stage_code_path": "Core/Shaders/triangle.vert.spv",
+                    "stage_code_path": "Core/Shaders/triangle.vert",
                     "entrypoint":      "main",
                     "specialization_constants": [ 0.235, 60, false ]
                 }

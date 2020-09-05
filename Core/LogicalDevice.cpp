@@ -3,6 +3,8 @@
 //
 
 #include "BaseLayer.h"
+#include "JsonParser.h"
+#include "GLSLCompiler.h"
 
 LogicalDevice::LogicalDevice(const VkDevice& InDevice)
 	: m_device(InDevice)
@@ -155,6 +157,10 @@ void LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const ch
 		char* shaderCode = new char[size];
 		is.read(shaderCode, size);
 		is.close();
+
+		GLSLCompiler compiler;
+		compiler.CompileShader(Util::GetShaderStage("vertex"), InShaderPath);
+		GLSLCompiler::SPVData spvData = compiler.GetDuplicatedSPVData();
 
 		this->CreateShaderModule(OutShaderModule, (uint32*)shaderCode, size);
 

@@ -3,6 +3,7 @@ x64/
 Debug/
 Release/
 Texture/
+VTune Profiler Results/
 
 # Other files and folders
 .vs/

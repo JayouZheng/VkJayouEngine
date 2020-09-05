@@ -7,16 +7,17 @@
 
 namespace
 {
-	static VkInstance     g_instance         = VK_NULL_HANDLE;
-	static VkDevice       g_device           = VK_NULL_HANDLE;
+	static VkInstance               g_instance         = VK_NULL_HANDLE;
+	static VkDevice                 g_device           = VK_NULL_HANDLE;
 
-	static BaseAllocator* g_allocator        = nullptr;
+	static BaseAllocator*           g_allocator        = nullptr;
 
-	static uint32         g_count            = _count_0;
-	static bool           g_bDestroyManually = false;
+	static uint32                   g_count            = _count_0;
+	static bool                     g_bDestroyManually = false;
 
+	static Global::ModuleInfo       g_moduleInfo       = { "", "null" };
 
-	static std::vector<std::string>          g_logs;
+	static std::vector<std::string> g_logs;
 
 
 	const std::unordered_map<std::string, VkShaderStageFlagBits> ShaderStageMap =
@@ -309,6 +310,21 @@ void Global::ApplicationDestroyManually(bool InFlag)
 bool Global::IsDestroyManually()
 {
 	return g_bDestroyManually;
+}
+
+void Global::CacheModuleInfo(const ModuleInfo& InModuleInfo)
+{
+	g_moduleInfo = InModuleInfo;
+}
+
+std::string Global::GetModulePath()
+{
+	return g_moduleInfo.Path;
+}
+
+std::string Global::GetModuleName()
+{
+	return g_moduleInfo.Name;
 }
 
 void Global::CacheLog(const std::string& InLog)

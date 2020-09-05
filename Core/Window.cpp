@@ -3,7 +3,7 @@
 //
 
 #include "Window.h"
-#include "Common.h"
+#include "Global.h"
 
 #if VK_USE_PLATFORM_WIN32_KHR
 

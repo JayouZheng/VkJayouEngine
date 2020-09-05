@@ -34,6 +34,9 @@
     <ClCompile Include="ThirdParty\jsoncpp\src\lib_json\json_writer.cpp">
       <Filter>ThirdParty\jsoncpp\src</Filter>
     </ClCompile>
+    <ClCompile Include="Core\StringManager.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="vk_app.h" />
@@ -269,7 +272,16 @@
     <ClInclude Include="ThirdParty\iniparser\ini.hpp">
       <Filter>ThirdParty\iniparser</Filter>
     </ClInclude>
-    <ClInclude Include="Core\SPVParser.h">
+    <ClInclude Include="Core\GLSLCompiler.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\ModuleLoader.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\JsonParser.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\StringManager.h">
       <Filter>Core</Filter>
     </ClInclude>
   </ItemGroup>

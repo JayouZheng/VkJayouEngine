@@ -132,6 +132,7 @@ public:
 public:
 
 	void Init();
+	void CachedModulePath();
 
 private:
 

@@ -5,32 +5,43 @@
 #pragma once
 
 #include "Common.h"
+#include "JsonParser.h"
 
 class BaseAllocator;
 
 namespace Global
 {
-	VkInstance          GetVkInstance();
-	void                SetVkInstance(const VkInstance& InInstance);
+	struct ModuleInfo
+	{
+		std::string Path;
+		std::string Name;
+	};
 
-	VkDevice            GetVkDevice();
-	void                SetVkDevice(const VkDevice& InDevice);
+	VkInstance              GetVkInstance();
+	void                    SetVkInstance(const VkInstance& InInstance);
 
-	void                Decrease();
-	void                Advance();
+	VkDevice                GetVkDevice();
+	void                    SetVkDevice(const VkDevice& InDevice);
 
-	bool                IsZero();
+	void                    Decrease();
+	void                    Advance();
 
-	void                ApplicationDestroyManually(bool InFlag);
-	bool                IsDestroyManually();
+	bool                    IsZero();
 
-	void                CacheLog(const std::string& InLog);
-	void                PrintLog();
+	void                    ApplicationDestroyManually(bool InFlag);
+	bool                    IsDestroyManually();
 
-	BaseAllocator*           GetAllocator();
-	VkAllocationCallbacks*   GetVkAllocator();
-	void                     SetAllocator(BaseAllocator* InAllocator);
-	void                     SafeFreeAllocator();
+	void                    CacheModuleInfo(const ModuleInfo& InModuleInfo);
+	std::string             GetModulePath();
+	std::string             GetModuleName();
+
+	void                    CacheLog(const std::string& InLog);
+	void                    PrintLog();
+
+	BaseAllocator*          GetAllocator();
+	VkAllocationCallbacks*  GetVkAllocator();
+	void                    SetAllocator(BaseAllocator* InAllocator);
+	void                    SafeFreeAllocator();
 
 	template<typename T>
 	bool IsVkGuaranteedMinimum(T InValue, T InMinimum)
@@ -44,9 +55,9 @@ namespace VkColor
 	const float Black[4] = { 0.0f,0.0f,0.0f,1.0f };
 	const float White[4] = { 1.0f,1.0f,1.0f,1.0f };
 
-	const float Red[4] = { 1.0f,0.0f,0.0f,1.0f };
+	const float Red  [4] = { 1.0f,0.0f,0.0f,1.0f };
 	const float Green[4] = { 0.0f,1.0f,0.0f,1.0f };
-	const float Blue[4] = { 0.0f,0.0f,1.0f,1.0f };
+	const float Blue [4] = { 0.0f,0.0f,1.0f,1.0f };
 }
 
 namespace Util
@@ -131,3 +142,16 @@ namespace Util
 
 	uint32 StringToHex(const std::string& InHexStr);
 }
+
+#define _return_log(log) { Global::CacheLog(log); return; }
+#define _breturn_log(b, log) if (b) { Global::CacheLog(log); return; }
+#define _returnx_log(ret, log) { Global::CacheLog(log); return ret; }
+#define _breturnx_log(b, ret, log) if(b) { Global::CacheLog(log); return ret; }
+
+#define _bcontinue_log(b, log) if (b) { Global::CacheLog(log); continue; }
+#define _bbreak_log(b, log) if (b) { Global::CacheLog(log); break; }
+
+#define _bexit_log(b, log) if(b) { Global::CacheLog(log); exit(1); }
+
+
+#define _is_guaranteed_min(x, min_val, y) { if (Global::IsVkGuaranteedMinimum<uint32>(x, min_val)) x = std::min(x, y); }
