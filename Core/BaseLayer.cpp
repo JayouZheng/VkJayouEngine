@@ -17,6 +17,11 @@
 
 #endif
 
+VkAllocationCallbacks* BaseLayer::GetVkAllocator() const
+{
+	return m_allocator != nullptr ? m_allocator->GetVkAllocator() : nullptr;
+}
+
 BaseLayer::BaseLayer()
 {
 
@@ -118,7 +123,7 @@ void BaseLayer::Init()
 		}
 
 		VkInstance vkInstance = VK_NULL_HANDLE;
-		_vk_try(vkCreateInstance(&instanceCreateInfo, m_allocator->GetVkAllocator(), &vkInstance));
+		_vk_try(vkCreateInstance(&instanceCreateInfo, GetVkAllocator(), &vkInstance));
 		Global::SetVkInstance(vkInstance);
 
 		// Enum physical devices.
@@ -282,7 +287,7 @@ void BaseLayer::Init()
 			deviceCreateInfo.ppEnabledExtensionNames = numPDSupportExts > 0 ? m_supportPDExts.data() : nullptr;
 		}
 
-		_vk_try(vkCreateDevice(m_physicalDevices[m_mainPDIndex], &deviceCreateInfo, m_allocator->GetVkAllocator(), m_device.GetAddressOfVkDevice()));
+		_vk_try(vkCreateDevice(m_physicalDevices[m_mainPDIndex], &deviceCreateInfo, GetVkAllocator(), m_device.GetAddressOfVkDevice()));
 		m_device.SetBaseLayer(this);
 		m_device.SetAllocator(m_allocator);
 		Global::SetVkDevice(m_device.GetVkDevice());
@@ -306,7 +311,7 @@ void BaseLayer::Init()
 			win32SurfaceCreateInfo.hinstance = (HINSTANCE)m_window->GetHinstance();
 			win32SurfaceCreateInfo.hwnd = (HWND)m_window->GetHwnd();
 
-			_vk_try(vkCreateWin32SurfaceKHR(Global::GetVkInstance(), &win32SurfaceCreateInfo, m_allocator->GetVkAllocator(), &m_surface));
+			_vk_try(vkCreateWin32SurfaceKHR(Global::GetVkInstance(), &win32SurfaceCreateInfo, GetVkAllocator(), m_pSurface.MakeInstance()));
 		}
 		
 #endif
@@ -315,7 +320,7 @@ void BaseLayer::Init()
 		if (Util::IsVecContain<const char*>(m_supportPDExts, VK_KHR_SWAPCHAIN_EXTENSION_NAME, _lambda_is_cstr_equal))
 		{
 			m_swapchainCreateInfo.sType                 = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-			m_swapchainCreateInfo.surface               = m_surface;
+			m_swapchainCreateInfo.surface               = *m_pSurface;
 			m_swapchainCreateInfo.imageArrayLayers      = 1;        // Only 1 Layer.
 			m_swapchainCreateInfo.imageSharingMode      = VK_SHARING_MODE_EXCLUSIVE;
 			m_swapchainCreateInfo.queueFamilyIndexCount = 0;
@@ -327,11 +332,11 @@ void BaseLayer::Init()
 			// Check Support Surface Format For Swapchain.
 			{
 				uint32 formatCount = _count_0;
-				_vk_try(vkGetPhysicalDeviceSurfaceFormatsKHR(m_physicalDevices[m_mainPDIndex], m_surface, &formatCount, nullptr));
+				_vk_try(vkGetPhysicalDeviceSurfaceFormatsKHR(m_physicalDevices[m_mainPDIndex], *m_pSurface, &formatCount, nullptr));
 				_bexit_log(formatCount == 0, "No Surface Format Support!");
 
 				m_surfaceFormats.resize(formatCount);
-				_vk_try(vkGetPhysicalDeviceSurfaceFormatsKHR(m_physicalDevices[m_mainPDIndex], m_surface, &formatCount, m_surfaceFormats.data()));
+				_vk_try(vkGetPhysicalDeviceSurfaceFormatsKHR(m_physicalDevices[m_mainPDIndex], *m_pSurface, &formatCount, m_surfaceFormats.data()));
 
 				m_swapchainCreateInfo.imageFormat = m_surfaceFormats.front().format;
 				m_swapchainCreateInfo.imageColorSpace = m_surfaceFormats.front().colorSpace;
@@ -345,7 +350,7 @@ void BaseLayer::Init()
 
 			// Query Surface Capabilities.
 			{
-				_vk_try(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_physicalDevices[m_mainPDIndex], m_surface, &m_surfaceCapabilities));
+				_vk_try(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_physicalDevices[m_mainPDIndex], *m_pSurface, &m_surfaceCapabilities));
 
 				m_swapchainCreateInfo.imageExtent = m_surfaceCapabilities.currentExtent;
 
@@ -376,7 +381,7 @@ void BaseLayer::Init()
 			// This Code May Be Redundant... Win32 Surface Presentation Support Has Been Queried.
 			{
 				VkBool32 surfacePresentationSupport = VK_FALSE;
-				_vk_try(vkGetPhysicalDeviceSurfaceSupportKHR(m_physicalDevices[m_mainPDIndex], m_mainQFIndex, m_surface, &surfacePresentationSupport));
+				_vk_try(vkGetPhysicalDeviceSurfaceSupportKHR(m_physicalDevices[m_mainPDIndex], m_mainQFIndex, *m_pSurface, &surfacePresentationSupport));
 				_bexit_log(surfacePresentationSupport == VK_FALSE, "The Default Queue Do Not Support Presentation!");
 			}
 			

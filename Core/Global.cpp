@@ -349,7 +349,7 @@ BaseAllocator* Global::GetAllocator()
 
 VkAllocationCallbacks* Global::GetVkAllocator()
 {
-	return g_allocator->GetVkAllocator();
+	return g_allocator != nullptr ? g_allocator->GetVkAllocator() : nullptr;
 }
 
 void Global::SetAllocator(BaseAllocator* InAllocator)

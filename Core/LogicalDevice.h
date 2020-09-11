@@ -179,6 +179,8 @@ protected:
 	VkSmartPtr<VkCommandPool>    m_pCmdPool  = nullptr;
 	VkSmartPtr<VkDescriptorPool> m_pDescPool = nullptr;
 
+	VkAllocationCallbacks* GetVkAllocator() const;
+
 public:
 
 	LogicalDevice() = delete;

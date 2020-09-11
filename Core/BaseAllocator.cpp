@@ -6,12 +6,12 @@
 
 BaseAllocator::BaseAllocator()
 {
-	m_allocator.pUserData = (void*)this;
-	m_allocator.pfnAllocation = &BaseAllocator::_Allocation;
-	m_allocator.pfnReallocation = &BaseAllocator::_Reallocation;
-	m_allocator.pfnFree = &BaseAllocator::_Free;
-	m_allocator.pfnInternalAllocation = nullptr;
-	m_allocator.pfnInternalFree = nullptr;
+	m_allocator.pUserData             = (void*)this;
+	m_allocator.pfnAllocation         = &BaseAllocator::_Allocation;
+	m_allocator.pfnReallocation       = &BaseAllocator::_Reallocation;
+	m_allocator.pfnFree               = &BaseAllocator::_Free;
+	m_allocator.pfnInternalAllocation = nullptr; //&BaseAllocator::_InternalAllocation;
+	m_allocator.pfnInternalFree       = nullptr; //&BaseAllocator::_InternalFree;
 }
 
 BaseAllocator::~BaseAllocator()
@@ -49,7 +49,17 @@ void VKAPI_CALL BaseAllocator::_Free(
 	void* pUserData,
 	void* pMemory)
 {
-	return static_cast<BaseAllocator*>(pUserData)->Free(pMemory);
+	static_cast<BaseAllocator*>(pUserData)->Free(pMemory);
+}
+
+void VKAPI_CALL BaseAllocator::_InternalAllocation(void* pUserData, size_t size, VkInternalAllocationType allocationType, VkSystemAllocationScope allocationScope)
+{
+	static_cast<BaseAllocator*>(pUserData)->InternalAllocation(size, allocationType, allocationScope);
+}
+
+void VKAPI_CALL BaseAllocator::_InternalFree(void* pUserData, size_t size, VkInternalAllocationType allocationType, VkSystemAllocationScope allocationScope)
+{
+	static_cast<BaseAllocator*>(pUserData)->InternalFree(size, allocationType, allocationScope);
 }
 
 #pragma endregion

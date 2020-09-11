@@ -4,6 +4,14 @@
 
 #include "app_allocator.h"
 
+namespace
+{
+	size_t GetAlignedSize(size_t InSize, size_t InAlignment)
+	{
+		return 0;
+	}
+}
+
 app_allocator::app_allocator()
 {
 

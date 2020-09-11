@@ -63,6 +63,8 @@ private:
 
 	BaseAllocator* m_allocator = nullptr;
 
+	VkAllocationCallbacks* GetVkAllocator() const;
+
 protected:
 
 	// Physical device infos.
@@ -109,8 +111,6 @@ protected:
 	LogicalDevice  m_device  = _nullptr;
 	CommandQueue   m_queue   = nullptr;
 
-	VkSurfaceKHR   m_surface = VK_NULL_HANDLE;
-
 	int32                                             m_mainPDIndex = -1;
 	int32                                             m_mainQFIndex = -1;
 	
@@ -118,6 +118,7 @@ protected:
 
 protected:
 
+	VkSmartPtr<VkSurfaceKHR>                          m_pSurface      = nullptr;
 	VkSmartPtr<VkSwapchainKHR>                        m_pSwapchainKHR = nullptr;
 
 	// Swapchain Image.

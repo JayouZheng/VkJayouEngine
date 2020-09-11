@@ -21,7 +21,7 @@ private:
 
 	virtual void* Reallocation(void* pOriginal, size_t size, size_t alignment, VkSystemAllocationScope allocationScope) override;
 
-	virtual void Free(void* pMemory) override;
+	virtual void  Free(void* pMemory) override;
 
 private:
 

@@ -6,6 +6,11 @@
 #include "JsonParser.h"
 #include "GLSLCompiler.h"
 
+VkAllocationCallbacks* LogicalDevice::GetVkAllocator() const
+{
+	return m_allocator != nullptr ? m_allocator->GetVkAllocator() : nullptr;
+}
+
 LogicalDevice::LogicalDevice(const VkDevice& InDevice)
 	: m_device(InDevice)
 {
@@ -108,10 +113,9 @@ uint32 LogicalDevice::GetSwapchainNextImageKHR(VkSwapchainKHR InSwapchain, uint6
 	return nextImageIndex;
 }
 
-
 void LogicalDevice::CreateCommandPool(const VkCommandPoolCreateInfo& InCreateInfo)
 {
-	_vk_try(vkCreateCommandPool(m_device, &InCreateInfo, m_allocator->GetVkAllocator(), m_pCmdPool.MakeInstance()));
+	_vk_try(vkCreateCommandPool(m_device, &InCreateInfo, GetVkAllocator(), m_pCmdPool.MakeInstance()));
 }
 
 void LogicalDevice::CreateCommandPool(uint32 InQueueFamilyIndex, VkCommandPoolCreateFlags InFlags /*= VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT*/)
@@ -121,17 +125,17 @@ void LogicalDevice::CreateCommandPool(uint32 InQueueFamilyIndex, VkCommandPoolCr
 	cmdPoolCreateInfo.flags = InFlags;
 	cmdPoolCreateInfo.queueFamilyIndex = InQueueFamilyIndex;
 
-	_vk_try(vkCreateCommandPool(m_device, &cmdPoolCreateInfo, m_allocator->GetVkAllocator(), m_pCmdPool.MakeInstance()));
+	_vk_try(vkCreateCommandPool(m_device, &cmdPoolCreateInfo, GetVkAllocator(), m_pCmdPool.MakeInstance()));
 }
 
 void LogicalDevice::CreateSwapchainKHR(VkSwapchainKHR* OutSwapchain, const VkSwapchainCreateInfoKHR& InCreateInfo)
 {
-	_vk_try(vkCreateSwapchainKHR(m_device, &InCreateInfo, m_allocator->GetVkAllocator(), OutSwapchain));
+	_vk_try(vkCreateSwapchainKHR(m_device, &InCreateInfo, GetVkAllocator(), OutSwapchain));
 }
 
 void LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const VkShaderModuleCreateInfo& InCreateInfo)
 {
-	_vk_try(vkCreateShaderModule(m_device, &InCreateInfo, m_allocator->GetVkAllocator(), OutShaderModule));
+	_vk_try(vkCreateShaderModule(m_device, &InCreateInfo, GetVkAllocator(), OutShaderModule));
 }
 
 void LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const uint32* InCodes, size_t InCodeSize)
@@ -141,7 +145,7 @@ void LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const ui
 	shaderModuleCreateInfo.codeSize = InCodeSize;
 	shaderModuleCreateInfo.pCode = InCodes;
 
-	_vk_try(vkCreateShaderModule(m_device, &shaderModuleCreateInfo, m_allocator->GetVkAllocator(), OutShaderModule));
+	_vk_try(vkCreateShaderModule(m_device, &shaderModuleCreateInfo, GetVkAllocator(), OutShaderModule));
 }
 
 void LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const char* InShaderPath)
@@ -175,7 +179,7 @@ void LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const ch
 
 void LogicalDevice::CreateComputePipelines(VkPipeline* OutPipeline, const VkComputePipelineCreateInfo* InCreateInfos, uint32 InCreateInfoCount /*= _count_1*/, VkPipelineCache InPipCache /*= VK_NULL_HANDLE*/)
 {
-	_vk_try(vkCreateComputePipelines(m_device, InPipCache, InCreateInfoCount, InCreateInfos, m_allocator->GetVkAllocator(), OutPipeline));
+	_vk_try(vkCreateComputePipelines(m_device, InPipCache, InCreateInfoCount, InCreateInfos, GetVkAllocator(), OutPipeline));
 }
 
 void LogicalDevice::CreateComputePipeline(VkPipeline* OutPipeline, VkPipelineLayout InPipLayout, VkShaderModule InShaderModule, const char* InShaderEntryName /*= "main"*/, const VkSpecializationInfo* InSpecialConstInfo /*= nullptr*/, VkPipelineCache InPipCache /*= VK_NULL_HANDLE*/)
@@ -194,7 +198,7 @@ void LogicalDevice::CreateComputePipeline(VkPipeline* OutPipeline, VkPipelineLay
 	pipCSCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
 	pipCSCreateInfo.basePipelineIndex  = -1;
 
-	_vk_try(vkCreateComputePipelines(m_device, InPipCache, _count_1, &pipCSCreateInfo, m_allocator->GetVkAllocator(), OutPipeline));
+	_vk_try(vkCreateComputePipelines(m_device, InPipCache, _count_1, &pipCSCreateInfo, GetVkAllocator(), OutPipeline));
 }
 
 void LogicalDevice::CreateComputePipelines(VkPipeline* OutPipeline, const SPipelineComputeDesc* InDescs, uint32 InDescCount/*= _count_1*/, VkPipelineCache InPipCache /*= VK_NULL_HANDLE*/)
@@ -217,13 +221,13 @@ void LogicalDevice::CreateComputePipelines(VkPipeline* OutPipeline, const SPipel
 		pPipCSCreateInfos[i].basePipelineIndex  = InDescs[i].BasePipelineIndex;
 	}
 
-	_vk_try(vkCreateComputePipelines(m_device, InPipCache, InDescCount, pPipCSCreateInfos, m_allocator->GetVkAllocator(), OutPipeline));
+	_vk_try(vkCreateComputePipelines(m_device, InPipCache, InDescCount, pPipCSCreateInfos, GetVkAllocator(), OutPipeline));
 	delete[] pPipCSCreateInfos;
 }
 
 void LogicalDevice::CreatePipelineCache(VkPipelineCache* OutPipCache, const VkPipelineCacheCreateInfo& InCreateInfo)
 {
-	_vk_try(vkCreatePipelineCache(m_device, &InCreateInfo, m_allocator->GetVkAllocator(), OutPipCache));
+	_vk_try(vkCreatePipelineCache(m_device, &InCreateInfo, GetVkAllocator(), OutPipCache));
 }
 
 void LogicalDevice::CreatePipelineCache(VkPipelineCache* OutPipCache, const VkPhysicalDeviceProperties& InPDProp)
@@ -235,7 +239,7 @@ void LogicalDevice::CreatePipelineCache(VkPipelineCache* OutPipCache, const VkPh
 	pipCacheCreateInfo.initialDataSize = pipCacheHeader.GetDataSize();
 	pipCacheCreateInfo.pInitialData    = pipCacheHeader.GetData();
 
-	_vk_try(vkCreatePipelineCache(m_device, &pipCacheCreateInfo, m_allocator->GetVkAllocator(), OutPipCache));
+	_vk_try(vkCreatePipelineCache(m_device, &pipCacheCreateInfo, GetVkAllocator(), OutPipCache));
 }
 
 size_t LogicalDevice::GetPipelineCacheDataSize(VkPipelineCache InPipCache)
@@ -324,7 +328,7 @@ void LogicalDevice::MergePipelineCaches(VkPipelineCache OutMergedPipCache, const
 
 void LogicalDevice::CreateDescriptorSetLayout(VkDescriptorSetLayout* OutLayout, const VkDescriptorSetLayoutCreateInfo& InCreateInfo)
 {
-	_vk_try(vkCreateDescriptorSetLayout(m_device, &InCreateInfo, m_allocator->GetVkAllocator(), OutLayout));
+	_vk_try(vkCreateDescriptorSetLayout(m_device, &InCreateInfo, GetVkAllocator(), OutLayout));
 }
 
 void LogicalDevice::CreateDescriptorSetLayout(VkDescriptorSetLayout* OutLayout, const VkDescriptorSetLayoutBinding* InBindings, uint32 InBindingCount)
@@ -334,7 +338,7 @@ void LogicalDevice::CreateDescriptorSetLayout(VkDescriptorSetLayout* OutLayout, 
 	descSetLayoutCreateInfo.bindingCount = InBindingCount;
 	descSetLayoutCreateInfo.pBindings    = InBindings;
 
-	_vk_try(vkCreateDescriptorSetLayout(m_device, &descSetLayoutCreateInfo, m_allocator->GetVkAllocator(), OutLayout));
+	_vk_try(vkCreateDescriptorSetLayout(m_device, &descSetLayoutCreateInfo, GetVkAllocator(), OutLayout));
 }
 
 void LogicalDevice::CreateSingleDescriptorLayout(VkDescriptorSetLayout* OutLayout, VkDescriptorType InDescType, VkShaderStageFlags InShaderStage, const VkSampler* InImmutableSamplers /*= nullptr*/)
@@ -351,12 +355,12 @@ void LogicalDevice::CreateSingleDescriptorLayout(VkDescriptorSetLayout* OutLayou
 	descSetLayoutCreateInfo.bindingCount = _count_1;
 	descSetLayoutCreateInfo.pBindings    = &descSetLayoutBinding;
 
-	_vk_try(vkCreateDescriptorSetLayout(m_device, &descSetLayoutCreateInfo, m_allocator->GetVkAllocator(), OutLayout));
+	_vk_try(vkCreateDescriptorSetLayout(m_device, &descSetLayoutCreateInfo, GetVkAllocator(), OutLayout));
 }
 
 void LogicalDevice::CreatePipelineLayout(VkPipelineLayout* OutLayout, const VkPipelineLayoutCreateInfo& InCreateInfo)
 {
-	_vk_try(vkCreatePipelineLayout(m_device, &InCreateInfo, m_allocator->GetVkAllocator(), OutLayout));
+	_vk_try(vkCreatePipelineLayout(m_device, &InCreateInfo, GetVkAllocator(), OutLayout));
 }
 
 void LogicalDevice::CreatePipelineLayout(VkPipelineLayout* OutLayout, const VkDescriptorSetLayout* InDescSetLayouts, uint32 InSetCount /*= _count_1*/, const VkPushConstantRange* InPushConstants /*= nullptr*/, uint32 InConstCount /*= _count_0*/)
@@ -368,12 +372,12 @@ void LogicalDevice::CreatePipelineLayout(VkPipelineLayout* OutLayout, const VkDe
 	pipLayoutCreateInfo.pushConstantRangeCount = ((InPushConstants != nullptr) && (InConstCount == 0)) ? _count_1 : InConstCount;
 	pipLayoutCreateInfo.pPushConstantRanges    = InPushConstants;
 
-	_vk_try(vkCreatePipelineLayout(m_device, &pipLayoutCreateInfo, m_allocator->GetVkAllocator(), OutLayout));
+	_vk_try(vkCreatePipelineLayout(m_device, &pipLayoutCreateInfo, GetVkAllocator(), OutLayout));
 }
 
 void LogicalDevice::CreateDescriptorPool(const VkDescriptorPoolCreateInfo& InCreateInfo)
 {
-	_vk_try(vkCreateDescriptorPool(m_device, &InCreateInfo, m_allocator->GetVkAllocator(), m_pDescPool.MakeInstance()));
+	_vk_try(vkCreateDescriptorPool(m_device, &InCreateInfo, GetVkAllocator(), m_pDescPool.MakeInstance()));
 }
 
 void LogicalDevice::CreateDescriptorPool(uint32 InMaxSets, const VkDescriptorPoolSize* InPerDescTypeCounts, uint32 InDescTypeCount)
@@ -384,7 +388,7 @@ void LogicalDevice::CreateDescriptorPool(uint32 InMaxSets, const VkDescriptorPoo
 	descPoolCreateInfo.poolSizeCount = InDescTypeCount;
 	descPoolCreateInfo.pPoolSizes    = InPerDescTypeCounts;
 
-	_vk_try(vkCreateDescriptorPool(m_device, &descPoolCreateInfo, m_allocator->GetVkAllocator(), m_pDescPool.MakeInstance()));
+	_vk_try(vkCreateDescriptorPool(m_device, &descPoolCreateInfo, GetVkAllocator(), m_pDescPool.MakeInstance()));
 }
 
 void LogicalDevice::AllocatorDescriptorSets(VkDescriptorSet* OutDescSet, const VkDescriptorSetAllocateInfo& InAllocateInfo)
@@ -506,7 +510,7 @@ void LogicalDevice::CopyDescriptorSet(VkDescriptorSet InSrcSet, uint32 InSrcBind
 
 void LogicalDevice::CreateSampler(VkSampler* OutSampler, const VkSamplerCreateInfo& InCreateInfo)
 {
-	_vk_try(vkCreateSampler(m_device, &InCreateInfo, m_allocator->GetVkAllocator(), OutSampler));
+	_vk_try(vkCreateSampler(m_device, &InCreateInfo, GetVkAllocator(), OutSampler));
 }
 
 void LogicalDevice::CreatePointWrapSampler(VkSampler* OutSampler)
@@ -529,7 +533,7 @@ void LogicalDevice::CreatePointWrapSampler(VkSampler* OutSampler)
 	samplerCreateInfo.borderColor             = VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK; // It does not matter.
 	samplerCreateInfo.unnormalizedCoordinates = VK_FALSE;
 
-	_vk_try(vkCreateSampler(m_device, &samplerCreateInfo, m_allocator->GetVkAllocator(), OutSampler));
+	_vk_try(vkCreateSampler(m_device, &samplerCreateInfo, GetVkAllocator(), OutSampler));
 }
 
 void LogicalDevice::CreatePointClampSampler(VkSampler* OutSampler)
@@ -552,7 +556,7 @@ void LogicalDevice::CreatePointClampSampler(VkSampler* OutSampler)
 	samplerCreateInfo.borderColor             = VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK; // It does not matter.
 	samplerCreateInfo.unnormalizedCoordinates = VK_FALSE;
 
-	_vk_try(vkCreateSampler(m_device, &samplerCreateInfo, m_allocator->GetVkAllocator(), OutSampler));
+	_vk_try(vkCreateSampler(m_device, &samplerCreateInfo, GetVkAllocator(), OutSampler));
 }
 
 void LogicalDevice::CreateLinearWrapSampler(VkSampler* OutSampler)
@@ -575,7 +579,7 @@ void LogicalDevice::CreateLinearWrapSampler(VkSampler* OutSampler)
 	samplerCreateInfo.borderColor             = VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK; // It does not matter.
 	samplerCreateInfo.unnormalizedCoordinates = VK_FALSE;
 
-	_vk_try(vkCreateSampler(m_device, &samplerCreateInfo, m_allocator->GetVkAllocator(), OutSampler));
+	_vk_try(vkCreateSampler(m_device, &samplerCreateInfo, GetVkAllocator(), OutSampler));
 }
 
 void LogicalDevice::CreateLinearClampSampler(VkSampler* OutSampler)
@@ -598,7 +602,7 @@ void LogicalDevice::CreateLinearClampSampler(VkSampler* OutSampler)
 	samplerCreateInfo.borderColor             = VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK; // It does not matter.
 	samplerCreateInfo.unnormalizedCoordinates = VK_FALSE;
 
-	_vk_try(vkCreateSampler(m_device, &samplerCreateInfo, m_allocator->GetVkAllocator(), OutSampler));
+	_vk_try(vkCreateSampler(m_device, &samplerCreateInfo, GetVkAllocator(), OutSampler));
 }
 
 void LogicalDevice::CreateAnisotropicWrapSampler(VkSampler* OutSampler)
@@ -629,7 +633,7 @@ void LogicalDevice::CreateAnisotropicWrapSampler(VkSampler* OutSampler)
 	samplerCreateInfo.borderColor             = VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK; // It does not matter.
 	samplerCreateInfo.unnormalizedCoordinates = VK_FALSE;
 
-	_vk_try(vkCreateSampler(m_device, &samplerCreateInfo, m_allocator->GetVkAllocator(), OutSampler));
+	_vk_try(vkCreateSampler(m_device, &samplerCreateInfo, GetVkAllocator(), OutSampler));
 }
 
 void LogicalDevice::CreateAnisotropicClampSampler(VkSampler* OutSampler)
@@ -660,7 +664,7 @@ void LogicalDevice::CreateAnisotropicClampSampler(VkSampler* OutSampler)
 	samplerCreateInfo.borderColor             = VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK; // It does not matter.
 	samplerCreateInfo.unnormalizedCoordinates = VK_FALSE;
 
-	_vk_try(vkCreateSampler(m_device, &samplerCreateInfo, m_allocator->GetVkAllocator(), OutSampler));
+	_vk_try(vkCreateSampler(m_device, &samplerCreateInfo, GetVkAllocator(), OutSampler));
 }
 
 void LogicalDevice::CreatePCFSampler(VkSampler* OutSampler)
@@ -683,12 +687,12 @@ void LogicalDevice::CreatePCFSampler(VkSampler* OutSampler)
 	samplerCreateInfo.borderColor             = VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK;
 	samplerCreateInfo.unnormalizedCoordinates = VK_FALSE;
 
-	_vk_try(vkCreateSampler(m_device, &samplerCreateInfo, m_allocator->GetVkAllocator(), OutSampler));
+	_vk_try(vkCreateSampler(m_device, &samplerCreateInfo, GetVkAllocator(), OutSampler));
 }
 
 void LogicalDevice::CreateRenderPass(VkRenderPass* OutRenderPass, const VkRenderPassCreateInfo& InCreateInfo)
 {
-	_vk_try(vkCreateRenderPass(m_device, &InCreateInfo, m_allocator->GetVkAllocator(), OutRenderPass));
+	_vk_try(vkCreateRenderPass(m_device, &InCreateInfo, GetVkAllocator(), OutRenderPass));
 }
 
 void LogicalDevice::CreateSingleRenderPass(VkRenderPass* OutRenderPass, VkFormat InColorFormat, VkFormat InDepthFormat)
@@ -760,7 +764,7 @@ void LogicalDevice::CreateSingleRenderPass(VkRenderPass* OutRenderPass, VkFormat
 	renderPassInfo.dependencyCount = static_cast<uint32_t>(dependencies.size());
 	renderPassInfo.pDependencies   = dependencies.data();
 
-	_vk_try(vkCreateRenderPass(m_device, &renderPassInfo, m_allocator->GetVkAllocator(), OutRenderPass));
+	_vk_try(vkCreateRenderPass(m_device, &renderPassInfo, GetVkAllocator(), OutRenderPass));
 }
 
 void LogicalDevice::CreateFrameBuffer(VkFramebuffer* OutFrameBuffer, const VkFramebufferCreateInfo& InCreateInfo)
@@ -777,7 +781,7 @@ void LogicalDevice::CreateFrameBuffer(VkFramebuffer* OutFrameBuffer, const VkFra
 	_is_guaranteed_min(frameBufferCreateInfo.height, 4096, m_baseLayer->GetMainPDLimits().maxFramebufferHeight);
 	_is_guaranteed_min(frameBufferCreateInfo.layers, 256,  m_baseLayer->GetMainPDLimits().maxFramebufferLayers);
 
-	_vk_try(vkCreateFramebuffer(m_device, &frameBufferCreateInfo, m_allocator->GetVkAllocator(), OutFrameBuffer));
+	_vk_try(vkCreateFramebuffer(m_device, &frameBufferCreateInfo, GetVkAllocator(), OutFrameBuffer));
 }
 
 void LogicalDevice::CreateFrameBuffer(VkFramebuffer* OutFrameBuffer, VkRenderPass InRenderPass, const VkImageView* InImageViews, uint32 InViewCount, VkExtent3D InSize)
@@ -801,12 +805,12 @@ void LogicalDevice::CreateFrameBuffer(VkFramebuffer* OutFrameBuffer, VkRenderPas
 	_is_guaranteed_min(frameBufferCreateInfo.height, 4096, m_baseLayer->GetMainPDLimits().maxFramebufferHeight);
 	_is_guaranteed_min(frameBufferCreateInfo.layers, 256,  m_baseLayer->GetMainPDLimits().maxFramebufferLayers);
 
-	_vk_try(vkCreateFramebuffer(m_device, &frameBufferCreateInfo, m_allocator->GetVkAllocator(), OutFrameBuffer));
+	_vk_try(vkCreateFramebuffer(m_device, &frameBufferCreateInfo, GetVkAllocator(), OutFrameBuffer));
 }
 
 void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const VkGraphicsPipelineCreateInfo* InCreateInfos, uint32 InCreateInfoCount /*= _count_1*/, VkPipelineCache InPipCache /*= VK_NULL_HANDLE*/)
 {
-	_vk_try(vkCreateGraphicsPipelines(m_device, InPipCache, InCreateInfoCount, InCreateInfos, m_allocator->GetVkAllocator(), OutPipeline));
+	_vk_try(vkCreateGraphicsPipelines(m_device, InPipCache, InCreateInfoCount, InCreateInfos, GetVkAllocator(), OutPipeline));
 }
 
 void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const SPipelineGraphicDesc* InDescs, uint32 InDescCount /*= _count_1*/, VkPipelineCache InPipCache /*= VK_NULL_HANDLE*/)
@@ -908,7 +912,7 @@ void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const SPipel
 		InDesc.BasePipelineIndex// basePipelineIndex
 	};
 
-	_vk_try(vkCreateGraphicsPipelines(m_device, InPipCache, _count_1, &graphicsPipelineCreateInfo, m_allocator->GetVkAllocator(), OutPipeline));
+	_vk_try(vkCreateGraphicsPipelines(m_device, InPipCache, _count_1, &graphicsPipelineCreateInfo, GetVkAllocator(), OutPipeline));
 }
 
 void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::string& InJsonPath, VkPipelineCache InPipCache)
@@ -972,14 +976,14 @@ void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 		{
 			auto& shaderInfo = bIsArray ? graphicInfo["pipeline_stages_infos"][j] : graphicInfo["pipeline_stages_infos"];
 
-			VkShaderModule shaderModule;
-			this->CreateShaderModule(&shaderModule, _jget_cstring(shaderInfo["stage_code_path"]));
+			VkSmartPtr<VkShaderModule> pShaderModule;
+			this->CreateShaderModule(pShaderModule.MakeInstance(), _jget_cstring(shaderInfo["stage_code_path"]));
 
 			pShaderInfos[j].sType  = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 			pShaderInfos[j].pNext  = nullptr;
 			pShaderInfos[j].flags  = _jget_uint(shaderInfo["stage_flags"]);
 			pShaderInfos[j].stage  = Util::GetShaderStage(_jget_string(shaderInfo["stage_type"]));
-			pShaderInfos[j].module = shaderModule;
+			pShaderInfos[j].module = *pShaderModule;
 			pShaderInfos[j].pName  = _jget_cstring_default(shaderInfo["entrypoint"], "main");
 			pShaderInfos[j].pSpecializationInfo = &specInfo;
 			
@@ -1279,7 +1283,7 @@ void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 
 
 
-	// _vk_try(vkCreateGraphicsPipelines(m_device, InPipCache, numGInfo, pGraphicInfos, m_allocator->GetVkAllocator(), OutPipeline));
+	// _vk_try(vkCreateGraphicsPipelines(m_device, InPipCache, numGInfo, pGraphicInfos, GetVkAllocator(), OutPipeline));
 
 	// TODO:
 

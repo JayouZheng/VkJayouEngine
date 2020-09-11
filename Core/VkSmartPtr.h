@@ -125,7 +125,7 @@ private:
 #ifdef _vk_destroy
 #undef _vk_destroy
 #endif
-#define _vk_destroy(object) if (std::is_same<Vk##object, T>::value) vkDestroy##object(Global::GetVkDevice(), (Vk##object)*_ptr, Global::GetVkAllocator())
+#define _vk_destroy(object) if (std::is_same<Vk##object, T>::value) { vkDestroy##object(Global::GetVkDevice(), (Vk##object)*_ptr, Global::GetVkAllocator()); Global::CacheLog("_vk_destroy: " + _str_name_of(object)); }
 
 		if (_ptr != nullptr)
 		{
@@ -150,6 +150,13 @@ private:
 
 			// Using Semaphore...
 			_vk_destroy(SwapchainKHR);
+			
+			// Using VkInstance...
+			if (std::is_same<VkSurfaceKHR, T>::value) 
+			{
+				vkDestroySurfaceKHR(Global::GetVkInstance(), (VkSurfaceKHR)*_ptr, Global::GetVkAllocator());
+				Global::CacheLog("_vk_destroy: " + _str_name_of(VkSurfaceKHR));
+			}
 
 			delete _ptr;
 		}
@@ -161,6 +168,7 @@ private:
 			vkDestroyDevice(Global::GetVkDevice(), Global::GetVkAllocator());
 			vkDestroyInstance(Global::GetVkInstance(), Global::GetVkAllocator());
 			Global::SafeFreeAllocator();
+			Global::PrintLog();
 		}
 		
 	}
