@@ -51,10 +51,9 @@ public:
 	template<typename T>
 	static std::vector<T> WStringToArray(const std::wstring& wstr, const wchar_t& separator);
 
-	static bool SplitFileNameAndExtFromPathW(const std::wstring& InPath, std::wstring& OutName, std::wstring& OutExt, std::wstring* OutPath = nullptr);
 
-	static std::string GetExtFromFilePath(const std::string& InPath);
-
+	template<typename TString = std::string>
+	static bool ExtractFilePath(const TString& InPath, TString* OutName = nullptr, TString* OutExt = nullptr, TString* OutDir = nullptr);
 };
 
 template<typename T>
@@ -89,6 +88,45 @@ StringUtil::WStringToArray(const std::wstring& wstr, const wchar_t& separator)
 		temp_array.push_back(temp);
 	}
 	return temp_array;
+}
+
+template<typename TString>
+bool StringUtil::ExtractFilePath(const TString& InPath, TString* OutName, TString* OutExt, TString* OutDir)
+{
+	TString constStr[2];
+	if (std::is_same<std::wstring, TString>::value)
+	{
+		constStr[0] = L"/\\";
+		constStr[1] = L".";
+	}
+	else
+	{
+		constStr[0] = "/\\";
+		constStr[1] = ".";
+	}
+
+	typename TString::size_type found1, found2;
+
+	found1 = InPath.find_last_of(constStr[0]);
+
+	if (found1 != TString::npos)
+	{
+		if (OutDir != nullptr) *OutDir = InPath.substr(0, found1);
+
+		TString file = InPath.substr(found1 + 1);
+
+		found2 = file.find_last_of(constStr[1]);
+
+		if (found2 != TString::npos)
+		{
+			if (OutName != nullptr) OutName = file.substr(0, found2);
+			if (OutExt  != nullptr) OutExt  = file.substr(found2 + 1);
+
+			return true;
+		}
+		return false;
+	}
+	return false;
 }
 
 wchar_t const* const WCharDigitTables[] =

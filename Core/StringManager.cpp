@@ -278,31 +278,3 @@ std::wstring StringUtil::WFindFirstBetween(const std::wstring& wstr, const std::
 
 	return L"404 Not Found.";
 }
-
-bool StringUtil::SplitFileNameAndExtFromPathW(const std::wstring& InPath, std::wstring& OutName, std::wstring& OutExt, std::wstring* OutPath)
-{
-	std::wstring::size_type found1, found2;
-
-	found1 = InPath.find_last_of(L"/\\");
-
-	if (found1 != std::wstring::npos)
-	{
-		if (OutPath != nullptr)
-		{
-			*OutPath = InPath.substr(0, found1);
-		}
-		std::wstring file = InPath.substr(found1 + 1);
-
-		found2 = file.find_last_of(L".");
-
-		if (found2 != std::wstring::npos)
-		{
-			OutName = file.substr(0, found2);
-			OutExt  = file.substr(found2 + 1);
-
-			return true;
-		}
-		return false;
-	}
-	return false;
-}
