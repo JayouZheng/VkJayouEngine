@@ -6,6 +6,8 @@
 #include "Platform.h"
 #include <clocale>
 
+#if VK_USE_PLATFORM_WIN32_KHR
+
 std::wstring StringUtil::StringToWString(const std::string& str)
 {
 	int bufferlen = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, NULL, 0);
@@ -36,38 +38,39 @@ std::wstring StringUtil::AnsiToWString(const std::string& str)
 	return wstr;
 }
 
-std::string StringUtil::WStringToStringV2(const std::wstring& wstr)
+std::string StringUtil::WStringToAnsi(const std::wstring& wstr)
 {
-	std::setlocale(LC_ALL, "");
-	const std::locale locale("");
-	typedef std::codecvt<wchar_t, char, std::mbstate_t> converter_type;
-	const converter_type& converter = std::use_facet<converter_type>(locale);
-	std::vector<char> to(wstr.length() * converter.max_length());
-	std::mbstate_t state;
-	const wchar_t* from_next;
-	char* to_next;
-	const converter_type::result result = converter.out(state, wstr.data(), wstr.data() + wstr.length(), from_next, &to[0], &to[0] + to.size(), to_next);
-	if (result == converter_type::ok || result == converter_type::noconv)
-		return std::string(&to[0], to_next);
-	else return "convert_error";
+	int bufferlen = WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), -1, NULL, 0, NULL, NULL);
+	char* buffer = new char[bufferlen];
+	WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), -1, buffer, bufferlen, NULL, NULL);
+	std::string str(buffer);
+	delete[] buffer;
+	return str;
 }
 
-int32 StringUtil::WCharToInt32(wchar_t wch)
-{
-	int32 result = -1;
+#else
 
-	for (wchar_t const* const* p = std::begin(WCharDigitTables);
-		p != std::end(WCharDigitTables) && result == -1;
-		++p)
-	{
-		wchar_t const* q = std::find(*p, *p + 10, wch);
-		if (q != *p + 10)
-		{
-			result = int32(q - *p);
-		}
-	}
-	return result;
+std::wstring StringUtil::StringToWString(const std::string& str)
+{
+	return _wstr_null;
 }
+
+std::string StringUtil::WStringToString(const std::wstring& wstr)
+{
+	return _str_null;
+}
+
+std::wstring StringUtil::AnsiToWString(const std::string& str)
+{
+	return _wstr_null;
+}
+
+std::string StringUtil::WStringToAnsi(const std::wstring& wstr)
+{
+	return _str_null
+}
+
+#endif
 
 std::vector<std::string> StringUtil::GetBetween(const std::string& str, const std::string& boundary)
 {
@@ -83,6 +86,30 @@ std::vector<std::string> StringUtil::GetBetween(const std::string& str, const st
 			if (found2 != std::string::npos)
 			{
 				temp.push_back(str.substr(found1 + boundary.size(), found2 - found1 - boundary.size()));
+				found1 = found2 + 1;
+			}
+			else break;
+		}
+		else break;
+	}
+
+	return temp;
+}
+
+std::vector<std::string> StringUtil::GetBetween(const std::string& str, const std::string& bound1, const std::string& bound2)
+{
+	std::vector<std::string> temp;
+	std::string::size_type found1 = 0, found2;
+
+	while (true)
+	{
+		found1 = str.find(bound1, found1);
+		if (found1 != std::string::npos)
+		{
+			found2 = str.find(bound2, found1 + bound1.size());
+			if (found2 != std::string::npos)
+			{
+				temp.push_back(str.substr(found1 + bound1.size(), found2 - found1 - bound1.size()));
 				found1 = found2 + 1;
 			}
 			else break;
@@ -139,6 +166,40 @@ std::vector<std::wstring> StringUtil::WGetBetween(const std::wstring& wstr, cons
 	}
 
 	return temp;
+}
+
+std::string StringUtil::GetFirstBetween(const std::string& str, const std::string& boundary)
+{
+	std::string::size_type found1, found2;
+
+	found1 = str.find(boundary, _offset_0);
+	if (found1 != std::string::npos)
+	{
+		found2 = str.find(boundary, found1 + boundary.size());
+		if (found2 != std::string::npos)
+		{
+			return str.substr(found1 + boundary.size(), found2 - found1 - boundary.size());
+		}
+	}
+
+	return _str_null;
+}
+
+std::wstring StringUtil::WGetFirstBetween(const std::wstring& wstr, const std::wstring& boundary)
+{
+	std::wstring::size_type found1, found2;
+
+	found1 = wstr.find(boundary, _offset_0);
+	if (found1 != std::wstring::npos)
+	{
+		found2 = wstr.find(boundary, found1 + boundary.size());
+		if (found2 != std::wstring::npos)
+		{
+			return wstr.substr(found1 + boundary.size(), found2 - found1 - boundary.size());
+		}
+	}
+
+	return _wstr_null;
 }
 
 std::vector<std::string> StringUtil::RemoveBetween(std::string& str, const std::string& boundary)
@@ -261,20 +322,87 @@ void StringUtil::WEraseAll(std::wstring& wstr, const std::wstring& wstr_erase)
 	}
 }
 
-std::wstring StringUtil::WFindFirstBetween(const std::wstring& wstr, const std::wstring& boundary, std::wstring::size_type& find_end, std::wstring::size_type offet /*= 0*/)
+std::string StringUtil::WStringToStringV2(const std::wstring& wstr)
 {
-	std::wstring::size_type found1 = 0, found2;
+	std::setlocale(LC_ALL, "");
+	const std::locale locale("");
+	typedef std::codecvt<wchar_t, char, std::mbstate_t> converter_type;
+	const converter_type& converter = std::use_facet<converter_type>(locale);
+	std::vector<char> to(wstr.length() * converter.max_length());
+	std::mbstate_t state;
+	const wchar_t* from_next;
+	char* to_next;
+	const converter_type::result result = converter.out(state, wstr.data(), wstr.data() + wstr.length(), from_next, &to[0], &to[0] + to.size(), to_next);
+	if (result == converter_type::ok || result == converter_type::noconv)
+		return std::string(&to[0], to_next);
+	else return _str_null;
+}
 
-	found1 = wstr.find(boundary, offet);
+int32 StringUtil::WCharToInt32(wchar_t wch)
+{
+	int32 result = -1;
+
+	for (wchar_t const* const* p = std::begin(WCharDigitTables);
+		p != std::end(WCharDigitTables) && result == -1;
+		++p)
+	{
+		wchar_t const* q = std::find(*p, *p + 10, wch);
+		if (q != *p + 10)
+		{
+			result = int32(q - *p);
+		}
+	}
+	return result;
+}
+
+bool StringUtil::ExtractFilePath(const std::string& InPath, std::string* OutName, std::string* OutExt, std::string* OutDir)
+{
+	std::string::size_type found1, found2;
+
+	found1 = InPath.find_last_of("/\\");
+
+	if (found1 != std::string::npos)
+	{
+		if (OutDir != nullptr) *OutDir = InPath.substr(0, found1);
+
+		std::string file = InPath.substr(found1 + 1);
+
+		found2 = file.find_last_of(".");
+
+		if (found2 != std::string::npos)
+		{
+			if (OutName != nullptr) *OutName = file.substr(0, found2);
+			if (OutExt != nullptr) *OutExt = file.substr(found2 + 1);
+
+			return true;
+		}
+		return false;
+	}
+	return false;
+}
+
+bool StringUtil::WExtractFilePath(const std::wstring& InPath, std::wstring* OutName, std::wstring* OutExt, std::wstring* OutDir)
+{
+	std::wstring::size_type found1, found2;
+
+	found1 = InPath.find_last_of(L"/\\");
+
 	if (found1 != std::wstring::npos)
 	{
-		found2 = wstr.find(boundary, found1 + boundary.size());
+		if (OutDir != nullptr) *OutDir = InPath.substr(0, found1);
+
+		std::wstring file = InPath.substr(found1 + 1);
+
+		found2 = file.find_last_of(L".");
+
 		if (found2 != std::wstring::npos)
 		{
-			find_end = found2 + boundary.size();
-			return wstr.substr(found1 + boundary.size(), found2 - found1 - boundary.size());			
-		}		
-	}
+			if (OutName != nullptr) *OutName = file.substr(0, found2);
+			if (OutExt != nullptr) *OutExt = file.substr(found2 + 1);
 
-	return L"404 Not Found.";
+			return true;
+		}
+		return false;
+	}
+	return false;
 }

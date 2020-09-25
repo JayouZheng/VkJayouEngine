@@ -6,6 +6,8 @@
 #include "JsonParser.h"
 #include "GLSLCompiler.h"
 
+#include "StringManager.h"
+
 VkAllocationCallbacks* LogicalDevice::GetVkAllocator() const
 {
 	return m_allocator != nullptr ? m_allocator->GetVkAllocator() : nullptr;
@@ -165,6 +167,9 @@ void LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const ch
 		GLSLCompiler compiler;
 		compiler.CompileShader(Util::GetShaderStage("vertex"), InShaderPath);
 		GLSLCompiler::SPVData spvData = compiler.GetDuplicatedSPVData();
+
+		std::string name, ext, dir;
+		StringUtil::ExtractFilePath(std::string(InShaderPath), &name, &ext, &dir);
 
 		this->CreateShaderModule(OutShaderModule, (uint32*)shaderCode, size);
 

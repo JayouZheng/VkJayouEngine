@@ -66,6 +66,11 @@
 #define _false             0
 #define _true              1
 
+#define _str_null          "NULL"
+#define _wstr_null         L"NULL"
+
+#define _numeric_max(Type)  std::numeric_limits<Type>::max()
+
 
 #include "vulkan/vk_platform.h"
 

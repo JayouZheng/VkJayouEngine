@@ -130,9 +130,9 @@ public:
 
 private:
 
-    ModuleLoader m_module;
+    ModuleLoader               m_module;
     PFGetGLSLCompilerInterface m_interface = nullptr;
 
-    GLSLCompilerInterface* m_compiler = nullptr;
-    SPVData* m_spvData;
+    GLSLCompilerInterface*     m_compiler  = nullptr;
+    SPVData*                   m_spvData   = nullptr;
 };
