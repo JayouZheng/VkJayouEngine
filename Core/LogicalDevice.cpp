@@ -152,33 +152,54 @@ void LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const ui
 
 void LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const char* InShaderPath)
 {
-	std::ifstream is(InShaderPath, std::ios::binary | std::ios::in | std::ios::ate);
+	std::string name, ext, dir;
+	StringUtil::ExtractFilePath(std::string(InShaderPath), &name, &ext, &dir);
 
-	if (is.is_open())
+	if (ext != "spv")
 	{
-		size_t size = is.tellg();
-		_breturn_log(size == -1, _str_name_of(CreateShaderModule) + ", file size go to -1(at std::istream::tellg)!");
-
-		is.seekg(0, std::ios::beg);
-		char* shaderCode = new char[size];
-		is.read(shaderCode, size);
-		is.close();
-
 		GLSLCompiler compiler;
-		compiler.CompileShader(Util::GetShaderStage("vertex"), InShaderPath);
+		compiler.CompileShader(Util::GetShaderStage(ext), InShaderPath);
 		GLSLCompiler::SPVData spvData = compiler.GetDuplicatedSPVData();
 
-		std::string name, ext, dir;
-		StringUtil::ExtractFilePath(std::string(InShaderPath), &name, &ext, &dir);
+		if (spvData.result)
+		{
+			this->CreateShaderModule(OutShaderModule, spvData.spv_data, spvData.spv_length);
+		}
+		else
+		{
+			*OutShaderModule = VK_NULL_HANDLE;
+			Global::CacheLog(spvData.log);
+			Global::CacheLog(spvData.debug_log);
+			_return_log("Error: Compiling shader file \"" + std::string(InShaderPath) + "\" failed!");
+		}
 
-		this->CreateShaderModule(OutShaderModule, (uint32*)shaderCode, size);
-
-		delete[] shaderCode;
+		spvData.input;
+		spvData.output;
+		spvData.resource;
 	}
 	else
 	{
-		*OutShaderModule = VK_NULL_HANDLE;
-		_return_log("Error: Could not open shader file \"" + std::string(InShaderPath) + "\"");
+		std::ifstream is(InShaderPath, std::ios::binary | std::ios::in | std::ios::ate);
+
+		if (is.is_open())
+		{
+			size_t size = is.tellg();
+			_breturn_log(size == -1, _str_name_of(CreateShaderModule) + ", file size go to -1(at std::istream::tellg)!");
+
+			is.seekg(0, std::ios::beg);
+			char* shaderCode = new char[size];
+			is.read(shaderCode, size);
+			is.close();
+
+			this->CreateShaderModule(OutShaderModule, (uint32*)shaderCode, size);
+
+			delete[] shaderCode;
+		}
+		else
+		{
+			*OutShaderModule = VK_NULL_HANDLE;
+			_return_log("Error: Could not open shader file \"" + std::string(InShaderPath) + "\"");
+		}
 	}
 }
 
@@ -923,31 +944,32 @@ void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const SPipel
 void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::string& InJsonPath, VkPipelineCache InPipCache)
 {
 	if (OutPipeline != nullptr) *OutPipeline = VK_NULL_HANDLE;
+
 	Json::Value root;
 	_breturn_log(!Util::ParseJson(InJsonPath, root), _str_name_of(CreateGraphicPipelines) + " Failed! Not Valid File Path!");
 
 	_jverify_return_log(root["graphic_pipeline_infos"], "json file: [graphic_pipeline_infos] can not be null!");
 	
-	bool bIsArray   = root["graphic_pipeline_infos"].isArray();
+	bool   bIsArray = root["graphic_pipeline_infos"].isArray();
 	uint32 numGInfo = bIsArray ? root["graphic_pipeline_infos"].size() : _count_1;
-
-	VkGraphicsPipelineCreateInfo*    pGraphicInfos = _safe_new(VkGraphicsPipelineCreateInfo, numGInfo);
-	VkPipelineShaderStageCreateInfo* pShaderInfos  = nullptr;;
-	VkSpecializationMapEntry*        pSpecMaps     = nullptr;
-	uint32*                          pSpecData     = nullptr;
-	VkSpecializationInfo             specInfo      = {};
-
-	VkPipelineVertexInputStateCreateInfo vertexInputStateInfo   = {};
-	VkVertexInputBindingDescription*     pVertexInputBindings    = nullptr;
-	VkVertexInputAttributeDescription*   pVertexInputAttributes = nullptr;
-
-	VkPipelineInputAssemblyStateCreateInfo pipelineIAStateInfo       = GConfig::Pipeline::DefaultInputAssemblyStateInfo;
-	VkPipelineTessellationStateCreateInfo  pipelineTessStateInfo     = GConfig::Pipeline::DefaultTessellationStateInfo;
-	VkPipelineViewportStateCreateInfo      pipelineViewportStateInfo = GConfig::Pipeline::DefaultViewportStateInfo;
 
 	VkViewport currentViewport = {};
 	VkRect2D   currentScissor  = {};
 	this->SetViewport(currentViewport, currentScissor, m_window->GetWindowDesc().Width, m_window->GetWindowDesc().Height);
+
+	VkGraphicsPipelineCreateInfo*          pGraphicInfos                 = _safe_new(VkGraphicsPipelineCreateInfo, numGInfo);
+	VkPipelineShaderStageCreateInfo*       pShaderInfos                  = nullptr;;
+	VkSpecializationMapEntry*              pSpecMaps                     = nullptr;
+	uint32*                                pSpecData                     = nullptr;
+	VkSpecializationInfo                   specInfo                      = {};
+
+	VkPipelineVertexInputStateCreateInfo   vertexInputStateInfo          = {};
+	VkVertexInputBindingDescription*       pVertexInputBindings          = nullptr;
+	VkVertexInputAttributeDescription*     pVertexInputAttributes        = nullptr;
+
+	VkPipelineInputAssemblyStateCreateInfo pipelineIAStateInfo           = GConfig::Pipeline::DefaultInputAssemblyStateInfo;
+	VkPipelineTessellationStateCreateInfo  pipelineTessStateInfo         = GConfig::Pipeline::DefaultTessellationStateInfo;
+	VkPipelineViewportStateCreateInfo      pipelineViewportStateInfo     = GConfig::Pipeline::DefaultViewportStateInfo;
 
 	VkPipelineRasterizationStateCreateInfo pipelineRSStateInfo           = GConfig::Pipeline::DefaultRasterizationStateInfo;
 	VkPipelineMultisampleStateCreateInfo   pipelineMultisampleStateInfo  = GConfig::Pipeline::DefaultMultisampleStateInfo;
@@ -958,6 +980,8 @@ void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 	VkPipelineDynamicStateCreateInfo       pipelineDynamicStateInfo      = GConfig::Pipeline::DefaultDynamicStateInfo;
 	VkDynamicState*                        pDynamicStates                = nullptr;
 	VkPipelineLayoutCreateInfo             pipelineLayoutInfo            = {};
+
+	VkPipelineLayout                       pipelineLayout                = VK_NULL_HANDLE;                             
 
 	for (uint32 i = 0; i < numGInfo; i++)
 	{
@@ -1279,10 +1303,8 @@ void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 			pipelineDynamicStateInfo.pDynamicStates    = pDynamicStates;
 		}
 
-		// Pipeline Layout.
-		 
-
-		// this->CreatePipelineLayout();
+		// Pipeline Layout.	 
+		// this->CreatePipelineLayout()
 	}
 
 

@@ -123,15 +123,15 @@ namespace Util
 		return false;
 	}
 
-	void PrintArgs(const char* InFormat); // base function
+	inline void PrintArgs(const char* InFormat) { std::cout << InFormat; } // Base function
 
 	template<typename T, typename... Targs>
-	void PrintArgs(const char* InFormat, T InValue, Targs... InFargs) // recursive variadic function
+	void PrintArgs(const char* InFormat, T InValue, Targs... InFargs)
 	{
 		for (; *InFormat != '\0'; InFormat++) {
 			if (*InFormat == '%') {
 				std::cout << InValue;
-				PrintArgs(InFormat + 1, InFargs...); // recursive call
+				PrintArgs(InFormat + 1, InFargs...); // Recursive call
 				return;
 			}
 			std::cout << *InFormat;
@@ -151,6 +151,7 @@ namespace Util
 #define _bcontinue_log(b, log) if (b) { Global::CacheLog(log); continue; }
 #define _bbreak_log(b, log) if (b) { Global::CacheLog(log); break; }
 
+#define _exit_log(log) { Global::CacheLog(log); exit(1); }
 #define _bexit_log(b, log) if(b) { Global::CacheLog(log); exit(1); }
 
 

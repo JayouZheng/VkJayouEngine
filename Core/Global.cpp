@@ -19,7 +19,9 @@ namespace
 
 	static std::vector<std::string> g_logs;
 
-
+	/// <summary>
+	/// Utility String Map Object Tables.
+	/// </summary>
 	const std::unordered_map<std::string, VkShaderStageFlagBits> ShaderStageMap =
 	{
 		{ "null",                    VK_SHADER_STAGE_VERTEX_BIT                  },
@@ -31,7 +33,15 @@ namespace
 		{ "geometry",                VK_SHADER_STAGE_GEOMETRY_BIT                },
 		{ "compute",                 VK_SHADER_STAGE_COMPUTE_BIT                 },
 		{ "mesh",                    VK_SHADER_STAGE_MESH_BIT_NV                 },
-		{ "raygen",                  VK_SHADER_STAGE_RAYGEN_BIT_NV               }
+		{ "raygen",                  VK_SHADER_STAGE_RAYGEN_BIT_NV               },
+		{ "vert",                    VK_SHADER_STAGE_VERTEX_BIT                  },
+		{ "tesc",                    VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT    },
+		{ "tese",                    VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT },
+		{ "geom",                    VK_SHADER_STAGE_GEOMETRY_BIT                },
+		{ "frag",                    VK_SHADER_STAGE_FRAGMENT_BIT                },
+		{ "comp",                    VK_SHADER_STAGE_COMPUTE_BIT                 },
+		{ "mesh",                    VK_SHADER_STAGE_MESH_BIT_NV                 },
+		{ "rgen",                    VK_SHADER_STAGE_RAYGEN_BIT_NV               }
 	};
 
 	// Key, VkFormat, Size.
@@ -376,8 +386,7 @@ VkShaderStageFlagBits Util::GetShaderStage(const std::string& InKey)
 	}
 	catch (const std::out_of_range& msg)
 	{
-		result = VK_SHADER_STAGE_VERTEX_BIT;
-		_returnx_log(result, std::string(msg.what()) + ", pipeline stage type invalid! default set to \"vertex\"!");
+		_exit_log(std::string(msg.what()) + ", pipeline stage type invalid! exit() was called!");
 	}
 }
 
@@ -604,11 +613,6 @@ VkDynamicState Util::GetDynamicState(const std::string& InKey)
 		result = VK_DYNAMIC_STATE_VIEWPORT;
 		_returnx_log(result, std::string(msg.what()) + ", pipeline dynamic state, state invalid! default set to \"" + Util::DefaultDynamicState + "\"!");
 	}
-}
-
-void Util::PrintArgs(const char* InFormat)
-{
-	std::cout << InFormat;
 }
 
 bool Util::ParseJson(const std::string& InPath, Json::Value& OutRoot)

@@ -12,63 +12,90 @@ class StringUtil
 {
 public:
 
-	static std::wstring              StringToWString   (const std::string& str);
+	// Common utilities.
 
-	static std::string               WStringToString   (const std::wstring& wstr);
+	static std::wstring                StringToWString   (const std::string& str);
 
-	static std::wstring              AnsiToWString     (const std::string& str);
+	static std::string                 WStringToString   (const std::wstring& wstr);
 
-	static std::string               WStringToAnsi     (const std::wstring& wstr);
+	static std::wstring                AnsiToWString     (const std::string& str);
 
-	static std::vector<std::string>  GetBetween        (const std::string& str, const std::string& boundary);
+	static std::string                 WStringToAnsi     (const std::wstring& wstr);
 
-	static std::vector<std::string>  GetBetween        (const std::string& str, const std::string& bound1, const std::string& bound2);
+	static std::vector<std::string>    GetBetween        (const std::string& str, const std::string& boundary);
 
-	static std::vector<std::wstring> WGetBetween       (const std::wstring& wstr, const std::wstring& boundary);
+	static std::vector<std::string>    GetBetween        (const std::string& str, const std::string& bound1, const std::string& bound2);
 
-	static std::vector<std::wstring> WGetBetween       (const std::wstring& wstr, const std::wstring& bound1, const std::wstring& bound2);
+	static std::vector<std::wstring>   WGetBetween       (const std::wstring& wstr, const std::wstring& boundary);
 
-	static std::string               GetFirstBetween   (const std::string& str, const std::string& boundary);
+	static std::vector<std::wstring>   WGetBetween       (const std::wstring& wstr, const std::wstring& bound1, const std::wstring& bound2);
 
-	static std::wstring              WGetFirstBetween  (const std::wstring& wstr, const std::wstring& boundary);
+	static std::string                 GetFirstBetween   (const std::string& str, const std::string& boundary);
 
-	static std::vector<std::string>  RemoveBetween     (std::string& str, const std::string& boundary);
+	static std::wstring                WGetFirstBetween  (const std::wstring& wstr, const std::wstring& boundary);
 
-	static std::vector<std::wstring> WRemoveBetween    (std::wstring& wstr, const std::wstring& boundary);
+	static std::vector<std::string>    RemoveBetween     (std::string& str, const std::string& boundary);
 
-	static std::vector<std::string>  ReplaceBetween    (std::string& str, const std::string& boundary, const std::string& str_replace);
+	static std::vector<std::wstring>   WRemoveBetween    (std::wstring& wstr, const std::wstring& boundary);
 
-	static std::vector<std::wstring> WReplaceBetween   (std::wstring& wstr, const std::wstring& boundary, const std::wstring& wstr_replace);
+	static std::vector<std::string>    ReplaceBetween    (std::string& str, const std::string& boundary, const std::string& str_replace);
 
-	static void                      EraseAll          (std::string& str, const std::string& str_erase);
+	static std::vector<std::wstring>   WReplaceBetween   (std::wstring& wstr, const std::wstring& boundary, const std::wstring& wstr_replace);
 
-	static void                      WEraseAll         (std::wstring& wstr, const std::wstring& wstr_erase);
+	static void                        EraseAll          (std::string& str, const std::string& str_erase);
+
+	static void                        WEraseAll         (std::wstring& wstr, const std::wstring& wstr_erase);
 
 public:
 
-	// Extended utilities...
+	// Extended utilities.
 
-	static std::string               WStringToStringV2 (const std::wstring& wstr);
+	static std::string                 WStringToStringV2 (const std::wstring& wstr);
 
-	static int32                     WCharToInt32      (wchar_t wch);
+	static int32                       WCharToInt32      (wchar_t wch);
 
-	template<typename T> static T    StringToNumeric   (const std::string& str);
+	static bool                        ExtractFilePath   (const std::string& InPath, std::string* OutName = nullptr, std::string* OutExt = nullptr, std::string* OutDir = nullptr);
 
-	template<typename T> static T    WStringToNumeric  (const std::wstring& wstr);
+	static bool                        WExtractFilePath  (const std::wstring& InPath, std::wstring* OutName = nullptr, std::wstring* OutExt = nullptr, std::wstring* OutDir = nullptr);
 
-	template<typename T>
-	static std::vector<T>            StringToArray     (const std::string& str, const char& separator);
+public:
 
-	template<typename T>
-	static std::vector<T>            WStringToArray    (const std::wstring& wstr, const wchar_t& separator);
+	// Template utilities.
 
-	static bool                      ExtractFilePath   (const std::string& InPath, std::string* OutName = nullptr, std::string* OutExt = nullptr, std::string* OutDir = nullptr);
+	template<typename T> static T                                StringToNumeric(const std::string& str);
 
-	static bool                      WExtractFilePath  (const std::wstring& InPath, std::wstring* OutName = nullptr, std::wstring* OutExt = nullptr, std::wstring* OutDir = nullptr);
+	template<typename T> static T                                WStringToNumeric(const std::wstring& wstr);
 
-	// to do...
-	static std::string Printf();
+	template<typename T> static std::vector<T>                   StringToArray(const std::string& str, const char& separator);
+
+	template<typename T> static std::vector<T>                   WStringToArray(const std::wstring& wstr, const wchar_t& separator);
+
+	template<typename T, typename... Targs> static std::string   Printf(const char* InFormat, T InValue, Targs... InArgs);
+
+private:
+
+	// Base function.
+	static inline void Printf(std::ostringstream& OutSStream, const char* InFormat) { OutSStream << InFormat; }
+
+	// Recursive call.
+	template<typename T, typename... Targs>
+	static void Printf(std::ostringstream& OutSStream, const char* InFormat, T InValue, Targs... InArgs)
+	{
+		for (; *InFormat != '\0'; InFormat++)
+		{
+			if (*InFormat == '%')
+			{
+				OutSStream << InValue;
+				StringUtil::Printf(OutSStream, InFormat + 1, InArgs...);
+				return;
+			}
+
+			OutSStream << *InFormat;
+		}
+	}
 };
+
+#pragma region Template Impl
 
 template<typename T>
 T StringUtil::StringToNumeric(const std::string& str)
@@ -136,9 +163,12 @@ std::vector<T> StringUtil::WStringToArray(const std::wstring& wstr, const wchar_
 	return temp_array;
 }
 
-wchar_t const* const WCharDigitTables[] =
+template<typename T, typename ...Targs>
+std::string StringUtil::Printf(const char* InFormat, T InValue, Targs ...InArgs)
 {
-	L"0123456789",
-	L"\u0660\u0661\u0662\u0663\u0664\u0665\u0666\u0667\u0668\u0669",
-	// ...
-};
+	std::ostringstream OutSStream;
+	StringUtil::Printf(OutSStream, InFormat, InValue, InArgs...);
+	return OutSStream.str();
+}
+
+#pragma endregion

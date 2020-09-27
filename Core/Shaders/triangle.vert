@@ -10,6 +10,12 @@ layout (binding = 0) uniform UBO
 	mat4 viewMatrix;
 } ubo;
 
+#define lightCount 6
+
+layout(push_constant) uniform PushConsts {
+	vec4 lightPos[lightCount];
+} pushConsts;
+
 layout (location = 0) out vec3 outColor;
 
 out gl_PerVertex 
