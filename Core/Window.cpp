@@ -235,15 +235,15 @@ Window::Window()
 {
 	// Register class and create window
 	{
-		m_hinstance = GetModuleHandle(NULL);
+		m_pHinstance = GetModuleHandle(NULL);
 
 		// Register class
 		WNDCLASSEXW wcex = {};
 		wcex.cbSize = sizeof(WNDCLASSEXW);
 		wcex.style = CS_HREDRAW | CS_VREDRAW;
 		wcex.lpfnWndProc = WndProc;
-		wcex.hInstance = (HINSTANCE)m_hinstance;
-		wcex.hIcon = LoadIconW((HINSTANCE)m_hinstance, L"IDI_ICON");
+		wcex.hInstance = (HINSTANCE)m_pHinstance;
+		wcex.hIcon = LoadIconW((HINSTANCE)m_pHinstance, L"IDI_ICON");
 		wcex.hCursor = LoadCursorW(nullptr, IDC_ARROW);
 		wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
 		wcex.lpszClassName = L"VkJayouEngineWindowClass";
@@ -260,19 +260,19 @@ Window::Window()
 
 		AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
 
-		m_hwnd = CreateWindowExW(0, L"VkJayouEngineWindowClass", L"VkJayouEngine", WS_OVERLAPPEDWINDOW,
-			CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, (HINSTANCE)m_hinstance, nullptr);
+		m_pHwnd = CreateWindowExW(0, L"VkJayouEngineWindowClass", L"VkJayouEngine", WS_OVERLAPPEDWINDOW,
+			CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, (HINSTANCE)m_pHinstance, nullptr);
 
 		// TODO: Change to CreateWindowExW(WS_EX_TOPMOST, L"JayouEngineWindowClass", L"JayouEngine", WS_POPUP,
 		// to default to fullscreen.
 
-		_bexit_log(!m_hwnd, "Create Window Failed!");
+		_bexit_log(!m_pHwnd, "Create Window Failed!");
 
 		// TODO: Change nCmdShow to SW_SHOWMAXIMIZED to default to fullscreen.
 
 		//SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(m_app.get()));
 
-		//GetClientRect(m_hwnd, &rc);
+		//GetClientRect(m_pHwnd, &rc);
 	}
 }
 
@@ -289,12 +289,12 @@ Window::~Window()
 
 void* Window::GetHinstance() const
 {
-	return m_hinstance;
+	return m_pHinstance;
 }
 
 void* Window::GetHwnd() const
 {
-	return m_hwnd;
+	return m_pHwnd;
 }
 
 Window::WindowDesc Window::GetWindowDesc() const
@@ -309,7 +309,7 @@ void Window::SetWindowDesc(const WindowDesc& InWindoWDesc)
 
 void Window::Show()
 {
-	ShowWindow((HWND)m_hwnd, SW_SHOWNORMAL);
+	ShowWindow((HWND)m_pHwnd, SW_SHOWNORMAL);
 
 	// Main message loop
 	MSG msg = {};

@@ -19,7 +19,7 @@
 
 VkAllocationCallbacks* BaseLayer::GetVkAllocator() const
 {
-	return m_allocator != nullptr ? m_allocator->GetVkAllocator() : nullptr;
+	return m_pAllocator != nullptr ? m_pAllocator->GetVkAllocator() : nullptr;
 }
 
 BaseLayer::BaseLayer()
@@ -28,7 +28,7 @@ BaseLayer::BaseLayer()
 }
 
 BaseLayer::BaseLayer(BaseAllocator* InAllocator)
-	: m_allocator(InAllocator)
+	: m_pAllocator(InAllocator)
 {
 
 }
@@ -289,7 +289,7 @@ void BaseLayer::Init()
 
 		_vk_try(vkCreateDevice(m_physicalDevices[m_mainPDIndex], &deviceCreateInfo, GetVkAllocator(), m_device.GetAddressOfVkDevice()));
 		m_device.SetBaseLayer(this);
-		m_device.SetAllocator(m_allocator);
+		m_device.SetAllocator(m_pAllocator);
 		Global::SetVkDevice(m_device.GetVkDevice());
 		
 		m_queue = m_device.GetQueue(m_mainQFIndex);
@@ -304,12 +304,12 @@ void BaseLayer::Init()
 			VkBool32 bIsDefaultQueueSupportPresentation = vkGetPhysicalDeviceWin32PresentationSupportKHR(m_physicalDevices[m_mainPDIndex], m_mainQFIndex);
 			_bexit_log(bIsDefaultQueueSupportPresentation == VK_FALSE, "The Default Queue Do Not Support Presentation (Win32)!");
 
-			m_window = new Window;
-			m_device.SetWindow(m_window);
+			m_pWindow = new Window;
+			m_device.SetWindow(m_pWindow);
 			VkWin32SurfaceCreateInfoKHR win32SurfaceCreateInfo = {};
 			win32SurfaceCreateInfo.sType = VK_STRUCTURE_TYPE_DISPLAY_SURFACE_CREATE_INFO_KHR;
-			win32SurfaceCreateInfo.hinstance = (HINSTANCE)m_window->GetHinstance();
-			win32SurfaceCreateInfo.hwnd = (HWND)m_window->GetHwnd();
+			win32SurfaceCreateInfo.hinstance = (HINSTANCE)m_pWindow->GetHinstance();
+			win32SurfaceCreateInfo.hwnd = (HWND)m_pWindow->GetHwnd();
 
 			_vk_try(vkCreateWin32SurfaceKHR(Global::GetVkInstance(), &win32SurfaceCreateInfo, GetVkAllocator(), m_pSurface.MakeInstance()));
 		}
@@ -391,7 +391,7 @@ void BaseLayer::Init()
 		// TODO:
 		m_device.CreateGraphicPipelines(nullptr, "Json/graphic_pipeline_info.json");
 		
-		//m_window->Show();
+		//m_pWindow->Show();
 	}
 
 }
@@ -440,7 +440,7 @@ void BaseLayer::CachedModulePath()
 
 void BaseLayer::Free()
 {
-	Global::PrintLog();
+	// Global::PrintLog();
 #if 0
 	if (Global::IsDestroyManually())
 	{

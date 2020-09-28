@@ -72,29 +72,48 @@ public:
     {
         m_module.Load(Global::GetModulePath() + "ThirdParty/CMBuild/GLSLCompiler/GLSLCompiler.dll");
 
-        m_interface = m_module.GetInterface<PFGetGLSLCompilerInterface>("GetInterface");
+        m_pInterface = m_module.GetInterface<PFGetGLSLCompilerInterface>("GetInterface");
 
-        if (m_interface != nullptr)
+        if (m_pInterface != nullptr)
         {
-            m_compiler = m_interface();
-            if (m_compiler != nullptr) m_compiler->Init();
+            m_pCompiler = m_pInterface();
+            if (m_pCompiler != nullptr) m_pCompiler->Init();
         }
     }
 
     ~GLSLCompiler()
     {
-        if (m_compiler != nullptr)
+        if (m_pCompiler != nullptr)
         {
-            if (m_spvData != nullptr) m_compiler->Free(m_spvData);
-            m_compiler->Close();
+            for (auto& pSPVData : m_pSPVData)
+            {
+                if (pSPVData != nullptr)
+                    m_pCompiler->Free(pSPVData);
+            }
+       
+            m_pCompiler->Close();
         }
 
         m_module.Free();
     }
 
+    void FlushSPVData()
+    {
+        if (m_pCompiler != nullptr)
+        {
+            for (auto& pSPVData : m_pSPVData)
+            {
+                if (pSPVData != nullptr)
+                    m_pCompiler->Free(pSPVData);
+            }
+
+            m_pSPVData.clear();
+        }
+    }
+
     void CompileShader(VkShaderStageFlags InStageType, const std::string& InShaderPath)
     {
-        if (m_compiler != nullptr)
+        if (m_pCompiler != nullptr)
         {
             std::ifstream is(InShaderPath, std::ios::binary | std::ios::in | std::ios::ate);
 
@@ -110,7 +129,7 @@ public:
 
                 shaderCode[size] = 0; // End of char* string.
 
-                m_spvData = m_compiler->Compile(InStageType, shaderCode);
+                m_pSPVData.push_back(m_pCompiler->Compile(InStageType, shaderCode));
 
                 delete[] shaderCode;
             }
@@ -118,21 +137,27 @@ public:
         }
     }
 
-    SPVData GetDuplicatedSPVData()
+    bool HasValidSPVData()
     {
-        return m_spvData != nullptr ? *m_spvData : SPVData();
+        return !m_pSPVData.empty() && m_pSPVData[_index_0] != nullptr;
     }
 
-    SPVData* GetSPVData()
+    SPVData* GetLastSPVData()
     {
-        return m_spvData;
+        return m_pSPVData[m_pSPVData.size() - 1];
+    }
+
+    std::vector<SPVData*>& GetAllSPVData()
+    {
+        return m_pSPVData;
     }
 
 private:
 
     ModuleLoader               m_module;
-    PFGetGLSLCompilerInterface m_interface = nullptr;
 
-    GLSLCompilerInterface*     m_compiler  = nullptr;
-    SPVData*                   m_spvData   = nullptr;
+    PFGetGLSLCompilerInterface m_pInterface = nullptr;
+    GLSLCompilerInterface*     m_pCompiler  = nullptr;
+
+    std::vector<SPVData*>      m_pSPVData;
 };

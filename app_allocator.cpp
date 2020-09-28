@@ -3,6 +3,7 @@
 //
 
 #include "app_allocator.h"
+#include "Core/Global.h"
 
 namespace
 {
@@ -19,7 +20,7 @@ app_allocator::app_allocator()
 
 app_allocator::~app_allocator()
 {
-	_cmd_print_line("Alloc: " + std::to_string(m_allocCount) + " Realloc: " + std::to_string(m_reallocCount) + " Free: " + std::to_string(m_freeCount));
+	Global::CacheLog("Alloc: " + std::to_string(m_allocCount) + " Realloc: " + std::to_string(m_reallocCount) + " Free: " + std::to_string(m_freeCount));
 }
 
 void* app_allocator::Allocation(

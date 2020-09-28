@@ -7,6 +7,7 @@
 #include "Common.h"
 #include "VkSmartPtr.h"
 #include "BaseAllocator.h"
+#include "GLSLCompiler.h"
 
 namespace GConfig
 {
@@ -172,9 +173,11 @@ class LogicalDevice
 protected:
 
 	VkDevice        m_device    = VK_NULL_HANDLE;
-	BaseLayer*      m_baseLayer = nullptr;
-	BaseAllocator*  m_allocator = nullptr;
-	Window*         m_window    = nullptr;
+	BaseLayer*      m_pBaseLayer = nullptr;
+	BaseAllocator*  m_pAllocator = nullptr;
+	Window*         m_pWindow    = nullptr;
+
+	GLSLCompiler    m_compiler;
 
 	VkSmartPtr<VkCommandPool>    m_pCmdPool  = nullptr;
 	VkSmartPtr<VkDescriptorPool> m_pDescPool = nullptr;
@@ -183,9 +186,8 @@ protected:
 
 public:
 
-	LogicalDevice() = delete;
+	LogicalDevice() {}
 	LogicalDevice(const VkDevice& InDevice);
-	LogicalDevice(const void* Null);
 	LogicalDevice& operator=(const VkDevice& InDevice);
 
 	virtual ~LogicalDevice() {}
@@ -375,7 +377,7 @@ void LogicalDevice::DestroyVkObject(VkType InObject)
 #ifdef _vk_destroy
 #undef _vk_destroy
 #endif
-#define _vk_destroy(object) if (std::is_same<Vk##object, VkType>::value) vkDestroy##object(m_device, (Vk##object)InObject, m_allocator->GetVkAllocator())
+#define _vk_destroy(object) if (std::is_same<Vk##object, VkType>::value) vkDestroy##object(m_device, (Vk##object)InObject, m_pAllocator->GetVkAllocator())
 	
 	_vk_destroy(Fence);
 	_vk_destroy(Semaphore); // Should Wait for all reference Object freed...

@@ -61,7 +61,7 @@ class BaseLayer
 
 private:
 
-	BaseAllocator* m_allocator = nullptr;
+	BaseAllocator* m_pAllocator = nullptr;
 
 	VkAllocationCallbacks* GetVkAllocator() const;
 
@@ -108,13 +108,13 @@ protected:
 
 protected:
 
-	LogicalDevice  m_device  = _nullptr;
-	CommandQueue   m_queue   = nullptr;
+	LogicalDevice  m_device;
+	CommandQueue   m_queue;
 
 	int32                                             m_mainPDIndex = -1;
 	int32                                             m_mainQFIndex = -1;
 	
-	SmartPtr<Window>                                  m_window = nullptr;
+	SmartPtr<Window>                                  m_pWindow = nullptr;
 
 protected:
 

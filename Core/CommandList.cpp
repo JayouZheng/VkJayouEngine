@@ -5,7 +5,7 @@
 #include "BaseLayer.h"
 
 CommandList::CommandList(BaseLayer* InBaseLayer)
-	: m_baseLayer(InBaseLayer)
+	: m_pBaseLayer(InBaseLayer)
 {
 	m_device = InBaseLayer->GetLogicalDevice().GetVkDevice();
 	m_cmdPool = InBaseLayer->GetLogicalDevice().GetCmdPool();
@@ -279,9 +279,9 @@ void CommandList::BindGraphicPipeline(VkPipeline InPipeline)
 void CommandList::Dispatch(uint32 x, uint32 y, uint32 z)
 {
 	bool bIsOverflow = false;
-	bIsOverflow = bIsOverflow || x > m_baseLayer->GetMainPDLimits().maxComputeWorkGroupCount[0];
-	bIsOverflow = bIsOverflow || y > m_baseLayer->GetMainPDLimits().maxComputeWorkGroupCount[1];
-	bIsOverflow = bIsOverflow || z > m_baseLayer->GetMainPDLimits().maxComputeWorkGroupCount[2];
+	bIsOverflow = bIsOverflow || x > m_pBaseLayer->GetMainPDLimits().maxComputeWorkGroupCount[0];
+	bIsOverflow = bIsOverflow || y > m_pBaseLayer->GetMainPDLimits().maxComputeWorkGroupCount[1];
+	bIsOverflow = bIsOverflow || z > m_pBaseLayer->GetMainPDLimits().maxComputeWorkGroupCount[2];
 	_bexit_log(bIsOverflow, "Compute Dispatch Goes Beyond The Physical Limits!");
 	
 	vkCmdDispatch(m_cmdBuffer, x, y, z);

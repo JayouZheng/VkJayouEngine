@@ -15,7 +15,7 @@ public:
 
 	~ModuleLoader()
 	{
-		if (m_result == _false)
+		if (m_bResult == _false)
 		{
 			Free();
 		}
@@ -25,19 +25,19 @@ public:
 	{
 		m_moduleName = InModuleName;
 #if VK_USE_PLATFORM_WIN32_KHR
-		m_module = LoadLibraryA(InModuleName.c_str());
+		m_pModule = LoadLibraryA(InModuleName.c_str());
 #endif
-		_breturn_log(m_module == nullptr, "Fail to load module [" + InModuleName + "]!");
+		_breturn_log(m_pModule == nullptr, "Fail to load module [" + InModuleName + "]!");
 	}
 
 	void Free()
 	{	
-		if (m_module != nullptr)
+		if (m_pModule != nullptr)
 		{
 #if VK_USE_PLATFORM_WIN32_KHR	
-			m_result = FreeLibrary((HMODULE)m_module);
+			m_bResult = FreeLibrary((HMODULE)m_pModule);
 #endif
-			_breturn_log(m_result == _false, "Fail to free module [" + m_moduleName + "]!");
+			_breturn_log(m_bResult == _false, "Fail to free module [" + m_moduleName + "]!");
 		}
 		else _return_log("Fail to free module [" + m_moduleName + "], the module was not load!");
 	}
@@ -45,11 +45,11 @@ public:
 	template<typename T>
 	T GetInterface(const std::string& InInterfaceName)
 	{
-		if (m_module != nullptr)
+		if (m_pModule != nullptr)
 		{
 #if VK_USE_PLATFORM_WIN32_KHR	
 			T api = nullptr;
-			api = (T)GetProcAddress((HMODULE)m_module, InInterfaceName.c_str());
+			api = (T)GetProcAddress((HMODULE)m_pModule, InInterfaceName.c_str());
 			_breturnx_log(api == nullptr, nullptr, "Fail to find API [" + InInterfaceName + "]!");
 			return api;
 #endif
@@ -62,8 +62,8 @@ public:
 
 private:
 
-	void* m_module = nullptr;
+	void* m_pModule = nullptr;
 	std::string m_moduleName;
 
-	iBool m_result = _false;
+	iBool m_bResult = _false;
 };

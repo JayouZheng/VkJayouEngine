@@ -4,27 +4,18 @@
 
 #include "BaseLayer.h"
 #include "JsonParser.h"
-#include "GLSLCompiler.h"
 
 #include "StringManager.h"
 
 VkAllocationCallbacks* LogicalDevice::GetVkAllocator() const
 {
-	return m_allocator != nullptr ? m_allocator->GetVkAllocator() : nullptr;
+	return m_pAllocator != nullptr ? m_pAllocator->GetVkAllocator() : nullptr;
 }
 
 LogicalDevice::LogicalDevice(const VkDevice& InDevice)
 	: m_device(InDevice)
 {
 
-}
-
-LogicalDevice::LogicalDevice(const void* Null)
-{
-	m_device    = VK_NULL_HANDLE;
-	m_baseLayer = nullptr;
-	m_allocator = nullptr;
-	m_window    = nullptr;
 }
 
 LogicalDevice& LogicalDevice::operator=(const VkDevice& InDevice)
@@ -60,22 +51,22 @@ void LogicalDevice::SetVkDevice(const VkDevice& InDevice)
 
 void LogicalDevice::SetBaseLayer(BaseLayer* InBaseLayer)
 {
-	m_baseLayer = InBaseLayer;
+	m_pBaseLayer = InBaseLayer;
 }
 
 void LogicalDevice::SetAllocator(BaseAllocator* InAllocator)
 {
-	m_allocator = InAllocator;
+	m_pAllocator = InAllocator;
 }
 
 void LogicalDevice::SetWindow(Window* InWindow)
 {
-	m_window = InWindow;
+	m_pWindow = InWindow;
 }
 
 bool LogicalDevice::IsNoneAllocator() const
 {
-	return m_allocator == nullptr;
+	return m_pAllocator == nullptr;
 }
 
 VkCommandPool LogicalDevice::GetCmdPool()
@@ -156,26 +147,21 @@ void LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const ch
 	StringUtil::ExtractFilePath(std::string(InShaderPath), &name, &ext, &dir);
 
 	if (ext != "spv")
-	{
-		GLSLCompiler compiler;
-		compiler.CompileShader(Util::GetShaderStage(ext), InShaderPath);
-		GLSLCompiler::SPVData spvData = compiler.GetDuplicatedSPVData();
+	{		
+		m_compiler.CompileShader(Util::GetShaderStage(ext), InShaderPath);
+		GLSLCompiler::SPVData* spvData = m_compiler.GetLastSPVData();
 
-		if (spvData.result)
+		if (spvData->result)
 		{
-			this->CreateShaderModule(OutShaderModule, spvData.spv_data, spvData.spv_length);
+			this->CreateShaderModule(OutShaderModule, spvData->spv_data, spvData->spv_length);
 		}
 		else
 		{
 			*OutShaderModule = VK_NULL_HANDLE;
-			Global::CacheLog(spvData.log);
-			Global::CacheLog(spvData.debug_log);
+			Global::CacheLog(spvData->log);
+			Global::CacheLog(spvData->debug_log);
 			_return_log("Error: Compiling shader file \"" + std::string(InShaderPath) + "\" failed!");
 		}
-
-		spvData.input;
-		spvData.output;
-		spvData.resource;
 	}
 	else
 	{
@@ -633,13 +619,13 @@ void LogicalDevice::CreateLinearClampSampler(VkSampler* OutSampler)
 
 void LogicalDevice::CreateAnisotropicWrapSampler(VkSampler* OutSampler)
 {
-	if (m_baseLayer == nullptr)
+	if (m_pBaseLayer == nullptr)
 	{
 		OutSampler = VK_NULL_HANDLE;
 		_return_log("Func: " + _str_name_of(CreateAnisotropicWrapSampler) + " expect to Query Physical Device Limits!");
 	}
 
-	float maxAnisotropy = std::min(GConfig::Sampler::MaxAnisotropy, m_baseLayer->GetMainPDLimits().maxSamplerAnisotropy);
+	float maxAnisotropy = std::min(GConfig::Sampler::MaxAnisotropy, m_pBaseLayer->GetMainPDLimits().maxSamplerAnisotropy);
 
 	VkSamplerCreateInfo samplerCreateInfo     = {};
 	samplerCreateInfo.sType                   = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -664,13 +650,13 @@ void LogicalDevice::CreateAnisotropicWrapSampler(VkSampler* OutSampler)
 
 void LogicalDevice::CreateAnisotropicClampSampler(VkSampler* OutSampler)
 {
-	if (m_baseLayer == nullptr)
+	if (m_pBaseLayer == nullptr)
 	{
 		OutSampler = VK_NULL_HANDLE;
 		_return_log("Func: " + _str_name_of(CreateAnisotropicClampSampler) + " expect to Query Physical Device Limits!");
 	}	
 
-	float maxAnisotropy = std::min(GConfig::Sampler::MaxAnisotropy, m_baseLayer->GetMainPDLimits().maxSamplerAnisotropy);
+	float maxAnisotropy = std::min(GConfig::Sampler::MaxAnisotropy, m_pBaseLayer->GetMainPDLimits().maxSamplerAnisotropy);
 
 	VkSamplerCreateInfo samplerCreateInfo     = {};
 	samplerCreateInfo.sType                   = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -795,7 +781,7 @@ void LogicalDevice::CreateSingleRenderPass(VkRenderPass* OutRenderPass, VkFormat
 
 void LogicalDevice::CreateFrameBuffer(VkFramebuffer* OutFrameBuffer, const VkFramebufferCreateInfo& InCreateInfo)
 {
-	if (m_baseLayer == nullptr)
+	if (m_pBaseLayer == nullptr)
 	{
 		OutFrameBuffer = VK_NULL_HANDLE;
 		_return_log("Func: " + _str_name_of(CreateFrameBuffer) + " expect to Query Physical Device Limits!");
@@ -803,16 +789,16 @@ void LogicalDevice::CreateFrameBuffer(VkFramebuffer* OutFrameBuffer, const VkFra
 		
 	VkFramebufferCreateInfo frameBufferCreateInfo = InCreateInfo;
 
-	_is_guaranteed_min(frameBufferCreateInfo.width,  4096, m_baseLayer->GetMainPDLimits().maxFramebufferWidth );
-	_is_guaranteed_min(frameBufferCreateInfo.height, 4096, m_baseLayer->GetMainPDLimits().maxFramebufferHeight);
-	_is_guaranteed_min(frameBufferCreateInfo.layers, 256,  m_baseLayer->GetMainPDLimits().maxFramebufferLayers);
+	_is_guaranteed_min(frameBufferCreateInfo.width,  4096, m_pBaseLayer->GetMainPDLimits().maxFramebufferWidth );
+	_is_guaranteed_min(frameBufferCreateInfo.height, 4096, m_pBaseLayer->GetMainPDLimits().maxFramebufferHeight);
+	_is_guaranteed_min(frameBufferCreateInfo.layers, 256,  m_pBaseLayer->GetMainPDLimits().maxFramebufferLayers);
 
 	_vk_try(vkCreateFramebuffer(m_device, &frameBufferCreateInfo, GetVkAllocator(), OutFrameBuffer));
 }
 
 void LogicalDevice::CreateFrameBuffer(VkFramebuffer* OutFrameBuffer, VkRenderPass InRenderPass, const VkImageView* InImageViews, uint32 InViewCount, VkExtent3D InSize)
 {
-	if (m_baseLayer == nullptr)
+	if (m_pBaseLayer == nullptr)
 	{
 		OutFrameBuffer = VK_NULL_HANDLE;
 		_return_log("Func: " + _str_name_of(CreateFrameBuffer) + " expect to Query Physical Device Limits!");
@@ -827,9 +813,9 @@ void LogicalDevice::CreateFrameBuffer(VkFramebuffer* OutFrameBuffer, VkRenderPas
 	frameBufferCreateInfo.height          = InSize.height;
 	frameBufferCreateInfo.layers          = InSize.depth;
 
-	_is_guaranteed_min(frameBufferCreateInfo.width,  4096, m_baseLayer->GetMainPDLimits().maxFramebufferWidth );
-	_is_guaranteed_min(frameBufferCreateInfo.height, 4096, m_baseLayer->GetMainPDLimits().maxFramebufferHeight);
-	_is_guaranteed_min(frameBufferCreateInfo.layers, 256,  m_baseLayer->GetMainPDLimits().maxFramebufferLayers);
+	_is_guaranteed_min(frameBufferCreateInfo.width,  4096, m_pBaseLayer->GetMainPDLimits().maxFramebufferWidth );
+	_is_guaranteed_min(frameBufferCreateInfo.height, 4096, m_pBaseLayer->GetMainPDLimits().maxFramebufferHeight);
+	_is_guaranteed_min(frameBufferCreateInfo.layers, 256,  m_pBaseLayer->GetMainPDLimits().maxFramebufferLayers);
 
 	_vk_try(vkCreateFramebuffer(m_device, &frameBufferCreateInfo, GetVkAllocator(), OutFrameBuffer));
 }
@@ -955,7 +941,7 @@ void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 
 	VkViewport currentViewport = {};
 	VkRect2D   currentScissor  = {};
-	this->SetViewport(currentViewport, currentScissor, m_window->GetWindowDesc().Width, m_window->GetWindowDesc().Height);
+	this->SetViewport(currentViewport, currentScissor, m_pWindow->GetWindowDesc().Width, m_pWindow->GetWindowDesc().Height);
 
 	VkGraphicsPipelineCreateInfo*          pGraphicInfos                 = _safe_new(VkGraphicsPipelineCreateInfo, numGInfo);
 	VkPipelineShaderStageCreateInfo*       pShaderInfos                  = nullptr;;
@@ -1154,15 +1140,15 @@ void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 
 				currentViewport.x        = _jget_float(viewport["position"][0]);
 				currentViewport.y        = _jget_float(viewport["position"][1]);
-				currentViewport.width    = _jis_auto  (viewport["size"][0]) ? (float)m_window->GetWindowDesc().Width  : _jget_float(viewport["size"][0]);
-				currentViewport.height   = _jis_auto  (viewport["size"][1]) ? (float)m_window->GetWindowDesc().Height : _jget_float(viewport["size"][1]);
+				currentViewport.width    = _jis_auto  (viewport["size"][0]) ? (float)m_pWindow->GetWindowDesc().Width  : _jget_float(viewport["size"][0]);
+				currentViewport.height   = _jis_auto  (viewport["size"][1]) ? (float)m_pWindow->GetWindowDesc().Height : _jget_float(viewport["size"][1]);
 				currentViewport.minDepth = _jget_float(viewport["depth_range"][0]);
 				currentViewport.maxDepth = _jget_float(viewport["depth_range"][1]);
 
 				currentScissor.offset.x      = _jget_int(scissor["offset"][0]);
 				currentScissor.offset.y      = _jget_int(scissor["offset"][1]);
-				currentScissor.extent.width  = _jis_auto(scissor["size"][0]) ? m_window->GetWindowDesc().Width  : _jget_uint(scissor["size"][0]);
-				currentScissor.extent.height = _jis_auto(scissor["size"][1]) ? m_window->GetWindowDesc().Height : _jget_uint(scissor["size"][1]);
+				currentScissor.extent.width  = _jis_auto(scissor["size"][0]) ? m_pWindow->GetWindowDesc().Width  : _jget_uint(scissor["size"][0]);
+				currentScissor.extent.height = _jis_auto(scissor["size"][1]) ? m_pWindow->GetWindowDesc().Height : _jget_uint(scissor["size"][1]);
 			}
 		}
 

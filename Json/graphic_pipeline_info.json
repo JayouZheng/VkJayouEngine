@@ -11,6 +11,10 @@
                     "stage_code_path": "Core/Shaders/triangle.vert",
                     "entrypoint":      "main",
                     "specialization_constants": [ 0.235, 60, false ]
+                },
+                {
+                    "stage_type":      "pixel",
+                    "stage_code_path": "Core/Shaders/triangle.frag"
                 }
             ],
             "vertex_input_attributes": 

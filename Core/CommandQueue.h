@@ -15,7 +15,7 @@ protected:
 
 public:
 
-	CommandQueue() = delete;
+	CommandQueue() {}
 	CommandQueue(const VkQueue& InQueue);
 	CommandQueue& operator=(const VkQueue& InQueue);
 	virtual ~CommandQueue() {};

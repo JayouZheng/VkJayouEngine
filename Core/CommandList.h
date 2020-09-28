@@ -19,10 +19,11 @@ protected:
 	VkDevice        m_device    = VK_NULL_HANDLE;
 	VkCommandPool   m_cmdPool   = VK_NULL_HANDLE;
 
-	BaseLayer*      m_baseLayer = nullptr;
+	BaseLayer*      m_pBaseLayer = nullptr;
 
 public:
 
+	CommandList() {}
 	CommandList(BaseLayer* InBaseLayer);
 	virtual ~CommandList();
 

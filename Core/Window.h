@@ -38,8 +38,8 @@ public:
 
 protected:
 
-	void* m_hinstance = nullptr;
-	void* m_hwnd = nullptr;
+	void* m_pHinstance = nullptr;
+	void* m_pHwnd = nullptr;
 
 	WindowDesc m_defaultDesc = 
 	{
