@@ -141,10 +141,15 @@ void LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const ui
 	_vk_try(vkCreateShaderModule(m_device, &shaderModuleCreateInfo, GetVkAllocator(), OutShaderModule));
 }
 
-void LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const char* InShaderPath)
+void LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const char* InShaderPath, VkShaderStageFlagBits* OutShaderStage /*= nullptr*/)
 {
 	std::string name, ext, dir;
 	StringUtil::ExtractFilePath(std::string(InShaderPath), &name, &ext, &dir);
+
+	if (OutShaderStage != nullptr)
+	{
+		*OutShaderStage = Util::GetShaderStage(ext);
+	}
 
 	if (ext != "spv")
 	{		
@@ -992,12 +997,13 @@ void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 			auto& shaderInfo = bIsArray ? graphicInfo["pipeline_stages_infos"][j] : graphicInfo["pipeline_stages_infos"];
 
 			VkSmartPtr<VkShaderModule> pShaderModule;
-			this->CreateShaderModule(pShaderModule.MakeInstance(), _jget_cstring(shaderInfo["stage_code_path"]));
+			VkShaderStageFlagBits      currentShaderStage;
+			this->CreateShaderModule(pShaderModule.MakeInstance(), _jget_cstring(shaderInfo["stage_code_path"]), &currentShaderStage);
 
 			pShaderInfos[j].sType  = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 			pShaderInfos[j].pNext  = nullptr;
 			pShaderInfos[j].flags  = _jget_uint(shaderInfo["stage_flags"]);
-			pShaderInfos[j].stage  = Util::GetShaderStage(_jget_string(shaderInfo["stage_type"]));
+			pShaderInfos[j].stage  = (shaderInfo["stage_type"] != Json::nullValue) ? Util::GetShaderStage(_jget_string(shaderInfo["stage_type"])) : currentShaderStage;
 			pShaderInfos[j].module = *pShaderModule;
 			pShaderInfos[j].pName  = _jget_cstring_default(shaderInfo["entrypoint"], "main");
 			pShaderInfos[j].pSpecializationInfo = &specInfo;
@@ -1290,7 +1296,7 @@ void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 		}
 
 		// Pipeline Layout.	 
-		// this->CreatePipelineLayout()
+		this->CreatePipelineLayout()
 	}
 
 

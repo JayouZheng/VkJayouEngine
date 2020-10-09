@@ -41,7 +41,8 @@ namespace
 		{ "frag",                    VK_SHADER_STAGE_FRAGMENT_BIT                },
 		{ "comp",                    VK_SHADER_STAGE_COMPUTE_BIT                 },
 		{ "mesh",                    VK_SHADER_STAGE_MESH_BIT_NV                 },
-		{ "rgen",                    VK_SHADER_STAGE_RAYGEN_BIT_NV               }
+		{ "rgen",                    VK_SHADER_STAGE_RAYGEN_BIT_NV               },
+		{ "all",                     VK_SHADER_STAGE_ALL_GRAPHICS                }
 	};
 
 	// Key, VkFormat, Size.

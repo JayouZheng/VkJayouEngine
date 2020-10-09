@@ -307,7 +307,7 @@ public:
 
 	void           CreateShaderModule            (VkShaderModule* OutShaderModule, const VkShaderModuleCreateInfo& InCreateInfo);
 	void           CreateShaderModule            (VkShaderModule* OutShaderModule, const uint32* InCodes, size_t InCodeSize);
-	void           CreateShaderModule            (VkShaderModule* OutShaderModule, const char* InShaderPath);
+	void           CreateShaderModule            (VkShaderModule* OutShaderModule, const char* InShaderPath, VkShaderStageFlagBits* OutShaderStage = nullptr);
 
 	void           CreateComputePipelines        (VkPipeline* OutPipeline, const VkComputePipelineCreateInfo* InCreateInfos, uint32 InCreateInfoCount = _count_1, VkPipelineCache InPipCache = VK_NULL_HANDLE);
 	void           CreateComputePipeline         (VkPipeline* OutPipeline, VkPipelineLayout InPipLayout, VkShaderModule InShaderModule, const char* InShaderEntryName = "main", const VkSpecializationInfo* InSpecialConstInfo = nullptr, VkPipelineCache InPipCache = VK_NULL_HANDLE);
