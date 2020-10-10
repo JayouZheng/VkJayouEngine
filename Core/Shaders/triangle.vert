@@ -10,6 +10,12 @@ layout (set = 0, binding = 0) uniform UBO
 	mat4 viewMatrix;
 } ubo;
 
+layout (set = 0, binding = 1) uniform texture2D tex;
+layout (set = 0, binding = 2) uniform sampler samp;
+
+layout (binding = 3) uniform sampler2D samplerBRDFLUT;
+layout (binding = 4) uniform samplerCube prefilteredMap;
+
 #define lightCount 6
 
 layout(push_constant) uniform PushConsts {

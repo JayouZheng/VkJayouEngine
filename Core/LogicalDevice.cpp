@@ -1296,7 +1296,7 @@ void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 		}
 
 		// Pipeline Layout.	 
-		this->CreatePipelineLayout()
+		//this->CreatePipelineLayout()
 	}
 
 

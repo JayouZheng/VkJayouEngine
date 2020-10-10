@@ -144,7 +144,7 @@ public:
 
     SPVData* GetLastSPVData()
     {
-        return m_pSPVData[m_pSPVData.size() - 1];
+        return m_pSPVData.empty() ? nullptr : m_pSPVData[m_pSPVData.size() - 1];
     }
 
     std::vector<SPVData*>& GetAllSPVData()

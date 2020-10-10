@@ -143,6 +143,9 @@ namespace Util
 	uint32 StringToHex(const std::string& InHexStr);
 }
 
+// TODO:
+// The log system need to be updated so that it will have many categories, e.g., Global, ShaderCompile, JsonParser, VkSmartPtr, Error, Common, Engine...
+
 #define _return_log(log) { Global::CacheLog(log); return; }
 #define _breturn_log(b, log) if (b) { Global::CacheLog(log); return; }
 #define _returnx_log(ret, log) { Global::CacheLog(log); return ret; }
