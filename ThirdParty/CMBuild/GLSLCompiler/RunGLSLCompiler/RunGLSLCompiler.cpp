@@ -160,12 +160,26 @@ typedef enum VkDescriptorType {
     VK_DESCRIPTOR_TYPE_MAX_ENUM = 0x7FFFFFFF
 } VkDescriptorType;
 
-constexpr uint32 NumDescriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT + 1u;
+constexpr uint32 NumDescriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT + 1u + 2u; // One for push_constant, one for subpass_input.
+constexpr uint32_t ResID_PushConstant = NumDescriptorType - 2;
+constexpr uint32_t ResID_SubpassInput = NumDescriptorType - 1;
 
 class GLSLCompiler
 {
 
 public:
+
+    enum class ShaderType
+    {
+        GLSL,
+        HLSL
+    };
+
+    struct CompileInfo
+    {
+        ShaderType shader_type = ShaderType::GLSL;
+        std::vector<std::string> include_dirs;
+    };
 
     struct ShaderStage
     {
@@ -185,8 +199,26 @@ public:
     {
         char name[128];
 
-        uint8 set;
-        uint8 binding;
+        union
+        {
+            struct
+            {
+                uint8_t set;
+                uint8_t binding;
+            };
+
+            struct
+            {
+                uint8_t offset;
+                uint8_t size;
+            };
+
+            struct
+            {
+                uint8_t input_attachment_index;
+            };
+        };
+
     };
 
     struct ShaderResourceData
@@ -214,7 +246,8 @@ public:
         void        (*Close)   ();
 
         uint32      (*GetType) (const char* ext_name);
-        SPVData*    (*Compile) (const uint32 type, const char* source);
+        SPVData*    (*Compile) (const uint32_t stage,const char *source, const CompileInfo *compile_info);
+        SPVData*    (*CompileFromPath)(const uint32_t stage,const char *path, const CompileInfo *compile_info);
 
         void        (*Free)    (SPVData*);
     };
@@ -265,30 +298,13 @@ public:
         }
     }
 
-    void CompileShader(VkShaderStageFlags InStageType, const std::string& InShaderPath)
+    void CompileShader(VkShaderStageFlags InStageType, const std::string& InShaderPath, const CompileInfo* InCompileInfo)
     {
         if (m_pCompiler != nullptr)
         {
-            std::ifstream is(InShaderPath, std::ios::binary | std::ios::in | std::ios::ate);
-
-            if (is.is_open())
-            {
-                size_t size = is.tellg();
-                _breturn_log(size == -1, _str_name_of(CompileShader) + ", file size go to -1(at std::istream::tellg)!");
-
-                is.seekg(0, std::ios::beg);
-                char* shaderCode = new char[size + 1];
-                is.read(shaderCode, size);
-                is.close();
-
-                shaderCode[size] = 0; // End of char* string.
-
-                m_pSPVData.push_back(m_pCompiler->Compile(InStageType, shaderCode));
-
-                delete[] shaderCode;
-            }
-            else _return_log("Error: Could not open shader file \"" + std::string(InShaderPath) + "\"");
+            m_pSPVData.push_back(m_pCompiler->CompileFromPath(InStageType, InShaderPath.data(), InCompileInfo));
         }
+        else _return_log("The GLSLCompiler has not been Init!");
     }
 
     bool HasValidSPVData()
@@ -323,7 +339,10 @@ int main()
     _cmd_print_line("Hello GLSLCompiler!\n");
 
     GLSLCompiler compiler;
-    compiler.CompileShader(VK_SHADER_STAGE_FRAGMENT_BIT, R"(C:\Users\zhengjianyao\Desktop\pbrtexture.hlsl)");
+    GLSLCompiler::CompileInfo compileInfo;
+    compileInfo.shader_type = GLSLCompiler::ShaderType::GLSL;
+    compileInfo.include_dirs.push_back(R"(C:\Users\zhengjianyao\Desktop)");
+    compiler.CompileShader(VK_SHADER_STAGE_FRAGMENT_BIT, R"(C:\Users\zhengjianyao\Desktop\triangle.frag)", &compileInfo);
     GLSLCompiler::SPVData* spvData = compiler.GetLastSPVData();
 
     system("pause");
