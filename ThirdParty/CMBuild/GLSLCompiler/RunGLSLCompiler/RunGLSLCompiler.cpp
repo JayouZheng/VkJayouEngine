@@ -10,11 +10,25 @@
 #include <vector>
 #include <fstream>
 
-#ifdef _DEBUG
+// Enable run-time memory check for debug builds.
+#if defined(DEBUG) || defined(_DEBUG)
+
+#ifndef DBG_NEW
+
+#define DBG_NEW new ( _NORMAL_BLOCK , __FILE__ , __LINE__ )
+
+#define new DBG_NEW
+
+#endif // DBG_NEW
+
+#define _CRTDBG_MAP_ALLOC
+#include <crtdbg.h>
+
 #define SlnConfig "Debug"
 #else
 #define SlnConfig "Release"
-#endif
+
+#endif // DEBUG
 
 using int8 = int8_t;
 using int16 = int16_t;
@@ -171,14 +185,17 @@ public:
 
     enum class ShaderType
     {
-        GLSL,
-        HLSL
-    };
+        GLSL = 0,
+        HLSL,
+
+        MAX = 0xff
+    };//enum class ShaderType
 
     struct CompileInfo
     {
         ShaderType shader_type = ShaderType::GLSL;
-        std::vector<std::string> include_dirs;
+        uint32_t includes_count;
+        const char** includes;
     };
 
     struct ShaderStage
@@ -235,6 +252,7 @@ public:
 
         uint32* spv_data;
         uint32  spv_length;
+        uint32  shader_stage;
 
         ShaderStageData input, output;
         ShaderResourceData resource[NumDescriptorType];
@@ -246,8 +264,8 @@ public:
         void        (*Close)   ();
 
         uint32      (*GetType) (const char* ext_name);
-        SPVData*    (*Compile) (const uint32_t stage,const char *source, const CompileInfo *compile_info);
-        SPVData*    (*CompileFromPath)(const uint32_t stage,const char *path, const CompileInfo *compile_info);
+        SPVData*    (*Compile) (const uint32_t stage, const char* source, const CompileInfo* compile_info);
+        SPVData*    (*CompileFromPath)(const uint32_t stage, const char* path, const CompileInfo* compile_info);
 
         void        (*Free)    (SPVData*);
     };
@@ -257,8 +275,8 @@ public:
 
     GLSLCompiler()
     {
-        m_module.Load("../../.GLSLCompiler/out/Windows_64_" + std::string(SlnConfig) + "/GLSLCompiler.dll");
-
+        //m_module.Load("../../.GLSLCompiler/out/Windows_64_" + std::string(SlnConfig) + "/GLSLCompiler.dll");
+        m_module.Load("../../.GLSLCompiler/out/Windows_64_Release/GLSLCompiler.dll");
         m_pInterface = m_module.GetInterface<PFGetGLSLCompilerInterface>("GetInterface");
 
         if (m_pInterface != nullptr)
@@ -327,7 +345,7 @@ private:
     ModuleLoader               m_module;
 
     PFGetGLSLCompilerInterface m_pInterface = nullptr;
-    GLSLCompilerInterface*     m_pCompiler = nullptr;
+    GLSLCompilerInterface*     m_pCompiler  = nullptr;
 
     std::vector<SPVData*>      m_pSPVData;
 };
@@ -336,12 +354,23 @@ private:
 
 int main()
 {
+    // Enable run-time memory check for debug builds.
+#if defined(DEBUG) | defined(_DEBUG)
+    _CrtSetDbgFlag(_CRTDBG_LEAK_CHECK_DF | _CRTDBG_ALLOC_MEM_DF);
+#endif
+
     _cmd_print_line("Hello GLSLCompiler!\n");
+
+    char const* include_dirs[2];
+
+    include_dirs[0] = R"(C:\Users\zhengjianyao\Desktop)";
 
     GLSLCompiler compiler;
     GLSLCompiler::CompileInfo compileInfo;
     compileInfo.shader_type = GLSLCompiler::ShaderType::GLSL;
-    compileInfo.include_dirs.push_back(R"(C:\Users\zhengjianyao\Desktop)");
+    compileInfo.includes_count = 1;
+    compileInfo.includes = include_dirs;
+
     compiler.CompileShader(VK_SHADER_STAGE_FRAGMENT_BIT, R"(C:\Users\zhengjianyao\Desktop\triangle.frag)", &compileInfo);
     GLSLCompiler::SPVData* spvData = compiler.GetLastSPVData();
 

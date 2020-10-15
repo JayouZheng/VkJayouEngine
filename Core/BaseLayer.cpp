@@ -5,18 +5,6 @@
 #include "BaseLayer.h"
 #include "Global.h"
 
-#if VK_USE_PLATFORM_WIN32_KHR
-
-// Enable run-time memory check for debug builds.
-#if defined(DEBUG) || defined(_DEBUG)
-
-#define _CRTDBG_MAP_ALLOC
-#include <crtdbg.h>
-
-#endif
-
-#endif
-
 VkAllocationCallbacks* BaseLayer::GetVkAllocator() const
 {
 	return m_pAllocator != nullptr ? m_pAllocator->GetVkAllocator() : nullptr;
@@ -24,7 +12,7 @@ VkAllocationCallbacks* BaseLayer::GetVkAllocator() const
 
 BaseLayer::BaseLayer()
 {
-
+	
 }
 
 BaseLayer::BaseLayer(BaseAllocator* InAllocator)
@@ -296,7 +284,7 @@ void BaseLayer::Init()
 
 		m_device.CreateCommandPool(m_mainQFIndex);
 
-#if VK_USE_PLATFORM_WIN32_KHR
+#if PLATFORM_WINDOW
 
 		// Create Win32 Surface.
 		if (Util::IsVecContain<const char*>(m_supportInsExts, VK_KHR_WIN32_SURFACE_EXTENSION_NAME, _lambda_is_cstr_equal))
@@ -327,7 +315,7 @@ void BaseLayer::Init()
 			m_swapchainCreateInfo.pQueueFamilyIndices   = nullptr;
 			m_swapchainCreateInfo.presentMode           = BaseLayerConfig::SwapchainCreateInfo.presentMode;
 			m_swapchainCreateInfo.clipped               = BaseLayerConfig::SwapchainCreateInfo.clipped;
-			m_swapchainCreateInfo.oldSwapchain          = nullptr;  // First time to Create.
+			m_swapchainCreateInfo.oldSwapchain          = VK_NULL_HANDLE;  // First time to Create.
 
 			// Check Support Surface Format For Swapchain.
 			{
@@ -398,7 +386,7 @@ void BaseLayer::Init()
 
 void BaseLayer::CachedModulePath()
 {
-#if VK_USE_PLATFORM_WIN32_KHR
+#if PLATFORM_WINDOW
 
 	std::string modulePath = ""; // It needs to be left empty here.
 	std::string moduleName = "null";

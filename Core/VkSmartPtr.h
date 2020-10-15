@@ -17,7 +17,7 @@ class VkSmartPtr
 
 protected:
 
-	VkCounter<T> *_ptr_cnt;
+	VkCounter<T>* _ptr_cnt;
 
 public: 
 
@@ -29,35 +29,22 @@ public:
 
 public:
 
-	VkSmartPtr()
+	VkSmartPtr(const char* type)
 	{
 		_ptr_cnt = new VkCounter<T>(nullptr);
+		_ptr_cnt->SetType(type);
 	}
 
-	VkSmartPtr(T *ptr)
+	VkSmartPtr(const char* type, T* ptr)
 	{
 		_ptr_cnt = new VkCounter<T>(ptr);
+		_ptr_cnt->SetType(type);
 	}
 
 	VkSmartPtr(const VkSmartPtr &other)
 	{
 		_ptr_cnt = other._ptr_cnt;
 		_ptr_cnt->_counter++;
-	}
-
-	VkSmartPtr &operator=(const VkSmartPtr &other)
-	{
-		if (this == &other)
-			return *this;
-
-		_ptr_cnt->_counter--;
-		if (_ptr_cnt->_counter == 0)
-			delete _ptr_cnt;
-
-		_ptr_cnt = other._ptr_cnt;
-		other._ptr_cnt->_counter++;
-
-		return *this;
 	}
 
 	virtual ~VkSmartPtr()
@@ -98,6 +85,35 @@ public:
 	{
 		return _ptr_cnt->_ptr == other_ptr;
 	}
+
+	VkSmartPtr& operator=(const VkSmartPtr& other)
+	{
+		if (this == &other)
+			return *this;
+
+		_ptr_cnt->_counter--;
+		if (_ptr_cnt->_counter == 0)
+			delete _ptr_cnt;
+
+		_ptr_cnt = other._ptr_cnt;
+		other._ptr_cnt->_counter++;
+
+		return *this;
+	}
+
+	VkSmartPtr& operator=(const T* other)
+	{
+		if (this->_ptr_cnt->_ptr == other)
+			return *this;
+
+		_ptr_cnt->_counter--;
+		if (_ptr_cnt->_counter == 0)
+			delete _ptr_cnt;
+
+		_ptr_cnt = new VkCounter<T>(other);
+
+		return *this;
+	}
 };
 
 template<typename T>
@@ -106,10 +122,17 @@ class VkCounter
 private:
 
 	T *_ptr;
-	uint64 _counter;
+	uint32 _counter;
+
+	const char* _type;
 
 	template<typename T>
 	friend class VkSmartPtr;
+
+	void SetType(const char* type)
+	{
+		_type = type;
+	}
 
 	VkCounter(T *ptr)
 	{
@@ -121,11 +144,19 @@ private:
 
 	~VkCounter()
 	{
-
+		
 #ifdef _vk_destroy
 #undef _vk_destroy
 #endif
-#define _vk_destroy(object) if (std::is_same<Vk##object, T>::value) { vkDestroy##object(Global::GetVkDevice(), (Vk##object)*_ptr, Global::GetVkAllocator()); Global::CacheLog("_vk_destroy: " + _str_name_of(object)); }
+#define _vk_destroy(object)                                                                    \
+{                                                                                              \
+	if (_is_cstrlen_equal(_name_of(Vk##object), _type) &&                                      \
+		_is_cstr_equal(_name_of(Vk##object), _type))                                           \
+	{                                                                                          \
+		vkDestroy##object(Global::GetVkDevice(), (Vk##object)*_ptr, Global::GetVkAllocator()); \
+		Global::CacheLog("_vk_destroy: " + _str_name_of(object));                              \
+	}                                                                                          \
+}                                                                                              \
 
 		if (_ptr != nullptr)
 		{
@@ -152,7 +183,7 @@ private:
 			_vk_destroy(SwapchainKHR);
 			
 			// Using VkInstance...
-			if (std::is_same<VkSurfaceKHR, T>::value) 
+			if (_is_cstr_equal(_name_of(VkSurfaceKHR), _type))
 			{
 				vkDestroySurfaceKHR(Global::GetVkInstance(), (VkSurfaceKHR)*_ptr, Global::GetVkAllocator());
 				Global::CacheLog("_vk_destroy: " + _str_name_of(VkSurfaceKHR));
@@ -173,5 +204,7 @@ private:
 		
 	}
 };
+
+#define _declare_vk_smart_ptr(type, var)  VkSmartPtr<type> var = VkSmartPtr<type>(_name_of(type));
 
 #pragma endregion

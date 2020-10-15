@@ -6,12 +6,29 @@
 
 #include "ModuleLoader.h"
 
-constexpr uint32 NumDescriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT + 1u;
-
 class GLSLCompiler
 {
 
 public:
+
+    static const uint32 NumDescriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT + 1u + 2u; // One for push_constant, one for subpass_input.
+    static const uint32_t ResID_PushConstant = NumDescriptorType - 2;
+    static const uint32_t ResID_SubpassInput = NumDescriptorType - 1;
+
+    enum class ShaderType
+    {
+        GLSL = 0,
+        HLSL,
+
+        MAX = 0xff
+    };//enum class ShaderType
+
+    struct CompileInfo
+    {
+        ShaderType shader_type = ShaderType::GLSL;
+        uint32_t includes_count;
+        const char** includes;
+    };
 
     struct ShaderStage
     {
@@ -31,8 +48,26 @@ public:
     {
         char name[128];
 
-        uint8 set;
-        uint8 binding;
+        union
+        {
+            struct
+            {
+                uint8_t set;
+                uint8_t binding;
+            };
+
+            struct
+            {
+                uint8_t offset;
+                uint8_t size;
+            };
+
+            struct
+            {
+                uint8_t input_attachment_index;
+            };
+        };
+
     };
 
     struct ShaderResourceData
@@ -49,6 +84,7 @@ public:
 
         uint32* spv_data;
         uint32  spv_length;
+        uint32  shader_stage;
 
         ShaderStageData input, output;
         ShaderResourceData resource[NumDescriptorType];
@@ -60,7 +96,8 @@ public:
         void        (*Close)   ();
 
         uint32      (*GetType) (const char* ext_name);
-        SPVData*    (*Compile) (const uint32 type, const char* source);
+        SPVData*    (*Compile) (const uint32_t stage, const char* source, const CompileInfo* compile_info);
+        SPVData*    (*CompileFromPath)(const uint32_t stage, const char* path, const CompileInfo* compile_info);
 
         void        (*Free)    (SPVData*);
     };
@@ -70,7 +107,7 @@ public:
 
     GLSLCompiler()
     {
-        m_module.Load(Global::GetModulePath() + "ThirdParty/CMBuild/GLSLCompiler/GLSLCompiler.dll");
+        m_module.Load(Global::GetModulePath() + "ThirdParty/CMBuild/GLSLCompiler/" + _platform + "/GLSLCompiler.dll");
 
         m_pInterface = m_module.GetInterface<PFGetGLSLCompilerInterface>("GetInterface");
 
@@ -90,7 +127,7 @@ public:
                 if (pSPVData != nullptr)
                     m_pCompiler->Free(pSPVData);
             }
-       
+
             m_pCompiler->Close();
         }
 
@@ -111,30 +148,13 @@ public:
         }
     }
 
-    void CompileShader(VkShaderStageFlags InStageType, const std::string& InShaderPath)
+    void CompileShader(VkShaderStageFlags InStageType, const std::string& InShaderPath, const CompileInfo* InCompileInfo)
     {
         if (m_pCompiler != nullptr)
         {
-            std::ifstream is(InShaderPath, std::ios::binary | std::ios::in | std::ios::ate);
-
-            if (is.is_open())
-            {
-                size_t size = is.tellg();
-                _breturn_log(size == -1, _str_name_of(CompileShader) + ", file size go to -1(at std::istream::tellg)!");
-
-                is.seekg(0, std::ios::beg);
-                char* shaderCode = new char[size + 1];
-                is.read(shaderCode, size);
-                is.close();
-
-                shaderCode[size] = 0; // End of char* string.
-
-                m_pSPVData.push_back(m_pCompiler->Compile(InStageType, shaderCode));
-
-                delete[] shaderCode;
-            }
-            else _return_log("Error: Could not open shader file \"" + std::string(InShaderPath) + "\"");
+            m_pSPVData.push_back(m_pCompiler->CompileFromPath(InStageType, InShaderPath.data(), InCompileInfo));
         }
+        else _return_log("The GLSLCompiler has not been Init!");
     }
 
     bool HasValidSPVData()
@@ -154,10 +174,10 @@ public:
 
 private:
 
-    ModuleLoader               m_module;
+    ModuleLoader                                      m_module;
 
-    PFGetGLSLCompilerInterface m_pInterface = nullptr;
-    GLSLCompilerInterface*     m_pCompiler  = nullptr;
+    PFGetGLSLCompilerInterface                        m_pInterface = nullptr;
+    GLSLCompilerInterface*                            m_pCompiler  = nullptr;
 
-    std::vector<SPVData*>      m_pSPVData;
+    std::vector<SPVData*>                             m_pSPVData;
 };

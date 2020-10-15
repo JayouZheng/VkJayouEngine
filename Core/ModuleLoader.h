@@ -24,7 +24,7 @@ public:
 	void Load(const std::string& InModuleName)
 	{
 		m_moduleName = InModuleName;
-#if VK_USE_PLATFORM_WIN32_KHR
+#if PLATFORM_WINDOW
 		m_pModule = LoadLibraryA(InModuleName.c_str());
 #endif
 		_breturn_log(m_pModule == nullptr, "Fail to load module [" + InModuleName + "]!");
@@ -34,7 +34,7 @@ public:
 	{	
 		if (m_pModule != nullptr)
 		{
-#if VK_USE_PLATFORM_WIN32_KHR	
+#if PLATFORM_WINDOW	
 			m_bResult = FreeLibrary((HMODULE)m_pModule);
 #endif
 			_breturn_log(m_bResult == _false, "Fail to free module [" + m_moduleName + "]!");
@@ -47,7 +47,7 @@ public:
 	{
 		if (m_pModule != nullptr)
 		{
-#if VK_USE_PLATFORM_WIN32_KHR	
+#if PLATFORM_WINDOW	
 			T api = nullptr;
 			api = (T)GetProcAddress((HMODULE)m_pModule, InInterfaceName.c_str());
 			_breturnx_log(api == nullptr, nullptr, "Fail to find API [" + InInterfaceName + "]!");

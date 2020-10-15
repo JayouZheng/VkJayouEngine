@@ -118,8 +118,8 @@ protected:
 
 protected:
 
-	VkSmartPtr<VkSurfaceKHR>                          m_pSurface      = nullptr;
-	VkSmartPtr<VkSwapchainKHR>                        m_pSwapchainKHR = nullptr;
+	_declare_vk_smart_ptr(VkSurfaceKHR,   m_pSurface);
+	_declare_vk_smart_ptr(VkSwapchainKHR, m_pSwapchainKHR);
 
 	// Swapchain Image.
 	std::vector<VkImage>                              m_swapchainImages;

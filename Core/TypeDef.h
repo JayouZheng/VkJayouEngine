@@ -18,14 +18,16 @@
 #include <memory>
 #include <tuple>
 #include <type_traits>
-
+#include <algorithm>
 
 #define _assert(x) assert(x)
 
 // Size of a static C-style array. Don't use on pointers!
 #define _array_size(x) ((int)(sizeof(x) / sizeof(*x)))
 
-#define _is_cstr_equal(str1, str2) !strcmp(str1, str2)
+#define _is_cstr_equal(str1, str2) !std::strcmp(str1, str2)
+
+#define _is_cstrlen_equal(str1, str2) std::strlen(str1) == std::strlen(str2)
 
 #define _lambda_is_cstr_equal [&](const char* a, const char* b) { return _is_cstr_equal(a, b); }
 

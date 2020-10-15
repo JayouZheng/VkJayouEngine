@@ -5,7 +5,6 @@
 #pragma once
 
 #include "Common.h"
-#include "JsonParser.h"
 
 class BaseAllocator;
 
@@ -37,6 +36,7 @@ namespace Global
 
 	void                    CacheLog(const std::string& InLog);
 	void                    PrintLog();
+	void                    ExitLog(const std::string& InLog);
 
 	BaseAllocator*          GetAllocator();
 	VkAllocationCallbacks*  GetVkAllocator();
@@ -154,8 +154,10 @@ namespace Util
 #define _bcontinue_log(b, log) if (b) { Global::CacheLog(log); continue; }
 #define _bbreak_log(b, log) if (b) { Global::CacheLog(log); break; }
 
-#define _exit_log(log) { Global::CacheLog(log); exit(1); }
-#define _bexit_log(b, log) if(b) { Global::CacheLog(log); exit(1); }
+// TODO:
+// Suddenly exit app will result memory leak!!!
+#define _exit_log(log) { Global::ExitLog(log); exit(1); }
+#define _bexit_log(b, log) if(b) { Global::ExitLog(log); exit(1); }
 
 
 #define _is_guaranteed_min(x, min_val, y) { if (Global::IsVkGuaranteedMinimum<uint32>(x, min_val)) x = std::min(x, y); }

@@ -4,6 +4,7 @@
 
 #include "Global.h"
 #include "BaseAllocator.h"
+#include "StringManager.h"
 
 namespace
 {
@@ -353,6 +354,12 @@ void Global::PrintLog()
 	}
 }
 
+void Global::ExitLog(const std::string& InLog)
+{
+	CacheLog(InLog);
+	PrintLog();
+}
+
 BaseAllocator* Global::GetAllocator()
 {
 	return g_allocator;
@@ -382,7 +389,7 @@ VkShaderStageFlagBits Util::GetShaderStage(const std::string& InKey)
 	VkShaderStageFlagBits result;
 	try
 	{
-		result = ShaderStageMap.at(InKey);
+		result = ShaderStageMap.at(StringUtil::ToLowerCase(InKey));
 		return result;
 	}
 	catch (const std::out_of_range& msg)

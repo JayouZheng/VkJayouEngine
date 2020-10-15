@@ -12,7 +12,7 @@ wchar_t const* const WCharDigitTables[] =
 	L"\u0660\u0661\u0662\u0663\u0664\u0665\u0666\u0667\u0668\u0669",
 };
 
-#if VK_USE_PLATFORM_WIN32_KHR
+#if PLATFORM_WINDOW
 
 std::wstring StringUtil::StringToWString(const std::string& str)
 {
@@ -73,7 +73,7 @@ std::wstring StringUtil::AnsiToWString(const std::string& str)
 
 std::string StringUtil::WStringToAnsi(const std::wstring& wstr)
 {
-	return _str_null
+	return _str_null;
 }
 
 #endif
@@ -326,6 +326,14 @@ void StringUtil::WEraseAll(std::wstring& wstr, const std::wstring& wstr_erase)
 		wstr.erase(found, wstr_erase.size());
 		found = wstr.find(wstr_erase, found);
 	}
+}
+
+std::string StringUtil::ToLowerCase(const std::string& str)
+{
+	std::string lower = str;
+	std::transform(lower.begin(), lower.end(), lower.begin(),
+		[](unsigned char c) { return std::tolower(c); });
+	return lower;
 }
 
 std::string StringUtil::WStringToStringV2(const std::wstring& wstr)

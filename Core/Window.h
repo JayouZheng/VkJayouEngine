@@ -7,7 +7,7 @@
 #include "Platform.h"
 #include "TypeDef.h"
 
-#if VK_USE_PLATFORM_WIN32_KHR
+#if PLATFORM_WINDOW
 
 class Window
 {

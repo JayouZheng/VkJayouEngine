@@ -46,6 +46,8 @@ public:
 
 	static void                        WEraseAll         (std::wstring& wstr, const std::wstring& wstr_erase);
 
+	static std::string                 ToLowerCase       (const std::string& str);
+
 public:
 
 	// Extended utilities.

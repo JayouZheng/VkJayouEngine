@@ -179,8 +179,8 @@ protected:
 
 	GLSLCompiler    m_compiler;
 
-	VkSmartPtr<VkCommandPool>    m_pCmdPool  = nullptr;
-	VkSmartPtr<VkDescriptorPool> m_pDescPool = nullptr;
+	_declare_vk_smart_ptr(VkCommandPool,    m_pCmdPool);
+	_declare_vk_smart_ptr(VkDescriptorPool, m_pDescPool);
 
 	VkAllocationCallbacks* GetVkAllocator() const;
 
@@ -361,46 +361,10 @@ public:
 	void           CreateGraphicPipelines        (VkPipeline* OutPipeline, const SPipelineGraphicDesc* InDescs, uint32 InDescCount = _count_1, VkPipelineCache InPipCache = VK_NULL_HANDLE);
 	void           CreateGraphicPipelines        (VkPipeline* OutPipeline, const std::string& InJsonPath, VkPipelineCache InPipCache = VK_NULL_HANDLE);
 
-
-	template<typename VkType>
-	void DestroyVkObject(VkType InObject);
-	void FlushAllQueue();
-	void ResetCmdPool();
+	void           FlushAllQueue();
+	void           ResetCmdPool();
 
 };
-
-
-// This is an alternative vkDestroy Solution/Version to VkSmartPtr.
-template<typename VkType>
-void LogicalDevice::DestroyVkObject(VkType InObject)
-{
-#ifdef _vk_destroy
-#undef _vk_destroy
-#endif
-#define _vk_destroy(object) if (std::is_same<Vk##object, VkType>::value) vkDestroy##object(m_device, (Vk##object)InObject, m_pAllocator->GetVkAllocator())
-	
-	_vk_destroy(Fence);
-	_vk_destroy(Semaphore); // Should Wait for all reference Object freed...
-	_vk_destroy(Event);
-	_vk_destroy(QueryPool);
-	_vk_destroy(Buffer);
-	_vk_destroy(BufferView);
-	_vk_destroy(Image);
-	_vk_destroy(ImageView);
-	_vk_destroy(ShaderModule);
-	_vk_destroy(PipelineCache);
-	_vk_destroy(Pipeline);
-	_vk_destroy(PipelineLayout);
-	_vk_destroy(Sampler);
-	_vk_destroy(DescriptorSetLayout);
-	_vk_destroy(DescriptorPool);
-	_vk_destroy(Framebuffer);
-	_vk_destroy(RenderPass);
-	_vk_destroy(CommandPool);
-
-	// Using Semaphore...
-	_vk_destroy(SwapchainKHR);
-}
 
 #define CreateRenderTarget    CreateFrameBuffer
 typedef VkFramebuffer         VkRenderTarget;

@@ -272,9 +272,6 @@
     <ClInclude Include="ThirdParty\iniparser\ini.hpp">
       <Filter>ThirdParty\iniparser</Filter>
     </ClInclude>
-    <ClInclude Include="Core\GLSLCompiler.h">
-      <Filter>Core</Filter>
-    </ClInclude>
     <ClInclude Include="Core\ModuleLoader.h">
       <Filter>Core</Filter>
     </ClInclude>
@@ -282,6 +279,15 @@
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="Core\StringManager.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\GLSLCompiler.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\MemoryLeakCheck.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\DiskResourceLoader.h">
       <Filter>Core</Filter>
     </ClInclude>
   </ItemGroup>

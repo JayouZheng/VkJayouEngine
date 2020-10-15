@@ -5,9 +5,11 @@
 #pragma once
 
 #include "SmartPtr.h"
+#include "JsonParser.h"
+#include "TypeDef.h"
 
 #include "Platform.h"
-#include "TypeDef.h"
+
 #include "vulkan/vulkan.hpp"
 
 #pragma comment(lib, "vulkan-1.lib")
@@ -37,7 +39,7 @@ public:
 	int m_lineNumber = -1;
 };
 
-#if VK_USE_PLATFORM_WIN32_KHR
+#if PLATFORM_WINDOW
 
 inline std::wstring to_wstring(const std::string& str)
 {
