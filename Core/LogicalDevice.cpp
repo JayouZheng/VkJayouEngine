@@ -140,17 +140,21 @@ void LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const ui
 	_vk_try(vkCreateShaderModule(m_device, &shaderModuleCreateInfo, GetVkAllocator(), OutShaderModule));
 }
 
-void LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const char* InShaderPath, VkShaderStageFlagBits* OutShaderStage /*= nullptr*/)
+bool LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const char* InShaderPath, VkShaderStageFlagBits* OutShaderStage /*= nullptr*/)
 {
 	std::string name, ext, dir;
 	StringUtil::ExtractFilePath(std::string(InShaderPath), &name, &ext, &dir);
 
+	VkShaderStageFlagBits shaderStage;
+	if (!Util::GetShaderStage(ext, shaderStage))
+		return false;
+
 	if (OutShaderStage != nullptr)
 	{
-		*OutShaderStage = Util::GetShaderStage(ext);
+		*OutShaderStage = shaderStage;
 	}
 
-	if (ext != "spv")
+	if (shaderStage != VK_SHADER_STAGE_FLAG_BITS_MAX_ENUM)
 	{
 		const char* include_dirs[_count_1] = { dir.data() };
 
@@ -158,7 +162,7 @@ void LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const ch
 		compileInfo.shader_type = StringUtil::ToLowerCase(ext) == "hlsl" ? GLSLCompiler::ShaderType::HLSL : GLSLCompiler::ShaderType::GLSL;
 		compileInfo.includes_count = _count_1;
 		compileInfo.includes = include_dirs;
-		m_compiler.CompileShader(Util::GetShaderStage(ext), InShaderPath, &compileInfo);
+		m_compiler.CompileShader(shaderStage, InShaderPath, &compileInfo);
 		GLSLCompiler::SPVData* spvData = m_compiler.GetLastSPVData();
 
 		if (spvData->result)
@@ -170,7 +174,7 @@ void LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const ch
 			*OutShaderModule = VK_NULL_HANDLE;
 			Global::CacheLog(spvData->log);
 			Global::CacheLog(spvData->debug_log);
-			_return_log("Error: Compiling shader file \"" + std::string(InShaderPath) + "\" failed!");
+			_ret_false_log("Error: Compiling shader file \"" + std::string(InShaderPath) + "\" failed!");
 		}
 	}
 	else
@@ -180,7 +184,7 @@ void LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const ch
 		if (is.is_open())
 		{
 			size_t size = (size_t)is.tellg();
-			_breturn_log(size == -1, _str_name_of(CreateShaderModule) + ", file size go to -1(at std::istream::tellg)!");
+			_bret_false_log(size == -1, _str_name_of(CreateShaderModule) + ", file size go to -1(at std::istream::tellg)!");
 
 			is.seekg(0, std::ios::beg);
 			char* shaderCode = new char[size];
@@ -194,9 +198,11 @@ void LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const ch
 		else
 		{
 			*OutShaderModule = VK_NULL_HANDLE;
-			_return_log("Error: Could not open shader file \"" + std::string(InShaderPath) + "\"");
+			_ret_false_log("Error: Could not open shader file \"" + std::string(InShaderPath) + "\"");
 		}
 	}
+	
+	return true;
 }
 
 void LogicalDevice::CreateComputePipelines(VkPipeline* OutPipeline, const VkComputePipelineCreateInfo* InCreateInfos, uint32 InCreateInfoCount /*= _count_1*/, VkPipelineCache InPipCache /*= VK_NULL_HANDLE*/)
@@ -937,14 +943,14 @@ void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const SPipel
 	_vk_try(vkCreateGraphicsPipelines(m_device, InPipCache, _count_1, &graphicsPipelineCreateInfo, GetVkAllocator(), OutPipeline));
 }
 
-void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::string& InJsonPath, VkPipelineCache InPipCache)
+bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::string& InJsonPath, VkPipelineCache InPipCache)
 {
 	if (OutPipeline != nullptr) *OutPipeline = VK_NULL_HANDLE;
 
 	Json::Value root;
-	_breturn_log(!Util::ParseJson(InJsonPath, root), _str_name_of(CreateGraphicPipelines) + " Failed! Not Valid File Path!");
+	_bret_false_log(!Util::ParseJson(InJsonPath, root), _str_name_of(CreateGraphicPipelines) + " Failed! Not Valid File Path!");
 
-	_jverify_return_log(root["graphic_pipeline_infos"], "json file: [graphic_pipeline_infos] can not be null!");
+	_jverify_ret_false_log(root["graphic_pipeline_infos"], "json file: [graphic_pipeline_infos] can not be null!");
 	
 	bool   bIsArray = root["graphic_pipeline_infos"].isArray();
 	uint32 numGInfo = bIsArray ? root["graphic_pipeline_infos"].size() : _count_1;
@@ -988,7 +994,7 @@ void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 		pGraphicInfos[i].flags = _jget_uint(graphicInfo["pipeline_flags"]);
 
 		// Pipeline Stage.
-		_jverify_return_log(graphicInfo["pipeline_stages_infos"], "json file: [pipeline_stages_infos] can not be null!");
+		_jverify_ret_false_log(graphicInfo["pipeline_stages_infos"], "json file: [pipeline_stages_infos] can not be null!");
 		
 		bIsArray            = graphicInfo["pipeline_stages_infos"].isArray();
 		uint32 numStageInfo = bIsArray ? graphicInfo["pipeline_stages_infos"].size() : _count_1;
@@ -1001,19 +1007,15 @@ void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 		{
 			auto& shaderInfo = bIsArray ? graphicInfo["pipeline_stages_infos"][j] : graphicInfo["pipeline_stages_infos"];
 
-
 			_declare_vk_smart_ptr(VkShaderModule, pShaderModule);
-			//VkSmartPtr<VkShaderModule> pShaderModule;
-			//VkShaderModule shaderModule;
-			VkShaderStageFlagBits      currentShaderStage;
-			this->CreateShaderModule(pShaderModule.MakeInstance(), _jget_cstring(shaderInfo["stage_code_path"]), &currentShaderStage);
 
-			//vkDestroyShaderModule(Global::GetVkDevice(), shaderModule, Global::GetVkAllocator());
+			VkShaderStageFlagBits currentShaderStage, userDefinedShaderStage;
+			this->CreateShaderModule(pShaderModule.MakeInstance(), _jget_cstring(shaderInfo["stage_code_path"]), &currentShaderStage);
 
 			pShaderInfos[j].sType  = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 			pShaderInfos[j].pNext  = nullptr;
 			pShaderInfos[j].flags  = _jget_uint(shaderInfo["stage_flags"]);
-			pShaderInfos[j].stage  = (shaderInfo["stage_type"] != Json::nullValue) ? Util::GetShaderStage(_jget_string(shaderInfo["stage_type"])) : currentShaderStage;
+			pShaderInfos[j].stage  = (shaderInfo["stage_type"] != Json::nullValue) ? (Util::GetShaderStage(_jget_string(shaderInfo["stage_type"]), userDefinedShaderStage) ? userDefinedShaderStage : currentShaderStage) : currentShaderStage;
 			pShaderInfos[j].module = *pShaderModule;
 			pShaderInfos[j].pName  = _jget_cstring_default(shaderInfo["entrypoint"], "main");
 			pShaderInfos[j].pSpecializationInfo = &specInfo;
@@ -1047,7 +1049,7 @@ void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 					case Json::ValueType::uintValue:    pSpecMaps[k].size = sizeof(uint32);   _reinterpret_data(pSpecData[k], value.asUInt());  break;
 					case Json::ValueType::realValue:    pSpecMaps[k].size = sizeof(float);    _reinterpret_data(pSpecData[k], value.asFloat()); break;
 					case Json::ValueType::booleanValue: pSpecMaps[k].size = sizeof(VkBool32); _reinterpret_data(pSpecData[k], value.asBool());  break;
-					default: _return_log("json file: not support [specialization_constants] value type!");
+					default: _ret_false_log("json file: not support [specialization_constants] value type!");
 					}
 					//////////////////////////////////////////////////////////////
 				}				
@@ -1060,7 +1062,7 @@ void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 
 		// Vertex Input State.
 		pGraphicInfos[i].pVertexInputState = &vertexInputStateInfo;
-		_jverify_return_log(graphicInfo["vertex_input_attributes"], "json file: [vertex_input_attributes] can not be null!");
+		_jverify_ret_false_log(graphicInfo["vertex_input_attributes"], "json file: [vertex_input_attributes] can not be null!");
 
 		// Bindings.
 		bIsArray             = graphicInfo["vertex_input_attributes"].isArray();
@@ -1148,11 +1150,11 @@ void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 				auto& viewport = bIsArray ? viewportInfo["viewports"][j] : viewportInfo["viewports"];
 				auto& scissor  = viewportInfo["scissor_rectangles"].isArray() ? viewportInfo["scissor_rectangles"][j] : viewportInfo["scissor_rectangles"];
 
-				_breturn_log(!viewport["position"].isArray(),    "json file: viewport [position] must be an array [ first, second ]!"   );
-				_breturn_log(!viewport["size"].isArray(),        "json file: viewport [size] must be an array [ first, second ]!"       );
-				_breturn_log(!viewport["depth_range"].isArray(), "json file: viewport [depth_range] must be an array [ first, second ]!");
-				_breturn_log(!scissor ["offset"].isArray(),      "json file: scissor [offset] must be an array [ first, second ]!"      );
-				_breturn_log(!scissor ["size"].isArray(),        "json file: scissor [size] must be an array [ first, second ]!"        );
+				_bret_false_log(!viewport["position"].isArray(),    "json file: viewport [position] must be an array [ first, second ]!"   );
+				_bret_false_log(!viewport["size"].isArray(),        "json file: viewport [size] must be an array [ first, second ]!"       );
+				_bret_false_log(!viewport["depth_range"].isArray(), "json file: viewport [depth_range] must be an array [ first, second ]!");
+				_bret_false_log(!scissor ["offset"].isArray(),      "json file: scissor [offset] must be an array [ first, second ]!"      );
+				_bret_false_log(!scissor ["size"].isArray(),        "json file: scissor [size] must be an array [ first, second ]!"        );
 
 				currentViewport.x        = _jget_float(viewport["position"][0]);
 				currentViewport.y        = _jget_float(viewport["position"][1]);
@@ -1320,6 +1322,8 @@ void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 				pushConstantRange.offset     = _offset_0;
 				pushConstantRange.size       = resData.items[_index_0].size;
 
+				if (resData.count > 1u) Global::CacheLog("Warning：The Pipeline Created by [" + InJsonPath + "] has too many push constant blocks!");
+
 				break; // There can only be one push constant block.
 			}
 		}
@@ -1343,6 +1347,8 @@ void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 	_safe_delete_array(pSampleMasks);
 	_safe_delete_array(pColorBlendAttachmentStates);
 	_safe_delete_array(pDynamicStates);
+
+	return true;
 }
 
 void LogicalDevice::FlushAllQueue()

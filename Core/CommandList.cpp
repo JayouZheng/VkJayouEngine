@@ -76,9 +76,9 @@ void CommandList::CopyBuffer(VkBuffer InSrcBuffer, VkBuffer InDstBuffer)
 
 void CommandList::CopyBuffer(VkBuffer InSrcBuffer, VkBuffer InDstBuffer, const VkBufferCopy& InRegion)
 {
-	_bexit_log(InRegion.srcOffset % 4 != 0, _str_name_of(CopyBuffer) + ", SrcOffset is not a multiple of 4!");
-	_bexit_log(InRegion.dstOffset % 4 != 0, _str_name_of(CopyBuffer) + ", DstOffset is not a multiple of 4!");
-	_bexit_log(InRegion.size % 4 != 0, _str_name_of(CopyBuffer) + ", Size is not a multiple of 4!");
+	_breturn_log(InRegion.srcOffset % 4 != 0, _str_name_of(CopyBuffer) + ", SrcOffset is not a multiple of 4!");
+	_breturn_log(InRegion.dstOffset % 4 != 0, _str_name_of(CopyBuffer) + ", DstOffset is not a multiple of 4!");
+	_breturn_log(InRegion.size % 4      != 0, _str_name_of(CopyBuffer) + ", Size is not a multiple of 4!");
 
 	vkCmdCopyBuffer(m_cmdBuffer, InSrcBuffer, InDstBuffer, _count_1, &InRegion);
 }
@@ -100,25 +100,25 @@ void CommandList::ClearBufferFloat(VkBuffer InBuffer, const float InValue)
 
 void CommandList::ClearBufferUint32(VkBuffer InBuffer, VkDeviceSize InOffset, VkDeviceSize InSize, const uint32 InValue)
 {
-	_bexit_log(InOffset % 4 != 0, _str_name_of(ClearBufferUint32) + ", Offset is not a multiple of 4!");
-	_bexit_log(InSize % 4 != 0, _str_name_of(ClearBufferUint32) + ", Size is not a multiple of 4!");
+	_breturn_log(InOffset % 4 != 0, _str_name_of(ClearBufferUint32) + ", Offset is not a multiple of 4!");
+	_breturn_log(InSize % 4   != 0, _str_name_of(ClearBufferUint32) + ", Size is not a multiple of 4!");
 
 	vkCmdFillBuffer(m_cmdBuffer, InBuffer, InOffset, InSize, InValue);
 }
 
 void CommandList::ClearBufferFloat(VkBuffer InBuffer, VkDeviceSize InOffset, VkDeviceSize InSize, const float InValue)
 {
-	_bexit_log(InOffset % 4 != 0, _str_name_of(ClearBufferFloat) + ", Offset is not a multiple of 4!");
-	_bexit_log(InSize % 4 != 0, _str_name_of(ClearBufferFloat) + ", Size is not a multiple of 4!");
+	_breturn_log(InOffset % 4 != 0, _str_name_of(ClearBufferFloat) + ", Offset is not a multiple of 4!");
+	_breturn_log(InSize % 4   != 0, _str_name_of(ClearBufferFloat) + ", Size is not a multiple of 4!");
 
 	vkCmdFillBuffer(m_cmdBuffer, InBuffer, InOffset, InSize, *(const uint32*)&InValue);
 }
 
 void CommandList::UpdateBuffer(VkBuffer InBuffer, VkDeviceSize InOffset, VkDeviceSize InSize, const void* InData)
 {
-	_bexit_log(InOffset % 4 != 0, _str_name_of(UpdateBuffer) + ", Offset is not a multiple of 4!");
-	_bexit_log(InSize % 4 != 0, _str_name_of(UpdateBuffer) + ", Size is not a multiple of 4!");
-	_bexit_log(InSize > 65536u, _str_name_of(UpdateBuffer) + ", The maximum size of data that can be placed in a buffer with vkCmdUpdateBuffer() is 65,536 bytes!");
+	_breturn_log(InOffset % 4 != 0, _str_name_of(UpdateBuffer) + ", Offset is not a multiple of 4!");
+	_breturn_log(InSize % 4   != 0, _str_name_of(UpdateBuffer) + ", Size is not a multiple of 4!");
+	_breturn_log(InSize > 65536u,   _str_name_of(UpdateBuffer) + ", The maximum size of data that can be placed in a buffer with vkCmdUpdateBuffer() is 65,536 bytes!");
 
 	vkCmdUpdateBuffer(m_cmdBuffer, InBuffer, InOffset, InSize, InData);
 }
@@ -282,7 +282,7 @@ void CommandList::Dispatch(uint32 x, uint32 y, uint32 z)
 	bIsOverflow = bIsOverflow || x > m_pBaseLayer->GetMainPDLimits().maxComputeWorkGroupCount[0];
 	bIsOverflow = bIsOverflow || y > m_pBaseLayer->GetMainPDLimits().maxComputeWorkGroupCount[1];
 	bIsOverflow = bIsOverflow || z > m_pBaseLayer->GetMainPDLimits().maxComputeWorkGroupCount[2];
-	_bexit_log(bIsOverflow, "Compute Dispatch Goes Beyond The Physical Limits!");
+	_breturn_log(bIsOverflow, "Compute Dispatch Goes Beyond The Physical Limits!");
 	
 	vkCmdDispatch(m_cmdBuffer, x, y, z);
 }

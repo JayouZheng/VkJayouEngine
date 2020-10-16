@@ -27,7 +27,7 @@ BaseLayer::~BaseLayer()
 	Free();
 }
 
-void BaseLayer::Init()
+bool BaseLayer::Init()
 {
 	// Enable run-time memory check for debug builds.
 #if defined(DEBUG) | defined(_DEBUG)
@@ -118,7 +118,7 @@ void BaseLayer::Init()
 		// Enum physical devices.
 		uint32 physicalDeviceCount = _count_0;
 		_vk_try(vkEnumeratePhysicalDevices(Global::GetVkInstance(), &physicalDeviceCount, nullptr));
-		_bexit_log(physicalDeviceCount == 0, "Can't find any physical devices on the host!");
+		_bret_false_log(physicalDeviceCount == 0, "Can't find any physical devices on the host!");
 
 		m_physicalDevices.resize(physicalDeviceCount);
 		_vk_try(vkEnumeratePhysicalDevices(Global::GetVkInstance(), &physicalDeviceCount, m_physicalDevices.data()));
@@ -199,7 +199,7 @@ void BaseLayer::Init()
 			}
 		}
 
-		_bexit_log(m_mainPDIndex == -1, "Can't find any valid physical devices on the host!");
+		_bret_false_log(m_mainPDIndex == -1, "Can't find any valid physical devices on the host!");
 	}
 
 	// Create VK Logical Devices & Get Queue & Create Command Pool.
@@ -214,7 +214,7 @@ void BaseLayer::Init()
 			else ++graphicQueueFamilyIndex;			
 		}
 
-		_bexit_log(m_mainQFIndex == -1, "Can't find any Valid Graphic & Compute Queue Family!");
+		_bret_false_log(m_mainQFIndex == -1, "Can't find any Valid Graphic & Compute Queue Family!");
 		
 		VkDeviceQueueCreateInfo deviceQueueCreateInfo = {};
 		deviceQueueCreateInfo.sType                   = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
@@ -291,9 +291,10 @@ void BaseLayer::Init()
 		if (Util::IsVecContain<const char*>(m_supportInsExts, VK_KHR_WIN32_SURFACE_EXTENSION_NAME, _lambda_is_cstr_equal))
 		{
 			VkBool32 bIsDefaultQueueSupportPresentation = vkGetPhysicalDeviceWin32PresentationSupportKHR(m_physicalDevices[m_mainPDIndex], m_mainQFIndex);
-			_bexit_log(bIsDefaultQueueSupportPresentation == VK_FALSE, "The Default Queue Do Not Support Presentation (Win32)!");
+			_bret_false_log(bIsDefaultQueueSupportPresentation == VK_FALSE, "The Default Queue Do Not Support Presentation (Win32)!");
 
 			m_pWindow = new Window;
+			if (!m_pWindow->Init()) return false;
 			m_device.SetWindow(m_pWindow);
 			VkWin32SurfaceCreateInfoKHR win32SurfaceCreateInfo = {};
 			win32SurfaceCreateInfo.sType = VK_STRUCTURE_TYPE_DISPLAY_SURFACE_CREATE_INFO_KHR;
@@ -322,7 +323,7 @@ void BaseLayer::Init()
 			{
 				uint32 formatCount = _count_0;
 				_vk_try(vkGetPhysicalDeviceSurfaceFormatsKHR(m_physicalDevices[m_mainPDIndex], *m_pSurface, &formatCount, nullptr));
-				_bexit_log(formatCount == 0, "No Surface Format Support!");
+				_bret_false_log(formatCount == 0, "No Surface Format Support!");
 
 				m_surfaceFormats.resize(formatCount);
 				_vk_try(vkGetPhysicalDeviceSurfaceFormatsKHR(m_physicalDevices[m_mainPDIndex], *m_pSurface, &formatCount, m_surfaceFormats.data()));
@@ -348,7 +349,7 @@ void BaseLayer::Init()
 					m_swapchainCreateInfo.minImageCount = BaseLayerConfig::SwapchainCreateInfo.frameCount;
 				else m_swapchainCreateInfo.minImageCount = m_surfaceCapabilities.minImageCount;
 
-				_bexit_log(!(m_surfaceCapabilities.supportedUsageFlags & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT), "Surface Do Not Support Color Attachment Usage!");
+				_bret_false_log(!(m_surfaceCapabilities.supportedUsageFlags & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT), "Surface Do Not Support Color Attachment Usage!");
 				m_swapchainCreateInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT & BaseLayerConfig::SwapchainCreateInfo.imageUsage;
 
 				if (BaseLayerConfig::SwapchainCreateInfo.surfacePreTransform & m_surfaceCapabilities.supportedTransforms)
@@ -371,11 +372,11 @@ void BaseLayer::Init()
 			{
 				VkBool32 surfacePresentationSupport = VK_FALSE;
 				_vk_try(vkGetPhysicalDeviceSurfaceSupportKHR(m_physicalDevices[m_mainPDIndex], m_mainQFIndex, *m_pSurface, &surfacePresentationSupport));
-				_bexit_log(surfacePresentationSupport == VK_FALSE, "The Default Queue Do Not Support Presentation!");
+				_bret_false_log(surfacePresentationSupport == VK_FALSE, "The Default Queue Do Not Support Presentation!");
 			}
 			
 		}
-		else _bexit_log(true, "Create Swapchain Failed! Application Terminate!");
+		else _bret_false_log(true, "Create Swapchain Failed! Application Terminate!");
 
 		// TODO:
 		m_device.CreateGraphicPipelines(nullptr, "Json/graphic_pipeline_info.json");
@@ -383,6 +384,7 @@ void BaseLayer::Init()
 		//m_pWindow->Show();
 	}
 
+	return true;
 }
 
 void BaseLayer::CachedModulePath()

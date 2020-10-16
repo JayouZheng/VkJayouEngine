@@ -94,7 +94,7 @@ namespace Util
 	const std::string DefaultColorComponentMask = "rgba";
 	const std::string DefaultDynamicState       = "viewport";
 
-	VkShaderStageFlagBits    GetShaderStage             (const std::string& InKey);
+	bool                     GetShaderStage             (const std::string& InKey, VkShaderStageFlagBits& OutShaderStage);
 	VkFormat                 GetVertexAttributeVkFormat (const std::string& InKey);
 	uint32                   GetVertexAttributeSize     (const std::string& InKey);
 	VkPrimitiveTopology      GetPrimitiveTopology       (const std::string& InKey);
@@ -150,14 +150,10 @@ namespace Util
 #define _breturn_log(b, log) if (b) { Global::CacheLog(log); return; }
 #define _returnx_log(ret, log) { Global::CacheLog(log); return ret; }
 #define _breturnx_log(b, ret, log) if(b) { Global::CacheLog(log); return ret; }
+#define _ret_false_log(log) _returnx_log(false, log)
+#define _bret_false_log(b, log) _breturnx_log(b, false, log)
 
 #define _bcontinue_log(b, log) if (b) { Global::CacheLog(log); continue; }
 #define _bbreak_log(b, log) if (b) { Global::CacheLog(log); break; }
-
-// TODO:
-// Suddenly exit app will result memory leak!!!
-#define _exit_log(log) { Global::ExitLog(log); exit(1); }
-#define _bexit_log(b, log) if(b) { Global::ExitLog(log); exit(1); }
-
 
 #define _is_guaranteed_min(x, min_val, y) { if (Global::IsVkGuaranteedMinimum<uint32>(x, min_val)) x = std::min(x, y); }

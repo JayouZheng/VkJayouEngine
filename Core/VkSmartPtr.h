@@ -24,6 +24,7 @@ public:
 	T* MakeInstance()
 	{
 		_ptr_cnt->_ptr = new T;
+		*(_ptr_cnt->_ptr) = NULL;
 		return _ptr_cnt->_ptr;
 	}
 
@@ -158,7 +159,7 @@ private:
 	}                                                                                          \
 }                                                                                              \
 
-		if (_ptr != nullptr)
+		if (_ptr != nullptr && *_ptr != NULL)
 		{
 			_vk_destroy(Fence);
 			_vk_destroy(Semaphore); // Should Wait for all reference Object freed...
@@ -187,10 +188,10 @@ private:
 			{
 				vkDestroySurfaceKHR(Global::GetVkInstance(), (VkSurfaceKHR)*_ptr, Global::GetVkAllocator());
 				Global::CacheLog("_vk_destroy: " + _str_name_of(VkSurfaceKHR));
-			}
-
-			delete _ptr;
+			}		
 		}
+
+		delete _ptr;
 
 		Global::Decrease();
 

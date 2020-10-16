@@ -212,6 +212,23 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 // Class Window.
 Window::Window()
 {
+	m_defaultDesc.Width  = 1280;
+	m_defaultDesc.Height = 720;
+}
+
+Window::Window(const WindowDesc& InWindoWDesc)
+	: m_defaultDesc(InWindoWDesc)
+{
+
+}
+
+Window::~Window()
+{
+
+}
+
+bool Window::Init()
+{
 	// Register class and create window
 	{
 		m_pHinstance = GetModuleHandle(NULL);
@@ -228,7 +245,7 @@ Window::Window()
 		wcex.lpszClassName = L"VkJayouEngineWindowClass";
 		wcex.hIconSm = LoadIconW(wcex.hInstance, L"IDI_ICON");
 
-		_bexit_log(!RegisterClassExW(&wcex), "Register Class Failed When Create Window!");
+		_bret_false_log(!RegisterClassExW(&wcex), "Register Class Failed When Create Window!");
 
 		// Create window
 		uint32 w, h;
@@ -245,7 +262,7 @@ Window::Window()
 		// TODO: Change to CreateWindowExW(WS_EX_TOPMOST, L"JayouEngineWindowClass", L"JayouEngine", WS_POPUP,
 		// to default to fullscreen.
 
-		_bexit_log(!m_pHwnd, "Create Window Failed!");
+		_bret_false_log(!m_pHwnd, "Create Window Failed!");
 
 		// TODO: Change nCmdShow to SW_SHOWMAXIMIZED to default to fullscreen.
 
@@ -253,17 +270,8 @@ Window::Window()
 
 		//GetClientRect(m_pHwnd, &rc);
 	}
-}
 
-Window::Window(const WindowDesc& InWindoWDesc)
-	: m_defaultDesc(InWindoWDesc)
-{
-
-}
-
-Window::~Window()
-{
-
+	return true;
 }
 
 void* Window::GetHinstance() const

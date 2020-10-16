@@ -28,6 +28,10 @@ public:
 
 public:
 
+	bool Init();
+
+public:
+
 	void* GetHinstance() const;
 	void* GetHwnd() const;
 

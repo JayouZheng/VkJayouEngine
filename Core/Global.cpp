@@ -25,7 +25,6 @@ namespace
 	/// </summary>
 	const std::unordered_map<std::string, VkShaderStageFlagBits> ShaderStageMap =
 	{
-		{ "null",                    VK_SHADER_STAGE_VERTEX_BIT                  },
 		{ "vertex",                  VK_SHADER_STAGE_VERTEX_BIT                  },
 		{ "pixel",                   VK_SHADER_STAGE_FRAGMENT_BIT                },
 		{ "fragment",                VK_SHADER_STAGE_FRAGMENT_BIT                },
@@ -43,19 +42,27 @@ namespace
 		{ "comp",                    VK_SHADER_STAGE_COMPUTE_BIT                 },
 		{ "mesh",                    VK_SHADER_STAGE_MESH_BIT_NV                 },
 		{ "rgen",                    VK_SHADER_STAGE_RAYGEN_BIT_NV               },
-		{ "all",                     VK_SHADER_STAGE_ALL_GRAPHICS                }
+		{ "all",                     VK_SHADER_STAGE_ALL_GRAPHICS                },
+		{ "null",                    VK_SHADER_STAGE_FLAG_BITS_MAX_ENUM          },
+		{ "spv",                     VK_SHADER_STAGE_FLAG_BITS_MAX_ENUM          }	
+	};
+
+	struct VkFormatInfo
+	{
+		VkFormat Format;
+		uint32   Size;
 	};
 
 	// Key, VkFormat, Size.
-	const std::unordered_map<std::string, std::tuple<VkFormat, uint32> > VertexAttributeMap =
+	const std::unordered_map<std::string, VkFormatInfo> VertexAttributeMap =
 	{
-		{ "position",  std::make_tuple(VK_FORMAT_R32G32B32_SFLOAT,  12u) },
-		{ "color",     std::make_tuple(VK_FORMAT_R8G8B8A8_UNORM,     4u) },
-		{ "color8u",   std::make_tuple(VK_FORMAT_R8G8B8A8_UINT,      4u) },
-		{ "color32",   std::make_tuple(VK_FORMAT_R32G32B32_SFLOAT,  12u) },
-		{ "normal",    std::make_tuple(VK_FORMAT_R32G32B32_SFLOAT,  12u) },
-		{ "tangent",   std::make_tuple(VK_FORMAT_R32G32B32_SFLOAT,  12u) },
-		{ "uv",        std::make_tuple(VK_FORMAT_R32G32_SFLOAT,      8u) }
+		{ "position",  { VK_FORMAT_R32G32B32_SFLOAT,  12u } },
+		{ "color",     { VK_FORMAT_R8G8B8A8_UNORM,     4u } },
+		{ "color8u",   { VK_FORMAT_R8G8B8A8_UINT,      4u } },
+		{ "color32",   { VK_FORMAT_R32G32B32_SFLOAT,  12u } },
+		{ "normal",    { VK_FORMAT_R32G32B32_SFLOAT,  12u } },
+		{ "tangent",   { VK_FORMAT_R32G32B32_SFLOAT,  12u } },
+		{ "uv",        { VK_FORMAT_R32G32_SFLOAT,      8u } }
 	};
 
 	const std::unordered_map<std::string, VkPrimitiveTopology> PrimitiveTopologyMap =
@@ -279,7 +286,6 @@ namespace
 
 VkInstance Global::GetVkInstance()
 {
-	_bexit_log(g_instance == VK_NULL_HANDLE, "return [g_instance] is null!");
 	return g_instance;
 }
 
@@ -290,7 +296,6 @@ void Global::SetVkInstance(const VkInstance& InInstance)
 
 VkDevice Global::GetVkDevice()
 {
-	_bexit_log(g_device == VK_NULL_HANDLE, "return [g_device] is null!");
 	return g_device;
 }
 
@@ -384,17 +389,16 @@ void Global::SafeFreeAllocator()
 	}
 }
 
-VkShaderStageFlagBits Util::GetShaderStage(const std::string& InKey)
+bool Util::GetShaderStage(const std::string& InKey, VkShaderStageFlagBits& OutShaderStage)
 {
-	VkShaderStageFlagBits result;
 	try
 	{
-		result = ShaderStageMap.at(StringUtil::ToLowerCase(InKey));
-		return result;
+		OutShaderStage = ShaderStageMap.at(StringUtil::ToLowerCase(InKey));
+		return true;
 	}
 	catch (const std::out_of_range& msg)
 	{
-		_exit_log(std::string(msg.what()) + ", pipeline stage type invalid! exit() was called!");
+		_ret_false_log(std::string(msg.what()) + ", pipeline stage type invalid!");
 	}
 }
 
@@ -403,7 +407,7 @@ VkFormat Util::GetVertexAttributeVkFormat(const std::string& InKey)
 	VkFormat result;
 	try
 	{
-		result = std::get<0>(VertexAttributeMap.at(InKey));
+		result = VertexAttributeMap.at(InKey).Format;
 		return result;
 	}
 	catch (const std::out_of_range& msg)
@@ -418,7 +422,7 @@ uint32 Util::GetVertexAttributeSize(const std::string& InKey)
 	uint32 result;
 	try
 	{
-		result = std::get<1>(VertexAttributeMap.at(InKey));
+		result = VertexAttributeMap.at(InKey).Size;
 		return result;
 	}
 	catch (const std::out_of_range& msg)
