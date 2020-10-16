@@ -10,8 +10,8 @@ BaseAllocator::BaseAllocator()
 	m_allocator.pfnAllocation         = &BaseAllocator::_Allocation;
 	m_allocator.pfnReallocation       = &BaseAllocator::_Reallocation;
 	m_allocator.pfnFree               = &BaseAllocator::_Free;
-	m_allocator.pfnInternalAllocation = nullptr; //&BaseAllocator::_InternalAllocation;
-	m_allocator.pfnInternalFree       = nullptr; //&BaseAllocator::_InternalFree;
+	m_allocator.pfnInternalAllocation = &BaseAllocator::_InternalAllocation;
+	m_allocator.pfnInternalFree       = &BaseAllocator::_InternalFree;
 }
 
 BaseAllocator::~BaseAllocator()

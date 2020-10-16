@@ -63,7 +63,7 @@ private:
 
 	virtual void  Free(void* pMemory) = 0;
 
-	virtual void  InternalAllocation(size_t size, VkInternalAllocationType allocationType, VkSystemAllocationScope allocationScope) {} //= 0;
+	virtual void  InternalAllocation(size_t size, VkInternalAllocationType allocationType, VkSystemAllocationScope allocationScope) = 0;
 
-	virtual void  InternalFree(size_t size, VkInternalAllocationType allocationType, VkSystemAllocationScope allocationScope) {} //= 0;
+	virtual void  InternalFree(size_t size, VkInternalAllocationType allocationType, VkSystemAllocationScope allocationScope) = 0;
 };

@@ -4,8 +4,6 @@
 
 #if 1
 
-#include "Core/MemoryLeakCheck.h"
-
 #include "Core/TypeDef.h"
 #include "vk_app.h"
  

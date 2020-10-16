@@ -11,6 +11,7 @@ VkAllocationCallbacks* BaseLayer::GetVkAllocator() const
 }
 
 BaseLayer::BaseLayer()
+	: m_pAllocator(nullptr)
 {
 	
 }

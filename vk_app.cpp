@@ -6,7 +6,6 @@
 #include "Core/Global.h"
 
 #include "vk_app.h"
-#include "app_allocator.h"
 
 vk_app::vk_app()
 {
@@ -20,8 +19,7 @@ vk_app::~vk_app()
 
 void vk_app::Begin()
 {
-	Global::SetAllocator(new app_allocator);
-	BaseLayer base(Global::GetAllocator());
+	BaseLayer base;
 	base.Init();
 }
 

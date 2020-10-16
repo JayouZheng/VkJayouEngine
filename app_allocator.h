@@ -23,9 +23,16 @@ private:
 
 	virtual void  Free(void* pMemory) override;
 
+	virtual void  InternalAllocation(size_t size, VkInternalAllocationType allocationType, VkSystemAllocationScope allocationScope) override;
+
+	virtual void  InternalFree(size_t size, VkInternalAllocationType allocationType, VkSystemAllocationScope allocationScope) override;
+
 private:
 
 	uint32 m_allocCount = 0;
 	uint32 m_reallocCount = 0;
 	uint32 m_freeCount = 0;
+
+	std::vector<void*> m_allocAddress;
+	std::vector<uint64> m_freeAddress;
 };
