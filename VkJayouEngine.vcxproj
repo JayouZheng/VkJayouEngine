@@ -169,12 +169,14 @@
     <ClCompile Include="app_allocator.cpp" />
     <ClCompile Include="Core\BaseAllocator.cpp" />
     <ClCompile Include="Core\BaseLayer.cpp" />
+    <ClCompile Include="Core\Color.cpp" />
     <ClCompile Include="Core\CommandList.cpp" />
     <ClCompile Include="Core\CommandQueue.cpp" />
     <ClCompile Include="Core\DiskResourceLoader.cpp" />
     <ClCompile Include="Core\Global.cpp" />
     <ClCompile Include="Core\GLSLCompiler.cpp" />
     <ClCompile Include="Core\LogicalDevice.cpp" />
+    <ClCompile Include="Core\LogSystem.cpp" />
     <ClCompile Include="Core\StringManager.cpp" />
     <ClCompile Include="Core\Window.cpp" />
     <ClCompile Include="ThirdParty\jsoncpp\src\lib_json\json_reader.cpp" />
@@ -185,6 +187,7 @@
   <ItemGroup>
     <ClInclude Include="Core\BaseAllocator.h" />
     <ClInclude Include="Core\BaseLayer.h" />
+    <ClInclude Include="Core\Color.h" />
     <ClInclude Include="Core\CommandList.h" />
     <ClInclude Include="Core\CommandQueue.h" />
     <ClInclude Include="Core\Common.h" />
@@ -193,6 +196,7 @@
     <ClInclude Include="Core\GLSLCompiler.h" />
     <ClInclude Include="Core\JsonParser.h" />
     <ClInclude Include="Core\LogicalDevice.h" />
+    <ClInclude Include="Core\LogSystem.h" />
     <ClInclude Include="Core\MemoryLeakCheck.h" />
     <ClInclude Include="Core\ModuleLoader.h" />
     <ClInclude Include="Core\Platform.h" />

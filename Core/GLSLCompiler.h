@@ -22,7 +22,7 @@ public:
         HLSL,
 
         MAX = 0xff
-    };//enum class ShaderType
+    };
 
     struct CompileInfo
     {

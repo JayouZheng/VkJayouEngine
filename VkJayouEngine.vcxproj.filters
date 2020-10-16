@@ -43,6 +43,12 @@
     <ClCompile Include="Core\GLSLCompiler.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="Core\LogSystem.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Color.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="vk_app.h" />
@@ -294,6 +300,12 @@
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="Core\DiskResourceLoader.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\LogSystem.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Color.h">
       <Filter>Core</Filter>
     </ClInclude>
   </ItemGroup>
