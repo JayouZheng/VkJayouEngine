@@ -62,8 +62,8 @@ public:
 
 private:
 
-	void* m_pModule = nullptr;
 	std::string m_moduleName;
 
-	iBool m_bResult = _false;
+	void*       m_pModule = nullptr;
+	iBool       m_bResult = _false;
 };

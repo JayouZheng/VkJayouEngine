@@ -5,6 +5,7 @@
 #include "BaseLayer.h"
 #include "JsonParser.h"
 #include "StringManager.h"
+#include "DiskResourceLoader.h"
 
 VkAllocationCallbacks* LogicalDevice::GetVkAllocator() const
 {
@@ -1007,10 +1008,12 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 		{
 			auto& shaderInfo = bIsArray ? graphicInfo["pipeline_stages_infos"][j] : graphicInfo["pipeline_stages_infos"];
 
-			_declare_vk_smart_ptr(VkShaderModule, pShaderModule);
+			std::string shaderPath = _jget_string(shaderInfo["stage_code_path"]);
+			if (shaderPath == _str_null) return false;
 
+			_declare_vk_smart_ptr(VkShaderModule, pShaderModule);
 			VkShaderStageFlagBits currentShaderStage, userDefinedShaderStage;
-			this->CreateShaderModule(pShaderModule.MakeInstance(), _jget_cstring(shaderInfo["stage_code_path"]), &currentShaderStage);
+			this->CreateShaderModule(pShaderModule.MakeInstance(), DiskResourceLoader::Load(shaderPath).data(), &currentShaderStage);
 
 			pShaderInfos[j].sType  = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 			pShaderInfos[j].pNext  = nullptr;

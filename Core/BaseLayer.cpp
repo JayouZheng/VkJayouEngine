@@ -4,6 +4,7 @@
 
 #include "BaseLayer.h"
 #include "Global.h"
+#include "DiskResourceLoader.h"
 
 VkAllocationCallbacks* BaseLayer::GetVkAllocator() const
 {
@@ -379,7 +380,7 @@ bool BaseLayer::Init()
 		else _bret_false_log(true, "Create Swapchain Failed! Application Terminate!");
 
 		// TODO:
-		m_device.CreateGraphicPipelines(nullptr, "Json/graphic_pipeline_info.json");
+		m_device.CreateGraphicPipelines(nullptr, DiskResourceLoader::Load("Json/graphic_pipeline_info.json"));
 		
 		//m_pWindow->Show();
 	}

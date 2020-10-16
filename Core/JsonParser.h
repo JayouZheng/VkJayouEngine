@@ -13,8 +13,8 @@
 #define _jget_float(json_key) ((json_key) == Json::nullValue) ? 0.0f : (json_key).asFloat()
 
 #define _jget_cstring_default(json_key, default) (json_key).isString() ? (((json_key) == Json::nullValue) ? default : (*(json_key).asCString() == 0 ? default : (json_key).asCString())) : default
-#define _jget_cstring(json_key) _jget_cstring_default(json_key, "null")
-#define _jget_string(json_key) std::string(_jget_cstring_default(json_key, "null"))
+#define _jget_cstring(json_key) _jget_cstring_default(json_key, "NULL")
+#define _jget_string(json_key) std::string(_jget_cstring_default(json_key, "NULL"))
 #define _jget_string_default(json_key, default) std::string(_jget_cstring_default(json_key, default))
 
 #define _jis_auto(json_key) (_jget_string(json_key) == "auto")
