@@ -1,8 +1,13 @@
 ﻿//
 // app_allocator.h
-//
+// Note: This allocator demo is copied from "Vulkan™ Programming Guide, The Official Guide to Learning Vulkan", 
+//       And I have found that the use of this allocator will result in memory leak. 
 
 #pragma once
+
+#define ENABLE_CUSTOM_ALLOCATOR  0
+
+#if ENABLE_CUSTOM_ALLOCATOR
 
 #include "Core/BaseAllocator.h"
 
@@ -16,7 +21,6 @@ public:
 
 private:
 
-	// Now declare the non static member functions that will actually perform the allocations.
 	virtual void* Allocation(size_t size, size_t alignment, VkSystemAllocationScope allocationScope) override;
 
 	virtual void* Reallocation(void* pOriginal, size_t size, size_t alignment, VkSystemAllocationScope allocationScope) override;
@@ -29,10 +33,9 @@ private:
 
 private:
 
-	uint32 m_allocCount = 0;
+	uint32 m_allocCount   = 0;
 	uint32 m_reallocCount = 0;
-	uint32 m_freeCount = 0;
-
-	std::vector<void*> m_allocAddress;
-	std::vector<uint64> m_freeAddress;
+	uint32 m_freeCount    = 0;
 };
+
+#endif
