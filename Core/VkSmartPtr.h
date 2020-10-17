@@ -5,6 +5,7 @@
 #pragma once
 
 #include "Global.h"
+#include "LogSystem.h"
 
 #pragma region VkSmartPtr
 
@@ -156,7 +157,7 @@ private:
 		_is_cstr_equal(_name_of(Vk##object), m_type))                                              \
 	{                                                                                              \
 		vkDestroy##object(Global::GetVkDevice(), (Vk##object)*m_object, Global::GetVkAllocator()); \
-		Global::CacheLog("_vk_destroy: " + _str_name_of(object));                                  \
+		LogSystem::Log("_vk_destroy: " + _str_name_of(object), LogSystem::Category::VkSmartPtr);   \
 	}                                                                                              \
 }                                                                                                  \
 
@@ -188,7 +189,7 @@ private:
 			if (_is_cstr_equal(_name_of(VkSurfaceKHR), m_type))
 			{
 				vkDestroySurfaceKHR(Global::GetVkInstance(), (VkSurfaceKHR)*m_object, Global::GetVkAllocator());
-				Global::CacheLog("_vk_destroy: " + _str_name_of(VkSurfaceKHR));
+				LogSystem::Log("_vk_destroy: " + _str_name_of(VkSurfaceKHR), LogSystem::Category::VkSmartPtr);
 			}		
 		}
 
@@ -201,7 +202,7 @@ private:
 			vkDestroyDevice(Global::GetVkDevice(), Global::GetVkAllocator());
 			vkDestroyInstance(Global::GetVkInstance(), Global::GetVkAllocator());
 			Global::SafeFreeAllocator();
-			Global::PrintLog();
+			Global::OnExit();
 		}
 		
 	}

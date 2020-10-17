@@ -72,6 +72,7 @@ public:
 
 	template<typename T> static std::vector<T>                   WStringToArray(const std::wstring& wstr, const wchar_t& separator);
 
+	// Use This Function Carefully!!! <sstream> Auto Recognize Variable Type May Cause Undesirable Result!!!
 	template<typename T, typename... Targs> static std::string   Printf(const char* InFormat, T InValue, Targs... InArgs);
 
 private:

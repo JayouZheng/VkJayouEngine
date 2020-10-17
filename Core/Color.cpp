@@ -7,7 +7,7 @@
 namespace ColorUtil
 {
     #undef DEF_COLOR
-    #define    DEF_COLOR(en_name,red,green,blue,chs_name)   {   \
+    #define    DEF_COLOR(en_name,red,green,blue,ch_name)   {   \
                                                         red,    \
                                                         green,  \
                                                         blue,   \
@@ -19,7 +19,7 @@ namespace ColorUtil
                                                         float((double(red)*0.299+double(green)*0.587+double(blue)*0.114)/255.0f), \
                                                         \
                                                         #en_name, \
-                                                        _u16_text(chs_name) \
+                                                        _u16_text(ch_name) \
                                                     },
 
     ColorInfo Palette[size_t(Color::RANGE_SIZE)] =

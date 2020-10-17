@@ -16,7 +16,6 @@
 #include <array>
 #include <unordered_map>
 #include <memory>
-#include <type_traits>
 #include <algorithm>
 
 #define _assert(x) assert(x)
@@ -30,9 +29,8 @@
 
 #define _lambda_is_cstr_equal [&](const char* a, const char* b) { return _is_cstr_equal(a, b); }
 
-#define _lambda_is_equal(Type) [&](const Type& a, const Type& b) { return a == b; }
+#define _lambda_is_equal(type) [&](const type& a, const type& b) { return a == b; }
 
-#define _lambda_is_surface_format_equal [&](const VkSurfaceFormatKHR& a, const VkSurfaceFormatKHR& b) { return (a.format == b.format) && (a.colorSpace == b.colorSpace); }
 
 #define _cmd_print_line(str) std::cout << str << std::endl
 #define _cmd_print_line_ws(str) std::wcout << str << std::endl
@@ -49,6 +47,7 @@
 
 
 #define _w_text(x)    L#x
+#define _u8_text(x)   u8#x
 #define _u16_text(x)  u#x
 #define _u32_text(x)  U#x
 
@@ -75,17 +74,19 @@
 #define _str_null          "NULL"
 #define _wstr_null         _w_text("NULL")
 
-#define _numeric_max(Type)  std::numeric_limits<Type>::max()
+#define _str_unknown       "Unknown"
+
+#define _numeric_max(type) std::numeric_limits<type>::max()
 
 
-#include "vulkan/vk_platform.h"
+#include <cstdint>
 
-using int8 = std::int8_t;
+using int8  = std::int8_t;
 using int16 = std::int16_t;
 using int32 = std::int32_t;
 using int64 = std::int64_t;
 
-using uint8 = std::uint8_t;
+using uint8  = std::uint8_t;
 using uint16 = std::uint16_t;
 using uint32 = std::uint32_t;
 using uint64 = std::uint64_t;

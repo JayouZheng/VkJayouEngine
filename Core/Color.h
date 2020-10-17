@@ -36,8 +36,8 @@ namespace ColorUtil
         };
 
 
-        char    EnName [32];          ///<英文名称
-        u16char ChsName[16];          ///<中文名称
+        char    EnName[32];           ///<英文名称
+        u16char ChName[16];           ///<中文名称
     };
 
     /**

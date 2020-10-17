@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "Global.h"
 #include "Color.h"
+#include "TimerManager.h"
 
 using namespace ColorUtil;
 
@@ -23,20 +23,42 @@ public:
 		Max = 0xff
 	};
 
-	struct LogInfo
+	enum class Category
 	{
-		LogSystem::Level Level;
-		std::string      Content;
+		Unknown = 0,
+
+		BaseLayer,
+		LogicalDevice,
+		CommandList,
+		GLSLCompiler, 
+		JsonParser, 
+		VkSmartPtr,
+		DiskResourceLoader,
+
+
+		// Keep it for future use.
+		Engine,
+		Editor,
+		Game,
+
+		Max = 0xff
+	};
+
+	struct LogInfo
+	{	
+		TimerUtil::TimeStamp TimeStamp;
+		LogSystem::Category  Category;
+		LogSystem::Level     Level;
+		ColorUtil::Color     Color;
+		std::string          Content;
+
+		std::string LevelToString() const;
+		std::string CategoryToString() const;
+
+		std::string ToString() const;
 	};
 
 public:
 
-	LogSystem() {}
-	~LogSystem() {}
-
-	void Log(const std::string& InLog, const Level& InLevel = Level::Common, const Color& InColor = Color::Snow) const;
-
-protected:
-
-	
+	static void Log(const std::string& InLog, const Category& InCategory = Category::Unknown, const Level& InLevel = Level::Common, const Color& InColor = Color::Snow);
 };

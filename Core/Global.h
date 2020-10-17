@@ -35,13 +35,13 @@ namespace Global
 	std::string             GetModuleName();
 
 	void                    CacheLog(const std::string& InLog);
-	void                    PrintLog();
-	void                    ExitLog(const std::string& InLog);
 
 	BaseAllocator*          GetAllocator();
 	VkAllocationCallbacks*  GetVkAllocator();
 	void                    SetAllocator(BaseAllocator* InAllocator);
 	void                    SafeFreeAllocator();
+
+	void                    OnExit();
 
 	template<typename T>
 	bool IsVkGuaranteedMinimum(T InValue, T InMinimum)
@@ -134,7 +134,7 @@ namespace Util
 }
 
 // TODO:
-// The log system need to be updated so that it will have many categories, e.g., Global, ShaderCompile, JsonParser, VkSmartPtr, Error, Common, Engine...
+// The log system has been added, these code block should be changed as soon as possible.
 
 #define _return_log(log) { Global::CacheLog(log); return; }
 #define _breturn_log(b, log) if (b) { Global::CacheLog(log); return; }

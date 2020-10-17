@@ -6,6 +6,7 @@
 #include "JsonParser.h"
 #include "StringManager.h"
 #include "DiskResourceLoader.h"
+#include "LogSystem.h"
 
 VkAllocationCallbacks* LogicalDevice::GetVkAllocator() const
 {
@@ -173,8 +174,8 @@ bool LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const ch
 		else
 		{
 			*OutShaderModule = VK_NULL_HANDLE;
-			Global::CacheLog(spvData->log);
-			Global::CacheLog(spvData->debug_log);
+			LogSystem::Log(spvData->log, LogSystem::Category::GLSLCompiler);
+			LogSystem::Log(spvData->debug_log, LogSystem::Category::GLSLCompiler);
 			_ret_false_log("Error: Compiling shader file \"" + std::string(InShaderPath) + "\" failed!");
 		}
 	}
@@ -339,7 +340,7 @@ bool LogicalDevice::SavePipelineCacheToFile(VkPipelineCache InPipCache, const ch
 		}
 		catch (const std::exception& e)
 		{
-			_cmd_print_line(e.what());
+			LogSystem::Log(e.what(), LogSystem::Category::LogicalDevice);
 
 			delete[] pData;
 			return false;
@@ -1325,7 +1326,7 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 				pushConstantRange.offset     = _offset_0;
 				pushConstantRange.size       = resData.items[_index_0].size;
 
-				if (resData.count > 1u) Global::CacheLog("Warning：The Pipeline Created by [" + InJsonPath + "] has too many push constant blocks!");
+				if (resData.count > 1u) LogSystem::Log("Warning：The Pipeline Created by [" + InJsonPath + "] has too many push constant blocks!", LogSystem::Category::LogicalDevice);
 
 				break; // There can only be one push constant block.
 			}

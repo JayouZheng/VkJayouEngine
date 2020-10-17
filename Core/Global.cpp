@@ -5,6 +5,7 @@
 #include "Global.h"
 #include "BaseAllocator.h"
 #include "StringManager.h"
+#include "LogSystem.h"
 
 namespace
 {
@@ -346,23 +347,7 @@ std::string Global::GetModuleName()
 
 void Global::CacheLog(const std::string& InLog)
 {
-	g_logs.push_back(InLog);
-}
-
-void Global::PrintLog()
-{
-	uint32 logID = 0;
-	for (auto& log : g_logs)
-	{
-		_cmd_print_line("Global Cached " + std::to_string(g_logs.size()) + " Logs:");
-		_cmd_print_line(std::to_string(logID++) + ". " + log);
-	}
-}
-
-void Global::ExitLog(const std::string& InLog)
-{
-	CacheLog(InLog);
-	PrintLog();
+	LogSystem::Log(InLog);
 }
 
 BaseAllocator* Global::GetAllocator()
@@ -387,6 +372,10 @@ void Global::SafeFreeAllocator()
 		delete g_allocator;
 		g_allocator = nullptr;
 	}
+}
+
+void Global::OnExit()
+{
 }
 
 bool Util::GetShaderStage(const std::string& InKey, VkShaderStageFlagBits& OutShaderStage)

@@ -6,8 +6,18 @@
 
 #include "json/json.h"
 
-#define _jverify_return_log(json_key, log) if ((json_key) == Json::nullValue) { Global::CacheLog(log); return; }
-#define _jverify_ret_false_log(json_key, log) if ((json_key) == Json::nullValue) { Global::CacheLog(log); return false; }
+class JsonParser
+{
+
+public:
+
+	static void Log(const std::string& InLog);
+};
+
+// TODO: Move this code block into class JsonParser.
+
+#define _jverify_return_log(json_key, log) if ((json_key) == Json::nullValue) { JsonParser::Log(log); return; }
+#define _jverify_ret_false_log(json_key, log) if ((json_key) == Json::nullValue) { JsonParser::Log(log); return false; }
 #define _jget_int(json_key) ((json_key) == Json::nullValue) ? 0 : (json_key).asInt()
 #define _jget_uint(json_key) ((json_key) == Json::nullValue) ? 0u : (json_key).asUInt()
 #define _jget_float(json_key) ((json_key) == Json::nullValue) ? 0.0f : (json_key).asFloat()
