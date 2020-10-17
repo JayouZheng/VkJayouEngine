@@ -1,24 +1,28 @@
-﻿#include<hgl/type/Color.h>
+﻿//
+// Color.cpp
+//
 
-namespace hgl
+#include "Color.h"
+
+namespace ColorUtil
 {
     #undef DEF_COLOR
-    #define    DEF_COLOR(eng_name,red,green,blue,chs_name)    {   \
+    #define    DEF_COLOR(en_name,red,green,blue,chs_name)   {   \
                                                         red,    \
                                                         green,  \
                                                         blue,   \
-                                                        int(double(red)*0.299+double(green)*0.587+double(blue)*0.114), \
+                                                        uint8(double(red)*0.299+double(green)*0.587+double(blue)*0.114), \
                                                         \
                                                         float(double(red)/255.0f),   \
                                                         float(double(green)/255.0f), \
                                                         float(double(blue)/255.0f),  \
-                                                        float((double(red)*0.299+double(green)*0.587+double(blue)*0.114)/255.0f),\
+                                                        float((double(red)*0.299+double(green)*0.587+double(blue)*0.114)/255.0f), \
                                                         \
-                                                        #eng_name, \
-                                                        U16_TEXT(chs_name)  \
+                                                        #en_name, \
+                                                        _u16_text(chs_name) \
                                                     },
 
-    COLOR_DEF prv_color[size_t(COLOR::RANGE_SIZE)]=
+    ColorInfo Palette[size_t(Color::RANGE_SIZE)] =
     {
         DEF_COLOR(None,                     0,  0,  0,"")
 
@@ -29,7 +33,7 @@ namespace hgl
         DEF_COLOR(Aqua,                     0,255,255,"浅绿色")
         DEF_COLOR(AquaMarine,             127,255,212,"碧绿色")
 
-        DEF_COLOR(ArdenRed,               202, 23, 36,"雅顿红")        //取自美国官网LOGO图片
+        DEF_COLOR(ArdenRed,               202, 23, 36,"雅顿红")       // 取自美国官网 LOGO 图片
 
         DEF_COLOR(Azure,                  240,255,255,"天蓝色")
         DEF_COLOR(BananaMania,            250,231,181,"香蕉黄(芯)")
@@ -123,7 +127,7 @@ namespace hgl
         DEF_COLOR(LightSlateGrey,         119,136,153,"亮蓝白")
         DEF_COLOR(LightSteelBlue,         176,196,222,"亮钢兰")
         DEF_COLOR(LightYellow,            255,255,224,"亮黄色")
-        DEF_COLOR(Lime,                      0,255,  0,"酸橙色")
+        DEF_COLOR(Lime,                     0,255,  0,"酸橙色")
         DEF_COLOR(LimeGreen,               50,205, 50,"橙绿色")
         DEF_COLOR(Linen,                  250,240,230,"亚麻色")
         DEF_COLOR(Lion,                   193,154,107,"獅子棕")
@@ -145,22 +149,22 @@ namespace hgl
         DEF_COLOR(MistyRose,              255,228,225,"浅玫瑰")
         DEF_COLOR(Moccasin,               255,228,181,"鹿皮色")
 
-        DEF_COLOR(MozillaBlue,            0, 83,159,"火狐蓝")
+        DEF_COLOR(MozillaBlue,              0, 83,159,"火狐蓝")
         DEF_COLOR(MozillaCharcoal,         77, 78, 83,"谋智炭")
-        DEF_COLOR(MozillaLightBlue,       0,150,221,"火狐亮蓝")
-        DEF_COLOR(MozillaLightOrange,       255,149,  0,"火狐亮橙")
-        DEF_COLOR(MoziilaNightBlue,       0, 33, 71,"谋智暗夜蓝")
-        DEF_COLOR(MozillaOrange,            230, 96,  0,"火狐橙")
+        DEF_COLOR(MozillaLightBlue,         0,150,221,"火狐亮蓝")
+        DEF_COLOR(MozillaLightOrange,     255,149,  0,"火狐亮橙")
+        DEF_COLOR(MoziilaNightBlue,         0, 33, 71,"谋智暗夜蓝")
+        DEF_COLOR(MozillaOrange,          230, 96,  0,"火狐橙")
         DEF_COLOR(MozillaRed,             193, 56, 50,"谋智红")
         DEF_COLOR(MozillaSand,            215,211,200,"谋智沙")
-        DEF_COLOR(MozillaYellow,            255,203,  0,"火狐黄")
+        DEF_COLOR(MozillaYellow,          255,203,  0,"火狐黄")
 
         DEF_COLOR(NavajoWhite,            255,222,173,"纳瓦白")
         DEF_COLOR(Navy,                     0,  0,128,"海军色")
 
-        DEF_COLOR(NiveaBlue,                0, 19,111,"妮维雅蓝")     //取自妮维雅蓝国际官网
+        DEF_COLOR(NiveaBlue,                0, 19,111,"妮维雅蓝")     // 取自妮维雅蓝国际官网
 
-        DEF_COLOR(NokiaBlue,               18, 65,145,"诺基亚蓝")     //取自诺基亚官网
+        DEF_COLOR(NokiaBlue,               18, 65,145,"诺基亚蓝")     // 取自诺基亚官网
 
         DEF_COLOR(OldLace,                253,245,230,"老花色")
         DEF_COLOR(Olive,                  128,128,  0,"橄榄色")
@@ -196,7 +200,7 @@ namespace hgl
         DEF_COLOR(SaddleBrown,            139, 69, 19,"重褐色")
         DEF_COLOR(Salmon,                 250,128,114,"鲜肉色")
 
-        DEF_COLOR(SamsungBlue,             20, 40,160,"三星蓝")          //取自三星官网
+        DEF_COLOR(SamsungBlue,             20, 40,160,"三星蓝")       // 取自三星官网
 
         DEF_COLOR(SandyBrown,             244,164, 96,"沙褐色")
         DEF_COLOR(SeaGreen,                46,139, 87,"海绿色")
@@ -214,7 +218,7 @@ namespace hgl
         DEF_COLOR(Teal,                     0,128,128,"水鸭色")
         DEF_COLOR(Thistle,                216,191,216,"蓟色")
 
-        DEF_COLOR(TiffanyBlue,            129,216,208,"蒂芙尼蓝")     //取自zh.wikipedia.org/zh-cn/蒂芙尼蓝
+        DEF_COLOR(TiffanyBlue,            129,216,208,"蒂芙尼蓝")     // 取自 zh.wikipedia.org/zh-cn/蒂芙尼蓝
 
         DEF_COLOR(Tomato,                 255, 99, 71,"西红柿色")
         DEF_COLOR(Turquoise,               64,224,208,"青绿色")
@@ -229,4 +233,4 @@ namespace hgl
     };
 
     #undef DEF_COLOR
-}//namespace hgl
+}

@@ -48,8 +48,13 @@
 #define _safe_delete_array(ptr) if (ptr != nullptr) { delete[] ptr; ptr = nullptr; }
 
 
+#define _w_text(x)    L#x
+#define _u16_text(x)  u#x
+#define _u32_text(x)  U#x
+
+
 #define _name_of(x)   #x
-#define _wname_of(x) L#x
+#define _wname_of(x)  _w_text(x)
 
 #define _str_name_of(x) std::string(_name_of(x))
 
@@ -68,22 +73,25 @@
 #define _true              1
 
 #define _str_null          "NULL"
-#define _wstr_null         L"NULL"
+#define _wstr_null         _w_text("NULL")
 
 #define _numeric_max(Type)  std::numeric_limits<Type>::max()
 
 
 #include "vulkan/vk_platform.h"
 
-using int8 = int8_t;
-using int16 = int16_t;
-using int32 = int32_t;
-using int64 = int64_t;
+using int8 = std::int8_t;
+using int16 = std::int16_t;
+using int32 = std::int32_t;
+using int64 = std::int64_t;
 
-using uint8 = uint8_t;
-using uint16 = uint16_t;
-using uint32 = uint32_t;
-using uint64 = uint64_t;
+using uint8 = std::uint8_t;
+using uint16 = std::uint16_t;
+using uint32 = std::uint32_t;
+using uint64 = std::uint64_t;
+
+using u16char = char16_t;
+using u32char = char32_t;
 
 using byte = uint8;
 

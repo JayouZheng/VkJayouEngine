@@ -17,74 +17,75 @@ class VkSmartPtr
 
 protected:
 
-	VkCounter<T>* _ptr_cnt;
+	VkCounter<T>* m_counter;
 
 public: 
 
 	T* MakeInstance()
 	{
-		_ptr_cnt->_ptr = new T;
-		*(_ptr_cnt->_ptr) = NULL;
-		return _ptr_cnt->_ptr;
+		m_counter->m_object    = new T;
+		*(m_counter->m_object) = NULL;
+
+		return m_counter->m_object;
 	}
 
 public:
 
 	VkSmartPtr(const char* type)
 	{
-		_ptr_cnt = new VkCounter<T>(nullptr);
-		_ptr_cnt->SetType(type);
+		m_counter = new VkCounter<T>(nullptr);
+		m_counter->SetType(type);
 	}
 
 	VkSmartPtr(const char* type, T* ptr)
 	{
-		_ptr_cnt = new VkCounter<T>(ptr);
-		_ptr_cnt->SetType(type);
+		m_counter = new VkCounter<T>(ptr);
+		m_counter->SetType(type);
 	}
 
 	VkSmartPtr(const VkSmartPtr &other)
 	{
-		_ptr_cnt = other._ptr_cnt;
-		_ptr_cnt->_counter++;
+		m_counter = other.m_counter;
+		m_counter->m_count++;
 	}
 
 	virtual ~VkSmartPtr()
 	{
-		_ptr_cnt->_counter--;
-		if (_ptr_cnt->_counter == 0)
-			delete _ptr_cnt;
+		m_counter->m_count--;
+		if (m_counter->m_count == 0)
+			delete m_counter;
 	}
 
 public:
 
 	operator T*()
 	{
-		return _ptr_cnt->_ptr;
+		return m_counter->m_object;
 	}
 
 	T &operator*()
 	{
-		return *(_ptr_cnt->_ptr);
+		return *(m_counter->m_object);
 	}
 
 	T* operator->() const throw() // no exception
 	{
-		return _ptr_cnt->_ptr;
+		return m_counter->m_object;
 	}
 
 	T** operator&()
 	{
-		return &_ptr_cnt->_ptr;
+		return &m_counter->m_object;
 	}
 
 	bool operator!=(const T* other_ptr) const
 	{
-		return _ptr_cnt->_ptr != other_ptr;
+		return m_counter->m_object != other_ptr;
 	}
 
 	bool operator==(const T* other_ptr) const
 	{
-		return _ptr_cnt->_ptr == other_ptr;
+		return m_counter->m_object == other_ptr;
 	}
 
 	VkSmartPtr& operator=(const VkSmartPtr& other)
@@ -92,26 +93,26 @@ public:
 		if (this == &other)
 			return *this;
 
-		_ptr_cnt->_counter--;
-		if (_ptr_cnt->_counter == 0)
-			delete _ptr_cnt;
+		m_counter->m_count--;
+		if (m_counter->m_count == 0)
+			delete m_counter;
 
-		_ptr_cnt = other._ptr_cnt;
-		other._ptr_cnt->_counter++;
+		m_counter = other.m_counter;
+		other.m_counter->m_count++;
 
 		return *this;
 	}
 
 	VkSmartPtr& operator=(const T* other)
 	{
-		if (this->_ptr_cnt->_ptr == other)
+		if (this->m_counter->m_object == other)
 			return *this;
 
-		_ptr_cnt->_counter--;
-		if (_ptr_cnt->_counter == 0)
-			delete _ptr_cnt;
+		m_counter->m_count--;
+		if (m_counter->m_count == 0)
+			delete m_counter;
 
-		_ptr_cnt = new VkCounter<T>(other);
+		m_counter = new VkCounter<T>(other);
 
 		return *this;
 	}
@@ -122,23 +123,23 @@ class VkCounter
 {
 private:
 
-	T *_ptr;
-	uint32 _counter;
+	T*     m_object;
+	uint32 m_count;
 
-	const char* _type;
+	const char* m_type;
 
 	template<typename T>
 	friend class VkSmartPtr;
 
 	void SetType(const char* type)
 	{
-		_type = type;
+		m_type = type;
 	}
 
 	VkCounter(T *ptr)
 	{
-		_ptr = ptr;
-		_counter = 1;
+		m_object = ptr;
+		m_count = 1;
 
 		Global::Advance();
 	}
@@ -149,17 +150,17 @@ private:
 #ifdef _vk_destroy
 #undef _vk_destroy
 #endif
-#define _vk_destroy(object)                                                                    \
-{                                                                                              \
-	if (_is_cstrlen_equal(_name_of(Vk##object), _type) &&                                      \
-		_is_cstr_equal(_name_of(Vk##object), _type))                                           \
-	{                                                                                          \
-		vkDestroy##object(Global::GetVkDevice(), (Vk##object)*_ptr, Global::GetVkAllocator()); \
-		Global::CacheLog("_vk_destroy: " + _str_name_of(object));                              \
-	}                                                                                          \
-}                                                                                              \
+#define _vk_destroy(object)                                                                        \
+{                                                                                                  \
+	if (_is_cstrlen_equal(_name_of(Vk##object), m_type) &&                                         \
+		_is_cstr_equal(_name_of(Vk##object), m_type))                                              \
+	{                                                                                              \
+		vkDestroy##object(Global::GetVkDevice(), (Vk##object)*m_object, Global::GetVkAllocator()); \
+		Global::CacheLog("_vk_destroy: " + _str_name_of(object));                                  \
+	}                                                                                              \
+}                                                                                                  \
 
-		if (_ptr != nullptr && *_ptr != NULL)
+		if (m_object != nullptr && *m_object != NULL)
 		{
 			_vk_destroy(Fence);
 			_vk_destroy(Semaphore); // Should Wait for all reference Object freed...
@@ -184,14 +185,14 @@ private:
 			_vk_destroy(SwapchainKHR);
 			
 			// Using VkInstance...
-			if (_is_cstr_equal(_name_of(VkSurfaceKHR), _type))
+			if (_is_cstr_equal(_name_of(VkSurfaceKHR), m_type))
 			{
-				vkDestroySurfaceKHR(Global::GetVkInstance(), (VkSurfaceKHR)*_ptr, Global::GetVkAllocator());
+				vkDestroySurfaceKHR(Global::GetVkInstance(), (VkSurfaceKHR)*m_object, Global::GetVkAllocator());
 				Global::CacheLog("_vk_destroy: " + _str_name_of(VkSurfaceKHR));
 			}		
 		}
 
-		delete _ptr;
+		delete m_object;
 
 		Global::Decrease();
 

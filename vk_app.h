@@ -4,6 +4,8 @@
 
 #pragma once
 
+#define RunApp
+
 class vk_app
 {
 

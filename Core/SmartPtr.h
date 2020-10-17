@@ -17,24 +17,24 @@ class SmartPtr
 
 protected:
 
-	Counter<T> *_ptr_cnt;
+	Counter<T>* m_counter;
 
 public:
 
 	SmartPtr()
 	{
-		_ptr_cnt = new Counter<T>(nullptr);
+		m_counter = new Counter<T>(nullptr);
 	}
 
 	SmartPtr(T *ptr)
 	{
-		_ptr_cnt = new Counter<T>(ptr);
+		m_counter = new Counter<T>(ptr);
 	}
 
 	SmartPtr(const SmartPtr &other)
 	{
-		_ptr_cnt = other._ptr_cnt;
-		_ptr_cnt->_counter++;
+		m_counter = other.m_counter;
+		m_counter->m_count++;
 	}
 
 	SmartPtr &operator=(const SmartPtr &other)
@@ -42,53 +42,53 @@ public:
 		if (this == &other)
 			return *this;
 
-		_ptr_cnt->_counter--;
-		if (_ptr_cnt->_counter == 0)
-			delete _ptr_cnt;
+		m_counter->m_count--;
+		if (m_counter->m_count == 0)
+			delete m_counter;
 
-		_ptr_cnt = other._ptr_cnt;
-		other._ptr_cnt->_counter++;
+		m_counter = other.m_counter;
+		other.m_counter->m_count++;
 
 		return *this;
 	}
 
 	virtual ~SmartPtr()
 	{
-		_ptr_cnt->_counter--;
-		if (_ptr_cnt->_counter == 0)
-			delete _ptr_cnt;
+		m_counter->m_count--;
+		if (m_counter->m_count == 0)
+			delete m_counter;
 	}
 
 public:
 
 	operator T*()
 	{
-		return _ptr_cnt->_ptr;
+		return m_counter->m_object;
 	}
 
 	T &operator*()
 	{
-		return *(_ptr_cnt->_ptr);
+		return *(m_counter->m_object);
 	}
 
 	T* operator->() const throw() // no exception
 	{
-		return _ptr_cnt->_ptr;
+		return m_counter->m_object;
 	}
 
 	T** operator&()
 	{
-		return &_ptr_cnt->_ptr;
+		return &m_counter->m_object;
 	}
 
 	bool operator!=(const T* other_ptr) const
 	{
-		return _ptr_cnt->_ptr != other_ptr;
+		return m_counter->m_object != other_ptr;
 	}
 
 	bool operator==(const T* other_ptr) const
 	{
-		return _ptr_cnt->_ptr == other_ptr;
+		return m_counter->m_object == other_ptr;
 	}
 };
 
@@ -96,23 +96,23 @@ template<typename T>
 class Counter
 {
 private:
-	T *_ptr;
-	uint64 _counter;
+	T*     m_object;
+	uint64 m_count;
 
 	template<typename T>
 	friend class SmartPtr;
 
 	Counter(T *ptr)
 	{
-		_ptr = ptr;
-		_counter = 1;
+		m_object = ptr;
+		m_count  = 1;
 	}
 
 	~Counter()
 	{
-		if (_ptr != nullptr)
+		if (m_object != nullptr)
 		{
-			delete _ptr;
+			delete m_object;
 		}		
 	}
 };

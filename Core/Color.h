@@ -1,28 +1,49 @@
-﻿#ifndef HGL_COLOR_TABLE_INCLUDE
-#define HGL_COLOR_TABLE_INCLUDE
+﻿//
+// Color.h
+//
 
-#include<hgl/platform/Platform.h>
-namespace hgl
+#pragma once
+
+#include "TypeDef.h"
+
+namespace ColorUtil
 {
     /**
     * 颜色数据定义
     */
-    struct COLOR_DEF            ///颜色数据定义
+    struct ColorInfo                  ///颜色数据定义
     {
-        int red,green,blue;     ///<三原色
-        int yum;                ///<亮度
+        union
+        {
+            struct
+            {
+                uint8 R, G, B;        ///<三原色
+                uint8 Lumin;          ///<亮度
+            };
 
-        float r,g,b;            ///<三原色浮点值
-        float y;                ///<亮度浮点值
+            uint8 RGBL[4];
+        };
 
-        char eng_name[32];      ///<英文名称
-        u16char chs_name[16];   ///<中文名称
+        union
+        {
+            struct
+            {
+                float R_f, G_f, B_f;  ///<三原色浮点值
+                float Lumin_f;        ///<亮度浮点值
+            };
+
+            float RGBL_f[4];
+        };
+
+
+        char    EnName [32];          ///<英文名称
+        u16char ChsName[16];          ///<中文名称
     };
 
     /**
     * 颜色枚举
     */
-    enum class COLOR          ///颜色枚举
+    enum class Color          ///颜色枚举
     {
         AliceBlue=0,          ///<艾利斯兰
         AndroidGreen,         ///<安卓绿
@@ -31,7 +52,7 @@ namespace hgl
         Aqua,                 ///<浅绿色
         AquaMarine,           ///<碧绿色
 
-        ArdenRed,             ///<雅顿红(注：商业使用需获得Elizabeth Arden公司授权)
+        ArdenRed,             ///<雅顿红(注：商业使用需获得 Elizabeth Arden 公司授权)
 
         Azure,                ///<天蓝色
         BananaMania,          ///<香蕉黄(芯)
@@ -160,7 +181,7 @@ namespace hgl
         NavajoWhite,          ///<纳瓦白
         Navy,                 ///<海军色
 
-        NiveaBlue,            ///<妮维雅蓝(注：商业使用需获得Beiersdorf AG授权)
+        NiveaBlue,            ///<妮维雅蓝(注：商业使用需获得 Beiersdorf AG 授权)
 
         NokiaBlue,            ///<诺基亚蓝
 
@@ -180,7 +201,7 @@ namespace hgl
         Peru,                 ///<秘鲁色
         Pink,                 ///<粉红色
 
-                                //SONY PlayStation 商标用配色(注：商业使用需获得SONY授权)
+                              ///SONY PlayStation 商标用配色(注：商业使用需获得 SONY 授权)
         PlayStationBlue,
         PlayStationLightBlue,
 
@@ -221,7 +242,7 @@ namespace hgl
         Teal,                 ///<水鸭色
         Thistle,              ///<蓟色
 
-        TiffanyBlue,          ///<蒂芙尼蓝(知更鸟蛋蓝/勿忘我蓝)(注：商业使用需获取Tiffany公司授权)
+        TiffanyBlue,          ///<蒂芙尼蓝(知更鸟蛋蓝/勿忘我蓝)(注：商业使用需获取 Tiffany 公司授权)
 
         Tomato,               ///<西红柿色
         Turquoise,            ///<青绿色
@@ -241,8 +262,7 @@ namespace hgl
         BEGIN_RANGE =AliceBlue,
         END_RANGE   =YellowGreen,
         RANGE_SIZE  =(END_RANGE-BEGIN_RANGE)+1
-    };//enum COLOR_ENUM
+    };
 
-    extern COLOR_DEF prv_color[size_t(COLOR::RANGE_SIZE)];
-}//namespace hgl
-#endif//HGL_COLOR_TABLE_INCLUDE
+    extern ColorInfo Palette[size_t(Color::RANGE_SIZE)];
+}

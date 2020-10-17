@@ -5,6 +5,9 @@
 #pragma once
 
 #include "Global.h"
+#include "Color.h"
+
+using namespace ColorUtil;
 
 class LogSystem
 {
@@ -20,12 +23,10 @@ public:
 		Max = 0xff
 	};
 
-	using LogLevel = Level;
-
 	struct LogInfo
 	{
-		LogLevel Level;
-		std::string Content;
+		LogSystem::Level Level;
+		std::string      Content;
 	};
 
 public:
@@ -33,7 +34,7 @@ public:
 	LogSystem() {}
 	~LogSystem() {}
 
-	void Log(const std::string& InLog, const LogLevel& InLevel = LogLevel::Common) const;
+	void Log(const std::string& InLog, const Level& InLevel = Level::Common, const Color& InColor = Color::Snow) const;
 
 protected:
 

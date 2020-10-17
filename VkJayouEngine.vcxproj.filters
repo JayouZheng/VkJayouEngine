@@ -3,7 +3,6 @@
   <ItemGroup>
     <ClCompile Include="vk_app.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="app_allocator.cpp" />
     <ClCompile Include="Core\BaseAllocator.cpp">
       <Filter>Core</Filter>
     </ClCompile>
@@ -52,7 +51,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="vk_app.h" />
-    <ClInclude Include="app_allocator.h" />
     <ClInclude Include="Core\BaseAllocator.h">
       <Filter>Core</Filter>
     </ClInclude>

@@ -166,7 +166,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="app_allocator.cpp" />
     <ClCompile Include="Core\BaseAllocator.cpp" />
     <ClCompile Include="Core\BaseLayer.cpp" />
     <ClCompile Include="Core\Color.cpp" />
@@ -274,9 +273,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="app_allocator.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
