@@ -32,6 +32,10 @@ namespace Global
 
 	void                    OnExit();
 
+	void                    IncInstanceRef();
+	void                    DecInstanceRef();
+	bool                    IsInstanceRefZero();
+
 	template<typename T>
 	bool IsVkGuaranteedMinimum(T InValue, T InMinimum)
 	{

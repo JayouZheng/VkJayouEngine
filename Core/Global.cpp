@@ -12,6 +12,7 @@ namespace
 	static VkDevice                 g_device           = VK_NULL_HANDLE;
 	static BaseAllocator*           g_allocator        = nullptr;
 	static Global::ModuleInfo       g_moduleInfo       = { "", _str_null };
+	static uint32                   g_instanceRefs     = 0u;
 
 	/// <summary>
 	/// Utility String Map Object Tables.
@@ -338,6 +339,21 @@ void Global::SafeFreeAllocator()
 
 void Global::OnExit()
 {
+}
+
+void Global::IncInstanceRef()
+{
+	g_instanceRefs++;
+}
+
+void Global::DecInstanceRef()
+{
+	g_instanceRefs--;
+}
+
+bool Global::IsInstanceRefZero()
+{
+	return g_instanceRefs == 0;
 }
 
 bool Util::GetShaderStage(const std::string& InKey, VkShaderStageFlagBits& OutShaderStage)

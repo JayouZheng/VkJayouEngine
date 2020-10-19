@@ -127,7 +127,6 @@ private:
 	T*            m_object;
 	uint32        m_count;
 	const char*   m_type;
-	static uint32 m_instanceRefs;
 
 	template<typename T>
 	friend class VkSmartPtr;
@@ -142,7 +141,7 @@ private:
 		m_object = ptr;
 		m_count = 1;
 
-		m_instanceRefs++;
+		Global::IncInstanceRef();
 	}
 
 	~VkCounter()
@@ -195,9 +194,9 @@ private:
 			}		
 		}
 
-		m_instanceRefs--;
+		Global::DecInstanceRef();
 
-		if (m_instanceRefs == 0)
+		if (Global::IsInstanceRefZero())
 		{
 			vkDestroyDevice(Global::GetVkDevice(), Global::GetVkAllocator());
 			vkDestroyInstance(Global::GetVkInstance(), Global::GetVkAllocator());
@@ -210,9 +209,6 @@ private:
 		delete m_object;
 	}
 };
-
-template<typename T>
-uint32 VkCounter<T>::m_instanceRefs = 0u;
 
 #define _declare_vk_smart_ptr(type, var)  VkSmartPtr<type> var = VkSmartPtr<type>(_name_of(type));
 
