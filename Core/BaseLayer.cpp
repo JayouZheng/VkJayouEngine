@@ -6,6 +6,8 @@
 #include "Global.h"
 #include "DiskResourceLoader.h"
 
+#define _bret_false_log(b, log) if (b) { LogSystem::LogError(log, LogSystem::Category::BaseLayer); return false; }
+
 VkAllocationCallbacks* BaseLayer::GetVkAllocator() const
 {
 	return m_pAllocator != nullptr ? m_pAllocator->GetVkAllocator() : nullptr;
@@ -412,8 +414,9 @@ void BaseLayer::CachedModulePath()
 	// Add path that will remove form modulePath.
 	std::vector<std::string> deleteDirs =
 	{
-		"x64\\Debug\\",
-		"x64\\Release\\"
+		"x64\\",
+		"Debug\\",
+		"Release\\"
 	};
 
 	for (auto& dir : deleteDirs)

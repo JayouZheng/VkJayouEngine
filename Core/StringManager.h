@@ -48,6 +48,8 @@ public:
 
 	static std::string                 ToLowerCase       (const std::string& str);
 
+	static uint32                      StrHexToNumeric   (const std::string& InHexStr);
+
 public:
 
 	// Extended utilities.

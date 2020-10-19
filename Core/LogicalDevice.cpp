@@ -2,11 +2,16 @@
 // LogicalDevice.cpp
 //
 
+#include "LogicalDevice.h"
 #include "BaseLayer.h"
 #include "JsonParser.h"
 #include "StringManager.h"
 #include "DiskResourceLoader.h"
-#include "LogSystem.h"
+
+#define _ret_false_log(log)                    { LogSystem::LogError(log, LogSystem::Category::LogicalDevice); return false; }
+#define _bret_false_log(b, log)                if (b) { LogSystem::LogError(log, LogSystem::Category::LogicalDevice); return false; }
+#define _jverify_ret_false_log(json_key, log)  if ((json_key) == Json::nullValue) { LogSystem::LogError(log, LogSystem::Category::LogicalDevice); return false; }
+#define _is_guaranteed_min(x, min_val, y)      if (Global::IsVkGuaranteedMinimum<uint32>(x, min_val)) x = std::min(x, y);
 
 VkAllocationCallbacks* LogicalDevice::GetVkAllocator() const
 {
@@ -136,8 +141,8 @@ void LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const ui
 {
 	VkShaderModuleCreateInfo shaderModuleCreateInfo = {};
 	shaderModuleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-	shaderModuleCreateInfo.codeSize = InCodeSize;
 	shaderModuleCreateInfo.pCode = InCodes;
+	shaderModuleCreateInfo.codeSize = InCodeSize;
 
 	_vk_try(vkCreateShaderModule(m_device, &shaderModuleCreateInfo, GetVkAllocator(), OutShaderModule));
 }
@@ -174,8 +179,8 @@ bool LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const ch
 		else
 		{
 			*OutShaderModule = VK_NULL_HANDLE;
-			LogSystem::Log(spvData->log, LogSystem::Category::GLSLCompiler);
-			LogSystem::Log(spvData->debug_log, LogSystem::Category::GLSLCompiler);
+			LogSystem::LogError(spvData->log, LogSystem::Category::GLSLCompiler);
+			LogSystem::LogError(spvData->debug_log, LogSystem::Category::GLSLCompiler);
 			_ret_false_log("Error: Compiling shader file \"" + std::string(InShaderPath) + "\" failed!");
 		}
 	}
@@ -340,7 +345,7 @@ bool LogicalDevice::SavePipelineCacheToFile(VkPipelineCache InPipCache, const ch
 		}
 		catch (const std::exception& e)
 		{
-			LogSystem::Log(e.what(), LogSystem::Category::LogicalDevice);
+			LogSystem::LogError(e.what(), LogSystem::Category::LogicalDevice);
 
 			delete[] pData;
 			return false;
@@ -453,14 +458,17 @@ void LogicalDevice::UpdateDescriptorSets(const VkWriteDescriptorSet* InDescWrite
 	vkUpdateDescriptorSets(m_device, InWriteSetCount, InDescWrites, copySetCount, InDescCopies);
 }
 
-void LogicalDevice::UpdateImageOfDescSet(VkDescriptorSet InDescSet, uint32 InBindingIndex, VkDescriptorType InImageDescType, const VkDescriptorImageInfo* InImageInfos, uint32 InImageCount /*= _count_1*/, uint32 InSetOffset /*= _offset_0*/)
+bool LogicalDevice::UpdateImageOfDescSet(VkDescriptorSet InDescSet, uint32 InBindingIndex, VkDescriptorType InImageDescType, const VkDescriptorImageInfo* InImageInfos, uint32 InImageCount /*= _count_1*/, uint32 InSetOffset /*= _offset_0*/)
 {
 	if ((InImageDescType != VK_DESCRIPTOR_TYPE_SAMPLER) &&
 		(InImageDescType != VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) &&
 		(InImageDescType != VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE) &&
 		(InImageDescType != VK_DESCRIPTOR_TYPE_STORAGE_IMAGE) &&
 		(InImageDescType != VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT))
-		_return_log("Func: " + _str_name_of(UpdateImageOfDescSet) + " expect image descriptor type!");
+	{
+		LogSystem::LogError("Func: " + _str_name_of(UpdateImageOfDescSet) + " expect image descriptor type!", LogSystem::Category::LogicalDevice);
+		return false;
+	}
 
 	VkWriteDescriptorSet writeDescSet = {};
 	writeDescSet.sType            = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -474,15 +482,20 @@ void LogicalDevice::UpdateImageOfDescSet(VkDescriptorSet InDescSet, uint32 InBin
 	writeDescSet.pTexelBufferView = nullptr;
 
 	vkUpdateDescriptorSets(m_device, _count_1, &writeDescSet, _count_0, nullptr);
+	
+	return true;
 }
 
-void LogicalDevice::UpdateBufferOfDescSet(VkDescriptorSet InDescSet, uint32 InBindingIndex, VkDescriptorType InBufferDescType, const VkDescriptorBufferInfo* InBufferInfos, uint32 InBufferCount /*= _count_1*/, uint32 InSetOffset /*= _offset_0*/)
+bool LogicalDevice::UpdateBufferOfDescSet(VkDescriptorSet InDescSet, uint32 InBindingIndex, VkDescriptorType InBufferDescType, const VkDescriptorBufferInfo* InBufferInfos, uint32 InBufferCount /*= _count_1*/, uint32 InSetOffset /*= _offset_0*/)
 {
 	if ((InBufferDescType != VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER) &&
 		(InBufferDescType != VK_DESCRIPTOR_TYPE_STORAGE_BUFFER) &&
 		(InBufferDescType != VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC) &&
 		(InBufferDescType != VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC))
-		_return_log("Func: " + _str_name_of(UpdateBufferOfDescSet) + " expect buffer descriptor type!");
+	{
+		LogSystem::LogError("Func: " + _str_name_of(UpdateBufferOfDescSet) + " expect buffer descriptor type!", LogSystem::Category::LogicalDevice);
+		return false;
+	}
 
 	VkWriteDescriptorSet writeDescSet = {};
 	writeDescSet.sType            = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -496,13 +509,18 @@ void LogicalDevice::UpdateBufferOfDescSet(VkDescriptorSet InDescSet, uint32 InBi
 	writeDescSet.pTexelBufferView = nullptr;
 
 	vkUpdateDescriptorSets(m_device, _count_1, &writeDescSet, _count_0, nullptr);
+
+	return true;
 }
 
-void LogicalDevice::UpdateTexelBufferOfDescSet(VkDescriptorSet InDescSet, uint32 InBindingIndex, VkDescriptorType InTBufferDescType, const VkBufferView* InTBufferViews, uint32 InTBufferCount /*= _count_1*/, uint32 InSetOffset /*= _offset_0*/)
+bool LogicalDevice::UpdateTexelBufferOfDescSet(VkDescriptorSet InDescSet, uint32 InBindingIndex, VkDescriptorType InTBufferDescType, const VkBufferView* InTBufferViews, uint32 InTBufferCount /*= _count_1*/, uint32 InSetOffset /*= _offset_0*/)
 {
 	if ((InTBufferDescType != VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER) &&
 		(InTBufferDescType != VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER))
-		_return_log("Func: " + _str_name_of(UpdateTexelBufferOfDescSet) + " expect texel buffer descriptor type!");
+	{
+		LogSystem::LogError("Func: " + _str_name_of(UpdateTexelBufferOfDescSet) + " expect texel buffer descriptor type!", LogSystem::Category::LogicalDevice);
+		return false;
+	}
 
 	VkWriteDescriptorSet writeDescSet = {};
 	writeDescSet.sType            = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -516,6 +534,8 @@ void LogicalDevice::UpdateTexelBufferOfDescSet(VkDescriptorSet InDescSet, uint32
 	writeDescSet.pTexelBufferView = InTBufferViews;
 
 	vkUpdateDescriptorSets(m_device, _count_1, &writeDescSet, _count_0, nullptr);
+
+	return true;
 }
 
 void LogicalDevice::CopyDescriptorSets(const VkCopyDescriptorSet* InDescCopies, uint32 InCopySetCount /*= _count_1*/)
@@ -635,12 +655,14 @@ void LogicalDevice::CreateLinearClampSampler(VkSampler* OutSampler)
 	_vk_try(vkCreateSampler(m_device, &samplerCreateInfo, GetVkAllocator(), OutSampler));
 }
 
-void LogicalDevice::CreateAnisotropicWrapSampler(VkSampler* OutSampler)
+bool LogicalDevice::CreateAnisotropicWrapSampler(VkSampler* OutSampler)
 {
 	if (m_pBaseLayer == nullptr)
 	{
 		OutSampler = VK_NULL_HANDLE;
-		_return_log("Func: " + _str_name_of(CreateAnisotropicWrapSampler) + " expect to Query Physical Device Limits!");
+
+		LogSystem::LogError("Func: " + _str_name_of(CreateAnisotropicWrapSampler) + " expect to Query Physical Device Limits!", LogSystem::Category::LogicalDevice);
+		return false;
 	}
 
 	float maxAnisotropy = std::min(GConfig::Sampler::MaxAnisotropy, m_pBaseLayer->GetMainPDLimits().maxSamplerAnisotropy);
@@ -664,14 +686,18 @@ void LogicalDevice::CreateAnisotropicWrapSampler(VkSampler* OutSampler)
 	samplerCreateInfo.unnormalizedCoordinates = VK_FALSE;
 
 	_vk_try(vkCreateSampler(m_device, &samplerCreateInfo, GetVkAllocator(), OutSampler));
+
+	return true;
 }
 
-void LogicalDevice::CreateAnisotropicClampSampler(VkSampler* OutSampler)
+bool LogicalDevice::CreateAnisotropicClampSampler(VkSampler* OutSampler)
 {
 	if (m_pBaseLayer == nullptr)
 	{
 		OutSampler = VK_NULL_HANDLE;
-		_return_log("Func: " + _str_name_of(CreateAnisotropicClampSampler) + " expect to Query Physical Device Limits!");
+
+		LogSystem::LogError("Func: " + _str_name_of(CreateAnisotropicClampSampler) + " expect to Query Physical Device Limits!", LogSystem::Category::LogicalDevice);
+		return false;
 	}	
 
 	float maxAnisotropy = std::min(GConfig::Sampler::MaxAnisotropy, m_pBaseLayer->GetMainPDLimits().maxSamplerAnisotropy);
@@ -695,6 +721,8 @@ void LogicalDevice::CreateAnisotropicClampSampler(VkSampler* OutSampler)
 	samplerCreateInfo.unnormalizedCoordinates = VK_FALSE;
 
 	_vk_try(vkCreateSampler(m_device, &samplerCreateInfo, GetVkAllocator(), OutSampler));
+
+	return true;
 }
 
 void LogicalDevice::CreatePCFSampler(VkSampler* OutSampler)
@@ -797,12 +825,14 @@ void LogicalDevice::CreateSingleRenderPass(VkRenderPass* OutRenderPass, VkFormat
 	_vk_try(vkCreateRenderPass(m_device, &renderPassInfo, GetVkAllocator(), OutRenderPass));
 }
 
-void LogicalDevice::CreateFrameBuffer(VkFramebuffer* OutFrameBuffer, const VkFramebufferCreateInfo& InCreateInfo)
+bool LogicalDevice::CreateFrameBuffer(VkFramebuffer* OutFrameBuffer, const VkFramebufferCreateInfo& InCreateInfo)
 {
 	if (m_pBaseLayer == nullptr)
 	{
 		OutFrameBuffer = VK_NULL_HANDLE;
-		_return_log("Func: " + _str_name_of(CreateFrameBuffer) + " expect to Query Physical Device Limits!");
+
+		LogSystem::LogError("Func: " + _str_name_of(CreateFrameBuffer) + " expect to Query Physical Device Limits!", LogSystem::Category::LogicalDevice);
+		return false;
 	}
 		
 	VkFramebufferCreateInfo frameBufferCreateInfo = InCreateInfo;
@@ -812,14 +842,18 @@ void LogicalDevice::CreateFrameBuffer(VkFramebuffer* OutFrameBuffer, const VkFra
 	_is_guaranteed_min(frameBufferCreateInfo.layers, 256,  m_pBaseLayer->GetMainPDLimits().maxFramebufferLayers);
 
 	_vk_try(vkCreateFramebuffer(m_device, &frameBufferCreateInfo, GetVkAllocator(), OutFrameBuffer));
+
+	return true;
 }
 
-void LogicalDevice::CreateFrameBuffer(VkFramebuffer* OutFrameBuffer, VkRenderPass InRenderPass, const VkImageView* InImageViews, uint32 InViewCount, VkExtent3D InSize)
+bool LogicalDevice::CreateFrameBuffer(VkFramebuffer* OutFrameBuffer, VkRenderPass InRenderPass, const VkImageView* InImageViews, uint32 InViewCount, VkExtent3D InSize)
 {
 	if (m_pBaseLayer == nullptr)
 	{
 		OutFrameBuffer = VK_NULL_HANDLE;
-		_return_log("Func: " + _str_name_of(CreateFrameBuffer) + " expect to Query Physical Device Limits!");
+		
+		LogSystem::LogError("Func: " + _str_name_of(CreateFrameBuffer) + " expect to Query Physical Device Limits!", LogSystem::Category::LogicalDevice);
+		return false;
 	}
 		
 	VkFramebufferCreateInfo frameBufferCreateInfo = {};
@@ -836,6 +870,8 @@ void LogicalDevice::CreateFrameBuffer(VkFramebuffer* OutFrameBuffer, VkRenderPas
 	_is_guaranteed_min(frameBufferCreateInfo.layers, 256,  m_pBaseLayer->GetMainPDLimits().maxFramebufferLayers);
 
 	_vk_try(vkCreateFramebuffer(m_device, &frameBufferCreateInfo, GetVkAllocator(), OutFrameBuffer));
+
+	return true;
 }
 
 void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const VkGraphicsPipelineCreateInfo* InCreateInfos, uint32 InCreateInfoCount /*= _count_1*/, VkPipelineCache InPipCache /*= VK_NULL_HANDLE*/)
@@ -950,7 +986,10 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 	if (OutPipeline != nullptr) *OutPipeline = VK_NULL_HANDLE;
 
 	Json::Value root;
-	_bret_false_log(!Util::ParseJson(InJsonPath, root), _str_name_of(CreateGraphicPipelines) + " Failed! Not Valid File Path!");
+	_bret_false_log(!JsonParser::Parse(InJsonPath, root), _str_name_of(CreateGraphicPipelines) + " Failed! Not Valid File Path!");
+
+	// TODO:
+	// Create an enum map json key's string name.
 
 	_jverify_ret_false_log(root["graphic_pipeline_infos"], "json file: [graphic_pipeline_infos] can not be null!");
 	
@@ -993,7 +1032,7 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 
 		pGraphicInfos[i].sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 		pGraphicInfos[i].pNext = nullptr;
-		pGraphicInfos[i].flags = _jget_uint(graphicInfo["pipeline_flags"]);
+		pGraphicInfos[i].flags = JsonParser::GetUInt32(graphicInfo["pipeline_flags"]);
 
 		// Pipeline Stage.
 		_jverify_ret_false_log(graphicInfo["pipeline_stages_infos"], "json file: [pipeline_stages_infos] can not be null!");
@@ -1009,7 +1048,7 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 		{
 			auto& shaderInfo = bIsArray ? graphicInfo["pipeline_stages_infos"][j] : graphicInfo["pipeline_stages_infos"];
 
-			std::string shaderPath = _jget_string(shaderInfo["stage_code_path"]);
+			std::string shaderPath = JsonParser::GetString(shaderInfo["stage_code_path"]);
 			if (shaderPath == _str_null) return false;
 
 			_declare_vk_smart_ptr(VkShaderModule, pShaderModule);
@@ -1018,10 +1057,10 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 
 			pShaderInfos[j].sType  = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 			pShaderInfos[j].pNext  = nullptr;
-			pShaderInfos[j].flags  = _jget_uint(shaderInfo["stage_flags"]);
-			pShaderInfos[j].stage  = (shaderInfo["stage_type"] != Json::nullValue) ? (Util::GetShaderStage(_jget_string(shaderInfo["stage_type"]), userDefinedShaderStage) ? userDefinedShaderStage : currentShaderStage) : currentShaderStage;
+			pShaderInfos[j].flags  = JsonParser::GetUInt32(shaderInfo["stage_flags"]);
+			pShaderInfos[j].stage  = (shaderInfo["stage_type"] != Json::nullValue) ? (Util::GetShaderStage(JsonParser::GetString(shaderInfo["stage_type"]), userDefinedShaderStage) ? userDefinedShaderStage : currentShaderStage) : currentShaderStage;
 			pShaderInfos[j].module = *pShaderModule;
-			pShaderInfos[j].pName  = _jget_cstring_default(shaderInfo["entrypoint"], "main");
+			pShaderInfos[j].pName  = JsonParser::GetString(shaderInfo["entrypoint"], "main").c_str();
 			pShaderInfos[j].pSpecializationInfo = &specInfo;
 			
 			if (shaderInfo["specialization_constants"] != Json::nullValue)
@@ -1078,8 +1117,17 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 			auto& binding    = bIsArray ? graphicInfo["vertex_input_attributes"][j] : graphicInfo["vertex_input_attributes"];
 			uint32 bindingID = binding["binding_id"] != Json::nullValue ? binding["binding_id"].asUInt() : j;
 
-			_bbreak_log(j >= 16u, "current app vertex input binding number is limit to 16!");
-			_bcontinue_log(bindingID >= 16u, "current app vertex input binding number is limit to 16!");
+			if (j >= 16u)
+			{
+				LogSystem::LogWarning("current app vertex input binding number is limit to 16!", LogSystem::Category::LogicalDevice);
+				break;
+			}
+
+			if (bindingID >= 16u)
+			{
+				LogSystem::LogWarning("Current app vertex input binding number is limit to 16!", LogSystem::Category::LogicalDevice);
+				continue;
+			}
 
 			// Vertex Attributes.
 			bIsArray               = binding["attributes"].isArray();
@@ -1116,9 +1164,9 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 		auto& inputAssemblyInfo              = graphicInfo["pipeline_input_assembly"];
 		if (inputAssemblyInfo != Json::nullValue)
 		{
-			pipelineIAStateInfo.flags                  = _jget_uint(inputAssemblyInfo["flags"]);
-			pipelineIAStateInfo.topology               = Util::GetPrimitiveTopology(_jget_string_default(inputAssemblyInfo["primitive_topology"], Util::DefaultPrimitiveTopology));
-			pipelineIAStateInfo.primitiveRestartEnable = _jget_uint(inputAssemblyInfo["primitive_restart_enable"]);
+			pipelineIAStateInfo.flags                  = JsonParser::GetUInt32(inputAssemblyInfo["flags"]);
+			pipelineIAStateInfo.topology               = Util::GetPrimitiveTopology(JsonParser::GetString(inputAssemblyInfo["primitive_topology"], Util::DefaultPrimitiveTopology));
+			pipelineIAStateInfo.primitiveRestartEnable = JsonParser::GetUInt32(inputAssemblyInfo["primitive_restart_enable"]);
 		}
 
 		// Tessellation State.
@@ -1127,8 +1175,8 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 		{
 			pGraphicInfos[i].pTessellationState      = &pipelineTessStateInfo;
 			pipelineTessStateInfo.sType              = VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_STATE_CREATE_INFO;
-			pipelineTessStateInfo.flags              = _jget_uint(tessellationInfo["flags"]);
-			pipelineTessStateInfo.patchControlPoints = _jget_uint(tessellationInfo["patch_control_points_count"]);
+			pipelineTessStateInfo.flags              = JsonParser::GetUInt32(tessellationInfo["flags"]);
+			pipelineTessStateInfo.patchControlPoints = JsonParser::GetUInt32(tessellationInfo["patch_control_points_count"]);
 		}
 		else
 		{
@@ -1143,7 +1191,7 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 			bIsArray           = viewportInfo["viewports"].isArray();
 			uint32 numViewport = bIsArray ? viewportInfo["viewports"].size() : _count_1;
 
-			pipelineViewportStateInfo.flags         = _jget_uint(viewportInfo["flags"]);
+			pipelineViewportStateInfo.flags         = JsonParser::GetUInt32(viewportInfo["flags"]);
 			pipelineViewportStateInfo.viewportCount = numViewport;
 			pipelineViewportStateInfo.scissorCount  = numViewport;
 			pipelineViewportStateInfo.pViewports    = &currentViewport;
@@ -1160,17 +1208,17 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 				_bret_false_log(!scissor ["offset"].isArray(),      "json file: scissor [offset] must be an array [ first, second ]!"      );
 				_bret_false_log(!scissor ["size"].isArray(),        "json file: scissor [size] must be an array [ first, second ]!"        );
 
-				currentViewport.x        = _jget_float(viewport["position"][0]);
-				currentViewport.y        = _jget_float(viewport["position"][1]);
-				currentViewport.width    = _jis_auto  (viewport["size"][0]) ? (float)m_pWindow->GetWindowDesc().Width  : _jget_float(viewport["size"][0]);
-				currentViewport.height   = _jis_auto  (viewport["size"][1]) ? (float)m_pWindow->GetWindowDesc().Height : _jget_float(viewport["size"][1]);
-				currentViewport.minDepth = _jget_float(viewport["depth_range"][0]);
-				currentViewport.maxDepth = _jget_float(viewport["depth_range"][1]);
+				currentViewport.x        = JsonParser::GetFloat(viewport["position"][0]);
+				currentViewport.y        = JsonParser::GetFloat(viewport["position"][1]);
+				currentViewport.width    = JsonParser::GetString(viewport["size"][0]) == "auto" ? (float)m_pWindow->GetWindowDesc().Width  : JsonParser::GetFloat(viewport["size"][0]);
+				currentViewport.height   = JsonParser::GetString(viewport["size"][1]) == "auto" ? (float)m_pWindow->GetWindowDesc().Height : JsonParser::GetFloat(viewport["size"][1]);
+				currentViewport.minDepth = JsonParser::GetFloat(viewport["depth_range"][0]);
+				currentViewport.maxDepth = JsonParser::GetFloat(viewport["depth_range"][1]);
 
-				currentScissor.offset.x      = _jget_int(scissor["offset"][0]);
-				currentScissor.offset.y      = _jget_int(scissor["offset"][1]);
-				currentScissor.extent.width  = _jis_auto(scissor["size"][0]) ? m_pWindow->GetWindowDesc().Width  : _jget_uint(scissor["size"][0]);
-				currentScissor.extent.height = _jis_auto(scissor["size"][1]) ? m_pWindow->GetWindowDesc().Height : _jget_uint(scissor["size"][1]);
+				currentScissor.offset.x      = JsonParser::GetInt32(scissor["offset"][0]);
+				currentScissor.offset.y      = JsonParser::GetInt32(scissor["offset"][1]);
+				currentScissor.extent.width  = JsonParser::GetString(scissor["size"][0]) == "auto" ? m_pWindow->GetWindowDesc().Width  : JsonParser::GetUInt32(scissor["size"][0]);
+				currentScissor.extent.height = JsonParser::GetString(scissor["size"][1]) == "auto" ? m_pWindow->GetWindowDesc().Height : JsonParser::GetUInt32(scissor["size"][1]);
 			}
 		}
 
@@ -1179,17 +1227,17 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 		auto& rasterizationInfo              = graphicInfo["rasterization_state"];
 		if (rasterizationInfo != Json::nullValue)
 		{
-			pipelineRSStateInfo.flags                   = _jget_uint(rasterizationInfo["flags"]);
-			pipelineRSStateInfo.depthClampEnable        = _jget_uint(rasterizationInfo["depth_clamp_enable"]);
-			pipelineRSStateInfo.rasterizerDiscardEnable = _jget_uint(rasterizationInfo["rasterizer_discard_enable"]);
-			pipelineRSStateInfo.polygonMode             = Util::GetPolygonMode(_jget_string_default(rasterizationInfo["polygon_mode"], Util::DefaultPolygonMode));
-			pipelineRSStateInfo.cullMode                = Util::GetCullMode(_jget_string_default(rasterizationInfo["cull_mode"], Util::DefaultCullMode));
-			pipelineRSStateInfo.frontFace               = Util::GetFrontFace(_jget_string_default(rasterizationInfo["front_face"], Util::DefaultFrontFace));
-			pipelineRSStateInfo.depthBiasEnable         = _jget_uint(rasterizationInfo["depth_bias_enable"]);
-			pipelineRSStateInfo.depthBiasConstantFactor = _jget_float(rasterizationInfo["depth_bias_constant_factor"]);
-			pipelineRSStateInfo.depthBiasClamp          = _jget_float(rasterizationInfo["depth_bias_clamp"]);
-			pipelineRSStateInfo.depthBiasSlopeFactor    = _jget_float(rasterizationInfo["depth_bias_slope_factor"]);
-			pipelineRSStateInfo.lineWidth               = _jget_float(rasterizationInfo["line_width"]);
+			pipelineRSStateInfo.flags                   = JsonParser::GetUInt32(rasterizationInfo["flags"]);
+			pipelineRSStateInfo.depthClampEnable        = JsonParser::GetUInt32(rasterizationInfo["depth_clamp_enable"]);
+			pipelineRSStateInfo.rasterizerDiscardEnable = JsonParser::GetUInt32(rasterizationInfo["rasterizer_discard_enable"]);
+			pipelineRSStateInfo.polygonMode             = Util::GetPolygonMode(JsonParser::GetString(rasterizationInfo["polygon_mode"], Util::DefaultPolygonMode));
+			pipelineRSStateInfo.cullMode                = Util::GetCullMode(JsonParser::GetString(rasterizationInfo["cull_mode"], Util::DefaultCullMode));
+			pipelineRSStateInfo.frontFace               = Util::GetFrontFace(JsonParser::GetString(rasterizationInfo["front_face"], Util::DefaultFrontFace));
+			pipelineRSStateInfo.depthBiasEnable         = JsonParser::GetUInt32(rasterizationInfo["depth_bias_enable"]);
+			pipelineRSStateInfo.depthBiasConstantFactor = JsonParser::GetFloat(rasterizationInfo["depth_bias_constant_factor"]);
+			pipelineRSStateInfo.depthBiasClamp          = JsonParser::GetFloat(rasterizationInfo["depth_bias_clamp"]);
+			pipelineRSStateInfo.depthBiasSlopeFactor    = JsonParser::GetFloat(rasterizationInfo["depth_bias_slope_factor"]);
+			pipelineRSStateInfo.lineWidth               = JsonParser::GetFloat(rasterizationInfo["line_width"]);
 		}
 
 		// Multisample State.
@@ -1203,13 +1251,13 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 			for (uint32 j = 0; j < numSampleMask; j++)
 				pSampleMasks[j] = bIsArray ? multisampleInfo["sample_masks"][j].asUInt() : multisampleInfo["sample_masks"].asUInt();
 
-			pipelineMultisampleStateInfo.flags                 = _jget_uint(multisampleInfo["flags"]);
-			pipelineMultisampleStateInfo.rasterizationSamples  = Util::GetMultisampleCount(_jget_uint(multisampleInfo["multisample_count"]));
-			pipelineMultisampleStateInfo.sampleShadingEnable   = _jget_uint(multisampleInfo["sample_shading_enable"]);
-			pipelineMultisampleStateInfo.minSampleShading      = _jget_float(multisampleInfo["min_sample_shading_factor"]);
+			pipelineMultisampleStateInfo.flags                 = JsonParser::GetUInt32(multisampleInfo["flags"]);
+			pipelineMultisampleStateInfo.rasterizationSamples  = Util::GetMultisampleCount(JsonParser::GetUInt32(multisampleInfo["multisample_count"]));
+			pipelineMultisampleStateInfo.sampleShadingEnable   = JsonParser::GetUInt32(multisampleInfo["sample_shading_enable"]);
+			pipelineMultisampleStateInfo.minSampleShading      = JsonParser::GetFloat(multisampleInfo["min_sample_shading_factor"]);
 			pipelineMultisampleStateInfo.pSampleMask           = pSampleMasks;
-			pipelineMultisampleStateInfo.alphaToCoverageEnable = _jget_uint(multisampleInfo["alpha_to_coverage_enable"]);
-			pipelineMultisampleStateInfo.alphaToOneEnable      = _jget_uint(multisampleInfo["alpha_to_one_enable"]);		
+			pipelineMultisampleStateInfo.alphaToCoverageEnable = JsonParser::GetUInt32(multisampleInfo["alpha_to_coverage_enable"]);
+			pipelineMultisampleStateInfo.alphaToOneEnable      = JsonParser::GetUInt32(multisampleInfo["alpha_to_one_enable"]);		
 		}
 
 		// Depth Stencil State.
@@ -1217,43 +1265,43 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 		auto& depthStencilInfo              = graphicInfo["depth_stencil_state"];
 		if (depthStencilInfo != Json::nullValue)
 		{
-			pipelineDepthStencilStateInfo.flags                 = _jget_uint(depthStencilInfo["flags"]);
-			pipelineDepthStencilStateInfo.depthTestEnable       = _jget_uint(depthStencilInfo["depth_test_enable"]);
-			pipelineDepthStencilStateInfo.depthWriteEnable      = _jget_uint(depthStencilInfo["depth_write_enable"]);
-			pipelineDepthStencilStateInfo.depthCompareOp        = Util::GetCompareOp(_jget_string_default(depthStencilInfo["depth_compare_op"], Util::DefaultCompareOp));
-			pipelineDepthStencilStateInfo.depthBoundsTestEnable = _jget_uint(depthStencilInfo["depth_bounds_test_enable"]);
-			pipelineDepthStencilStateInfo.stencilTestEnable     = _jget_uint(depthStencilInfo["stencil_test_enable"]);
-			pipelineDepthStencilStateInfo.minDepthBounds        = _jget_float(depthStencilInfo["min_depth_bounds"]);
-			pipelineDepthStencilStateInfo.maxDepthBounds        = _jget_float(depthStencilInfo["max_depth_bounds"]);
+			pipelineDepthStencilStateInfo.flags                 = JsonParser::GetUInt32(depthStencilInfo["flags"]);
+			pipelineDepthStencilStateInfo.depthTestEnable       = JsonParser::GetUInt32(depthStencilInfo["depth_test_enable"]);
+			pipelineDepthStencilStateInfo.depthWriteEnable      = JsonParser::GetUInt32(depthStencilInfo["depth_write_enable"]);
+			pipelineDepthStencilStateInfo.depthCompareOp        = Util::GetCompareOp(JsonParser::GetString(depthStencilInfo["depth_compare_op"], Util::DefaultCompareOp));
+			pipelineDepthStencilStateInfo.depthBoundsTestEnable = JsonParser::GetUInt32(depthStencilInfo["depth_bounds_test_enable"]);
+			pipelineDepthStencilStateInfo.stencilTestEnable     = JsonParser::GetUInt32(depthStencilInfo["stencil_test_enable"]);
+			pipelineDepthStencilStateInfo.minDepthBounds        = JsonParser::GetFloat(depthStencilInfo["min_depth_bounds"]);
+			pipelineDepthStencilStateInfo.maxDepthBounds        = JsonParser::GetFloat(depthStencilInfo["max_depth_bounds"]);
 
 			auto& stencilInfo = depthStencilInfo["stencil_test_state"];
 			if (stencilInfo != Json::nullValue)
 			{
-				if (!_jis_auto(stencilInfo["front"]))
+				if (JsonParser::GetString(stencilInfo["front"]) != "auto")
 				{
-					pipelineDepthStencilStateInfo.front.failOp      = Util::GetStencilOp(_jget_string_default(stencilInfo["front"]["fail_op"], Util::DefaultStencilOp));
-					pipelineDepthStencilStateInfo.front.passOp      = Util::GetStencilOp(_jget_string_default(stencilInfo["front"]["pass_op"], Util::DefaultStencilOp));
-					pipelineDepthStencilStateInfo.front.depthFailOp = Util::GetStencilOp(_jget_string_default(stencilInfo["front"]["depth_fail_op"], Util::DefaultStencilOp));
-					pipelineDepthStencilStateInfo.front.compareOp   = Util::GetCompareOp(_jget_string_default(stencilInfo["front"]["compare_op"], Util::DefaultCompareOp));
-					pipelineDepthStencilStateInfo.front.compareMask = _jget_hex(stencilInfo["front"]["compare_mask"]);
-					pipelineDepthStencilStateInfo.front.writeMask   = _jget_hex(stencilInfo["front"]["write_mask"]);
-					pipelineDepthStencilStateInfo.front.reference   = _jget_uint(stencilInfo["front"]["reference"]);
+					pipelineDepthStencilStateInfo.front.failOp      = Util::GetStencilOp(JsonParser::GetString(stencilInfo["front"]["fail_op"], Util::DefaultStencilOp));
+					pipelineDepthStencilStateInfo.front.passOp      = Util::GetStencilOp(JsonParser::GetString(stencilInfo["front"]["pass_op"], Util::DefaultStencilOp));
+					pipelineDepthStencilStateInfo.front.depthFailOp = Util::GetStencilOp(JsonParser::GetString(stencilInfo["front"]["depth_fail_op"], Util::DefaultStencilOp));
+					pipelineDepthStencilStateInfo.front.compareOp   = Util::GetCompareOp(JsonParser::GetString(stencilInfo["front"]["compare_op"], Util::DefaultCompareOp));
+					pipelineDepthStencilStateInfo.front.compareMask = StringUtil::StrHexToNumeric(JsonParser::GetString(stencilInfo["front"]["compare_mask"], "0x00"));
+					pipelineDepthStencilStateInfo.front.writeMask   = StringUtil::StrHexToNumeric(JsonParser::GetString(stencilInfo["front"]["write_mask"],   "0x00"));
+					pipelineDepthStencilStateInfo.front.reference   = JsonParser::GetUInt32(stencilInfo["front"]["reference"]);
 				}
 
-				if (!_jis_auto(stencilInfo["back"]))
+				if (JsonParser::GetString(stencilInfo["back"]) != "auto")
 				{
-					pipelineDepthStencilStateInfo.back.failOp      = Util::GetStencilOp(_jget_string_default(stencilInfo["back"]["fail_op"], Util::DefaultStencilOp));
-					pipelineDepthStencilStateInfo.back.passOp      = Util::GetStencilOp(_jget_string_default(stencilInfo["back"]["pass_op"], Util::DefaultStencilOp));
-					pipelineDepthStencilStateInfo.back.depthFailOp = Util::GetStencilOp(_jget_string_default(stencilInfo["back"]["depth_fail_op"], Util::DefaultStencilOp));
-					pipelineDepthStencilStateInfo.back.compareOp   = Util::GetCompareOp(_jget_string_default(stencilInfo["back"]["compare_op"], Util::DefaultCompareOp));
-					pipelineDepthStencilStateInfo.back.compareMask = _jget_hex(stencilInfo["back"]["compare_mask"]);
-					pipelineDepthStencilStateInfo.back.writeMask   = _jget_hex(stencilInfo["back"]["write_mask"]);
-					pipelineDepthStencilStateInfo.back.reference   = _jget_uint(stencilInfo["back"]["reference"]);
+					pipelineDepthStencilStateInfo.back.failOp      = Util::GetStencilOp(JsonParser::GetString(stencilInfo["back"]["fail_op"], Util::DefaultStencilOp));
+					pipelineDepthStencilStateInfo.back.passOp      = Util::GetStencilOp(JsonParser::GetString(stencilInfo["back"]["pass_op"], Util::DefaultStencilOp));
+					pipelineDepthStencilStateInfo.back.depthFailOp = Util::GetStencilOp(JsonParser::GetString(stencilInfo["back"]["depth_fail_op"], Util::DefaultStencilOp));
+					pipelineDepthStencilStateInfo.back.compareOp   = Util::GetCompareOp(JsonParser::GetString(stencilInfo["back"]["compare_op"], Util::DefaultCompareOp));
+					pipelineDepthStencilStateInfo.back.compareMask = StringUtil::StrHexToNumeric(JsonParser::GetString(stencilInfo["back"]["compare_mask"], "0x00"));
+					pipelineDepthStencilStateInfo.back.writeMask   = StringUtil::StrHexToNumeric(JsonParser::GetString(stencilInfo["back"]["write_mask"],   "0x00"));
+					pipelineDepthStencilStateInfo.back.reference   = JsonParser::GetUInt32(stencilInfo["back"]["reference"]);
 				}			
 
-				if (_jis_auto(stencilInfo["front"]))
+				if (JsonParser::GetString(stencilInfo["front"]) == "auto")
 					pipelineDepthStencilStateInfo.front = pipelineDepthStencilStateInfo.back;
-				if (_jis_auto(stencilInfo["back"]))
+				if (JsonParser::GetString(stencilInfo["back"])  == "auto")
 					pipelineDepthStencilStateInfo.back  = pipelineDepthStencilStateInfo.front;
 			}
 		}
@@ -1270,19 +1318,19 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 			{
 				auto& attachment = bIsArray ? colorBlendInfo["attachments"][j] : colorBlendInfo["attachments"];
 
-				pColorBlendAttachmentStates[j].blendEnable         = _jget_uint(attachment["blend_enable"]);
-				pColorBlendAttachmentStates[j].srcColorBlendFactor = attachment["src_color_factor"].isUInt() ? static_cast<VkBlendFactor>(_jget_uint(attachment["src_color_factor"])) : Util::GetBlendFactor(_jget_string_default(attachment["src_color_factor"], Util::DefaultBlendFactor));
-				pColorBlendAttachmentStates[j].dstColorBlendFactor = attachment["dst_color_factor"].isUInt() ? static_cast<VkBlendFactor>(_jget_uint(attachment["dst_color_factor"])) : Util::GetBlendFactor(_jget_string_default(attachment["dst_color_factor"], Util::DefaultBlendFactor));
-				pColorBlendAttachmentStates[j].colorBlendOp        = Util::GetBlendOp(_jget_string_default(attachment["color_blend_op"], Util::DefaultBlendOp));
-				pColorBlendAttachmentStates[j].srcAlphaBlendFactor = attachment["src_alpha_factor"].isUInt() ? static_cast<VkBlendFactor>(_jget_uint(attachment["src_alpha_factor"])) : Util::GetBlendFactor(_jget_string_default(attachment["src_alpha_factor"], Util::DefaultBlendFactor));
-				pColorBlendAttachmentStates[j].dstAlphaBlendFactor = attachment["dst_alpha_factor"].isUInt() ? static_cast<VkBlendFactor>(_jget_uint(attachment["dst_alpha_factor"])) : Util::GetBlendFactor(_jget_string_default(attachment["dst_alpha_factor"], Util::DefaultBlendFactor));
-				pColorBlendAttachmentStates[j].alphaBlendOp        = Util::GetBlendOp(_jget_string_default(attachment["alpha_blend_op"], Util::DefaultBlendOp));
-				pColorBlendAttachmentStates[j].colorWriteMask      = Util::GetColorComponentMask(_jget_string_default(attachment["component_mask"], Util::DefaultColorComponentMask));
+				pColorBlendAttachmentStates[j].blendEnable         = JsonParser::GetUInt32(attachment["blend_enable"]);
+				pColorBlendAttachmentStates[j].srcColorBlendFactor = attachment["src_color_factor"].isUInt() ? static_cast<VkBlendFactor>(JsonParser::GetUInt32(attachment["src_color_factor"])) : Util::GetBlendFactor(JsonParser::GetString(attachment["src_color_factor"], Util::DefaultBlendFactor));
+				pColorBlendAttachmentStates[j].dstColorBlendFactor = attachment["dst_color_factor"].isUInt() ? static_cast<VkBlendFactor>(JsonParser::GetUInt32(attachment["dst_color_factor"])) : Util::GetBlendFactor(JsonParser::GetString(attachment["dst_color_factor"], Util::DefaultBlendFactor));
+				pColorBlendAttachmentStates[j].colorBlendOp        = Util::GetBlendOp(JsonParser::GetString(attachment["color_blend_op"], Util::DefaultBlendOp));
+				pColorBlendAttachmentStates[j].srcAlphaBlendFactor = attachment["src_alpha_factor"].isUInt() ? static_cast<VkBlendFactor>(JsonParser::GetUInt32(attachment["src_alpha_factor"])) : Util::GetBlendFactor(JsonParser::GetString(attachment["src_alpha_factor"], Util::DefaultBlendFactor));
+				pColorBlendAttachmentStates[j].dstAlphaBlendFactor = attachment["dst_alpha_factor"].isUInt() ? static_cast<VkBlendFactor>(JsonParser::GetUInt32(attachment["dst_alpha_factor"])) : Util::GetBlendFactor(JsonParser::GetString(attachment["dst_alpha_factor"], Util::DefaultBlendFactor));
+				pColorBlendAttachmentStates[j].alphaBlendOp        = Util::GetBlendOp(JsonParser::GetString(attachment["alpha_blend_op"], Util::DefaultBlendOp));
+				pColorBlendAttachmentStates[j].colorWriteMask      = Util::GetColorComponentMask(JsonParser::GetString(attachment["component_mask"], Util::DefaultColorComponentMask));
 			}
 
-			pipelineColorBlendStateInfo.flags           = _jget_uint(colorBlendInfo["flags"]);
-			pipelineColorBlendStateInfo.logicOpEnable   = _jget_uint(colorBlendInfo["logic_op_enable"]);
-			pipelineColorBlendStateInfo.logicOp         = Util::GetLogicOp(_jget_string_default(colorBlendInfo["logic_op"], Util::DefaultLogicOp));
+			pipelineColorBlendStateInfo.flags           = JsonParser::GetUInt32(colorBlendInfo["flags"]);
+			pipelineColorBlendStateInfo.logicOpEnable   = JsonParser::GetUInt32(colorBlendInfo["logic_op_enable"]);
+			pipelineColorBlendStateInfo.logicOp         = Util::GetLogicOp(JsonParser::GetString(colorBlendInfo["logic_op"], Util::DefaultLogicOp));
 			pipelineColorBlendStateInfo.attachmentCount = numAttachment;
 			pipelineColorBlendStateInfo.pAttachments    = pColorBlendAttachmentStates;
 
@@ -1291,7 +1339,7 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 			for (uint32 j = 0; j < numConstant; j++)
 			{
 				if (j >= 4) break;
-				pipelineColorBlendStateInfo.blendConstants[j] = _jget_float(bIsArray ? colorBlendInfo["blend_constants"][j] : colorBlendInfo["blend_constants"]);
+				pipelineColorBlendStateInfo.blendConstants[j] = JsonParser::GetFloat(bIsArray ? colorBlendInfo["blend_constants"][j] : colorBlendInfo["blend_constants"]);
 			}
 		}
 
@@ -1304,9 +1352,9 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 			uint32 numDynamicState = bIsArray ? dynamicStateInfo["state"].size() : _count_1;
 			pDynamicStates         = _safe_new(VkDynamicState, numDynamicState);
 			for (uint32 j = 0; j < numDynamicState; j++)
-				pDynamicStates[j] = Util::GetDynamicState(_jget_string_default(bIsArray ? dynamicStateInfo["state"][j] : dynamicStateInfo["state"], Util::DefaultDynamicState));
+				pDynamicStates[j] = Util::GetDynamicState(JsonParser::GetString(bIsArray ? dynamicStateInfo["state"][j] : dynamicStateInfo["state"], Util::DefaultDynamicState));
 
-			pipelineDynamicStateInfo.flags             = _jget_uint(dynamicStateInfo["flags"]);
+			pipelineDynamicStateInfo.flags             = JsonParser::GetUInt32(dynamicStateInfo["flags"]);
 			pipelineDynamicStateInfo.dynamicStateCount = numDynamicState;
 			pipelineDynamicStateInfo.pDynamicStates    = pDynamicStates;
 		}
@@ -1326,7 +1374,7 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 				pushConstantRange.offset     = _offset_0;
 				pushConstantRange.size       = resData.items[_index_0].size;
 
-				if (resData.count > 1u) LogSystem::Log("Warning：The Pipeline Created by [" + InJsonPath + "] has too many push constant blocks!", LogSystem::Category::LogicalDevice);
+				if (resData.count > 1u) LogSystem::LogWarning("The Pipeline Created by [" + InJsonPath + "] has too many push constant blocks!", LogSystem::Category::LogicalDevice);
 
 				break; // There can only be one push constant block.
 			}

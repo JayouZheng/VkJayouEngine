@@ -114,6 +114,8 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(VK_SDK_PATH)/include;$(ProjectDir)/ThirdParty/jsoncpp/include;$(ProjectDir)/Layers;$(ProjectDir)/Layers/Fossilize/rapidjson/include;$(ProjectDir)/ThirdParty/jsoncpp/src/lib_json;$(ProjectDir)/ThirdParty;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <OmitFramePointers>
+      </OmitFramePointers>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

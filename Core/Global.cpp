@@ -5,21 +5,13 @@
 #include "Global.h"
 #include "BaseAllocator.h"
 #include "StringManager.h"
-#include "LogSystem.h"
 
 namespace
 {
 	static VkInstance               g_instance         = VK_NULL_HANDLE;
 	static VkDevice                 g_device           = VK_NULL_HANDLE;
-
 	static BaseAllocator*           g_allocator        = nullptr;
-
-	static uint32                   g_count            = _count_0;
-	static bool                     g_bDestroyManually = false;
-
-	static Global::ModuleInfo       g_moduleInfo       = { "", "null" };
-
-	static std::vector<std::string> g_logs;
+	static Global::ModuleInfo       g_moduleInfo       = { "", _str_null };
 
 	/// <summary>
 	/// Utility String Map Object Tables.
@@ -305,31 +297,6 @@ void Global::SetVkDevice(const VkDevice& InDevice)
 	g_device = InDevice;
 }
 
-void Global::Decrease()
-{
-	g_count--;
-}
-
-void Global::Advance()
-{
-	g_count++;
-}
-
-bool Global::IsZero()
-{
-	return g_count == 0;
-}
-
-void Global::ApplicationDestroyManually(bool InFlag)
-{
-	g_bDestroyManually = InFlag;
-}
-
-bool Global::IsDestroyManually()
-{
-	return g_bDestroyManually;
-}
-
 void Global::CacheModuleInfo(const ModuleInfo& InModuleInfo)
 {
 	g_moduleInfo = InModuleInfo;
@@ -343,11 +310,6 @@ std::string Global::GetModulePath()
 std::string Global::GetModuleName()
 {
 	return g_moduleInfo.Name;
-}
-
-void Global::CacheLog(const std::string& InLog)
-{
-	LogSystem::Log(InLog);
 }
 
 BaseAllocator* Global::GetAllocator()
@@ -387,7 +349,8 @@ bool Util::GetShaderStage(const std::string& InKey, VkShaderStageFlagBits& OutSh
 	}
 	catch (const std::out_of_range& msg)
 	{
-		_ret_false_log(std::string(msg.what()) + ", pipeline stage type invalid!");
+		LogSystem::LogError(std::string(msg.what()) + ", pipeline stage type invalid!", _name_of(GetShaderStage));
+		return false;
 	}
 }
 
@@ -402,7 +365,8 @@ VkFormat Util::GetVertexAttributeVkFormat(const std::string& InKey)
 	catch (const std::out_of_range& msg)
 	{
 		result = VK_FORMAT_UNDEFINED;
-		_returnx_log(result, std::string(msg.what()) + ", Func: " + _str_name_of(GetVertexAttributeVkFormat) + " input is not valid!");
+		LogSystem::LogWarning(std::string(msg.what()) + ", Function input is not valid!", _name_of(GetVertexAttributeVkFormat));
+		return result;
 	}
 }
 
@@ -417,7 +381,8 @@ uint32 Util::GetVertexAttributeSize(const std::string& InKey)
 	catch (const std::out_of_range& msg)
 	{
 		result = 0;
-		_returnx_log(result, std::string(msg.what()) + ", Func: " + _str_name_of(GetVertexAttributeSize) + " input is not valid!");
+		LogSystem::LogWarning(std::string(msg.what()) + ", Function input is not valid!", _name_of(GetVertexAttributeSize));
+		return result;
 	}
 }
 
@@ -432,7 +397,8 @@ VkPrimitiveTopology Util::GetPrimitiveTopology(const std::string& InKey)
 	catch (const std::out_of_range& msg)
 	{
 		result = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-		_returnx_log(result, std::string(msg.what()) + ", pipeline input assembly, primitive topology invalid! default set to \"" + Util::DefaultPrimitiveTopology + "\"!");
+		LogSystem::LogWarning(std::string(msg.what()) + ", pipeline input assembly, primitive topology invalid! default set to \"" + Util::DefaultPrimitiveTopology + "\"!", _name_of(GetPrimitiveTopology));
+		return result;
 	}
 }
 
@@ -447,7 +413,8 @@ VkPolygonMode Util::GetPolygonMode(const std::string& InKey)
 	catch (const std::out_of_range& msg)
 	{
 		result = VK_POLYGON_MODE_FILL;
-		_returnx_log(result, std::string(msg.what()) + ", pipeline rasterization state, polygon mode invalid! default set to \"" + Util::DefaultPolygonMode + "\"!");
+		LogSystem::LogWarning(std::string(msg.what()) + ", pipeline rasterization state, polygon mode invalid! default set to \"" + Util::DefaultPolygonMode + "\"!", _name_of(GetPolygonMode));
+		return result;
 	}
 }
 
@@ -462,7 +429,8 @@ VkCullModeFlagBits Util::GetCullMode(const std::string& InKey)
 	catch (const std::out_of_range& msg)
 	{
 		result = VK_CULL_MODE_NONE;
-		_returnx_log(result, std::string(msg.what()) + ", pipeline rasterization state, cull mode invalid! default set to \"" + Util::DefaultCullMode + "\"!");
+		LogSystem::LogWarning(std::string(msg.what()) + ", pipeline rasterization state, cull mode invalid! default set to \"" + Util::DefaultCullMode + "\"!", _name_of(GetCullMode));
+		return result;
 	}
 }
 
@@ -477,7 +445,8 @@ VkFrontFace Util::GetFrontFace(const std::string& InKey)
 	catch (const std::out_of_range& msg)
 	{
 		result = VK_FRONT_FACE_COUNTER_CLOCKWISE;
-		_returnx_log(result, std::string(msg.what()) + ", pipeline rasterization state, front face invalid! default set to \"" + Util::DefaultFrontFace + "\"!");
+		LogSystem::LogWarning(std::string(msg.what()) + ", pipeline rasterization state, front face invalid! default set to \"" + Util::DefaultFrontFace + "\"!", _name_of(GetFrontFace));
+		return result;
 	}
 }
 
@@ -513,7 +482,8 @@ VkCompareOp Util::GetCompareOp(const std::string& InKey)
 	catch (const std::out_of_range& msg)
 	{
 		result = VK_COMPARE_OP_LESS_OR_EQUAL;
-		_returnx_log(result, std::string(msg.what()) + ", pipeline depth stencil state, compare op invalid! default set to \"" + Util::DefaultCompareOp + "\"!");
+		LogSystem::LogWarning(std::string(msg.what()) + ", pipeline depth stencil state, compare op invalid! default set to \"" + Util::DefaultCompareOp + "\"!", _name_of(GetCompareOp));
+		return result;
 	}
 }
 
@@ -528,7 +498,8 @@ VkStencilOp Util::GetStencilOp(const std::string& InKey)
 	catch (const std::out_of_range& msg)
 	{
 		result = VK_STENCIL_OP_KEEP;
-		_returnx_log(result, std::string(msg.what()) + ", pipeline depth stencil state, stencil op invalid! default set to \"" + Util::DefaultStencilOp + "\"!");
+		LogSystem::LogWarning(std::string(msg.what()) + ", pipeline depth stencil state, stencil op invalid! default set to \"" + Util::DefaultStencilOp + "\"!", _name_of(GetStencilOp));
+		return result;
 	}
 }
 
@@ -543,7 +514,8 @@ VkLogicOp Util::GetLogicOp(const std::string& InKey)
 	catch (const std::out_of_range& msg)
 	{
 		result = VK_LOGIC_OP_CLEAR;
-		_returnx_log(result, std::string(msg.what()) + ", pipeline color blend state, logic op invalid! default set to \"" + Util::DefaultLogicOp + "\"!");
+		LogSystem::LogWarning(std::string(msg.what()) + ", pipeline color blend state, logic op invalid! default set to \"" + Util::DefaultLogicOp + "\"!", _name_of(GetLogicOp));
+		return result;
 	}
 }
 
@@ -558,7 +530,8 @@ VkBlendFactor Util::GetBlendFactor(const std::string& InKey)
 	catch (const std::out_of_range& msg)
 	{
 		result = VK_BLEND_FACTOR_ZERO;
-		_returnx_log(result, std::string(msg.what()) + ", pipeline color blend state, blend factor invalid! default set to \"" + Util::DefaultBlendFactor + "\"!");
+		LogSystem::LogWarning(std::string(msg.what()) + ", pipeline color blend state, blend factor invalid! default set to \"" + Util::DefaultBlendFactor + "\"!", _name_of(GetBlendFactor));
+		return result;
 	}
 }
 
@@ -573,7 +546,8 @@ VkBlendOp Util::GetBlendOp(const std::string& InKey)
 	catch (const std::out_of_range& msg)
 	{
 		result = VK_BLEND_OP_ADD;
-		_returnx_log(result, std::string(msg.what()) + ", pipeline color blend state, blend op invalid! default set to \"" + Util::DefaultBlendOp + "\"!");
+		LogSystem::LogWarning(std::string(msg.what()) + ", pipeline color blend state, blend op invalid! default set to \"" + Util::DefaultBlendOp + "\"!", _name_of(GetBlendOp));
+		return result;
 	}
 }
 
@@ -588,14 +562,16 @@ VkColorComponentFlags Util::GetColorComponentMask(const std::string& InKey)
 		}
 		catch (const std::out_of_range& msg)
 		{
-			_bcontinue_log(true, std::string(msg.what()) + ", pipeline color blend state, component mask detects an invalid char present, please fill this field with \"r,g,b,a\"!");
+			LogSystem::LogWarning(std::string(msg.what()) + ", pipeline color blend state, component mask detects an invalid char present, please fill this field with \"r,g,b,a\"!", _name_of(GetColorComponentMask));
+			continue;
 		}
 	}
 
 	if (result == 0)
 	{
 		result = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-		_returnx_log(result, "pipeline color blend state, component mask invalid! default set to \"" + Util::DefaultColorComponentMask + "\"!");
+		LogSystem::LogWarning("pipeline color blend state, component mask invalid! default set to \"" + Util::DefaultColorComponentMask + "\"!", _name_of(GetColorComponentMask));
+		return result;
 	}
 
 	return result;
@@ -612,37 +588,7 @@ VkDynamicState Util::GetDynamicState(const std::string& InKey)
 	catch (const std::out_of_range& msg)
 	{
 		result = VK_DYNAMIC_STATE_VIEWPORT;
-		_returnx_log(result, std::string(msg.what()) + ", pipeline dynamic state, state invalid! default set to \"" + Util::DefaultDynamicState + "\"!");
+		LogSystem::LogWarning(std::string(msg.what()) + ", pipeline dynamic state, state invalid! default set to \"" + Util::DefaultDynamicState + "\"!", _name_of(GetDynamicState));
+		return result;
 	}
-}
-
-bool Util::ParseJson(const std::string& InPath, Json::Value& OutRoot)
-{
-	std::ifstream ifs(InPath, std::ifstream::in);
-	
-	if (ifs.is_open())
-	{
-		Json::CharReaderBuilder builder;
-		JSONCPP_STRING errs;
-
-		if (!parseFromStream(builder, ifs, &OutRoot, &errs))
-		{
-			_returnx_log(false, errs);
-		}
-
-		return true;
-	}
-	else
-	{
-		_returnx_log(false, "Error: Could not open Json file \"" + InPath + "\"");
-	}
-}
-
-uint32 Util::StringToHex(const std::string& InHexStr)
-{
-	std::stringstream strs;
-	strs << InHexStr;
-	uint32 value;
-	strs >> std::hex >> value;
-	return value;
 }

@@ -13,4 +13,5 @@
 #include "JsonParser.h"
 #include "TypeDef.h"
 #include "Exception.h"
+#include "LogSystem.h"
 #include "MemoryLeakCheck.h"

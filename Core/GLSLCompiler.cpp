@@ -8,14 +8,15 @@
 
 GLSLCompiler::GLSLCompiler()
 {
-    m_module.Load(DiskResourceLoader::Load(StringUtil::Printf("ThirdParty/CMBuild/GLSLCompiler/%/GLSLCompiler.dll", _platform)));
-
-    m_pInterface = m_module.GetInterface<PFGetGLSLCompilerInterface>("GetInterface");
-
-    if (m_pInterface != nullptr)
+    if (m_module.Load(DiskResourceLoader::Load(StringUtil::Printf("ThirdParty/CMBuild/GLSLCompiler/%/GLSLCompiler.dll", _platform))))
     {
-        m_pCompiler = m_pInterface();
-        if (m_pCompiler != nullptr) m_pCompiler->Init();
+        m_pInterface = m_module.GetInterface<PFGetGLSLCompilerInterface>("GetInterface");
+
+        if (m_pInterface != nullptr)
+        {
+            m_pCompiler = m_pInterface();
+            if (m_pCompiler != nullptr) m_pCompiler->Init();
+        }
     }
 }
 
@@ -41,7 +42,11 @@ void GLSLCompiler::CompileShader(VkShaderStageFlags InStageType, const std::stri
     {
         m_pSPVData.push_back(m_pCompiler->CompileFromPath(InStageType, InShaderPath.data(), InCompileInfo));
     }
-    else _return_log("The GLSLCompiler has not been Init!");
+    else
+    {
+        LogSystem::LogError("The GLSLCompiler has not been Init!", LogSystem::Category::GLSLCompiler);
+        return;
+    }
 }
 
 void GLSLCompiler::FlushSPVData()

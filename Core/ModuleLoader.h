@@ -21,13 +21,19 @@ public:
 		}
 	}
 
-	void Load(const std::string& InModuleName)
+	bool Load(const std::string& InModuleName)
 	{
 		m_moduleName = InModuleName;
 #if PLATFORM_WINDOW
 		m_pModule = LoadLibraryA(InModuleName.c_str());
 #endif
-		_breturn_log(m_pModule == nullptr, "Fail to load module [" + InModuleName + "]!");
+
+		if (m_pModule == nullptr)
+		{
+			LogSystem::LogError("Fail to load module [" + InModuleName + "]!", LogSystem::Category::ModuleLoader);
+			return false;
+		}
+		return true;
 	}
 
 	void Free()
@@ -37,9 +43,17 @@ public:
 #if PLATFORM_WINDOW	
 			m_bResult = FreeLibrary((HMODULE)m_pModule);
 #endif
-			_breturn_log(m_bResult == _false, "Fail to free module [" + m_moduleName + "]!");
+			if (m_bResult == _false)
+			{
+				LogSystem::LogError("Fail to free module [" + m_moduleName + "]!", LogSystem::Category::ModuleLoader);
+				return;
+			}
 		}
-		else _return_log("Fail to free module [" + m_moduleName + "], the module was not load!");
+		else
+		{
+			LogSystem::LogError("Fail to free module [" + m_moduleName + "], the module was not load!", LogSystem::Category::ModuleLoader);
+			return;
+		}
 	}
 
 	template<typename T>
@@ -50,13 +64,19 @@ public:
 #if PLATFORM_WINDOW	
 			T api = nullptr;
 			api = (T)GetProcAddress((HMODULE)m_pModule, InInterfaceName.c_str());
-			_breturnx_log(api == nullptr, nullptr, "Fail to find API [" + InInterfaceName + "]!");
+
+			if (api == nullptr)
+			{
+				LogSystem::LogError("Fail to find API [" + InInterfaceName + "]!", LogSystem::Category::ModuleLoader);
+				return nullptr;
+			}
 			return api;
 #endif
 		}
 		else
 		{
-			_returnx_log(nullptr, "Fail to find API [" + InInterfaceName + "], the module [" + m_moduleName + "] was not load!");
+			LogSystem::LogError("Fail to find API [" + InInterfaceName + "], the module [" + m_moduleName + "] was not load!", LogSystem::Category::ModuleLoader);
+			return nullptr;
 		}
 	}
 

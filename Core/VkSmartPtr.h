@@ -1,6 +1,6 @@
 ﻿//
 // VkSmartPtr.h
-//
+// Note: Use #define VK_MANUAL_DESTROY_OBJECT to manage vulkan object manually.
 
 #pragma once
 
@@ -25,7 +25,7 @@ public:
 	T* MakeInstance()
 	{
 		m_counter->m_object    = new T;
-		*(m_counter->m_object) = NULL;
+		*(m_counter->m_object) = VK_NULL_HANDLE;
 
 		return m_counter->m_object;
 	}
@@ -124,10 +124,10 @@ class VkCounter
 {
 private:
 
-	T*     m_object;
-	uint32 m_count;
-
-	const char* m_type;
+	T*            m_object;
+	uint32        m_count;
+	const char*   m_type;
+	static uint32 m_instanceRefs;
 
 	template<typename T>
 	friend class VkSmartPtr;
@@ -142,15 +142,17 @@ private:
 		m_object = ptr;
 		m_count = 1;
 
-		Global::Advance();
+		m_instanceRefs++;
 	}
 
 	~VkCounter()
 	{
+
+#ifndef VK_MANUAL_DESTROY_OBJECT
 		
 #ifdef _vk_destroy
 #undef _vk_destroy
-#endif
+#endif // _vk_destroy
 #define _vk_destroy(object)                                                                        \
 {                                                                                                  \
 	if (_is_cstrlen_equal(_name_of(Vk##object), m_type) &&                                         \
@@ -193,20 +195,24 @@ private:
 			}		
 		}
 
-		delete m_object;
+		m_instanceRefs--;
 
-		Global::Decrease();
-
-		if (Global::IsZero())
+		if (m_instanceRefs == 0)
 		{
 			vkDestroyDevice(Global::GetVkDevice(), Global::GetVkAllocator());
 			vkDestroyInstance(Global::GetVkInstance(), Global::GetVkAllocator());
 			Global::SafeFreeAllocator();
 			Global::OnExit();
 		}
+
+#endif // VK_MANUAL_DESTROY_OBJECT
 		
+		delete m_object;
 	}
 };
+
+template<typename T>
+uint32 VkCounter<T>::m_instanceRefs = 0u;
 
 #define _declare_vk_smart_ptr(type, var)  VkSmartPtr<type> var = VkSmartPtr<type>(_name_of(type));
 

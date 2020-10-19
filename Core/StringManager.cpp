@@ -336,6 +336,15 @@ std::string StringUtil::ToLowerCase(const std::string& str)
 	return lower;
 }
 
+uint32 StringUtil::StrHexToNumeric(const std::string& InHexStr)
+{
+	std::stringstream strs;
+	strs << InHexStr;
+	uint32 value;
+	strs >> std::hex >> value;
+	return value;
+}
+
 std::string StringUtil::WStringToStringV2(const std::wstring& wstr)
 {
 	std::setlocale(LC_ALL, "");

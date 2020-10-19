@@ -27,12 +27,14 @@ public:
 	{
 		Unknown = 0,
 
+		Global,
 		BaseLayer,
 		LogicalDevice,
 		CommandList,
 		GLSLCompiler, 
 		JsonParser, 
 		VkSmartPtr,
+		ModuleLoader,
 		DiskResourceLoader,
 
 
@@ -40,6 +42,9 @@ public:
 		Engine,
 		Editor,
 		Game,
+
+		// User Custom.
+		Custom,
 
 		Max = 0xff
 	};
@@ -51,6 +56,7 @@ public:
 		LogSystem::Level     Level;
 		ColorUtil::Color     Color;
 		std::string          Content;
+		std::string          CustomCategory;
 
 		std::string LevelToString() const;
 		std::string CategoryToString() const;
@@ -60,5 +66,10 @@ public:
 
 public:
 
-	static void Log(const std::string& InLog, const Category& InCategory = Category::Unknown, const Level& InLevel = Level::Common, const Color& InColor = Color::Snow);
+	static void Log        (const std::string& InLog, const Category& InCategory = Category::Unknown, const Level& InLevel = Level::Common, const Color& InColor = Color::Snow);
+	static void Log        (const std::string& InLog, const std::string& InCategory, const Level& InLevel = Level::Common, const Color& InColor = Color::Snow);
+	static void LogError   (const std::string& InLog, const Category& InCategory = Category::Unknown);
+	static void LogError   (const std::string& InLog, const std::string& InCategory);
+	static void LogWarning (const std::string& InLog, const Category& InCategory = Category::Unknown);
+	static void LogWarning (const std::string& InLog, const std::string& InCategory);
 };

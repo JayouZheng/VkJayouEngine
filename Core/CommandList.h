@@ -47,15 +47,15 @@ public:
 
 	// Buffer.
 	void CopyBuffer             (VkBuffer InSrcBuffer, VkBuffer InDstBuffer);
-	void CopyBuffer             (VkBuffer InSrcBuffer, VkBuffer InDstBuffer, const VkBufferCopy& InRegion);	
+	bool CopyBuffer             (VkBuffer InSrcBuffer, VkBuffer InDstBuffer, const VkBufferCopy& InRegion);	
 	void CopyBuffer             (VkBuffer InSrcBuffer, VkBuffer InDstBuffer, uint32 InRegionCount, const VkBufferCopy* InRegions);
 
 	void ClearBufferUint32      (VkBuffer InBuffer, const uint32 InValue);
 	void ClearBufferFloat       (VkBuffer InBuffer, const float  InValue);
-	void ClearBufferUint32      (VkBuffer InBuffer, VkDeviceSize InOffset, VkDeviceSize InSize, const uint32 InValue);
-	void ClearBufferFloat       (VkBuffer InBuffer, VkDeviceSize InOffset, VkDeviceSize InSize, const float  InValue);
+	bool ClearBufferUint32      (VkBuffer InBuffer, VkDeviceSize InOffset, VkDeviceSize InSize, const uint32 InValue);
+	bool ClearBufferFloat       (VkBuffer InBuffer, VkDeviceSize InOffset, VkDeviceSize InSize, const float  InValue);
 
-	void UpdateBuffer           (VkBuffer InBuffer, VkDeviceSize InOffset, VkDeviceSize InSize, const void* InData);
+	bool UpdateBuffer           (VkBuffer InBuffer, VkDeviceSize InOffset, VkDeviceSize InSize, const void* InData);
 
 	// Image.
 	void CopyBufferToImage      (VkBuffer InSrcBuffer, VkImage InDstImage, uint32 InWidth, uint32 InHeight, VkImageAspectFlags InAspectMask = VK_IMAGE_ASPECT_COLOR_BIT);
@@ -85,7 +85,7 @@ public:
 	void BindComputePipeline    (VkPipeline InPipeline);
 	void BindGraphicPipeline    (VkPipeline InPipeline);
 
-	void Dispatch               (uint32 x, uint32 y, uint32 z);
+	bool Dispatch               (uint32 x, uint32 y, uint32 z);
 	void DispatchIndirect       (VkBuffer InBuffer, VkDeviceSize InOffset);
 
 	void BindDescriptorSets     (VkPipelineLayout InPipLayout, VkPipelineBindPoint InPipBindPoint, const VkDescriptorSet* InDescSets, uint32 InSetCount = _count_1, uint32 InSetOffset = _offset_0, const uint32* InDynamicOffsets = nullptr, uint32 InDynamicOffsetCount = _count_0);

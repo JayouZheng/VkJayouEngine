@@ -245,7 +245,11 @@ bool Window::Init()
 		wcex.lpszClassName = L"VkJayouEngineWindowClass";
 		wcex.hIconSm = LoadIconW(wcex.hInstance, L"IDI_ICON");
 
-		_bret_false_log(!RegisterClassExW(&wcex), "Register Class Failed When Create Window!");
+		if (!RegisterClassExW(&wcex))
+		{
+			LogSystem::LogError("Register Class Failed When Create Window!", "RegisterClassExW");
+			return false;
+		}
 
 		// Create window
 		uint32 w, h;
@@ -262,7 +266,11 @@ bool Window::Init()
 		// TODO: Change to CreateWindowExW(WS_EX_TOPMOST, L"JayouEngineWindowClass", L"JayouEngine", WS_POPUP,
 		// to default to fullscreen.
 
-		_bret_false_log(!m_pHwnd, "Create Window Failed!");
+		if (!m_pHwnd)
+		{
+			LogSystem::LogError("Create Window Failed!", "CreateWindowExW");
+			return false;
+		}
 
 		// TODO: Change nCmdShow to SW_SHOWMAXIMIZED to default to fullscreen.
 

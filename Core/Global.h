@@ -18,23 +18,12 @@ namespace Global
 
 	VkInstance              GetVkInstance();
 	void                    SetVkInstance(const VkInstance& InInstance);
-
 	VkDevice                GetVkDevice();
 	void                    SetVkDevice(const VkDevice& InDevice);
-
-	void                    Decrease();
-	void                    Advance();
-
-	bool                    IsZero();
-
-	void                    ApplicationDestroyManually(bool InFlag);
-	bool                    IsDestroyManually();
 
 	void                    CacheModuleInfo(const ModuleInfo& InModuleInfo);
 	std::string             GetModulePath();
 	std::string             GetModuleName();
-
-	void                    CacheLog(const std::string& InLog);
 
 	BaseAllocator*          GetAllocator();
 	VkAllocationCallbacks*  GetVkAllocator();
@@ -91,7 +80,7 @@ namespace Util
 	VkPolygonMode            GetPolygonMode             (const std::string& InKey);
 	VkCullModeFlagBits       GetCullMode                (const std::string& InKey);
 	VkFrontFace              GetFrontFace               (const std::string& InKey);
-	VkSampleCountFlagBits    GetMultisampleCount        (uint32 InCount);
+	VkSampleCountFlagBits    GetMultisampleCount        (uint32             InCount);
 	VkCompareOp              GetCompareOp               (const std::string& InKey);
 	VkStencilOp              GetStencilOp               (const std::string& InKey);
 	VkLogicOp                GetLogicOp                 (const std::string& InKey);
@@ -112,38 +101,4 @@ namespace Util
 		}
 		return false;
 	}
-
-	inline void PrintArgs(const char* InFormat) { std::cout << InFormat; } // Base function
-
-	template<typename T, typename... Targs>
-	void PrintArgs(const char* InFormat, T InValue, Targs... InFargs)
-	{
-		for (; *InFormat != '\0'; InFormat++) {
-			if (*InFormat == '%') {
-				std::cout << InValue;
-				PrintArgs(InFormat + 1, InFargs...); // Recursive call
-				return;
-			}
-			std::cout << *InFormat;
-		}
-	}
-
-	bool ParseJson(const std::string& InPath, Json::Value& OutRoot);
-
-	uint32 StringToHex(const std::string& InHexStr);
 }
-
-// TODO:
-// The log system has been added, these code block should be changed as soon as possible.
-
-#define _return_log(log) { Global::CacheLog(log); return; }
-#define _breturn_log(b, log) if (b) { Global::CacheLog(log); return; }
-#define _returnx_log(ret, log) { Global::CacheLog(log); return ret; }
-#define _breturnx_log(b, ret, log) if(b) { Global::CacheLog(log); return ret; }
-#define _ret_false_log(log) _returnx_log(false, log)
-#define _bret_false_log(b, log) _breturnx_log(b, false, log)
-
-#define _bcontinue_log(b, log) if (b) { Global::CacheLog(log); continue; }
-#define _bbreak_log(b, log) if (b) { Global::CacheLog(log); break; }
-
-#define _is_guaranteed_min(x, min_val, y) { if (Global::IsVkGuaranteedMinimum<uint32>(x, min_val)) x = std::min(x, y); }

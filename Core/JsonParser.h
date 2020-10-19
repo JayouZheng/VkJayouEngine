@@ -5,27 +5,34 @@
 #pragma once
 
 #include "json/json.h"
+#include "TypeDef.h"
+
+#include "StringManager.h"
 
 class JsonParser
 {
 
 public:
 
-	static void Log(const std::string& InLog);
+	static bool Parse (const std::string& InPath, Json::Value& OutRoot);
+
+	static inline int32 GetInt32(const Json::Value& InValue)
+	{
+		return (InValue != Json::nullValue) ? InValue.asInt() : 0;
+	}
+
+	static inline uint32 GetUInt32(const Json::Value& InValue)
+	{
+		return (InValue != Json::nullValue) ? InValue.asUInt() : 0u;
+	}
+
+	static inline float GetFloat(const Json::Value& InValue)
+	{
+		return (InValue != Json::nullValue) ? InValue.asFloat() : .0f;
+	}
+
+	static inline std::string GetString(const Json::Value& InValue, const std::string& InDefault = _str_null)
+	{
+		return (InValue != Json::nullValue) ? (InValue.isString() ? InValue.asString() : InDefault) : InDefault;
+	}
 };
-
-// TODO: Move this code block into class JsonParser.
-
-#define _jverify_return_log(json_key, log) if ((json_key) == Json::nullValue) { JsonParser::Log(log); return; }
-#define _jverify_ret_false_log(json_key, log) if ((json_key) == Json::nullValue) { JsonParser::Log(log); return false; }
-#define _jget_int(json_key) ((json_key) == Json::nullValue) ? 0 : (json_key).asInt()
-#define _jget_uint(json_key) ((json_key) == Json::nullValue) ? 0u : (json_key).asUInt()
-#define _jget_float(json_key) ((json_key) == Json::nullValue) ? 0.0f : (json_key).asFloat()
-
-#define _jget_cstring_default(json_key, default) (json_key).isString() ? (((json_key) == Json::nullValue) ? default : (*(json_key).asCString() == 0 ? default : (json_key).asCString())) : default
-#define _jget_cstring(json_key) _jget_cstring_default(json_key, "NULL")
-#define _jget_string(json_key) std::string(_jget_cstring_default(json_key, "NULL"))
-#define _jget_string_default(json_key, default) std::string(_jget_cstring_default(json_key, default))
-
-#define _jis_auto(json_key) (_jget_string(json_key) == "auto")
-#define _jget_hex(json_key) (json_key).isString() ? Util::StringToHex(_jget_string_default(json_key, "0x00")) : _jget_uint(json_key);
