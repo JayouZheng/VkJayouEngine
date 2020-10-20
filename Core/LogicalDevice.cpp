@@ -988,6 +988,14 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 {
 	if (OutPipeline != nullptr) *OutPipeline = VK_NULL_HANDLE;
 
+	if (m_pBaseLayer == nullptr)
+	{
+		*OutPipeline = VK_NULL_HANDLE;
+
+		LogSystem::LogError("Func: " + _str_name_of(CreateGraphicPipelines) + " expect to Query Physical Device Limits!", LogSystem::Category::LogicalDevice);
+		return false;
+	}
+
 	Json::Value root;
 	_bret_false_log(!JsonParser::Parse(InJsonPath, root), _str_name_of(CreateGraphicPipelines) + " Failed! Not Valid File Path!");
 
@@ -1366,12 +1374,44 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 
 		// There can only be one push constant block.
 		VkPushConstantRange pushConstantRange;
+		std::vector<std::map<uint32, VkDescriptorSetLayoutBinding>> descSets;
+
+		uint32 maxNumSets = 0u;
+		std::vector<uint32> setIDArray;
+
+		for (auto& spvData : m_compiler.GetAllSPVData())
+		{
+			for (uint32 descType = VK_DESCRIPTOR_TYPE_SAMPLER; descType < GLSLCompiler::NumDescriptorType; descType++)
+			{
+				for (uint32 i = 0; i < spvData->resource[descType].count; i++)
+				{					
+					maxNumSets = std::max<uint32>(maxNumSets, spvData->resource[descType].items[i].set);
+					maxNumSets = std::min<uint32>(maxNumSets, m_pBaseLayer->GetMainPDLimits().maxBoundDescriptorSets);
+
+					setIDArray.push_back(spvData->resource[descType].items[i].set);
+				}
+			}
+		}
+
+		descSets.resize(maxNumSets);
+		// Sort the setIDArray using operator <.
+		std::sort(setIDArray.begin(), setIDArray.end());
+		// Check the continuity of setID.
+		for (uint32 i = 0u; i < setIDArray.size() - 1u; i++)
+		{
+			if ((setIDArray[i] + 1u) != setIDArray[i + 1u])
+			{
+				LogSystem::LogError("The Pipeline Created by [" + InJsonPath + "] has discontinuous DescriptorSet ID!", LogSystem::Category::LogicalDevice);
+				return false;
+			}
+		}
 		    
 		for (auto& spvData : m_compiler.GetAllSPVData())
 		{
 			GLSLCompiler::ShaderResourceData resData = spvData->resource[GLSLCompiler::ResID_PushConstant];
 
-			if (resData.count > 0u)
+			static bool bPushConstantInit = false;
+			if (!bPushConstantInit && resData.count > 0u)
 			{
 				pushConstantRange.stageFlags = spvData->shader_stage;
 				pushConstantRange.offset     = _offset_0;
@@ -1379,12 +1419,29 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 
 				if (resData.count > 1u) LogSystem::LogWarning("The Pipeline Created by [" + InJsonPath + "] has too many push constant blocks!", LogSystem::Category::LogicalDevice);
 
-				break; // There can only be one push constant block.
+				bPushConstantInit = true; // There can only be one push constant block.
+			}
+
+			for (uint32 descType = VK_DESCRIPTOR_TYPE_SAMPLER; descType < VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT; descType++)
+			{
+				for (uint32 i = 0; i < spvData->resource[descType].count; i++)
+				{
+					VkDescriptorSetLayoutBinding descSetBinding;
+					descSetBinding.binding = spvData->resource[descType].items[i].binding;
+					descSetBinding.descriptorType = (VkDescriptorType)descType;
+					descSetBinding.stageFlags = spvData->shader_stage;
+					descSetBinding.descriptorCount = 1u;
+					descSetBinding.pImmutableSamplers = nullptr;
+
+					// TODO: If exit same binding, compiler will not treat it as an error, i need to check it by myself. 
+					descSets[spvData->resource[descType].items[i].set].emplace(descSetBinding.binding, descSetBinding);
+				}
 			}
 		}
 
+		
+
 		//VkDescriptorSetLayout;
-		//VkDescriptorSetLayoutBinding;
 
 		//this->CreatePipelineLayout()
 	}
