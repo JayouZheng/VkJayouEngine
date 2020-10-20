@@ -2,16 +2,19 @@
 // LogicalDevice.cpp
 //
 
-#include "LogicalDevice.h"
-#include "BaseLayer.h"
 #include "JsonParser.h"
+
+#include "BaseLayer.h"
+#include "BaseAllocator.h"
+#include "LogicalDevice.h"
 #include "StringManager.h"
 #include "DiskResourceLoader.h"
+#include "Utility.h"
 
 #define _ret_false_log(log)                    { LogSystem::LogError(log, LogSystem::Category::LogicalDevice); return false; }
 #define _bret_false_log(b, log)                if (b) { LogSystem::LogError(log, LogSystem::Category::LogicalDevice); return false; }
 #define _jverify_ret_false_log(json_key, log)  if ((json_key) == Json::nullValue) { LogSystem::LogError(log, LogSystem::Category::LogicalDevice); return false; }
-#define _is_guaranteed_min(x, min_val, y)      if (Global::IsVkGuaranteedMinimum<uint32>(x, min_val)) x = std::min(x, y);
+#define _is_guaranteed_min(x, min_val, y)      if (Util::IsVkGuaranteedMinimum<uint32>(x, min_val)) x = std::min(x, y);
 
 VkAllocationCallbacks* LogicalDevice::GetVkAllocator() const
 {
@@ -236,7 +239,7 @@ void LogicalDevice::CreateComputePipeline(VkPipeline* OutPipeline, VkPipelineLay
 	_vk_try(vkCreateComputePipelines(m_device, InPipCache, _count_1, &pipCSCreateInfo, GetVkAllocator(), OutPipeline));
 }
 
-void LogicalDevice::CreateComputePipelines(VkPipeline* OutPipeline, const SPipelineComputeDesc* InDescs, uint32 InDescCount/*= _count_1*/, VkPipelineCache InPipCache /*= VK_NULL_HANDLE*/)
+void LogicalDevice::CreateComputePipelines(VkPipeline* OutPipeline, const PipelineComputeDesc* InDescs, uint32 InDescCount/*= _count_1*/, VkPipelineCache InPipCache /*= VK_NULL_HANDLE*/)
 {
 	VkPipelineShaderStageCreateInfo pipSSCreateInfo = {};
 	pipSSCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -267,7 +270,7 @@ void LogicalDevice::CreatePipelineCache(VkPipelineCache* OutPipCache, const VkPi
 
 void LogicalDevice::CreatePipelineCache(VkPipelineCache* OutPipCache, const VkPhysicalDeviceProperties& InPDProp)
 {
-	SPipelineCacheHeader pipCacheHeader = SPipelineCacheHeader(InPDProp);
+	PipelineCacheHeader pipCacheHeader = PipelineCacheHeader(InPDProp);
 
 	VkPipelineCacheCreateInfo pipCacheCreateInfo = {};
 	pipCacheCreateInfo.sType           = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
@@ -879,9 +882,9 @@ void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const VkGrap
 	_vk_try(vkCreateGraphicsPipelines(m_device, InPipCache, InCreateInfoCount, InCreateInfos, GetVkAllocator(), OutPipeline));
 }
 
-void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const SPipelineGraphicDesc* InDescs, uint32 InDescCount /*= _count_1*/, VkPipelineCache InPipCache /*= VK_NULL_HANDLE*/)
+void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const PipelineGraphicDesc* InDescs, uint32 InDescCount /*= _count_1*/, VkPipelineCache InPipCache /*= VK_NULL_HANDLE*/)
 {
-	const SPipelineGraphicDesc& InDesc = InDescs[0];
+	const PipelineGraphicDesc& InDesc = InDescs[0];
 
 	VkPipelineShaderStageCreateInfo shaderStageCreateInfo = 
 	{ 
@@ -1165,7 +1168,7 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 		if (inputAssemblyInfo != Json::nullValue)
 		{
 			pipelineIAStateInfo.flags                  = JsonParser::GetUInt32(inputAssemblyInfo["flags"]);
-			pipelineIAStateInfo.topology               = Util::GetPrimitiveTopology(JsonParser::GetString(inputAssemblyInfo["primitive_topology"], Util::DefaultPrimitiveTopology));
+			pipelineIAStateInfo.topology               = Util::GetPrimitiveTopology(JsonParser::GetString(inputAssemblyInfo["primitive_topology"]));
 			pipelineIAStateInfo.primitiveRestartEnable = JsonParser::GetUInt32(inputAssemblyInfo["primitive_restart_enable"]);
 		}
 
@@ -1230,9 +1233,9 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 			pipelineRSStateInfo.flags                   = JsonParser::GetUInt32(rasterizationInfo["flags"]);
 			pipelineRSStateInfo.depthClampEnable        = JsonParser::GetUInt32(rasterizationInfo["depth_clamp_enable"]);
 			pipelineRSStateInfo.rasterizerDiscardEnable = JsonParser::GetUInt32(rasterizationInfo["rasterizer_discard_enable"]);
-			pipelineRSStateInfo.polygonMode             = Util::GetPolygonMode(JsonParser::GetString(rasterizationInfo["polygon_mode"], Util::DefaultPolygonMode));
-			pipelineRSStateInfo.cullMode                = Util::GetCullMode(JsonParser::GetString(rasterizationInfo["cull_mode"], Util::DefaultCullMode));
-			pipelineRSStateInfo.frontFace               = Util::GetFrontFace(JsonParser::GetString(rasterizationInfo["front_face"], Util::DefaultFrontFace));
+			pipelineRSStateInfo.polygonMode             = Util::GetPolygonMode(JsonParser::GetString(rasterizationInfo["polygon_mode"]));
+			pipelineRSStateInfo.cullMode                = Util::GetCullMode(JsonParser::GetString(rasterizationInfo["cull_mode"]));
+			pipelineRSStateInfo.frontFace               = Util::GetFrontFace(JsonParser::GetString(rasterizationInfo["front_face"]));
 			pipelineRSStateInfo.depthBiasEnable         = JsonParser::GetUInt32(rasterizationInfo["depth_bias_enable"]);
 			pipelineRSStateInfo.depthBiasConstantFactor = JsonParser::GetFloat(rasterizationInfo["depth_bias_constant_factor"]);
 			pipelineRSStateInfo.depthBiasClamp          = JsonParser::GetFloat(rasterizationInfo["depth_bias_clamp"]);
@@ -1268,7 +1271,7 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 			pipelineDepthStencilStateInfo.flags                 = JsonParser::GetUInt32(depthStencilInfo["flags"]);
 			pipelineDepthStencilStateInfo.depthTestEnable       = JsonParser::GetUInt32(depthStencilInfo["depth_test_enable"]);
 			pipelineDepthStencilStateInfo.depthWriteEnable      = JsonParser::GetUInt32(depthStencilInfo["depth_write_enable"]);
-			pipelineDepthStencilStateInfo.depthCompareOp        = Util::GetCompareOp(JsonParser::GetString(depthStencilInfo["depth_compare_op"], Util::DefaultCompareOp));
+			pipelineDepthStencilStateInfo.depthCompareOp        = Util::GetCompareOp(JsonParser::GetString(depthStencilInfo["depth_compare_op"]));
 			pipelineDepthStencilStateInfo.depthBoundsTestEnable = JsonParser::GetUInt32(depthStencilInfo["depth_bounds_test_enable"]);
 			pipelineDepthStencilStateInfo.stencilTestEnable     = JsonParser::GetUInt32(depthStencilInfo["stencil_test_enable"]);
 			pipelineDepthStencilStateInfo.minDepthBounds        = JsonParser::GetFloat(depthStencilInfo["min_depth_bounds"]);
@@ -1279,10 +1282,10 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 			{
 				if (JsonParser::GetString(stencilInfo["front"]) != "auto")
 				{
-					pipelineDepthStencilStateInfo.front.failOp      = Util::GetStencilOp(JsonParser::GetString(stencilInfo["front"]["fail_op"], Util::DefaultStencilOp));
-					pipelineDepthStencilStateInfo.front.passOp      = Util::GetStencilOp(JsonParser::GetString(stencilInfo["front"]["pass_op"], Util::DefaultStencilOp));
-					pipelineDepthStencilStateInfo.front.depthFailOp = Util::GetStencilOp(JsonParser::GetString(stencilInfo["front"]["depth_fail_op"], Util::DefaultStencilOp));
-					pipelineDepthStencilStateInfo.front.compareOp   = Util::GetCompareOp(JsonParser::GetString(stencilInfo["front"]["compare_op"], Util::DefaultCompareOp));
+					pipelineDepthStencilStateInfo.front.failOp      = Util::GetStencilOp(JsonParser::GetString(stencilInfo["front"]["fail_op"]));
+					pipelineDepthStencilStateInfo.front.passOp      = Util::GetStencilOp(JsonParser::GetString(stencilInfo["front"]["pass_op"]));
+					pipelineDepthStencilStateInfo.front.depthFailOp = Util::GetStencilOp(JsonParser::GetString(stencilInfo["front"]["depth_fail_op"]));
+					pipelineDepthStencilStateInfo.front.compareOp   = Util::GetCompareOp(JsonParser::GetString(stencilInfo["front"]["compare_op"]));
 					pipelineDepthStencilStateInfo.front.compareMask = StringUtil::StrHexToNumeric(JsonParser::GetString(stencilInfo["front"]["compare_mask"], "0x00"));
 					pipelineDepthStencilStateInfo.front.writeMask   = StringUtil::StrHexToNumeric(JsonParser::GetString(stencilInfo["front"]["write_mask"],   "0x00"));
 					pipelineDepthStencilStateInfo.front.reference   = JsonParser::GetUInt32(stencilInfo["front"]["reference"]);
@@ -1290,10 +1293,10 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 
 				if (JsonParser::GetString(stencilInfo["back"]) != "auto")
 				{
-					pipelineDepthStencilStateInfo.back.failOp      = Util::GetStencilOp(JsonParser::GetString(stencilInfo["back"]["fail_op"], Util::DefaultStencilOp));
-					pipelineDepthStencilStateInfo.back.passOp      = Util::GetStencilOp(JsonParser::GetString(stencilInfo["back"]["pass_op"], Util::DefaultStencilOp));
-					pipelineDepthStencilStateInfo.back.depthFailOp = Util::GetStencilOp(JsonParser::GetString(stencilInfo["back"]["depth_fail_op"], Util::DefaultStencilOp));
-					pipelineDepthStencilStateInfo.back.compareOp   = Util::GetCompareOp(JsonParser::GetString(stencilInfo["back"]["compare_op"], Util::DefaultCompareOp));
+					pipelineDepthStencilStateInfo.back.failOp      = Util::GetStencilOp(JsonParser::GetString(stencilInfo["back"]["fail_op"]));
+					pipelineDepthStencilStateInfo.back.passOp      = Util::GetStencilOp(JsonParser::GetString(stencilInfo["back"]["pass_op"]));
+					pipelineDepthStencilStateInfo.back.depthFailOp = Util::GetStencilOp(JsonParser::GetString(stencilInfo["back"]["depth_fail_op"]));
+					pipelineDepthStencilStateInfo.back.compareOp   = Util::GetCompareOp(JsonParser::GetString(stencilInfo["back"]["compare_op"]));
 					pipelineDepthStencilStateInfo.back.compareMask = StringUtil::StrHexToNumeric(JsonParser::GetString(stencilInfo["back"]["compare_mask"], "0x00"));
 					pipelineDepthStencilStateInfo.back.writeMask   = StringUtil::StrHexToNumeric(JsonParser::GetString(stencilInfo["back"]["write_mask"],   "0x00"));
 					pipelineDepthStencilStateInfo.back.reference   = JsonParser::GetUInt32(stencilInfo["back"]["reference"]);
@@ -1319,18 +1322,18 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 				auto& attachment = bIsArray ? colorBlendInfo["attachments"][j] : colorBlendInfo["attachments"];
 
 				pColorBlendAttachmentStates[j].blendEnable         = JsonParser::GetUInt32(attachment["blend_enable"]);
-				pColorBlendAttachmentStates[j].srcColorBlendFactor = attachment["src_color_factor"].isUInt() ? static_cast<VkBlendFactor>(JsonParser::GetUInt32(attachment["src_color_factor"])) : Util::GetBlendFactor(JsonParser::GetString(attachment["src_color_factor"], Util::DefaultBlendFactor));
-				pColorBlendAttachmentStates[j].dstColorBlendFactor = attachment["dst_color_factor"].isUInt() ? static_cast<VkBlendFactor>(JsonParser::GetUInt32(attachment["dst_color_factor"])) : Util::GetBlendFactor(JsonParser::GetString(attachment["dst_color_factor"], Util::DefaultBlendFactor));
-				pColorBlendAttachmentStates[j].colorBlendOp        = Util::GetBlendOp(JsonParser::GetString(attachment["color_blend_op"], Util::DefaultBlendOp));
-				pColorBlendAttachmentStates[j].srcAlphaBlendFactor = attachment["src_alpha_factor"].isUInt() ? static_cast<VkBlendFactor>(JsonParser::GetUInt32(attachment["src_alpha_factor"])) : Util::GetBlendFactor(JsonParser::GetString(attachment["src_alpha_factor"], Util::DefaultBlendFactor));
-				pColorBlendAttachmentStates[j].dstAlphaBlendFactor = attachment["dst_alpha_factor"].isUInt() ? static_cast<VkBlendFactor>(JsonParser::GetUInt32(attachment["dst_alpha_factor"])) : Util::GetBlendFactor(JsonParser::GetString(attachment["dst_alpha_factor"], Util::DefaultBlendFactor));
-				pColorBlendAttachmentStates[j].alphaBlendOp        = Util::GetBlendOp(JsonParser::GetString(attachment["alpha_blend_op"], Util::DefaultBlendOp));
-				pColorBlendAttachmentStates[j].colorWriteMask      = Util::GetColorComponentMask(JsonParser::GetString(attachment["component_mask"], Util::DefaultColorComponentMask));
+				pColorBlendAttachmentStates[j].srcColorBlendFactor = attachment["src_color_factor"].isUInt() ? static_cast<VkBlendFactor>(JsonParser::GetUInt32(attachment["src_color_factor"])) : Util::GetBlendFactor(JsonParser::GetString(attachment["src_color_factor"]));
+				pColorBlendAttachmentStates[j].dstColorBlendFactor = attachment["dst_color_factor"].isUInt() ? static_cast<VkBlendFactor>(JsonParser::GetUInt32(attachment["dst_color_factor"])) : Util::GetBlendFactor(JsonParser::GetString(attachment["dst_color_factor"]));
+				pColorBlendAttachmentStates[j].colorBlendOp        = Util::GetBlendOp(JsonParser::GetString(attachment["color_blend_op"]));
+				pColorBlendAttachmentStates[j].srcAlphaBlendFactor = attachment["src_alpha_factor"].isUInt() ? static_cast<VkBlendFactor>(JsonParser::GetUInt32(attachment["src_alpha_factor"])) : Util::GetBlendFactor(JsonParser::GetString(attachment["src_alpha_factor"]));
+				pColorBlendAttachmentStates[j].dstAlphaBlendFactor = attachment["dst_alpha_factor"].isUInt() ? static_cast<VkBlendFactor>(JsonParser::GetUInt32(attachment["dst_alpha_factor"])) : Util::GetBlendFactor(JsonParser::GetString(attachment["dst_alpha_factor"]));
+				pColorBlendAttachmentStates[j].alphaBlendOp        = Util::GetBlendOp(JsonParser::GetString(attachment["alpha_blend_op"]));
+				pColorBlendAttachmentStates[j].colorWriteMask      = Util::GetColorComponentMask(JsonParser::GetString(attachment["component_mask"]));
 			}
 
 			pipelineColorBlendStateInfo.flags           = JsonParser::GetUInt32(colorBlendInfo["flags"]);
 			pipelineColorBlendStateInfo.logicOpEnable   = JsonParser::GetUInt32(colorBlendInfo["logic_op_enable"]);
-			pipelineColorBlendStateInfo.logicOp         = Util::GetLogicOp(JsonParser::GetString(colorBlendInfo["logic_op"], Util::DefaultLogicOp));
+			pipelineColorBlendStateInfo.logicOp         = Util::GetLogicOp(JsonParser::GetString(colorBlendInfo["logic_op"]));
 			pipelineColorBlendStateInfo.attachmentCount = numAttachment;
 			pipelineColorBlendStateInfo.pAttachments    = pColorBlendAttachmentStates;
 
@@ -1352,7 +1355,7 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 			uint32 numDynamicState = bIsArray ? dynamicStateInfo["state"].size() : _count_1;
 			pDynamicStates         = _safe_new(VkDynamicState, numDynamicState);
 			for (uint32 j = 0; j < numDynamicState; j++)
-				pDynamicStates[j] = Util::GetDynamicState(JsonParser::GetString(bIsArray ? dynamicStateInfo["state"][j] : dynamicStateInfo["state"], Util::DefaultDynamicState));
+				pDynamicStates[j] = Util::GetDynamicState(JsonParser::GetString(bIsArray ? dynamicStateInfo["state"][j] : dynamicStateInfo["state"]));
 
 			pipelineDynamicStateInfo.flags             = JsonParser::GetUInt32(dynamicStateInfo["flags"]);
 			pipelineDynamicStateInfo.dynamicStateCount = numDynamicState;

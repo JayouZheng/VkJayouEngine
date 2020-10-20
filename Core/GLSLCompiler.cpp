@@ -5,12 +5,15 @@
 #include "GLSLCompiler.h"
 #include "DiskResourceLoader.h"
 #include "StringManager.h"
+#include "ModuleLoader.h"
 
 GLSLCompiler::GLSLCompiler()
 {
-    if (m_module.Load(DiskResourceLoader::Load(StringUtil::Printf("ThirdParty/CMBuild/GLSLCompiler/%/GLSLCompiler.dll", _platform))))
+    m_pModule = new ModuleLoader;
+
+    if (m_pModule->Load(DiskResourceLoader::Load(StringUtil::Printf("ThirdParty/CMBuild/GLSLCompiler/%/GLSLCompiler.dll", _platform))))
     {
-        m_pInterface = m_module.GetInterface<PFGetGLSLCompilerInterface>("GetInterface");
+        m_pInterface = m_pModule->GetInterface<PFGetGLSLCompilerInterface>("GetInterface");
 
         if (m_pInterface != nullptr)
         {
@@ -33,7 +36,9 @@ GLSLCompiler::~GLSLCompiler()
         m_pCompiler->Close();
     }
 
-    m_module.Free();
+    m_pModule->Free();
+
+    delete m_pModule;
 }
 
 void GLSLCompiler::CompileShader(VkShaderStageFlags InStageType, const std::string& InShaderPath, const CompileInfo* InCompileInfo)

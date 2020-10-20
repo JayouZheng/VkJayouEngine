@@ -6,7 +6,6 @@
 
 #include "Common.h"
 #include "VkSmartPtr.h"
-#include "BaseAllocator.h"
 #include "Window.h"
 #include "LogicalDevice.h"
 #include "CommandQueue.h"
@@ -53,6 +52,8 @@ namespace BaseLayerConfig
 		VK_TRUE
 	};
 }
+
+class BaseAllocator;
 
 class BaseLayer
 {

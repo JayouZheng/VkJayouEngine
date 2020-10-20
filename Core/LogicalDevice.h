@@ -6,7 +6,6 @@
 
 #include "Common.h"
 #include "VkSmartPtr.h"
-#include "BaseAllocator.h"
 #include "GLSLCompiler.h"
 
 namespace GConfig
@@ -165,6 +164,7 @@ namespace GConfig
 }
 
 class BaseLayer;
+class BaseAllocator;
 class CommandQueue;
 class Window;
 
@@ -217,7 +217,7 @@ public:
 
 public:
 
-	struct SPipelineComputeDesc
+	struct PipelineComputeDesc
 	{
 		std::string           EntryPoint;
 		VkShaderModule        ShaderModule;
@@ -228,7 +228,7 @@ public:
 		VkPipeline            BasePipelineHandle;
 		int32                 BasePipelineIndex;
 
-		SPipelineComputeDesc()
+		PipelineComputeDesc()
 		{
 			EntryPoint         = "main";
 			ShaderModule       = VK_NULL_HANDLE;
@@ -240,7 +240,7 @@ public:
 		}
 	};
 
-	struct SPipelineGraphicDesc
+	struct PipelineGraphicDesc
 	{
 		VkRenderPass          RenderPass;
 
@@ -253,7 +253,7 @@ public:
 		VkPipeline            BasePipelineHandle;
 		int32                 BasePipelineIndex;
 
-		SPipelineGraphicDesc()
+		PipelineGraphicDesc()
 		{
 			RenderPass = VK_NULL_HANDLE;
 
@@ -267,7 +267,7 @@ public:
 		}
 	};
 
-	struct SPipelineCacheHeader
+	struct PipelineCacheHeader
 	{
 		uint32 Length;
 		uint32 Version;
@@ -275,7 +275,7 @@ public:
 		uint32 DeviceID;
 		uint8  UUID[VK_UUID_SIZE];
 
-		SPipelineCacheHeader(const VkPhysicalDeviceProperties& InPDProp)
+		PipelineCacheHeader(const VkPhysicalDeviceProperties& InPDProp)
 		{
 			Length   = 32;
 			Version  = VK_PIPELINE_CACHE_HEADER_VERSION_ONE;
@@ -312,7 +312,7 @@ public:
 
 	void           CreateComputePipelines        (VkPipeline* OutPipeline, const VkComputePipelineCreateInfo* InCreateInfos, uint32 InCreateInfoCount = _count_1, VkPipelineCache InPipCache = VK_NULL_HANDLE);
 	void           CreateComputePipeline         (VkPipeline* OutPipeline, VkPipelineLayout InPipLayout, VkShaderModule InShaderModule, const char* InShaderEntryName = "main", const VkSpecializationInfo* InSpecialConstInfo = nullptr, VkPipelineCache InPipCache = VK_NULL_HANDLE);
-	void           CreateComputePipelines        (VkPipeline* OutPipeline, const SPipelineComputeDesc* InDescs, uint32 InDescCount = _count_1, VkPipelineCache InPipCache = VK_NULL_HANDLE);
+	void           CreateComputePipelines        (VkPipeline* OutPipeline, const PipelineComputeDesc* InDescs, uint32 InDescCount = _count_1, VkPipelineCache InPipCache = VK_NULL_HANDLE);
 
 	void           CreatePipelineCache           (VkPipelineCache* OutPipCache, const VkPipelineCacheCreateInfo& InCreateInfo);
 	void           CreatePipelineCache           (VkPipelineCache* OutPipCache, const VkPhysicalDeviceProperties& InPDProp);
@@ -359,7 +359,7 @@ public:
 	bool           CreateFrameBuffer             (VkFramebuffer* OutFrameBuffer, VkRenderPass InRenderPass, const VkImageView* InImageViews, uint32 InViewCount, VkExtent3D InSize);
 
 	void           CreateGraphicPipelines        (VkPipeline* OutPipeline, const VkGraphicsPipelineCreateInfo* InCreateInfos, uint32 InCreateInfoCount = _count_1, VkPipelineCache InPipCache = VK_NULL_HANDLE);
-	void           CreateGraphicPipelines        (VkPipeline* OutPipeline, const SPipelineGraphicDesc* InDescs, uint32 InDescCount = _count_1, VkPipelineCache InPipCache = VK_NULL_HANDLE);
+	void           CreateGraphicPipelines        (VkPipeline* OutPipeline, const PipelineGraphicDesc* InDescs, uint32 InDescCount = _count_1, VkPipelineCache InPipCache = VK_NULL_HANDLE);
 	bool           CreateGraphicPipelines        (VkPipeline* OutPipeline, const std::string& InJsonPath, VkPipelineCache InPipCache = VK_NULL_HANDLE);
 
 	void           FlushAllQueue();

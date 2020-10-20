@@ -181,6 +181,7 @@
     <ClCompile Include="Core\LogSystem.cpp" />
     <ClCompile Include="Core\StringManager.cpp" />
     <ClCompile Include="Core\TimerManager.cpp" />
+    <ClCompile Include="Core\Utility.cpp" />
     <ClCompile Include="Core\Window.cpp" />
     <ClCompile Include="ThirdParty\jsoncpp\src\lib_json\json_reader.cpp" />
     <ClCompile Include="ThirdParty\jsoncpp\src\lib_json\json_value.cpp" />
@@ -209,6 +210,7 @@
     <ClInclude Include="Core\TimerManager.h" />
     <ClInclude Include="Core\Tuple.h" />
     <ClInclude Include="Core\TypeDef.h" />
+    <ClInclude Include="Core\Utility.h" />
     <ClInclude Include="Core\VkSmartPtr.h" />
     <ClInclude Include="Core\Window.h" />
     <ClInclude Include="Layers\Fossilize\fossilize.hpp" />

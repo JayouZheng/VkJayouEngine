@@ -54,6 +54,9 @@
     <ClCompile Include="Core\JsonParser.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="Core\Utility.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="vk_app.h" />
@@ -316,6 +319,9 @@
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="Core\TimerManager.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Utility.h">
       <Filter>Core</Filter>
     </ClInclude>
   </ItemGroup>

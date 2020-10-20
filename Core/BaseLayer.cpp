@@ -3,7 +3,9 @@
 //
 
 #include "BaseLayer.h"
+#include "BaseAllocator.h"
 #include "Global.h"
+#include "Utility.h"
 #include "DiskResourceLoader.h"
 
 #define _bret_false_log(b, log) if (b) { LogSystem::LogError(log, LogSystem::Category::BaseLayer); return false; }

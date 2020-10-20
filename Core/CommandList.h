@@ -7,6 +7,31 @@
 #include "Common.h"
 #include "Global.h"
 
+namespace GConfig
+{
+	namespace Subresource
+	{
+		const VkImageSubresourceRange ColorSubResRange =
+		{
+			VK_IMAGE_ASPECT_COLOR_BIT,   // aspectMask
+			0,                           // baseMipLevel
+			VK_REMAINING_MIP_LEVELS,     // levelCount
+			0,                           // baseArrayLayer
+			VK_REMAINING_ARRAY_LAYERS    // layerCount
+		};
+
+		const VkImageSubresourceRange DepthStencilSubResRange =
+		{
+			VK_IMAGE_ASPECT_DEPTH_BIT |
+			VK_IMAGE_ASPECT_STENCIL_BIT, // aspectMask
+			0,                           // baseMipLevel
+			VK_REMAINING_MIP_LEVELS,     // levelCount
+			0,                           // baseArrayLayer
+			VK_REMAINING_ARRAY_LAYERS    // layerCount
+		};
+	}
+}
+
 class BaseLayer;
 
 class CommandList
@@ -14,11 +39,9 @@ class CommandList
 
 protected:
 
-	VkCommandBuffer m_cmdBuffer = VK_NULL_HANDLE;
-
-	VkDevice        m_device    = VK_NULL_HANDLE;
-	VkCommandPool   m_cmdPool   = VK_NULL_HANDLE;
-
+	VkCommandBuffer m_cmdBuffer  = VK_NULL_HANDLE;
+	VkDevice        m_device     = VK_NULL_HANDLE;
+	VkCommandPool   m_cmdPool    = VK_NULL_HANDLE;
 	BaseLayer*      m_pBaseLayer = nullptr;
 
 public:
@@ -104,27 +127,27 @@ public:
 
 public:
 
-	struct SBufferBarrier
+	struct BufferBarrierDesc
 	{
-		VkPipelineStageFlags srcStageMask;
-		VkPipelineStageFlags dstStageMask;
-		VkAccessFlags        srcAccessMask;
-		VkAccessFlags        dstAccessMask;
-		VkBuffer             buffer;
-		VkDeviceSize         offset;
-		VkDeviceSize         size;
+		VkPipelineStageFlags    SrcStageMask;
+		VkPipelineStageFlags    DstStageMask;
+		VkAccessFlags           SrcAccessMask;
+		VkAccessFlags           DstAccessMask;
+		VkBuffer                Buffer;
+		VkDeviceSize            Offset;
+		VkDeviceSize            Size;
 	};
 
-	struct SImageBarrier
+	struct ImageBarrierDesc
 	{
-		VkPipelineStageFlags srcStageMask;
-		VkPipelineStageFlags dstStageMask;
-		VkAccessFlags        srcAccessMask;
-		VkAccessFlags        dstAccessMask;
-		VkImageLayout        oldLayout;
-		VkImageLayout        newLayout;
-		VkImage              image;
-		VkImageSubresourceRange subresourceRange = Util::ColorSubresRange;
+		VkPipelineStageFlags    SrcStageMask;
+		VkPipelineStageFlags    DstStageMask;
+		VkAccessFlags           SrcAccessMask;
+		VkAccessFlags           DstAccessMask;
+		VkImageLayout           OldLayout;
+		VkImageLayout           NewLayout;
+		VkImage                 Image;
+		VkImageSubresourceRange SubresourceRange;
 	};
 
 	void ResourceBarriers(
@@ -169,7 +192,7 @@ public:
 		VkDependencyFlags            InDependencyFlags = _flag_none);
 
 	void BufferBarrier(
-		const SBufferBarrier&        InSBufferBarrier, 
+		const BufferBarrierDesc&        InBufferBarrierDesc, 
 		VkDependencyFlags            InDependencyFlags = _flag_none);
 
 	void BufferBarriers(
@@ -186,7 +209,7 @@ public:
 		VkDependencyFlags            InDependencyFlags = _flag_none);
 
 	void ImageBarrier(
-		const SImageBarrier&         InSImageBarrier, 
+		const ImageBarrierDesc&         InImageBarrierDesc, 
 		VkDependencyFlags            InDependencyFlags = _flag_none);
 
 	void ImageBarriers(

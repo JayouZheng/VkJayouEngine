@@ -239,12 +239,12 @@ void CommandList::NonUniformImageCopy(VkImage InSrcImage, VkImage InDstImage, ui
 
 void CommandList::ClearColorImage(VkImage InImage, const float* InClearColor)
 {
-	vkCmdClearColorImage(m_cmdBuffer, InImage, VK_IMAGE_LAYOUT_GENERAL, (VkClearColorValue*)InClearColor, _count_1, &Util::ColorSubresRange);
+	vkCmdClearColorImage(m_cmdBuffer, InImage, VK_IMAGE_LAYOUT_GENERAL, (VkClearColorValue*)InClearColor, _count_1, &GConfig::Subresource::ColorSubResRange);
 }
 
 void CommandList::ClearColorImage(VkImage InImage, const VkClearColorValue* InClearColor)
 {
-	vkCmdClearColorImage(m_cmdBuffer, InImage, VK_IMAGE_LAYOUT_GENERAL, InClearColor, _count_1, &Util::ColorSubresRange);
+	vkCmdClearColorImage(m_cmdBuffer, InImage, VK_IMAGE_LAYOUT_GENERAL, InClearColor, _count_1, &GConfig::Subresource::ColorSubResRange);
 }
 
 void CommandList::ClearColorImage(VkImage InImage, const VkClearColorValue* InClearColor, const VkImageSubresourceRange& InSubresRange)
@@ -263,12 +263,12 @@ void CommandList::ClearDepthStencilImage(VkImage InImage, float InClearDepthValu
 	clearValue.depth = InClearDepthValue;
 	clearValue.stencil = InClearStencilValue;
 
-	vkCmdClearDepthStencilImage(m_cmdBuffer, InImage, VK_IMAGE_LAYOUT_GENERAL, &clearValue, _count_1, &Util::DepthStencilSubresRange);
+	vkCmdClearDepthStencilImage(m_cmdBuffer, InImage, VK_IMAGE_LAYOUT_GENERAL, &clearValue, _count_1, &GConfig::Subresource::DepthStencilSubResRange);
 }
 
 void CommandList::ClearDepthStencilImage(VkImage InImage, const VkClearDepthStencilValue* InClearValue)
 {
-	vkCmdClearDepthStencilImage(m_cmdBuffer, InImage, VK_IMAGE_LAYOUT_GENERAL, InClearValue, _count_1, &Util::DepthStencilSubresRange);
+	vkCmdClearDepthStencilImage(m_cmdBuffer, InImage, VK_IMAGE_LAYOUT_GENERAL, InClearValue, _count_1, &GConfig::Subresource::DepthStencilSubResRange);
 }
 
 void CommandList::BindPipeline(VkPipeline InPipeline, VkPipelineBindPoint InPipBindPoint)
@@ -451,19 +451,19 @@ void CommandList::BufferBarrier(
 		_count_0, nullptr);
 }
 
-void CommandList::BufferBarrier(const SBufferBarrier& InSBufferBarrier, VkDependencyFlags InDependencyFlags /*= _flag_none*/)
+void CommandList::BufferBarrier(const BufferBarrierDesc& InBufferBarrierDesc, VkDependencyFlags InDependencyFlags /*= _flag_none*/)
 {
 	VkBufferMemoryBarrier bufferMemBarrier = {};
 	bufferMemBarrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
-	bufferMemBarrier.srcAccessMask = InSBufferBarrier.srcAccessMask;
-	bufferMemBarrier.dstAccessMask = InSBufferBarrier.dstAccessMask;
+	bufferMemBarrier.srcAccessMask = InBufferBarrierDesc.SrcAccessMask;
+	bufferMemBarrier.dstAccessMask = InBufferBarrierDesc.DstAccessMask;
 	bufferMemBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 	bufferMemBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-	bufferMemBarrier.buffer = InSBufferBarrier.buffer;
-	bufferMemBarrier.offset = InSBufferBarrier.offset;
-	bufferMemBarrier.size = InSBufferBarrier.size;
+	bufferMemBarrier.buffer = InBufferBarrierDesc.Buffer;
+	bufferMemBarrier.offset = InBufferBarrierDesc.Offset;
+	bufferMemBarrier.size = InBufferBarrierDesc.Size;
 
-	this->BufferBarrier(InSBufferBarrier.srcStageMask, InSBufferBarrier.dstStageMask, bufferMemBarrier, InDependencyFlags);
+	this->BufferBarrier(InBufferBarrierDesc.SrcStageMask, InBufferBarrierDesc.DstStageMask, bufferMemBarrier, InDependencyFlags);
 }
 
 void CommandList::BufferBarriers(
@@ -500,20 +500,20 @@ void CommandList::ImageBarrier(
 		_count_1, &InImageMemBarrier);
 }
 
-void CommandList::ImageBarrier(const SImageBarrier& InSImageBarrier, VkDependencyFlags InDependencyFlags /*= _flag_none*/)
+void CommandList::ImageBarrier(const ImageBarrierDesc& InImageBarrierDesc, VkDependencyFlags InDependencyFlags /*= _flag_none*/)
 {
 	VkImageMemoryBarrier imageMemBarrier = {};
 	imageMemBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-	imageMemBarrier.srcAccessMask = InSImageBarrier.srcAccessMask;
-	imageMemBarrier.dstAccessMask = InSImageBarrier.dstAccessMask;
-	imageMemBarrier.oldLayout = InSImageBarrier.oldLayout;
-	imageMemBarrier.newLayout = InSImageBarrier.newLayout;
+	imageMemBarrier.srcAccessMask = InImageBarrierDesc.SrcAccessMask;
+	imageMemBarrier.dstAccessMask = InImageBarrierDesc.DstAccessMask;
+	imageMemBarrier.oldLayout = InImageBarrierDesc.OldLayout;
+	imageMemBarrier.newLayout = InImageBarrierDesc.NewLayout;
 	imageMemBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 	imageMemBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-	imageMemBarrier.image = InSImageBarrier.image;
-	imageMemBarrier.subresourceRange = InSImageBarrier.subresourceRange;
+	imageMemBarrier.image = InImageBarrierDesc.Image;
+	imageMemBarrier.subresourceRange = InImageBarrierDesc.SubresourceRange;
 
-	this->ImageBarrier(InSImageBarrier.srcStageMask, InSImageBarrier.dstStageMask, imageMemBarrier, InDependencyFlags);
+	this->ImageBarrier(InImageBarrierDesc.SrcStageMask, InImageBarrierDesc.DstStageMask, imageMemBarrier, InDependencyFlags);
 }
 
 void CommandList::ImageBarriers(

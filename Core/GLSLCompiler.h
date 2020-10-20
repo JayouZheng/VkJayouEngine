@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include "TypeDef.h"
-#include "ModuleLoader.h"
+#include "Common.h"
+
+class ModuleLoader;
 
 class GLSLCompiler
 {
@@ -118,7 +119,7 @@ public:
 
 private:
 
-    ModuleLoader                                      m_module;
+    ModuleLoader*                                     m_pModule;
 
     PFGetGLSLCompilerInterface                        m_pInterface = nullptr;
     GLSLCompilerInterface*                            m_pCompiler  = nullptr;

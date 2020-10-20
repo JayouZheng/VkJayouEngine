@@ -1,7 +1,7 @@
 ﻿//
 // MemoryLeakCheck.h
 // Note: This header should not be included before any other header that has override the specifier such as new or malloc/alloc.
-//       And this header should be included at last if it was used...
+//       And it is suggest to #include this header after any others if it was used...
 
 #pragma once
 
