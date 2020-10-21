@@ -180,6 +180,7 @@
     <ClCompile Include="Core\LogicalDevice.cpp" />
     <ClCompile Include="Core\LogSystem.cpp" />
     <ClCompile Include="Core\StringManager.cpp" />
+    <ClCompile Include="Core\StringMapper.cpp" />
     <ClCompile Include="Core\TimerManager.cpp" />
     <ClCompile Include="Core\Utility.cpp" />
     <ClCompile Include="Core\Window.cpp" />
@@ -207,6 +208,7 @@
     <ClInclude Include="Core\Platform.h" />
     <ClInclude Include="Core\SmartPtr.h" />
     <ClInclude Include="Core\StringManager.h" />
+    <ClInclude Include="Core\StringMapper.h" />
     <ClInclude Include="Core\TimerManager.h" />
     <ClInclude Include="Core\Tuple.h" />
     <ClInclude Include="Core\TypeDef.h" />
