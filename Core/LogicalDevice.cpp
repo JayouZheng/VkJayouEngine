@@ -150,12 +150,12 @@ void LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const ui
 	_vk_try(vkCreateShaderModule(m_device, &shaderModuleCreateInfo, GetVkAllocator(), OutShaderModule));
 }
 
-bool LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const char* InShaderPath, VkShaderStageFlagBits* OutShaderStage /*= nullptr*/)
+bool LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const char* InShaderPath, VkShaderStageFlags* OutShaderStage /*= nullptr*/)
 {
 	std::string name, ext, dir;
 	StringUtil::ExtractFilePath(std::string(InShaderPath), &name, &ext, &dir);
 
-	VkShaderStageFlagBits shaderStage;
+	VkShaderStageFlags shaderStage;
 	if (!Util::GetShaderStage(ext, shaderStage))
 		return false;
 
@@ -986,6 +986,8 @@ void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const Pipeli
 
 bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::string& InJsonPath, VkPipelineCache InPipCache)
 {
+	LogSystem::Log("Begin creating graphic pipeline with " + InJsonPath, LogSystem::Category::LogicalDevice);
+
 	if (OutPipeline != nullptr) *OutPipeline = VK_NULL_HANDLE;
 
 	if (m_pBaseLayer == nullptr)
@@ -1035,8 +1037,6 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 	VkDynamicState*                        pDynamicStates                = nullptr;
 	VkPipelineLayoutCreateInfo             pipelineLayoutInfo            = {};
 
-	VkPipelineLayout                       pipelineLayout                = VK_NULL_HANDLE;
-
 	for (uint32 i = 0; i < numGInfo; i++)
 	{
 		auto& graphicInfo = bIsArray ? root["graphic_pipeline_infos"][i] : root["graphic_pipeline_infos"];
@@ -1063,13 +1063,13 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 			if (shaderPath == _str_null) return false;
 
 			_declare_vk_smart_ptr(VkShaderModule, pShaderModule);
-			VkShaderStageFlagBits currentShaderStage, userDefinedShaderStage;
+			VkShaderStageFlags currentShaderStage, userDefinedShaderStage;
 			this->CreateShaderModule(pShaderModule.MakeInstance(), DiskResourceLoader::Load(shaderPath).data(), &currentShaderStage);
 
 			pShaderInfos[j].sType  = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 			pShaderInfos[j].pNext  = nullptr;
 			pShaderInfos[j].flags  = JsonParser::GetUInt32(shaderInfo["stage_flags"]);
-			pShaderInfos[j].stage  = (shaderInfo["stage_type"] != Json::nullValue) ? (Util::GetShaderStage(JsonParser::GetString(shaderInfo["stage_type"]), userDefinedShaderStage) ? userDefinedShaderStage : currentShaderStage) : currentShaderStage;
+			pShaderInfos[j].stage  = (VkShaderStageFlagBits)((shaderInfo["stage_type"] != Json::nullValue) ? (Util::GetShaderStage(JsonParser::GetString(shaderInfo["stage_type"]), userDefinedShaderStage) ? userDefinedShaderStage : currentShaderStage) : currentShaderStage);
 			pShaderInfos[j].module = *pShaderModule;
 			pShaderInfos[j].pName  = JsonParser::GetString(shaderInfo["entrypoint"], "main").c_str();
 			pShaderInfos[j].pSpecializationInfo = &specInfo;
@@ -1373,71 +1373,11 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 		// Pipeline Layout.
 
 		// There can only be one push constant block.
-		VkPushConstantRange pushConstantRange;
-		std::vector<std::map<uint32, VkDescriptorSetLayoutBinding>> descSets;
+		VkPushConstantRange pushConstantRange;	
+		std::vector<std::vector<VkDescriptorSetLayoutBinding>> descSets;
 
-		uint32 maxNumSets = 0u;
-		std::vector<uint32> setIDArray;
-
-		for (auto& spvData : m_compiler.GetAllSPVData())
-		{
-			for (uint32 descType = VK_DESCRIPTOR_TYPE_SAMPLER; descType < GLSLCompiler::NumDescriptorType; descType++)
-			{
-				for (uint32 i = 0; i < spvData->resource[descType].count; i++)
-				{					
-					maxNumSets = std::max<uint32>(maxNumSets, spvData->resource[descType].items[i].set);
-					maxNumSets = std::min<uint32>(maxNumSets, m_pBaseLayer->GetMainPDLimits().maxBoundDescriptorSets);
-
-					setIDArray.push_back(spvData->resource[descType].items[i].set);
-				}
-			}
-		}
-
-		descSets.resize(maxNumSets);
-		// Sort the setIDArray using operator <.
-		std::sort(setIDArray.begin(), setIDArray.end());
-		// Check the continuity of setID.
-		for (uint32 i = 0u; i < setIDArray.size() - 1u; i++)
-		{
-			if ((setIDArray[i] + 1u) != setIDArray[i + 1u])
-			{
-				LogSystem::LogError("The Pipeline Created by [" + InJsonPath + "] has discontinuous DescriptorSet ID!", LogSystem::Category::LogicalDevice);
-				return false;
-			}
-		}
-		    
-		for (auto& spvData : m_compiler.GetAllSPVData())
-		{
-			GLSLCompiler::ShaderResourceData resData = spvData->resource[GLSLCompiler::ResID_PushConstant];
-
-			static bool bPushConstantInit = false;
-			if (!bPushConstantInit && resData.count > 0u)
-			{
-				pushConstantRange.stageFlags = spvData->shader_stage;
-				pushConstantRange.offset     = _offset_0;
-				pushConstantRange.size       = resData.items[_index_0].size;
-
-				if (resData.count > 1u) LogSystem::LogWarning("The Pipeline Created by [" + InJsonPath + "] has too many push constant blocks!", LogSystem::Category::LogicalDevice);
-
-				bPushConstantInit = true; // There can only be one push constant block.
-			}
-
-			for (uint32 descType = VK_DESCRIPTOR_TYPE_SAMPLER; descType < VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT; descType++)
-			{
-				for (uint32 i = 0; i < spvData->resource[descType].count; i++)
-				{
-					VkDescriptorSetLayoutBinding descSetBinding;
-					descSetBinding.binding = spvData->resource[descType].items[i].binding;
-					descSetBinding.descriptorType = (VkDescriptorType)descType;
-					descSetBinding.stageFlags = spvData->shader_stage;
-					descSetBinding.descriptorCount = 1u;
-					descSetBinding.pImmutableSamplers = nullptr;
-
-					// TODO: If exit same binding, compiler will not treat it as an error, i need to check it by myself. 
-					descSets[spvData->resource[descType].items[i].set].emplace(descSetBinding.binding, descSetBinding);
-				}
-			}
-		}
+		if (!m_compiler.CheckAndParseSPVData(m_pBaseLayer->GetMainPDLimits().maxBoundDescriptorSets, pushConstantRange, descSets))
+			return false;
 
 		
 
@@ -1459,6 +1399,8 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 	_safe_delete_array(pSampleMasks);
 	_safe_delete_array(pColorBlendAttachmentStates);
 	_safe_delete_array(pDynamicStates);
+
+	LogSystem::Log("End creating graphic pipeline with " + InJsonPath, LogSystem::Category::LogicalDevice);
 
 	return true;
 }

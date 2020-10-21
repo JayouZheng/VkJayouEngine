@@ -10,7 +10,7 @@ namespace
 	/// <summary>
 	/// Utility String Map Object Tables.
 	/// </summary>
-	const std::unordered_map<std::string, VkShaderStageFlagBits> ShaderStageMap =
+	const std::unordered_map<std::string, VkShaderStageFlags> ShaderStageMap =
 	{
 		{ "vertex",                  VK_SHADER_STAGE_VERTEX_BIT                  },
 		{ "pixel",                   VK_SHADER_STAGE_FRAGMENT_BIT                },
@@ -286,7 +286,7 @@ namespace
 
 /// Implementation...
 
-bool Util::GetShaderStage(const std::string& InKey, VkShaderStageFlagBits& OutShaderStage)
+bool Util::GetShaderStage(const std::string& InKey, VkShaderStageFlags& OutShaderStage)
 {
 	try
 	{
@@ -537,4 +537,46 @@ VkDynamicState Util::GetDynamicState(const std::string& InKey)
 		LogSystem::LogWarning(std::string(msg.what()) + ", pipeline dynamic state, state invalid! default set to \"" + DefaultDynamicState + "\"!", _name_of(GetDynamicState));
 		return result;
 	}
+}
+
+std::string Util::VkShaderStageToString(VkShaderStageFlags InStage)
+{
+#define VK_SHADER_STAGE_TO_STRING(stage) if (InStage == stage) return _name_of(stage);
+
+	VK_SHADER_STAGE_TO_STRING(VK_SHADER_STAGE_VERTEX_BIT);
+	VK_SHADER_STAGE_TO_STRING(VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT);
+	VK_SHADER_STAGE_TO_STRING(VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT);
+	VK_SHADER_STAGE_TO_STRING(VK_SHADER_STAGE_GEOMETRY_BIT);
+	VK_SHADER_STAGE_TO_STRING(VK_SHADER_STAGE_FRAGMENT_BIT);
+	VK_SHADER_STAGE_TO_STRING(VK_SHADER_STAGE_COMPUTE_BIT);
+	VK_SHADER_STAGE_TO_STRING(VK_SHADER_STAGE_ALL_GRAPHICS);
+	VK_SHADER_STAGE_TO_STRING(VK_SHADER_STAGE_ALL);
+	VK_SHADER_STAGE_TO_STRING(VK_SHADER_STAGE_RAYGEN_BIT_KHR);
+	VK_SHADER_STAGE_TO_STRING(VK_SHADER_STAGE_ANY_HIT_BIT_KHR);
+	VK_SHADER_STAGE_TO_STRING(VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR);
+	VK_SHADER_STAGE_TO_STRING(VK_SHADER_STAGE_MISS_BIT_KHR);
+	VK_SHADER_STAGE_TO_STRING(VK_SHADER_STAGE_INTERSECTION_BIT_KHR);
+	VK_SHADER_STAGE_TO_STRING(VK_SHADER_STAGE_CALLABLE_BIT_KHR);
+	VK_SHADER_STAGE_TO_STRING(VK_SHADER_STAGE_TASK_BIT_NV);
+	VK_SHADER_STAGE_TO_STRING(VK_SHADER_STAGE_MESH_BIT_NV);
+
+	return _str_null;
+}
+
+std::string Util::VkDescriptorTypeToString(VkDescriptorType InDescType)
+{
+#define VK_DESCRIPTOR_TYPE_TO_STRING(type) if (InDescType == type) return _name_of(type);
+
+	VK_DESCRIPTOR_TYPE_TO_STRING(VK_DESCRIPTOR_TYPE_SAMPLER);
+    VK_DESCRIPTOR_TYPE_TO_STRING(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+    VK_DESCRIPTOR_TYPE_TO_STRING(VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE);
+    VK_DESCRIPTOR_TYPE_TO_STRING(VK_DESCRIPTOR_TYPE_STORAGE_IMAGE);
+    VK_DESCRIPTOR_TYPE_TO_STRING(VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER);
+    VK_DESCRIPTOR_TYPE_TO_STRING(VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER);
+    VK_DESCRIPTOR_TYPE_TO_STRING(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
+    VK_DESCRIPTOR_TYPE_TO_STRING(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER);
+    VK_DESCRIPTOR_TYPE_TO_STRING(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC);
+    VK_DESCRIPTOR_TYPE_TO_STRING(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC);
+
+	return _str_null;
 }

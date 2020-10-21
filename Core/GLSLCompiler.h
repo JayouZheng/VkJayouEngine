@@ -111,9 +111,10 @@ public:
     ~GLSLCompiler();
 
     void CompileShader(VkShaderStageFlags InStageType, const std::string& InShaderPath, const CompileInfo* InCompileInfo);
+    bool CheckAndParseSPVData(uint32 InMaxDescSets, VkPushConstantRange& OutPushConstantRange, std::vector<std::vector<VkDescriptorSetLayoutBinding>>& OutDescSets);
 
     void                   FlushSPVData();
-    bool                   HasValidSPVData();
+    bool                   HasValidSPVData();   
     SPVData*               GetLastSPVData();
     std::vector<SPVData*>& GetAllSPVData();
 

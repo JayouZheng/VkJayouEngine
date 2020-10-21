@@ -8,7 +8,7 @@
 
 namespace Util
 {
-	bool                     GetShaderStage(const std::string& InKey, VkShaderStageFlagBits& OutShaderStage);
+	bool                     GetShaderStage(const std::string& InKey, VkShaderStageFlags& OutShaderStage);
 	VkFormat                 GetVertexAttributeVkFormat(const std::string& InKey);
 	uint32                   GetVertexAttributeSize(const std::string& InKey);
 	VkPrimitiveTopology      GetPrimitiveTopology(const std::string& InKey);
@@ -23,6 +23,9 @@ namespace Util
 	VkBlendOp                GetBlendOp(const std::string& InKey);
 	VkColorComponentFlags    GetColorComponentMask(const std::string& InKey);
 	VkDynamicState           GetDynamicState(const std::string& InKey);
+
+	std::string              VkShaderStageToString(VkShaderStageFlags InStage);
+	std::string              VkDescriptorTypeToString(VkDescriptorType InDescType);
 
 	template<typename TType, typename TLambda>
 	bool IsVecContain(const std::vector<TType>& InVecContain, const TType& InMember, const TLambda& InCompare)

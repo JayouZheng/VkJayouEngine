@@ -6,6 +6,7 @@
 #include "DiskResourceLoader.h"
 #include "StringManager.h"
 #include "ModuleLoader.h"
+#include "Utility.h"
 
 GLSLCompiler::GLSLCompiler()
 {
@@ -52,6 +53,112 @@ void GLSLCompiler::CompileShader(VkShaderStageFlags InStageType, const std::stri
         LogSystem::LogError("The GLSLCompiler has not been Init!", LogSystem::Category::GLSLCompiler);
         return;
     }
+}
+
+bool GLSLCompiler::CheckAndParseSPVData(uint32 InMaxDescSets, VkPushConstantRange& OutPushConstantRange, std::vector<std::vector<VkDescriptorSetLayoutBinding>>& OutDescSets)
+{
+	std::vector<std::vector<uint8>> descSetsBindingID;
+
+	uint8 maxSetID = 0u;
+	std::vector<uint8> setIDArray;
+
+	for (auto& spvData : m_pSPVData)
+	{
+		for (uint32 descType = VK_DESCRIPTOR_TYPE_SAMPLER; descType < GLSLCompiler::NumDescriptorType; descType++)
+		{
+			for (uint32 i = 0; i < spvData->resource[descType].count; i++)
+			{
+				uint8& currentSet = spvData->resource[descType].items[i].set;
+
+				maxSetID = std::max<uint8>(maxSetID, currentSet);
+
+				if (!Util::IsVecContain<uint8>(setIDArray, currentSet, _lambda_is_equal(uint8)))
+					setIDArray.push_back(currentSet);
+			}
+		}
+	}
+
+	// Sort the setIDArray using operator <.
+	std::sort(setIDArray.begin(), setIDArray.end());
+	// Check the continuity of setID.
+	for (uint8 i = 0u; i < setIDArray.size() - 1u; i++)
+	{
+		if ((setIDArray[i] + 1u) != setIDArray[i + 1u])
+		{
+			LogSystem::LogError("The creating pipeline has discontinuous DescriptorSet ID!", LogSystem::Category::GLSLCompiler);
+			return false;
+		}
+	}
+
+	uint8 numSets = std::min<uint8>(maxSetID + 1u, InMaxDescSets);
+
+	descSetsBindingID.resize(numSets);
+	OutDescSets.resize(numSets);
+
+	for (auto& spvData : m_pSPVData)
+	{
+		GLSLCompiler::ShaderResourceData resData = spvData->resource[GLSLCompiler::ResID_PushConstant];
+
+		static bool bPushConstantInit = false;
+		if (!bPushConstantInit && resData.count > 0u)
+		{
+			OutPushConstantRange.stageFlags = spvData->shader_stage;
+			OutPushConstantRange.offset = _offset_0;
+			OutPushConstantRange.size = resData.items[_index_0].size;
+
+			if (resData.count > 1u) LogSystem::LogWarning("The creating pipeline has too many push constant blocks!", LogSystem::Category::GLSLCompiler);
+
+			bPushConstantInit = true; // There can only be one push constant block.
+		}
+
+		for (uint32 descType = VK_DESCRIPTOR_TYPE_SAMPLER; descType < VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT; descType++)
+		{
+			for (uint32 i = 0; i < spvData->resource[descType].count; i++)
+			{
+				VkDescriptorSetLayoutBinding descSetBinding;
+				descSetBinding.binding = spvData->resource[descType].items[i].binding;
+				descSetBinding.descriptorType = (VkDescriptorType)descType;
+				descSetBinding.stageFlags = spvData->shader_stage;
+				descSetBinding.descriptorCount = 1u;
+				descSetBinding.pImmutableSamplers = nullptr;
+
+				uint8& bindingID = spvData->resource[descType].items[i].binding;
+				auto& currentSetBindingID = descSetsBindingID[spvData->resource[descType].items[i].set];
+
+				if (Util::IsVecContain<uint8>(currentSetBindingID, bindingID, _lambda_is_equal(uint8)))
+				{
+					LogSystem::LogError(StringUtil::Printf("The creating pipeline has repeated binding ID in its shader, the stage is %, the variable name is %!",
+						Util::VkShaderStageToString(descSetBinding.stageFlags), spvData->resource[descType].items[i].name), LogSystem::Category::GLSLCompiler);
+					return false;
+				}
+
+				currentSetBindingID.push_back(bindingID);
+				OutDescSets[spvData->resource[descType].items[i].set].push_back(descSetBinding);
+			}
+		}
+	}
+
+	// It Recommended that Binding ID in a Set is continuous from 0.
+	for (uint8 i = 0; i < descSetsBindingID.size(); i++)
+	{
+		auto& bindingIDArray = descSetsBindingID[i];
+		// Sort the bindingIDArray using operator <.
+		std::sort(bindingIDArray.begin(), bindingIDArray.end());
+		std::sort(OutDescSets[i].begin(), OutDescSets[i].end(), [&](const VkDescriptorSetLayoutBinding& left, const VkDescriptorSetLayoutBinding& right) { return left.binding < right.binding; });
+		// Check the continuity of bindingID.
+		for (uint8 j = 0u; j < bindingIDArray.size(); j++)
+		{
+			if (bindingIDArray[j] != j)
+			{
+				LogSystem::LogWarning(StringUtil::Printf("The creating pipeline has discontinuous binding ID in its shader, the stage is %, the descriptor type is %, %",
+					Util::VkShaderStageToString(OutDescSets[i][j].stageFlags), Util::VkDescriptorTypeToString(OutDescSets[i][j].descriptorType), 
+					"it's recommended that you don't create sparsely populated sets because this can waste resources in the device!"), 
+					LogSystem::Category::GLSLCompiler);
+			}
+		}
+	}
+
+	return true;
 }
 
 void GLSLCompiler::FlushSPVData()
