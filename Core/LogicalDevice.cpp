@@ -150,7 +150,7 @@ void LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const ui
 	_vk_try(vkCreateShaderModule(m_device, &shaderModuleCreateInfo, GetVkAllocator(), OutShaderModule));
 }
 
-bool LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const char* InShaderPath, VkShaderStageFlags* OutShaderStage /*= nullptr*/)
+bool LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const char* InShaderPath, const char* InEntrypoint /*= "main"*/, VkShaderStageFlags* OutShaderStage /*= nullptr*/)
 {
 	std::string name, ext, dir;
 	StringUtil::ExtractFilePath(std::string(InShaderPath), &name, &ext, &dir);
@@ -170,6 +170,7 @@ bool LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const ch
 
 		GLSLCompiler::CompileInfo compileInfo;
 		compileInfo.shader_type = StringUtil::ToLowerCase(ext) == "hlsl" ? GLSLCompiler::ShaderType::HLSL : GLSLCompiler::ShaderType::GLSL;
+		compileInfo.entrypoint = InEntrypoint;
 		compileInfo.includes_count = _count_1;
 		compileInfo.includes = include_dirs;
 		m_compiler.CompileShader(shaderStage, InShaderPath, &compileInfo);
@@ -1013,47 +1014,76 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 	VkRect2D   currentScissor  = {};
 	this->SetViewport(currentViewport, currentScissor, m_pWindow->GetWindowDesc().Width, m_pWindow->GetWindowDesc().Height);
 
-	VkGraphicsPipelineCreateInfo*          pGraphicInfos                 = _safe_new(VkGraphicsPipelineCreateInfo, numGInfo);
-	VkPipelineShaderStageCreateInfo*       pShaderInfos                  = nullptr;;
-	VkSpecializationMapEntry*              pSpecMaps                     = nullptr;
-	uint32*                                pSpecData                     = nullptr;
-	VkSpecializationInfo                   specInfo                      = {};
+	std::vector<VkGraphicsPipelineCreateInfo>                     graphicInfos;
+	std::vector<std::vector<VkPipelineShaderStageCreateInfo>>     shaderInfos;
+	std::vector<std::string>                                      shaderEntrypoints;
+	std::vector<VkSmartPtr<VkShaderModule>>                       shaderModules;
+	std::vector<std::vector<VkSpecializationMapEntry>>            specMaps;
+	std::vector<std::vector<uint32>>                              specData;
+	std::vector<VkSpecializationInfo>                             specInfos;
+	std::vector<std::vector<VkSampleMask>>                        sampleMasks;
+	std::vector<VkPipelineVertexInputStateCreateInfo>             vertexInputStateInfos;
+	std::vector<std::vector<VkVertexInputBindingDescription>>     vertexInputBindings;
+	std::vector<std::vector<VkVertexInputAttributeDescription>>   vertexInputAttributes;
+	std::vector<VkPipelineInputAssemblyStateCreateInfo>           pipelineIAStateInfos;
+	std::vector<VkPipelineTessellationStateCreateInfo>            pipelineTessStateInfos;
+	std::vector<VkPipelineViewportStateCreateInfo>                pipelineViewportStateInfos;
+	std::vector<VkPipelineRasterizationStateCreateInfo>           pipelineRSStateInfos;
+	std::vector<VkPipelineMultisampleStateCreateInfo>             pipelineMultisampleStateInfos;
+	std::vector<VkPipelineDepthStencilStateCreateInfo>            pipelineDepthStencilStateInfos;
+	std::vector<VkPipelineColorBlendStateCreateInfo>              pipelineColorBlendStateInfos;
+	std::vector<VkPipelineDynamicStateCreateInfo>                 pipelineDynamicStateInfos;
+	std::vector<std::vector<VkPipelineColorBlendAttachmentState>> colorBlendAttachmentStates;
+	std::vector<std::vector<VkDynamicState>>                      dynamicStates;
 
-	VkPipelineVertexInputStateCreateInfo   vertexInputStateInfo          = {};
-	VkVertexInputBindingDescription*       pVertexInputBindings          = nullptr;
-	VkVertexInputAttributeDescription*     pVertexInputAttributes        = nullptr;
-
-	VkPipelineInputAssemblyStateCreateInfo pipelineIAStateInfo           = GConfig::Pipeline::DefaultInputAssemblyStateInfo;
-	VkPipelineTessellationStateCreateInfo  pipelineTessStateInfo         = GConfig::Pipeline::DefaultTessellationStateInfo;
-	VkPipelineViewportStateCreateInfo      pipelineViewportStateInfo     = GConfig::Pipeline::DefaultViewportStateInfo;
-
-	VkPipelineRasterizationStateCreateInfo pipelineRSStateInfo           = GConfig::Pipeline::DefaultRasterizationStateInfo;
-	VkPipelineMultisampleStateCreateInfo   pipelineMultisampleStateInfo  = GConfig::Pipeline::DefaultMultisampleStateInfo;
-	VkSampleMask*                          pSampleMasks                  = nullptr;
-	VkPipelineDepthStencilStateCreateInfo  pipelineDepthStencilStateInfo = GConfig::Pipeline::DefaultDepthStencilStateInfo;
-	VkPipelineColorBlendStateCreateInfo    pipelineColorBlendStateInfo   = GConfig::Pipeline::DefaultColorBlendStateInfo;
-	VkPipelineColorBlendAttachmentState*   pColorBlendAttachmentStates   = nullptr;
-	VkPipelineDynamicStateCreateInfo       pipelineDynamicStateInfo      = GConfig::Pipeline::DefaultDynamicStateInfo;
-	VkDynamicState*                        pDynamicStates                = nullptr;
-	VkPipelineLayoutCreateInfo             pipelineLayoutInfo            = {};
-
+	graphicInfos.resize(numGInfo);
+	shaderInfos.resize(numGInfo);
+	specMaps.resize(numGInfo);
+	specData.resize(numGInfo);
+	specInfos.resize(numGInfo);
+	sampleMasks.resize(numGInfo);
+	vertexInputStateInfos.resize(numGInfo);
+	vertexInputBindings.resize(numGInfo);
+	vertexInputAttributes.resize(numGInfo);
+	pipelineIAStateInfos.resize(numGInfo);
+	pipelineTessStateInfos.resize(numGInfo);
+	pipelineViewportStateInfos.resize(numGInfo);
+	pipelineRSStateInfos.resize(numGInfo);
+	pipelineMultisampleStateInfos.resize(numGInfo);
+	pipelineDepthStencilStateInfos.resize(numGInfo);
+	pipelineColorBlendStateInfos.resize(numGInfo);
+	pipelineDynamicStateInfos.resize(numGInfo);
+	colorBlendAttachmentStates.resize(numGInfo);
+	dynamicStates.resize(numGInfo);
+	
 	for (uint32 i = 0; i < numGInfo; i++)
 	{
+		pipelineIAStateInfos[i]           = GConfig::Pipeline::DefaultInputAssemblyStateInfo;
+		pipelineTessStateInfos[i]         = GConfig::Pipeline::DefaultTessellationStateInfo;
+		pipelineViewportStateInfos[i]     = GConfig::Pipeline::DefaultViewportStateInfo;
+		pipelineRSStateInfos[i]           = GConfig::Pipeline::DefaultRasterizationStateInfo;
+		pipelineMultisampleStateInfos[i]  = GConfig::Pipeline::DefaultMultisampleStateInfo;	
+		pipelineDepthStencilStateInfos[i] = GConfig::Pipeline::DefaultDepthStencilStateInfo;
+		pipelineColorBlendStateInfos[i]   = GConfig::Pipeline::DefaultColorBlendStateInfo;		
+		pipelineDynamicStateInfos[i]      = GConfig::Pipeline::DefaultDynamicStateInfo;
+
 		auto& graphicInfo = bIsArray ? root["graphic_pipeline_infos"][i] : root["graphic_pipeline_infos"];
 
-		pGraphicInfos[i].sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-		pGraphicInfos[i].pNext = nullptr;
-		pGraphicInfos[i].flags = JsonParser::GetUInt32(graphicInfo["pipeline_flags"]);
+		graphicInfos[i].sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+		graphicInfos[i].pNext = nullptr;
+		graphicInfos[i].flags = JsonParser::GetUInt32(graphicInfo["pipeline_flags"]);
 
 		// Pipeline Stage.
 		_jverify_ret_false_log(graphicInfo["pipeline_stages_infos"], "json file: [pipeline_stages_infos] can not be null!");
 		
 		bIsArray            = graphicInfo["pipeline_stages_infos"].isArray();
 		uint32 numStageInfo = bIsArray ? graphicInfo["pipeline_stages_infos"].size() : _count_1;
-		pShaderInfos        = _safe_new(VkPipelineShaderStageCreateInfo, numStageInfo);
 
-		pGraphicInfos[i].stageCount = numStageInfo;
-		pGraphicInfos[i].pStages    = pShaderInfos;
+		shaderInfos[i].resize(numStageInfo);
+		shaderEntrypoints.resize(numGInfo * numStageInfo);
+
+		graphicInfos[i].stageCount = numStageInfo;
+		graphicInfos[i].pStages    = shaderInfos[i].data();
 
 		for (uint32 j = 0; j < numStageInfo; j++)
 		{
@@ -1062,47 +1092,51 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 			std::string shaderPath = JsonParser::GetString(shaderInfo["stage_code_path"]);
 			if (shaderPath == _str_null) return false;
 
+			shaderEntrypoints[i * numStageInfo + j] = JsonParser::GetString(shaderInfo["entrypoint"], "main");
+
 			_declare_vk_smart_ptr(VkShaderModule, pShaderModule);
 			VkShaderStageFlags currentShaderStage, userDefinedShaderStage;
-			this->CreateShaderModule(pShaderModule.MakeInstance(), DiskResourceLoader::Load(shaderPath).data(), &currentShaderStage);
+			this->CreateShaderModule(pShaderModule.MakeInstance(), DiskResourceLoader::Load(shaderPath).data(), shaderEntrypoints[i * numStageInfo + j].c_str(), &currentShaderStage);
 
-			pShaderInfos[j].sType  = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-			pShaderInfos[j].pNext  = nullptr;
-			pShaderInfos[j].flags  = JsonParser::GetUInt32(shaderInfo["stage_flags"]);
-			pShaderInfos[j].stage  = (VkShaderStageFlagBits)((shaderInfo["stage_type"] != Json::nullValue) ? (Util::GetShaderStage(JsonParser::GetString(shaderInfo["stage_type"]), userDefinedShaderStage) ? userDefinedShaderStage : currentShaderStage) : currentShaderStage);
-			pShaderInfos[j].module = *pShaderModule;
-			pShaderInfos[j].pName  = JsonParser::GetString(shaderInfo["entrypoint"], "main").c_str();
-			pShaderInfos[j].pSpecializationInfo = &specInfo;
+			shaderModules.push_back(pShaderModule);
+
+			shaderInfos[i][j].sType  = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+			shaderInfos[i][j].pNext  = nullptr;
+			shaderInfos[i][j].flags  = JsonParser::GetUInt32(shaderInfo["stage_flags"]);
+			shaderInfos[i][j].stage  = (VkShaderStageFlagBits)((shaderInfo["stage_type"] != Json::nullValue) ? (Util::GetShaderStage(JsonParser::GetString(shaderInfo["stage_type"]), userDefinedShaderStage) ? userDefinedShaderStage : currentShaderStage) : currentShaderStage);
+			shaderInfos[i][j].module = *pShaderModule;	
+			shaderInfos[i][j].pName  = shaderEntrypoints[i * numStageInfo + j].c_str();
+			shaderInfos[i][j].pSpecializationInfo = &specInfos[i];
 			
 			if (shaderInfo["specialization_constants"] != Json::nullValue)
 			{			
 				bIsArray            = shaderInfo["specialization_constants"].isArray();
 				uint32 numSpecConst = bIsArray ? shaderInfo["specialization_constants"].size() : _count_1;
 
-				pSpecMaps = _safe_new(VkSpecializationMapEntry, numSpecConst);
-				pSpecData = _safe_new(uint32, numSpecConst);
+				specMaps[i].resize(numSpecConst);
+				specData[i].resize(numSpecConst);
 
-				specInfo.mapEntryCount = numSpecConst;
-				specInfo.pMapEntries   = pSpecMaps;
-				specInfo.dataSize      = numSpecConst * 4; // 4 byte per const, 32 bit value.
-				specInfo.pData         = pSpecData;
+				specInfos[i].mapEntryCount = numSpecConst;
+				specInfos[i].pMapEntries   = specMaps[i].data();
+				specInfos[i].dataSize      = numSpecConst * 4; // 4 byte per const, 32 bit value.
+				specInfos[i].pData         = specData[i].data();
 
 				for (uint32 k = 0; k < numSpecConst; k++)
 				{
 					auto& value = bIsArray ? shaderInfo["specialization_constants"][k] : shaderInfo["specialization_constants"];
 
-					pSpecMaps[k].constantID = k;
-					pSpecMaps[k].offset     = k * 4; // 4 byte per const, 32 bit value.
-					pSpecMaps[k].size       = 4;     // 4 byte per const, 32 bit value.
+					specMaps[i][k].constantID = k;
+					specMaps[i][k].offset     = k * 4; // 4 byte per const, 32 bit value.
+					specMaps[i][k].size       = 4;     // 4 byte per const, 32 bit value.
 
 					//////////////////////////////////////////////////////////////
 					// json value reinterpretation.
 					switch (value.type())
 					{
-					case Json::ValueType::intValue:     pSpecMaps[k].size = sizeof(int32);    _reinterpret_data(pSpecData[k], value.asInt());   break;
-					case Json::ValueType::uintValue:    pSpecMaps[k].size = sizeof(uint32);   _reinterpret_data(pSpecData[k], value.asUInt());  break;
-					case Json::ValueType::realValue:    pSpecMaps[k].size = sizeof(float);    _reinterpret_data(pSpecData[k], value.asFloat()); break;
-					case Json::ValueType::booleanValue: pSpecMaps[k].size = sizeof(VkBool32); _reinterpret_data(pSpecData[k], value.asBool());  break;
+					case Json::ValueType::intValue:     specMaps[i][k].size = sizeof(int32);    _reinterpret_data(specData[i][k], value.asInt());   break;
+					case Json::ValueType::uintValue:    specMaps[i][k].size = sizeof(uint32);   _reinterpret_data(specData[i][k], value.asUInt());  break;
+					case Json::ValueType::realValue:    specMaps[i][k].size = sizeof(float);    _reinterpret_data(specData[i][k], value.asFloat()); break;
+					case Json::ValueType::booleanValue: specMaps[i][k].size = sizeof(VkBool32); _reinterpret_data(specData[i][k], value.asBool());  break;
 					default: _ret_false_log("json file: not support [specialization_constants] value type!");
 					}
 					//////////////////////////////////////////////////////////////
@@ -1110,18 +1144,29 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 			}
 			else
 			{
-				pShaderInfos[j].pSpecializationInfo = nullptr;
+				shaderInfos[i][j].pSpecializationInfo = nullptr;
 			}		
 		}
 
+		// Pipeline Layout.
+		// There can only be one push constant block.
+		VkPushConstantRange pushConstantRange;
+		std::vector<std::vector<VkDescriptorSetLayoutBinding>> descSets;
+
+		if (!m_compiler.CheckAndParseSPVData(m_pBaseLayer->GetMainPDLimits().maxBoundDescriptorSets, pushConstantRange, descSets))
+			return false;
+
+		m_compiler.FlushSPVData();
+
 		// Vertex Input State.
-		pGraphicInfos[i].pVertexInputState = &vertexInputStateInfo;
+		graphicInfos[i].pVertexInputState = &vertexInputStateInfos[i];
 		_jverify_ret_false_log(graphicInfo["vertex_input_attributes"], "json file: [vertex_input_attributes] can not be null!");
 
 		// Bindings.
-		bIsArray             = graphicInfo["vertex_input_attributes"].isArray();
-		uint32 numBinding    = bIsArray ? graphicInfo["vertex_input_attributes"].size() : _count_1;
-		pVertexInputBindings = _safe_new(VkVertexInputBindingDescription, numBinding);
+		bIsArray          = graphicInfo["vertex_input_attributes"].isArray();
+		uint32 numBinding = bIsArray ? graphicInfo["vertex_input_attributes"].size() : _count_1;
+
+		vertexInputBindings[i].resize(numBinding);
 
 		for (uint32 j = 0; j < numBinding; j++)
 		{
@@ -1143,7 +1188,8 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 			// Vertex Attributes.
 			bIsArray               = binding["attributes"].isArray();
 			uint32 numAttribute    = bIsArray ? binding["attributes"].size() : _count_1;
-			pVertexInputAttributes = _safe_new(VkVertexInputAttributeDescription, numAttribute);
+
+			vertexInputAttributes[i].resize(numAttribute);
 
 			uint32  attributeOffset  = 0;
 			uint32& allAttributeSize = attributeOffset;
@@ -1151,62 +1197,62 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 			{
 				std::string attribute = bIsArray ? binding["attributes"][k].asString() : binding["attributes"].asString();
 
-				pVertexInputAttributes[k].binding  = _index_0;
-				pVertexInputAttributes[k].location = k;
-				pVertexInputAttributes[k].format   = Util::GetVertexAttributeVkFormat(attribute);
-				pVertexInputAttributes[k].offset   = attributeOffset;
+				vertexInputAttributes[i][k].binding  = _index_0;
+				vertexInputAttributes[i][k].location = k;
+				vertexInputAttributes[i][k].format   = Util::GetVertexAttributeVkFormat(attribute);
+				vertexInputAttributes[i][k].offset   = attributeOffset;
 
 				attributeOffset += Util::GetVertexAttributeSize(attribute);
 			}
 				
-			pVertexInputBindings[j].binding   = bindingID;
-			pVertexInputBindings[j].stride    = allAttributeSize;
-			pVertexInputBindings[j].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+			vertexInputBindings[i][j].binding   = bindingID;
+			vertexInputBindings[i][j].stride    = allAttributeSize;
+			vertexInputBindings[i][j].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
-			vertexInputStateInfo.sType                           = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-			vertexInputStateInfo.vertexBindingDescriptionCount   = numBinding;
-			vertexInputStateInfo.pVertexBindingDescriptions      = pVertexInputBindings;
-			vertexInputStateInfo.vertexAttributeDescriptionCount = numAttribute;
-			vertexInputStateInfo.pVertexAttributeDescriptions    = pVertexInputAttributes;
+			vertexInputStateInfos[i].sType                           = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+			vertexInputStateInfos[i].vertexBindingDescriptionCount   = numBinding;
+			vertexInputStateInfos[i].pVertexBindingDescriptions      = vertexInputBindings[i].data();
+			vertexInputStateInfos[i].vertexAttributeDescriptionCount = numAttribute;
+			vertexInputStateInfos[i].pVertexAttributeDescriptions    = vertexInputAttributes[i].data();
 		}
 		
 		// IA State.
-		pGraphicInfos[i].pInputAssemblyState = &pipelineIAStateInfo;
-		auto& inputAssemblyInfo              = graphicInfo["pipeline_input_assembly"];
+		graphicInfos[i].pInputAssemblyState = &pipelineIAStateInfos[i];
+		auto& inputAssemblyInfo             = graphicInfo["pipeline_input_assembly"];
 		if (inputAssemblyInfo != Json::nullValue)
 		{
-			pipelineIAStateInfo.flags                  = JsonParser::GetUInt32(inputAssemblyInfo["flags"]);
-			pipelineIAStateInfo.topology               = Util::GetPrimitiveTopology(JsonParser::GetString(inputAssemblyInfo["primitive_topology"]));
-			pipelineIAStateInfo.primitiveRestartEnable = JsonParser::GetUInt32(inputAssemblyInfo["primitive_restart_enable"]);
+			pipelineIAStateInfos[i].flags                  = JsonParser::GetUInt32(inputAssemblyInfo["flags"]);
+			pipelineIAStateInfos[i].topology               = Util::GetPrimitiveTopology(JsonParser::GetString(inputAssemblyInfo["primitive_topology"]));
+			pipelineIAStateInfos[i].primitiveRestartEnable = JsonParser::GetUInt32(inputAssemblyInfo["primitive_restart_enable"]);
 		}
 
 		// Tessellation State.
 		auto& tessellationInfo = graphicInfo["tessellation_state"];
 		if (tessellationInfo != Json::nullValue)
 		{
-			pGraphicInfos[i].pTessellationState      = &pipelineTessStateInfo;
-			pipelineTessStateInfo.sType              = VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_STATE_CREATE_INFO;
-			pipelineTessStateInfo.flags              = JsonParser::GetUInt32(tessellationInfo["flags"]);
-			pipelineTessStateInfo.patchControlPoints = JsonParser::GetUInt32(tessellationInfo["patch_control_points_count"]);
+			graphicInfos[i].pTessellationState           = &pipelineTessStateInfos[i];
+			pipelineTessStateInfos[i].sType              = VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_STATE_CREATE_INFO;
+			pipelineTessStateInfos[i].flags              = JsonParser::GetUInt32(tessellationInfo["flags"]);
+			pipelineTessStateInfos[i].patchControlPoints = JsonParser::GetUInt32(tessellationInfo["patch_control_points_count"]);
 		}
 		else
 		{
-			pGraphicInfos[i].pTessellationState = nullptr;
+			graphicInfos[i].pTessellationState = nullptr;
 		}
 
 		// Viewport State.
-		pGraphicInfos[i].pViewportState = &pipelineViewportStateInfo;
-		auto& viewportInfo              = graphicInfo["viewport_state"];
+		graphicInfos[i].pViewportState = &pipelineViewportStateInfos[i];
+		auto& viewportInfo             = graphicInfo["viewport_state"];
 		if (viewportInfo != Json::nullValue)
 		{
 			bIsArray           = viewportInfo["viewports"].isArray();
 			uint32 numViewport = bIsArray ? viewportInfo["viewports"].size() : _count_1;
 
-			pipelineViewportStateInfo.flags         = JsonParser::GetUInt32(viewportInfo["flags"]);
-			pipelineViewportStateInfo.viewportCount = numViewport;
-			pipelineViewportStateInfo.scissorCount  = numViewport;
-			pipelineViewportStateInfo.pViewports    = &currentViewport;
-			pipelineViewportStateInfo.pScissors     = &currentScissor;
+			pipelineViewportStateInfos[i].flags         = JsonParser::GetUInt32(viewportInfo["flags"]);
+			pipelineViewportStateInfos[i].viewportCount = numViewport;
+			pipelineViewportStateInfos[i].scissorCount  = numViewport;
+			pipelineViewportStateInfos[i].pViewports    = &currentViewport;
+			pipelineViewportStateInfos[i].pScissors     = &currentScissor;
 
 			for (uint32 j = 0; j < numViewport; j++)
 			{
@@ -1234,171 +1280,177 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 		}
 
 		// RS State.
-		pGraphicInfos[i].pRasterizationState = &pipelineRSStateInfo;
-		auto& rasterizationInfo              = graphicInfo["rasterization_state"];
+		graphicInfos[i].pRasterizationState = &pipelineRSStateInfos[i];
+		auto& rasterizationInfo             = graphicInfo["rasterization_state"];
 		if (rasterizationInfo != Json::nullValue)
 		{
-			pipelineRSStateInfo.flags                   = JsonParser::GetUInt32(rasterizationInfo["flags"]);
-			pipelineRSStateInfo.depthClampEnable        = JsonParser::GetUInt32(rasterizationInfo["depth_clamp_enable"]);
-			pipelineRSStateInfo.rasterizerDiscardEnable = JsonParser::GetUInt32(rasterizationInfo["rasterizer_discard_enable"]);
-			pipelineRSStateInfo.polygonMode             = Util::GetPolygonMode(JsonParser::GetString(rasterizationInfo["polygon_mode"]));
-			pipelineRSStateInfo.cullMode                = Util::GetCullMode(JsonParser::GetString(rasterizationInfo["cull_mode"]));
-			pipelineRSStateInfo.frontFace               = Util::GetFrontFace(JsonParser::GetString(rasterizationInfo["front_face"]));
-			pipelineRSStateInfo.depthBiasEnable         = JsonParser::GetUInt32(rasterizationInfo["depth_bias_enable"]);
-			pipelineRSStateInfo.depthBiasConstantFactor = JsonParser::GetFloat(rasterizationInfo["depth_bias_constant_factor"]);
-			pipelineRSStateInfo.depthBiasClamp          = JsonParser::GetFloat(rasterizationInfo["depth_bias_clamp"]);
-			pipelineRSStateInfo.depthBiasSlopeFactor    = JsonParser::GetFloat(rasterizationInfo["depth_bias_slope_factor"]);
-			pipelineRSStateInfo.lineWidth               = JsonParser::GetFloat(rasterizationInfo["line_width"]);
+			pipelineRSStateInfos[i].flags                   = JsonParser::GetUInt32(rasterizationInfo["flags"]);
+			pipelineRSStateInfos[i].depthClampEnable        = JsonParser::GetUInt32(rasterizationInfo["depth_clamp_enable"]);
+			pipelineRSStateInfos[i].rasterizerDiscardEnable = JsonParser::GetUInt32(rasterizationInfo["rasterizer_discard_enable"]);
+			pipelineRSStateInfos[i].polygonMode             = Util::GetPolygonMode(JsonParser::GetString(rasterizationInfo["polygon_mode"]));
+			pipelineRSStateInfos[i].cullMode                = Util::GetCullMode(JsonParser::GetString(rasterizationInfo["cull_mode"]));
+			pipelineRSStateInfos[i].frontFace               = Util::GetFrontFace(JsonParser::GetString(rasterizationInfo["front_face"]));
+			pipelineRSStateInfos[i].depthBiasEnable         = JsonParser::GetUInt32(rasterizationInfo["depth_bias_enable"]);
+			pipelineRSStateInfos[i].depthBiasConstantFactor = JsonParser::GetFloat(rasterizationInfo["depth_bias_constant_factor"]);
+			pipelineRSStateInfos[i].depthBiasClamp          = JsonParser::GetFloat(rasterizationInfo["depth_bias_clamp"]);
+			pipelineRSStateInfos[i].depthBiasSlopeFactor    = JsonParser::GetFloat(rasterizationInfo["depth_bias_slope_factor"]);
+			pipelineRSStateInfos[i].lineWidth               = JsonParser::GetFloat(rasterizationInfo["line_width"]);
 		}
 
 		// Multisample State.
-		pGraphicInfos[i].pMultisampleState = &pipelineMultisampleStateInfo;
-		auto& multisampleInfo              = graphicInfo["multisample_state"];
+		graphicInfos[i].pMultisampleState = &pipelineMultisampleStateInfos[i];
+		auto& multisampleInfo             = graphicInfo["multisample_state"];
 		if (multisampleInfo != Json::nullValue)
 		{
 			bIsArray             = multisampleInfo["sample_masks"].isArray();
 			uint32 numSampleMask = bIsArray ? multisampleInfo["sample_masks"].size() : _count_1;
-			pSampleMasks         = _safe_new(VkSampleMask, numSampleMask);
-			for (uint32 j = 0; j < numSampleMask; j++)
-				pSampleMasks[j] = bIsArray ? multisampleInfo["sample_masks"][j].asUInt() : multisampleInfo["sample_masks"].asUInt();
 
-			pipelineMultisampleStateInfo.flags                 = JsonParser::GetUInt32(multisampleInfo["flags"]);
-			pipelineMultisampleStateInfo.rasterizationSamples  = Util::GetMultisampleCount(JsonParser::GetUInt32(multisampleInfo["multisample_count"]));
-			pipelineMultisampleStateInfo.sampleShadingEnable   = JsonParser::GetUInt32(multisampleInfo["sample_shading_enable"]);
-			pipelineMultisampleStateInfo.minSampleShading      = JsonParser::GetFloat(multisampleInfo["min_sample_shading_factor"]);
-			pipelineMultisampleStateInfo.pSampleMask           = pSampleMasks;
-			pipelineMultisampleStateInfo.alphaToCoverageEnable = JsonParser::GetUInt32(multisampleInfo["alpha_to_coverage_enable"]);
-			pipelineMultisampleStateInfo.alphaToOneEnable      = JsonParser::GetUInt32(multisampleInfo["alpha_to_one_enable"]);		
+			sampleMasks[i].resize(numSampleMask);
+
+			for (uint32 j = 0; j < numSampleMask; j++)
+				sampleMasks[i][j] = bIsArray ? multisampleInfo["sample_masks"][j].asUInt() : multisampleInfo["sample_masks"].asUInt();
+
+			pipelineMultisampleStateInfos[i].flags                 = JsonParser::GetUInt32(multisampleInfo["flags"]);
+			pipelineMultisampleStateInfos[i].rasterizationSamples  = Util::GetMultisampleCount(JsonParser::GetUInt32(multisampleInfo["multisample_count"]));
+			pipelineMultisampleStateInfos[i].sampleShadingEnable   = JsonParser::GetUInt32(multisampleInfo["sample_shading_enable"]);
+			pipelineMultisampleStateInfos[i].minSampleShading      = JsonParser::GetFloat(multisampleInfo["min_sample_shading_factor"]);
+			pipelineMultisampleStateInfos[i].pSampleMask           = sampleMasks[i].data();
+			pipelineMultisampleStateInfos[i].alphaToCoverageEnable = JsonParser::GetUInt32(multisampleInfo["alpha_to_coverage_enable"]);
+			pipelineMultisampleStateInfos[i].alphaToOneEnable      = JsonParser::GetUInt32(multisampleInfo["alpha_to_one_enable"]);		
 		}
 
 		// Depth Stencil State.
-		pGraphicInfos[i].pDepthStencilState = &pipelineDepthStencilStateInfo;
-		auto& depthStencilInfo              = graphicInfo["depth_stencil_state"];
+		graphicInfos[i].pDepthStencilState = &pipelineDepthStencilStateInfos[i];
+		auto& depthStencilInfo             = graphicInfo["depth_stencil_state"];
 		if (depthStencilInfo != Json::nullValue)
 		{
-			pipelineDepthStencilStateInfo.flags                 = JsonParser::GetUInt32(depthStencilInfo["flags"]);
-			pipelineDepthStencilStateInfo.depthTestEnable       = JsonParser::GetUInt32(depthStencilInfo["depth_test_enable"]);
-			pipelineDepthStencilStateInfo.depthWriteEnable      = JsonParser::GetUInt32(depthStencilInfo["depth_write_enable"]);
-			pipelineDepthStencilStateInfo.depthCompareOp        = Util::GetCompareOp(JsonParser::GetString(depthStencilInfo["depth_compare_op"]));
-			pipelineDepthStencilStateInfo.depthBoundsTestEnable = JsonParser::GetUInt32(depthStencilInfo["depth_bounds_test_enable"]);
-			pipelineDepthStencilStateInfo.stencilTestEnable     = JsonParser::GetUInt32(depthStencilInfo["stencil_test_enable"]);
-			pipelineDepthStencilStateInfo.minDepthBounds        = JsonParser::GetFloat(depthStencilInfo["min_depth_bounds"]);
-			pipelineDepthStencilStateInfo.maxDepthBounds        = JsonParser::GetFloat(depthStencilInfo["max_depth_bounds"]);
+			pipelineDepthStencilStateInfos[i].flags                 = JsonParser::GetUInt32(depthStencilInfo["flags"]);
+			pipelineDepthStencilStateInfos[i].depthTestEnable       = JsonParser::GetUInt32(depthStencilInfo["depth_test_enable"]);
+			pipelineDepthStencilStateInfos[i].depthWriteEnable      = JsonParser::GetUInt32(depthStencilInfo["depth_write_enable"]);
+			pipelineDepthStencilStateInfos[i].depthCompareOp        = Util::GetCompareOp(JsonParser::GetString(depthStencilInfo["depth_compare_op"]));
+			pipelineDepthStencilStateInfos[i].depthBoundsTestEnable = JsonParser::GetUInt32(depthStencilInfo["depth_bounds_test_enable"]);
+			pipelineDepthStencilStateInfos[i].stencilTestEnable     = JsonParser::GetUInt32(depthStencilInfo["stencil_test_enable"]);
+			pipelineDepthStencilStateInfos[i].minDepthBounds        = JsonParser::GetFloat(depthStencilInfo["min_depth_bounds"]);
+			pipelineDepthStencilStateInfos[i].maxDepthBounds        = JsonParser::GetFloat(depthStencilInfo["max_depth_bounds"]);
 
 			auto& stencilInfo = depthStencilInfo["stencil_test_state"];
 			if (stencilInfo != Json::nullValue)
 			{
 				if (JsonParser::GetString(stencilInfo["front"]) != "auto")
 				{
-					pipelineDepthStencilStateInfo.front.failOp      = Util::GetStencilOp(JsonParser::GetString(stencilInfo["front"]["fail_op"]));
-					pipelineDepthStencilStateInfo.front.passOp      = Util::GetStencilOp(JsonParser::GetString(stencilInfo["front"]["pass_op"]));
-					pipelineDepthStencilStateInfo.front.depthFailOp = Util::GetStencilOp(JsonParser::GetString(stencilInfo["front"]["depth_fail_op"]));
-					pipelineDepthStencilStateInfo.front.compareOp   = Util::GetCompareOp(JsonParser::GetString(stencilInfo["front"]["compare_op"]));
-					pipelineDepthStencilStateInfo.front.compareMask = StringUtil::StrHexToNumeric(JsonParser::GetString(stencilInfo["front"]["compare_mask"], "0x00"));
-					pipelineDepthStencilStateInfo.front.writeMask   = StringUtil::StrHexToNumeric(JsonParser::GetString(stencilInfo["front"]["write_mask"],   "0x00"));
-					pipelineDepthStencilStateInfo.front.reference   = JsonParser::GetUInt32(stencilInfo["front"]["reference"]);
+					pipelineDepthStencilStateInfos[i].front.failOp      = Util::GetStencilOp(JsonParser::GetString(stencilInfo["front"]["fail_op"]));
+					pipelineDepthStencilStateInfos[i].front.passOp      = Util::GetStencilOp(JsonParser::GetString(stencilInfo["front"]["pass_op"]));
+					pipelineDepthStencilStateInfos[i].front.depthFailOp = Util::GetStencilOp(JsonParser::GetString(stencilInfo["front"]["depth_fail_op"]));
+					pipelineDepthStencilStateInfos[i].front.compareOp   = Util::GetCompareOp(JsonParser::GetString(stencilInfo["front"]["compare_op"]));
+					pipelineDepthStencilStateInfos[i].front.compareMask = StringUtil::StrHexToNumeric(JsonParser::GetString(stencilInfo["front"]["compare_mask"], "0x00"));
+					pipelineDepthStencilStateInfos[i].front.writeMask   = StringUtil::StrHexToNumeric(JsonParser::GetString(stencilInfo["front"]["write_mask"],   "0x00"));
+					pipelineDepthStencilStateInfos[i].front.reference   = JsonParser::GetUInt32(stencilInfo["front"]["reference"]);
 				}
 
 				if (JsonParser::GetString(stencilInfo["back"]) != "auto")
 				{
-					pipelineDepthStencilStateInfo.back.failOp      = Util::GetStencilOp(JsonParser::GetString(stencilInfo["back"]["fail_op"]));
-					pipelineDepthStencilStateInfo.back.passOp      = Util::GetStencilOp(JsonParser::GetString(stencilInfo["back"]["pass_op"]));
-					pipelineDepthStencilStateInfo.back.depthFailOp = Util::GetStencilOp(JsonParser::GetString(stencilInfo["back"]["depth_fail_op"]));
-					pipelineDepthStencilStateInfo.back.compareOp   = Util::GetCompareOp(JsonParser::GetString(stencilInfo["back"]["compare_op"]));
-					pipelineDepthStencilStateInfo.back.compareMask = StringUtil::StrHexToNumeric(JsonParser::GetString(stencilInfo["back"]["compare_mask"], "0x00"));
-					pipelineDepthStencilStateInfo.back.writeMask   = StringUtil::StrHexToNumeric(JsonParser::GetString(stencilInfo["back"]["write_mask"],   "0x00"));
-					pipelineDepthStencilStateInfo.back.reference   = JsonParser::GetUInt32(stencilInfo["back"]["reference"]);
+					pipelineDepthStencilStateInfos[i].back.failOp      = Util::GetStencilOp(JsonParser::GetString(stencilInfo["back"]["fail_op"]));
+					pipelineDepthStencilStateInfos[i].back.passOp      = Util::GetStencilOp(JsonParser::GetString(stencilInfo["back"]["pass_op"]));
+					pipelineDepthStencilStateInfos[i].back.depthFailOp = Util::GetStencilOp(JsonParser::GetString(stencilInfo["back"]["depth_fail_op"]));
+					pipelineDepthStencilStateInfos[i].back.compareOp   = Util::GetCompareOp(JsonParser::GetString(stencilInfo["back"]["compare_op"]));
+					pipelineDepthStencilStateInfos[i].back.compareMask = StringUtil::StrHexToNumeric(JsonParser::GetString(stencilInfo["back"]["compare_mask"], "0x00"));
+					pipelineDepthStencilStateInfos[i].back.writeMask   = StringUtil::StrHexToNumeric(JsonParser::GetString(stencilInfo["back"]["write_mask"],   "0x00"));
+					pipelineDepthStencilStateInfos[i].back.reference   = JsonParser::GetUInt32(stencilInfo["back"]["reference"]);
 				}			
 
 				if (JsonParser::GetString(stencilInfo["front"]) == "auto")
-					pipelineDepthStencilStateInfo.front = pipelineDepthStencilStateInfo.back;
+					pipelineDepthStencilStateInfos[i].front = pipelineDepthStencilStateInfos[i].back;
 				if (JsonParser::GetString(stencilInfo["back"])  == "auto")
-					pipelineDepthStencilStateInfo.back  = pipelineDepthStencilStateInfo.front;
+					pipelineDepthStencilStateInfos[i].back  = pipelineDepthStencilStateInfos[i].front;
 			}
 		}
 
 		// Color Blend State.
-		pGraphicInfos[i].pColorBlendState = &pipelineColorBlendStateInfo;
-		auto& colorBlendInfo              = graphicInfo["color_blend_state"];
+		graphicInfos[i].pColorBlendState = &pipelineColorBlendStateInfos[i];
+		auto& colorBlendInfo             = graphicInfo["color_blend_state"];
 		if (colorBlendInfo != Json::nullValue)
 		{
-			bIsArray                    = colorBlendInfo["attachments"].isArray();
-			uint32 numAttachment        = bIsArray ? colorBlendInfo["attachments"].size() : _count_1;
-			pColorBlendAttachmentStates = _safe_new(VkPipelineColorBlendAttachmentState, numAttachment);
+			bIsArray             = colorBlendInfo["attachments"].isArray();
+			uint32 numAttachment = bIsArray ? colorBlendInfo["attachments"].size() : _count_1;
+
+			colorBlendAttachmentStates[i].resize(numAttachment);
+
 			for (uint32 j = 0; j < numAttachment; j++)
 			{
 				auto& attachment = bIsArray ? colorBlendInfo["attachments"][j] : colorBlendInfo["attachments"];
 
-				pColorBlendAttachmentStates[j].blendEnable         = JsonParser::GetUInt32(attachment["blend_enable"]);
-				pColorBlendAttachmentStates[j].srcColorBlendFactor = attachment["src_color_factor"].isUInt() ? static_cast<VkBlendFactor>(JsonParser::GetUInt32(attachment["src_color_factor"])) : Util::GetBlendFactor(JsonParser::GetString(attachment["src_color_factor"]));
-				pColorBlendAttachmentStates[j].dstColorBlendFactor = attachment["dst_color_factor"].isUInt() ? static_cast<VkBlendFactor>(JsonParser::GetUInt32(attachment["dst_color_factor"])) : Util::GetBlendFactor(JsonParser::GetString(attachment["dst_color_factor"]));
-				pColorBlendAttachmentStates[j].colorBlendOp        = Util::GetBlendOp(JsonParser::GetString(attachment["color_blend_op"]));
-				pColorBlendAttachmentStates[j].srcAlphaBlendFactor = attachment["src_alpha_factor"].isUInt() ? static_cast<VkBlendFactor>(JsonParser::GetUInt32(attachment["src_alpha_factor"])) : Util::GetBlendFactor(JsonParser::GetString(attachment["src_alpha_factor"]));
-				pColorBlendAttachmentStates[j].dstAlphaBlendFactor = attachment["dst_alpha_factor"].isUInt() ? static_cast<VkBlendFactor>(JsonParser::GetUInt32(attachment["dst_alpha_factor"])) : Util::GetBlendFactor(JsonParser::GetString(attachment["dst_alpha_factor"]));
-				pColorBlendAttachmentStates[j].alphaBlendOp        = Util::GetBlendOp(JsonParser::GetString(attachment["alpha_blend_op"]));
-				pColorBlendAttachmentStates[j].colorWriteMask      = Util::GetColorComponentMask(JsonParser::GetString(attachment["component_mask"]));
+				colorBlendAttachmentStates[i][j].blendEnable         = JsonParser::GetUInt32(attachment["blend_enable"]);
+				colorBlendAttachmentStates[i][j].srcColorBlendFactor = attachment["src_color_factor"].isUInt() ? static_cast<VkBlendFactor>(JsonParser::GetUInt32(attachment["src_color_factor"])) : Util::GetBlendFactor(JsonParser::GetString(attachment["src_color_factor"]));
+				colorBlendAttachmentStates[i][j].dstColorBlendFactor = attachment["dst_color_factor"].isUInt() ? static_cast<VkBlendFactor>(JsonParser::GetUInt32(attachment["dst_color_factor"])) : Util::GetBlendFactor(JsonParser::GetString(attachment["dst_color_factor"]));
+				colorBlendAttachmentStates[i][j].colorBlendOp        = Util::GetBlendOp(JsonParser::GetString(attachment["color_blend_op"]));
+				colorBlendAttachmentStates[i][j].srcAlphaBlendFactor = attachment["src_alpha_factor"].isUInt() ? static_cast<VkBlendFactor>(JsonParser::GetUInt32(attachment["src_alpha_factor"])) : Util::GetBlendFactor(JsonParser::GetString(attachment["src_alpha_factor"]));
+				colorBlendAttachmentStates[i][j].dstAlphaBlendFactor = attachment["dst_alpha_factor"].isUInt() ? static_cast<VkBlendFactor>(JsonParser::GetUInt32(attachment["dst_alpha_factor"])) : Util::GetBlendFactor(JsonParser::GetString(attachment["dst_alpha_factor"]));
+				colorBlendAttachmentStates[i][j].alphaBlendOp        = Util::GetBlendOp(JsonParser::GetString(attachment["alpha_blend_op"]));
+				colorBlendAttachmentStates[i][j].colorWriteMask      = Util::GetColorComponentMask(JsonParser::GetString(attachment["component_mask"]));
 			}
 
-			pipelineColorBlendStateInfo.flags           = JsonParser::GetUInt32(colorBlendInfo["flags"]);
-			pipelineColorBlendStateInfo.logicOpEnable   = JsonParser::GetUInt32(colorBlendInfo["logic_op_enable"]);
-			pipelineColorBlendStateInfo.logicOp         = Util::GetLogicOp(JsonParser::GetString(colorBlendInfo["logic_op"]));
-			pipelineColorBlendStateInfo.attachmentCount = numAttachment;
-			pipelineColorBlendStateInfo.pAttachments    = pColorBlendAttachmentStates;
+			pipelineColorBlendStateInfos[i].flags           = JsonParser::GetUInt32(colorBlendInfo["flags"]);
+			pipelineColorBlendStateInfos[i].logicOpEnable   = JsonParser::GetUInt32(colorBlendInfo["logic_op_enable"]);
+			pipelineColorBlendStateInfos[i].logicOp         = Util::GetLogicOp(JsonParser::GetString(colorBlendInfo["logic_op"]));
+			pipelineColorBlendStateInfos[i].attachmentCount = numAttachment;
+			pipelineColorBlendStateInfos[i].pAttachments    = colorBlendAttachmentStates[i].data();
 
 			bIsArray           = colorBlendInfo["blend_constants"].isArray();
 			uint32 numConstant = bIsArray ? colorBlendInfo["blend_constants"].size() : _count_1;
 			for (uint32 j = 0; j < numConstant; j++)
 			{
 				if (j >= 4) break;
-				pipelineColorBlendStateInfo.blendConstants[j] = JsonParser::GetFloat(bIsArray ? colorBlendInfo["blend_constants"][j] : colorBlendInfo["blend_constants"]);
+				pipelineColorBlendStateInfos[i].blendConstants[j] = JsonParser::GetFloat(bIsArray ? colorBlendInfo["blend_constants"][j] : colorBlendInfo["blend_constants"]);
 			}
 		}
 
 		// Dynamic State.
-		pGraphicInfos[i].pDynamicState = &pipelineDynamicStateInfo;
-		auto& dynamicStateInfo         = graphicInfo["dynamic_state"];
+		graphicInfos[i].pDynamicState = &pipelineDynamicStateInfos[i];
+		auto& dynamicStateInfo        = graphicInfo["dynamic_state"];
 		if (dynamicStateInfo != Json::nullValue)
 		{
 			bIsArray               = dynamicStateInfo["state"].isArray();
 			uint32 numDynamicState = bIsArray ? dynamicStateInfo["state"].size() : _count_1;
-			pDynamicStates         = _safe_new(VkDynamicState, numDynamicState);
-			for (uint32 j = 0; j < numDynamicState; j++)
-				pDynamicStates[j] = Util::GetDynamicState(JsonParser::GetString(bIsArray ? dynamicStateInfo["state"][j] : dynamicStateInfo["state"]));
 
-			pipelineDynamicStateInfo.flags             = JsonParser::GetUInt32(dynamicStateInfo["flags"]);
-			pipelineDynamicStateInfo.dynamicStateCount = numDynamicState;
-			pipelineDynamicStateInfo.pDynamicStates    = pDynamicStates;
+			dynamicStates[i].resize(numDynamicState);
+
+			for (uint32 j = 0; j < numDynamicState; j++)
+				dynamicStates[i][j] = Util::GetDynamicState(JsonParser::GetString(bIsArray ? dynamicStateInfo["state"][j] : dynamicStateInfo["state"]));
+
+			pipelineDynamicStateInfos[i].flags             = JsonParser::GetUInt32(dynamicStateInfo["flags"]);
+			pipelineDynamicStateInfos[i].dynamicStateCount = numDynamicState;
+			pipelineDynamicStateInfos[i].pDynamicStates    = dynamicStates[i].data();
 		}
 
 		// Pipeline Layout.
+		std::vector<VkDescriptorSetLayout> descSetLayouts;
+		std::vector<VkSmartPtr<VkDescriptorSetLayout>> pDescSetLayouts;
 
-		// There can only be one push constant block.
-		VkPushConstantRange pushConstantRange;	
-		std::vector<std::vector<VkDescriptorSetLayoutBinding>> descSets;
+		for (auto& bindings : descSets)
+		{
+			_declare_vk_smart_ptr(VkDescriptorSetLayout, pDescSetLayout);
 
-		if (!m_compiler.CheckAndParseSPVData(m_pBaseLayer->GetMainPDLimits().maxBoundDescriptorSets, pushConstantRange, descSets))
-			return false;
+			this->CreateDescriptorSetLayout(pDescSetLayout.MakeInstance(), bindings.data(), (uint32)bindings.size());
+			descSetLayouts.push_back(*pDescSetLayout);
+			pDescSetLayouts.push_back(pDescSetLayout);
+		}
 
-		
+		_declare_vk_smart_ptr(VkPipelineLayout, pPipelineLayout);
 
-		//VkDescriptorSetLayout;
+		this->CreatePipelineLayout(pPipelineLayout.MakeInstance(), descSetLayouts.data(), (uint32)descSetLayouts.size(), &pushConstantRange, _count_1);
 
-		//this->CreatePipelineLayout()
+		graphicInfos[i].layout = *pPipelineLayout;
+
 	}
 
-	// _vk_try(vkCreateGraphicsPipelines(m_device, InPipCache, numGInfo, pGraphicInfos, GetVkAllocator(), OutPipeline));
+	// _vk_try(vkCreateGraphicsPipelines(m_device, InPipCache, numGInfo, graphicInfos, GetVkAllocator(), OutPipeline));
 
 	// TODO:
 
-	_safe_delete_array(pGraphicInfos);
-	_safe_delete_array(pShaderInfos);
-	_safe_delete_array(pSpecMaps);
-	_safe_delete_array(pSpecData);
-	_safe_delete_array(pVertexInputBindings);
-	_safe_delete_array(pVertexInputAttributes);
-	_safe_delete_array(pSampleMasks);
-	_safe_delete_array(pColorBlendAttachmentStates);
-	_safe_delete_array(pDynamicStates);
+
+
+	// for (...)
+	
 
 	LogSystem::Log("End creating graphic pipeline with " + InJsonPath, LogSystem::Category::LogicalDevice);
 
