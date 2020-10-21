@@ -194,6 +194,7 @@ public:
     struct CompileInfo
     {
         ShaderType shader_type = ShaderType::GLSL;
+        const char* entrypoint;
         uint32_t includes_count;
         const char** includes;
     };
@@ -275,8 +276,7 @@ public:
 
     GLSLCompiler()
     {
-        //m_module.Load("../../.GLSLCompiler/out/Windows_64_" + std::string(SlnConfig) + "/GLSLCompiler.dll");
-        m_module.Load("../../.GLSLCompiler/out/Windows_64_Release/GLSLCompiler.dll");
+        m_module.Load("../../.GLSLCompiler/out/Windows_64_" + std::string(SlnConfig) + "/GLSLCompiler.dll");
         m_pInterface = m_module.GetInterface<PFGetGLSLCompilerInterface>("GetInterface");
 
         if (m_pInterface != nullptr)
@@ -368,10 +368,11 @@ int main()
     GLSLCompiler compiler;
     GLSLCompiler::CompileInfo compileInfo;
     compileInfo.shader_type = GLSLCompiler::ShaderType::GLSL;
+    compileInfo.entrypoint = "main";
     compileInfo.includes_count = 1;
     compileInfo.includes = include_dirs;
 
-    compiler.CompileShader(VK_SHADER_STAGE_FRAGMENT_BIT, R"(C:\Users\zhengjianyao\Desktop\triangle.frag)", &compileInfo);
+    compiler.CompileShader(VK_SHADER_STAGE_FRAGMENT_BIT, R"(C:\Users\zhengjianyao\Desktop\VK\triangle.frag)", &compileInfo);
     GLSLCompiler::SPVData* spvData = compiler.GetLastSPVData();
 
     system("pause");

@@ -28,6 +28,7 @@ public:
     struct CompileInfo
     {
         ShaderType   shader_type = ShaderType::GLSL;
+        const char*  entrypoint;
         uint32       includes_count;
         const char** includes;
     };
