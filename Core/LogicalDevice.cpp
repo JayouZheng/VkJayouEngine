@@ -179,8 +179,8 @@ bool LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const ch
 		else
 		{
 			*OutShaderModule = VK_NULL_HANDLE;
-			LogSystem::LogError(spvData->log, LogSystem::Category::GLSLCompiler);
-			LogSystem::LogError(spvData->debug_log, LogSystem::Category::GLSLCompiler);
+			_log_error(spvData->log, LogSystem::Category::GLSLCompiler);
+			_log_error(spvData->debug_log, LogSystem::Category::GLSLCompiler);
 
 			_log_error(StringUtil::Printf("Compiling shader file \"%\" failed!", InShaderPath), LogSystem::Category::GLSLCompiler);
 			return false;
@@ -267,7 +267,7 @@ bool LogicalDevice::CreateEmptyPipelineCache(VkPipelineCache* OutPipCache)
 	{
 		*OutPipCache = VK_NULL_HANDLE;
 
-		LogSystem::LogError("Func: " + _str_name_of(CreateEmptyPipelineCache) + " expect to Query Physical Device Limits!", LogSystem::Category::LogicalDevice);
+		_log_error("Func: " + _str_name_of(CreateEmptyPipelineCache) + " expect to Query Physical Device Limits!", LogSystem::Category::LogicalDevice);
 		return false;
 	}
 
@@ -289,7 +289,7 @@ bool LogicalDevice::CreatePipelineCacheFromFile(VkPipelineCache* OutPipCache, co
 	{
 		*OutPipCache = VK_NULL_HANDLE;
 
-		LogSystem::LogError("Func: " + _str_name_of(CreatePipelineCacheFromFile) + " expect to Query Physical Device Limits!", LogSystem::Category::LogicalDevice);
+		_log_error("Func: " + _str_name_of(CreatePipelineCacheFromFile) + " expect to Query Physical Device Limits!", LogSystem::Category::LogicalDevice);
 		return false;
 	}
 
@@ -345,38 +345,38 @@ bool LogicalDevice::CreatePipelineCacheFromFile(VkPipelineCache* OutPipCache, co
 		if (pipCacheHearder.Length <= 0)
 		{
 			badCache = true;
-			LogSystem::LogError(StringUtil::Printf("Bad header length in %, value is %", InPath, pipCacheHearder.Length), LogSystem::Category::LogicalDevice);
+			_log_error(StringUtil::Printf("Bad header length in %, value is %", InPath, pipCacheHearder.Length), LogSystem::Category::LogicalDevice);
 		}
 
 		if (pipCacheHearder.Version != VK_PIPELINE_CACHE_HEADER_VERSION_ONE)
 		{
 			badCache = true;
-			LogSystem::LogError(StringUtil::Printf("Unsupported cache header version in %, value is %", InPath, pipCacheHearder.Version), LogSystem::Category::LogicalDevice);
+			_log_error(StringUtil::Printf("Unsupported cache header version in %, value is %", InPath, pipCacheHearder.Version), LogSystem::Category::LogicalDevice);
 		}
 
 		if (pipCacheHearder.VendorID != m_pBaseLayer->GetMainPDProps().vendorID)
 		{
 			badCache = true;
-			LogSystem::LogError(StringUtil::Printf("Vendor ID mismatch in %, value is %, Driver expects: %", InPath, pipCacheHearder.VendorID, m_pBaseLayer->GetMainPDProps().vendorID), LogSystem::Category::LogicalDevice);
+			_log_error(StringUtil::Printf("Vendor ID mismatch in %, value is %, Driver expects: %", InPath, pipCacheHearder.VendorID, m_pBaseLayer->GetMainPDProps().vendorID), LogSystem::Category::LogicalDevice);
 		}
 
 		if (pipCacheHearder.DeviceID != m_pBaseLayer->GetMainPDProps().deviceID)
 		{
 			badCache = true;
-			LogSystem::LogError(StringUtil::Printf("Device ID mismatch in %, value is %, Driver expects: %", InPath, pipCacheHearder.DeviceID, m_pBaseLayer->GetMainPDProps().deviceID), LogSystem::Category::LogicalDevice);
+			_log_error(StringUtil::Printf("Device ID mismatch in %, value is %, Driver expects: %", InPath, pipCacheHearder.DeviceID, m_pBaseLayer->GetMainPDProps().deviceID), LogSystem::Category::LogicalDevice);
 		}
 
 		if (memcmp(pipCacheHearder.UUID, m_pBaseLayer->GetMainPDProps().pipelineCacheUUID, sizeof(pipCacheHearder.UUID)) != 0)
 		{
 			badCache = true;
-			LogSystem::LogError(StringUtil::Printf("UUID ID mismatch in %, value is %, Driver expects: %", InPath, StringUtil::UUIDToString(pipCacheHearder.UUID), StringUtil::UUIDToString(m_pBaseLayer->GetMainPDProps().pipelineCacheUUID)), LogSystem::Category::LogicalDevice);
+			_log_error(StringUtil::Printf("UUID ID mismatch in %, value is %, Driver expects: %", InPath, StringUtil::UUIDToString(pipCacheHearder.UUID), StringUtil::UUIDToString(m_pBaseLayer->GetMainPDProps().pipelineCacheUUID)), LogSystem::Category::LogicalDevice);
 		}
 
 		if (badCache)
 		{
-			LogSystem::LogError(StringUtil::Printf("Deleting cache entry % to repopulate.", InPath), LogSystem::Category::LogicalDevice);
+			_log_error(StringUtil::Printf("Deleting cache entry % to repopulate.", InPath), LogSystem::Category::LogicalDevice);
 			if (remove(InPath) != 0)
-				LogSystem::LogError("Deleting error", LogSystem::Category::IO);
+				_log_error("Deleting error", LogSystem::Category::IO);
 			return false;
 		}
 	}
@@ -537,7 +537,7 @@ bool LogicalDevice::UpdateImageOfDescSet(VkDescriptorSet InDescSet, uint32 InBin
 		(InImageDescType != VK_DESCRIPTOR_TYPE_STORAGE_IMAGE) &&
 		(InImageDescType != VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT))
 	{
-		LogSystem::LogError("Func: " + _str_name_of(UpdateImageOfDescSet) + " expect image descriptor type!", LogSystem::Category::LogicalDevice);
+		_log_error("Func: " + _str_name_of(UpdateImageOfDescSet) + " expect image descriptor type!", LogSystem::Category::LogicalDevice);
 		return false;
 	}
 
@@ -564,7 +564,7 @@ bool LogicalDevice::UpdateBufferOfDescSet(VkDescriptorSet InDescSet, uint32 InBi
 		(InBufferDescType != VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC) &&
 		(InBufferDescType != VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC))
 	{
-		LogSystem::LogError("Func: " + _str_name_of(UpdateBufferOfDescSet) + " expect buffer descriptor type!", LogSystem::Category::LogicalDevice);
+		_log_error("Func: " + _str_name_of(UpdateBufferOfDescSet) + " expect buffer descriptor type!", LogSystem::Category::LogicalDevice);
 		return false;
 	}
 
@@ -589,7 +589,7 @@ bool LogicalDevice::UpdateTexelBufferOfDescSet(VkDescriptorSet InDescSet, uint32
 	if ((InTBufferDescType != VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER) &&
 		(InTBufferDescType != VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER))
 	{
-		LogSystem::LogError("Func: " + _str_name_of(UpdateTexelBufferOfDescSet) + " expect texel buffer descriptor type!", LogSystem::Category::LogicalDevice);
+		_log_error("Func: " + _str_name_of(UpdateTexelBufferOfDescSet) + " expect texel buffer descriptor type!", LogSystem::Category::LogicalDevice);
 		return false;
 	}
 
@@ -732,7 +732,7 @@ bool LogicalDevice::CreateAnisotropicWrapSampler(VkSampler* OutSampler)
 	{
 		OutSampler = VK_NULL_HANDLE;
 
-		LogSystem::LogError("Func: " + _str_name_of(CreateAnisotropicWrapSampler) + " expect to Query Physical Device Limits!", LogSystem::Category::LogicalDevice);
+		_log_error("Func: " + _str_name_of(CreateAnisotropicWrapSampler) + " expect to Query Physical Device Limits!", LogSystem::Category::LogicalDevice);
 		return false;
 	}
 
@@ -767,7 +767,7 @@ bool LogicalDevice::CreateAnisotropicClampSampler(VkSampler* OutSampler)
 	{
 		OutSampler = VK_NULL_HANDLE;
 
-		LogSystem::LogError("Func: " + _str_name_of(CreateAnisotropicClampSampler) + " expect to Query Physical Device Limits!", LogSystem::Category::LogicalDevice);
+		_log_error("Func: " + _str_name_of(CreateAnisotropicClampSampler) + " expect to Query Physical Device Limits!", LogSystem::Category::LogicalDevice);
 		return false;
 	}	
 
@@ -902,7 +902,7 @@ bool LogicalDevice::CreateFrameBuffer(VkFramebuffer* OutFrameBuffer, const VkFra
 	{
 		OutFrameBuffer = VK_NULL_HANDLE;
 
-		LogSystem::LogError("Func: " + _str_name_of(CreateFrameBuffer) + " expect to Query Physical Device Limits!", LogSystem::Category::LogicalDevice);
+		_log_error("Func: " + _str_name_of(CreateFrameBuffer) + " expect to Query Physical Device Limits!", LogSystem::Category::LogicalDevice);
 		return false;
 	}
 		
@@ -912,7 +912,7 @@ bool LogicalDevice::CreateFrameBuffer(VkFramebuffer* OutFrameBuffer, const VkFra
 		InCreateInfo.height > m_pBaseLayer->GetMainPDLimits().maxFramebufferHeight ||
 		InCreateInfo.layers > m_pBaseLayer->GetMainPDLimits().maxFramebufferLayers)
 	{
-		LogSystem::LogError(StringUtil::Printf("Buffer size exceeds physical device limit at: %", _name_of(CreateFrameBuffer)), LogSystem::Category::LogicalDevice);
+		_log_error(StringUtil::Printf("Buffer size exceeds physical device limit at: %", _name_of(CreateFrameBuffer)), LogSystem::Category::LogicalDevice);
 		return false;
 	}
 
@@ -927,7 +927,7 @@ bool LogicalDevice::CreateFrameBuffer(VkFramebuffer* OutFrameBuffer, VkRenderPas
 	{
 		OutFrameBuffer = VK_NULL_HANDLE;
 		
-		LogSystem::LogError("Func: " + _str_name_of(CreateFrameBuffer) + " expect to Query Physical Device Limits!", LogSystem::Category::LogicalDevice);
+		_log_error("Func: " + _str_name_of(CreateFrameBuffer) + " expect to Query Physical Device Limits!", LogSystem::Category::LogicalDevice);
 		return false;
 	}
 		
@@ -944,7 +944,7 @@ bool LogicalDevice::CreateFrameBuffer(VkFramebuffer* OutFrameBuffer, VkRenderPas
 		frameBufferCreateInfo.height > m_pBaseLayer->GetMainPDLimits().maxFramebufferHeight ||
 		frameBufferCreateInfo.layers > m_pBaseLayer->GetMainPDLimits().maxFramebufferLayers)
 	{
-		LogSystem::LogError(StringUtil::Printf("Buffer size exceeds physical device limit at: %", _name_of(CreateFrameBuffer)), LogSystem::Category::LogicalDevice);
+		_log_error(StringUtil::Printf("Buffer size exceeds physical device limit at: %", _name_of(CreateFrameBuffer)), LogSystem::Category::LogicalDevice);
 		return false;
 	}
 
@@ -1070,7 +1070,7 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 	{
 		*OutPipeline = VK_NULL_HANDLE;
 
-		LogSystem::LogError("Func: " + _str_name_of(CreateGraphicPipelines) + " expect to Query Physical Device Limits!", LogSystem::Category::LogicalDevice);
+		_log_error("Func: " + _str_name_of(CreateGraphicPipelines) + " expect to Query Physical Device Limits!", LogSystem::Category::LogicalDevice);
 		return false;
 	}
 
@@ -1084,7 +1084,7 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 
 	if (root[StringMapper::Map[(size_t)StringMapper::ID::vk_graphic_pipeline_infos]] == Json::nullValue)
 	{
-		LogSystem::LogError("json file: [graphic_pipeline_infos] can not be null!", LogSystem::Category::JsonParser);
+		_log_error("json file: [graphic_pipeline_infos] can not be null!", LogSystem::Category::JsonParser);
 		return false;
 	}
 	
@@ -1158,7 +1158,7 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 		// Pipeline Stage.
 		if (graphicInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_pipeline_stages_infos]] == Json::nullValue)
 		{
-			LogSystem::LogError("json file: [pipeline_stages_infos] can not be null!", LogSystem::Category::JsonParser);
+			_log_error("json file: [pipeline_stages_infos] can not be null!", LogSystem::Category::JsonParser);
 			return false;
 		}
 		
@@ -1252,7 +1252,7 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 		graphicInfos[i].pVertexInputState = &vertexInputStateInfos[i];
 		if (graphicInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_vertex_input_attributes]] == Json::nullValue)
 		{
-			LogSystem::LogError("json file: [vertex_input_attributes] can not be null!", LogSystem::Category::JsonParser);
+			_log_error("json file: [vertex_input_attributes] can not be null!", LogSystem::Category::JsonParser);
 			return false;
 		}
 
@@ -1269,13 +1269,13 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 
 			if (j >= 16u)
 			{
-				LogSystem::LogWarning("current app vertex input binding number is limit to 16!", LogSystem::Category::LogicalDevice);
+				_log_warning("current app vertex input binding number is limit to 16!", LogSystem::Category::LogicalDevice);
 				break;
 			}
 
 			if (bindingID >= 16u)
 			{
-				LogSystem::LogWarning("Current app vertex input binding number is limit to 16!", LogSystem::Category::LogicalDevice);
+				_log_warning("Current app vertex input binding number is limit to 16!", LogSystem::Category::LogicalDevice);
 				continue;
 			}
 

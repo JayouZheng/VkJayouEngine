@@ -247,7 +247,7 @@ bool Window::Init()
 
 		if (!RegisterClassExW(&wcex))
 		{
-			LogSystem::LogError("Register Class Failed When Create Window!", "RegisterClassExW");
+			_log_error("Register Class Failed When Create Window!", "RegisterClassExW");
 			return false;
 		}
 
@@ -268,7 +268,7 @@ bool Window::Init()
 
 		if (!m_pHwnd)
 		{
-			LogSystem::LogError("Create Window Failed!", "CreateWindowExW");
+			_log_error("Create Window Failed!", "CreateWindowExW");
 			return false;
 		}
 

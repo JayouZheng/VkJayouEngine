@@ -328,7 +328,7 @@ bool CommandList::Dispatch(uint32 x, uint32 y, uint32 z)
 {
 	if (m_pBaseLayer == nullptr)
 	{
-		LogSystem::LogError("Func: " + _str_name_of(Dispatch) + " expect to Query Physical Device Limits!", LogSystem::Category::CommandList);
+		_log_error("Func: " + _str_name_of(Dispatch) + " expect to Query Physical Device Limits!", LogSystem::Category::CommandList);
 		return false;
 	}
 
@@ -339,7 +339,7 @@ bool CommandList::Dispatch(uint32 x, uint32 y, uint32 z)
 
 	if (bIsOverflow)
 	{
-		LogSystem::LogError("Func: " + _str_name_of(Dispatch) + " Compute Dispatch Goes Beyond The Physical Limits!", LogSystem::Category::CommandList);
+		_log_error("Func: " + _str_name_of(Dispatch) + " Compute Dispatch Goes Beyond The Physical Limits!", LogSystem::Category::CommandList);
 		return false;
 	}
 	

@@ -49,7 +49,7 @@ void GLSLCompiler::CompileShader(VkShaderStageFlags InStageType, const std::stri
     }
     else
     {
-        LogSystem::LogError("The GLSLCompiler has not been Init!", LogSystem::Category::GLSLCompiler);
+        _log_error("The GLSLCompiler has not been Init!", LogSystem::Category::GLSLCompiler);
         return;
     }
 }
@@ -84,7 +84,7 @@ bool GLSLCompiler::CheckAndParseSPVData(uint32 InMaxDescSets, VkPushConstantRang
 	{
 		if ((setIDArray[i] + 1u) != setIDArray[i + 1u])
 		{
-			LogSystem::LogError("The creating pipeline has discontinuous DescriptorSet ID!", LogSystem::Category::GLSLCompiler);
+			_log_error("The creating pipeline has discontinuous DescriptorSet ID!", LogSystem::Category::GLSLCompiler);
 			return false;
 		}
 	}
@@ -105,7 +105,7 @@ bool GLSLCompiler::CheckAndParseSPVData(uint32 InMaxDescSets, VkPushConstantRang
 			OutPushConstantRange.offset = _offset_0;
 			OutPushConstantRange.size = resData.items[_index_0].size;
 
-			if (resData.count > 1u) LogSystem::LogWarning("The creating pipeline has too many push constant blocks!", LogSystem::Category::GLSLCompiler);
+			if (resData.count > 1u) _log_warning("The creating pipeline has too many push constant blocks!", LogSystem::Category::GLSLCompiler);
 
 			bPushConstantInit = true; // There can only be one push constant block.
 		}
@@ -126,7 +126,7 @@ bool GLSLCompiler::CheckAndParseSPVData(uint32 InMaxDescSets, VkPushConstantRang
 
 				if (Util::IsVecContain<uint8>(currentSetBindingID, bindingID, _lambda_is_equal(uint8)))
 				{
-					LogSystem::LogError(StringUtil::Printf("The creating pipeline has repeated binding ID in its shader, the stage is %, the variable name is %!",
+					_log_error(StringUtil::Printf("The creating pipeline has repeated binding ID in its shader, the stage is %, the variable name is %!",
 						Util::VkShaderStageToString(descSetBinding.stageFlags), spvData->resource[descType].items[i].name), LogSystem::Category::GLSLCompiler);
 					return false;
 				}
@@ -149,7 +149,7 @@ bool GLSLCompiler::CheckAndParseSPVData(uint32 InMaxDescSets, VkPushConstantRang
 		{
 			if (bindingIDArray[j] != j)
 			{
-				LogSystem::LogWarning(StringUtil::Printf("The creating pipeline has discontinuous binding ID in its shader, the stage is %, the descriptor type is %, %",
+				_log_warning(StringUtil::Printf("The creating pipeline has discontinuous binding ID in its shader, the stage is %, the descriptor type is %, %",
 					Util::VkShaderStageToString(OutDescSets[i][j].stageFlags), Util::VkDescriptorTypeToString(OutDescSets[i][j].descriptorType), 
 					"it's recommended that you don't create sparsely populated sets because this can waste resources in the device!"), 
 					LogSystem::Category::GLSLCompiler);

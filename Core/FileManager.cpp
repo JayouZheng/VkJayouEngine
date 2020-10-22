@@ -22,7 +22,7 @@ bool FileUtil::Read(const std::string& InPath, std::vector<uint8>& OutData)
 			ifs.seekg(0, ifs.beg);
 			if (size == -1)
 			{
-				LogSystem::LogError(StringUtil::Printf("Reading error at %", InPath), LogSystem::Category::IO);
+				_log_error(StringUtil::Printf("Reading error at %", InPath), LogSystem::Category::IO);
 				return false;
 			}
 			
@@ -33,13 +33,13 @@ bool FileUtil::Read(const std::string& InPath, std::vector<uint8>& OutData)
 		}
 		catch (const std::ios_base::failure& e)
 		{
-			LogSystem::LogError(StringUtil::Printf("Exception thrown, what %, code %", e.what(), e.code()), LogSystem::Category::IO);
+			_log_error(StringUtil::Printf("Exception thrown, what %, code %", e.what(), e.code()), LogSystem::Category::IO);
 			return false;
 		}
 	}
 	else
 	{
-		LogSystem::LogError(StringUtil::Printf("Can't open file: %", InPath), LogSystem::Category::IO);
+		_log_error(StringUtil::Printf("Can't open file: %", InPath), LogSystem::Category::IO);
 		return false;
 	}
 
@@ -62,7 +62,7 @@ bool FileUtil::Write(const std::string& InPath, const std::vector<uint8>& InData
 		}
 		catch (const std::ios_base::failure& e)
 		{
-			LogSystem::LogError(StringUtil::Printf("Exception thrown, what %, code %", e.what(), e.code()), LogSystem::Category::IO);
+			_log_error(StringUtil::Printf("Exception thrown, what %, code %", e.what(), e.code()), LogSystem::Category::IO);
 			return false;
 		}
 	}

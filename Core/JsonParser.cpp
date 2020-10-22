@@ -16,7 +16,7 @@ bool JsonParser::Parse(const std::string& InPath, Json::Value& OutRoot)
 
 		if (!parseFromStream(builder, ifs, &OutRoot, &errs))
 		{
-			LogSystem::LogError(errs, LogSystem::Category::JsonParser);
+			_log_error(errs, LogSystem::Category::JsonParser);
 			return false;
 		}
 
@@ -24,7 +24,7 @@ bool JsonParser::Parse(const std::string& InPath, Json::Value& OutRoot)
 	}
 	else
 	{
-		LogSystem::LogError("Can't open Json file \"" + InPath + "\"", LogSystem::Category::JsonParser);
+		_log_error("Can't open Json file \"" + InPath + "\"", LogSystem::Category::JsonParser);
 		return false;
 	}
 }

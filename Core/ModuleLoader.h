@@ -30,7 +30,7 @@ public:
 
 		if (m_pModule == nullptr)
 		{
-			LogSystem::LogError("Fail to load module [" + InModuleName + "]!", LogSystem::Category::ModuleLoader);
+			_log_error("Fail to load module [" + InModuleName + "]!", LogSystem::Category::ModuleLoader);
 			return false;
 		}
 		return true;
@@ -45,13 +45,13 @@ public:
 #endif
 			if (m_bResult == _false)
 			{
-				LogSystem::LogError("Fail to free module [" + m_moduleName + "]!", LogSystem::Category::ModuleLoader);
+				_log_error("Fail to free module [" + m_moduleName + "]!", LogSystem::Category::ModuleLoader);
 				return;
 			}
 		}
 		else
 		{
-			LogSystem::LogError("Fail to free module [" + m_moduleName + "], the module was not load!", LogSystem::Category::ModuleLoader);
+			_log_error("Fail to free module [" + m_moduleName + "], the module was not load!", LogSystem::Category::ModuleLoader);
 			return;
 		}
 	}
@@ -67,7 +67,7 @@ public:
 
 			if (api == nullptr)
 			{
-				LogSystem::LogError("Fail to find API [" + InInterfaceName + "]!", LogSystem::Category::ModuleLoader);
+				_log_error("Fail to find API [" + InInterfaceName + "]!", LogSystem::Category::ModuleLoader);
 				return nullptr;
 			}
 			return api;
@@ -75,7 +75,7 @@ public:
 		}
 		else
 		{
-			LogSystem::LogError("Fail to find API [" + InInterfaceName + "], the module [" + m_moduleName + "] was not load!", LogSystem::Category::ModuleLoader);
+			_log_error("Fail to find API [" + InInterfaceName + "], the module [" + m_moduleName + "] was not load!", LogSystem::Category::ModuleLoader);
 			return nullptr;
 		}
 	}
