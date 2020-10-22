@@ -5,6 +5,10 @@
 #pragma once
 
 #include "TypeDef.h"
+#include <chrono>
+
+using hclock = std::chrono::high_resolution_clock;
+using htime_point = hclock::time_point;
 
 class TimerUtil
 {
@@ -35,4 +39,32 @@ public:
 	};
 
 	static TimeStamp GetCurrentTimeStamp();
+
+	class PerformanceCounter
+	{
+	public:
+
+		void   BeginCounter      (const std::string& InName);
+		void   EndCounter        (const std::string& InName);
+		double GetCounterResult  (const std::string& InName);
+
+	private:
+
+		std::unordered_map<std::string, htime_point> m_counterBeginPoint;
+		std::unordered_map<std::string, double> m_counterResults;
+	};
+
+	class PerformanceScope
+	{
+
+	public:
+
+		PerformanceScope(const std::string& InScopeName);
+		~PerformanceScope();
+
+	private:
+
+		std::string m_scopeName;
+		htime_point m_beginPoint;
+	};
 };

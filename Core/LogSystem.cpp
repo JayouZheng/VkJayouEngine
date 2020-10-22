@@ -96,6 +96,7 @@ std::string LogSystem::LogInfo::CategoryToString() const
 	LOG_CATEGORY_TO_STRING(VkSmartPtr);
 	LOG_CATEGORY_TO_STRING(ModuleLoader);
 	LOG_CATEGORY_TO_STRING(PathParser);
+	LOG_CATEGORY_TO_STRING(PerformanceScope);
 
 	LOG_CATEGORY_TO_STRING(IO);
 	LOG_CATEGORY_TO_STRING(Memory);

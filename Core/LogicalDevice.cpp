@@ -1064,6 +1064,8 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 {
 	LogSystem::Log("Begin creating graphic pipeline with " + InJsonPath, LogSystem::Category::LogicalDevice);
 
+	TimerUtil::PerformanceScope scope(_name_of(CreateGraphicPipelines));
+
 	if (OutPipeline != nullptr) *OutPipeline = VK_NULL_HANDLE;
 
 	if (m_pBaseLayer == nullptr)
@@ -1563,10 +1565,6 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 
 	// TODO:
 
-
-
-	// for (...)
-	
 
 	LogSystem::Log("End creating graphic pipeline with " + InJsonPath, LogSystem::Category::LogicalDevice);
 

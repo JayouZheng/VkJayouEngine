@@ -37,6 +37,7 @@ public:
 		VkSmartPtr,
 		ModuleLoader,
 		PathParser,
+		PerformanceScope,
 
 		IO,
 		Memory,

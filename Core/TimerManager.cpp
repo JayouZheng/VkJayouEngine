@@ -4,6 +4,7 @@
 
 #include "TimerManager.h"
 #include "StringManager.h"
+#include "LogSystem.h"
 #include <ctime>
 
 namespace
@@ -75,4 +76,40 @@ std::string TimerUtil::TimeStamp::GetMonth() const
 std::string TimerUtil::TimeStamp::GetMonth_Ch() const
 {
     return ChMonthName[Month - 1];
+}
+
+void TimerUtil::PerformanceCounter::BeginCounter(const std::string& InName)
+{
+    if (m_counterResults.find(InName) != m_counterResults.end())
+        m_counterResults.erase(InName);
+    htime_point beginPoint = hclock::now();
+    m_counterBeginPoint[InName] = beginPoint;
+}
+
+void TimerUtil::PerformanceCounter::EndCounter(const std::string& InName)
+{
+    if (m_counterResults.find(InName) != m_counterResults.end())
+        return;
+    htime_point endPoint = hclock::now();
+    m_counterResults[InName] = std::chrono::duration_cast<std::chrono::duration<double>>(endPoint - m_counterBeginPoint[InName]).count();
+}
+
+double TimerUtil::PerformanceCounter::GetCounterResult(const std::string& InName)
+{
+    if (m_counterResults.find(InName) != m_counterResults.end())
+        return m_counterResults[InName];
+    else return 0.0f;
+}
+
+TimerUtil::PerformanceScope::PerformanceScope(const std::string& InScopeName)
+{
+    m_scopeName  = InScopeName;
+    m_beginPoint = hclock::now();
+}
+
+TimerUtil::PerformanceScope::~PerformanceScope()
+{
+    htime_point endPoint = hclock::now();
+    double result = std::chrono::duration_cast<std::chrono::duration<double>>(endPoint - m_beginPoint).count();
+    LogSystem::Log(StringUtil::Printf("Scope Name: %, Elapsed Time: %s", m_scopeName, result), LogSystem::Category::PerformanceScope);
 }
