@@ -1,0 +1,71 @@
+{
+    "renderpass_info":
+    {
+        "attachment_descriptions":
+        [
+            {
+                "flags": 0,
+                "format": "R8G8B8_UNORM",
+                "sample_count": 1,
+                "load_op": "clear",
+                "store_op": "store",
+                "stencil_load_op": "dont_care",
+                "stencil_store_op": "dont_care",
+                "in_state": "undefined",
+                "out_state": "present"
+            },
+            {}
+        ],
+        "subpass_descriptions":
+        [
+            {
+                "flags": 0,
+                "pipeline_bind_point": "graphics",
+                "input_attachments":
+                [
+                    {
+                        "attachment_id": 0,
+                        "state": "optimal"
+                    },
+                    {}
+                ],
+                "color_attachments":
+                [
+                    {
+                        "attachment_id": 0,
+                        "state": "optimal"
+                    },
+                    {}
+                ],
+                "resolve_attachments":
+                [
+                    {
+                        "attachment_id": 0,
+                        "state": "optimal"
+                    },
+                    {}
+                ],
+                "preserve_attachments_id": [ 0, 1 ],
+                "depth_attachment":
+                {
+                    "attachment_id": 0,
+                    "state": "optimal"
+                }
+            },
+            {}
+        ],
+        "subpass_dependencies":
+        [
+            {
+                "src_subpass_id": 0,
+                "dst_subpass_id": 1,
+                "src_stage_mask": "bottom",
+                "dst_stage_mask": "color_output",
+                "src_access_mask": "memory_read",
+                "dst_access_mask": "color_read_write",
+                "dependency_flags": "region"
+            },
+            {}
+        ]
+    }
+}

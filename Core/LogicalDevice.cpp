@@ -1559,6 +1559,8 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 		graphicInfos[i].layout = *pPipelineLayout;
 
 		_log_error("test", LogSystem::Category::LogicalDevice);
+
+		// TODO: XXXflags need to be support array ( xxx | xxx | xxx ).
 	}
 
 	// _vk_try(vkCreateGraphicsPipelines(m_device, InPipCache, numGInfo, graphicInfos, GetVkAllocator(), OutPipeline));
