@@ -4,8 +4,6 @@
 
 #include "BaseLayer.h"
 
-#define _bret_false_log(b, log) if (b) { LogSystem::LogError(log, LogSystem::Category::CommandList); return false; }
-
 CommandList::CommandList(BaseLayer* InBaseLayer)
 	: m_pBaseLayer(InBaseLayer)
 {
@@ -77,10 +75,22 @@ void CommandList::CopyBuffer(VkBuffer InSrcBuffer, VkBuffer InDstBuffer)
 }
 
 bool CommandList::CopyBuffer(VkBuffer InSrcBuffer, VkBuffer InDstBuffer, const VkBufferCopy& InRegion)
-{
-	_bret_false_log(InRegion.srcOffset % 4 != 0, _str_name_of(CopyBuffer) + ", SrcOffset is not a multiple of 4!");
-	_bret_false_log(InRegion.dstOffset % 4 != 0, _str_name_of(CopyBuffer) + ", DstOffset is not a multiple of 4!");
-	_bret_false_log(InRegion.size % 4      != 0, _str_name_of(CopyBuffer) + ", Size is not a multiple of 4!");
+{	
+	if (InRegion.srcOffset % 4 != 0)
+	{
+		_log_error(_str_name_of(CopyBuffer) + ", SrcOffset is not a multiple of 4!", LogSystem::Category::CommandList);
+		return false;
+	}
+	if (InRegion.dstOffset % 4 != 0)
+	{
+		_log_error(_str_name_of(CopyBuffer) + ", DstOffset is not a multiple of 4!", LogSystem::Category::CommandList);
+		return false;
+	}
+	if (InRegion.size % 4 != 0)
+	{
+		_log_error(_str_name_of(CopyBuffer) + ", Size is not a multiple of 4!", LogSystem::Category::CommandList);
+		return false;
+	}
 
 	vkCmdCopyBuffer(m_cmdBuffer, InSrcBuffer, InDstBuffer, _count_1, &InRegion);
 
@@ -104,8 +114,16 @@ void CommandList::ClearBufferFloat(VkBuffer InBuffer, const float InValue)
 
 bool CommandList::ClearBufferUint32(VkBuffer InBuffer, VkDeviceSize InOffset, VkDeviceSize InSize, const uint32 InValue)
 {
-	_bret_false_log(InOffset % 4 != 0, _str_name_of(ClearBufferUint32) + ", Offset is not a multiple of 4!");
-	_bret_false_log(InSize % 4   != 0, _str_name_of(ClearBufferUint32) + ", Size is not a multiple of 4!");
+	if (InOffset % 4 != 0)
+	{
+		_log_error(_str_name_of(ClearBufferUint32) + ", Offset is not a multiple of 4!", LogSystem::Category::CommandList);
+		return false;
+	}
+	if (InSize % 4 != 0)
+	{
+		_log_error(_str_name_of(ClearBufferUint32) + ", Size is not a multiple of 4!", LogSystem::Category::CommandList);
+		return false;
+	}
 
 	vkCmdFillBuffer(m_cmdBuffer, InBuffer, InOffset, InSize, InValue);
 
@@ -114,8 +132,16 @@ bool CommandList::ClearBufferUint32(VkBuffer InBuffer, VkDeviceSize InOffset, Vk
 
 bool CommandList::ClearBufferFloat(VkBuffer InBuffer, VkDeviceSize InOffset, VkDeviceSize InSize, const float InValue)
 {
-	_bret_false_log(InOffset % 4 != 0, _str_name_of(ClearBufferFloat) + ", Offset is not a multiple of 4!");
-	_bret_false_log(InSize % 4   != 0, _str_name_of(ClearBufferFloat) + ", Size is not a multiple of 4!");
+	if (InOffset % 4 != 0)
+	{
+		_log_error(_str_name_of(ClearBufferFloat) + ", Offset is not a multiple of 4!", LogSystem::Category::CommandList);
+		return false;
+	}
+	if (InSize % 4 != 0)
+	{
+		_log_error(_str_name_of(ClearBufferFloat) + ", Size is not a multiple of 4!", LogSystem::Category::CommandList);
+		return false;
+	}
 
 	vkCmdFillBuffer(m_cmdBuffer, InBuffer, InOffset, InSize, *(const uint32*)&InValue);
 
@@ -124,9 +150,21 @@ bool CommandList::ClearBufferFloat(VkBuffer InBuffer, VkDeviceSize InOffset, VkD
 
 bool CommandList::UpdateBuffer(VkBuffer InBuffer, VkDeviceSize InOffset, VkDeviceSize InSize, const void* InData)
 {
-	_bret_false_log(InOffset % 4 != 0, _str_name_of(UpdateBuffer) + ", Offset is not a multiple of 4!");
-	_bret_false_log(InSize % 4   != 0, _str_name_of(UpdateBuffer) + ", Size is not a multiple of 4!");
-	_bret_false_log(InSize > 65536u,   _str_name_of(UpdateBuffer) + ", The maximum size of data that can be placed in a buffer with vkCmdUpdateBuffer() is 65,536 bytes!");
+	if (InOffset % 4 != 0)
+	{
+		_log_error(_str_name_of(UpdateBuffer) + ", Offset is not a multiple of 4!", LogSystem::Category::CommandList);
+		return false;
+	}
+	if (InSize % 4 != 0)
+	{
+		_log_error(_str_name_of(UpdateBuffer) + ", Size is not a multiple of 4!", LogSystem::Category::CommandList);
+		return false;
+	}
+	if (InSize > 65536u)
+	{
+		_log_error(_str_name_of(UpdateBuffer) + ", The maximum size of data that can be placed in a buffer with vkCmdUpdateBuffer() is 65,536 bytes!", LogSystem::Category::CommandList);
+		return false;
+	}
 
 	vkCmdUpdateBuffer(m_cmdBuffer, InBuffer, InOffset, InSize, InData);
 

@@ -147,8 +147,9 @@ public:
 		VkMemoryPropertyFlags InPreferredFlags,
 		VkMemoryPropertyFlags InRequiredFlags);
 
-	LogicalDevice          GetLogicalDevice() const;
-	VkPhysicalDeviceLimits GetMainPDLimits () const;
+	LogicalDevice                      GetLogicalDevice() const;
+	const VkPhysicalDeviceLimits&      GetMainPDLimits () const;
+	const VkPhysicalDeviceProperties&  GetMainPDProps  () const;
 
 public:
 

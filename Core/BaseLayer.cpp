@@ -6,9 +6,6 @@
 #include "BaseAllocator.h"
 #include "Global.h"
 #include "Utility.h"
-#include "DiskResourceLoader.h"
-
-#define _bret_false_log(b, log) if (b) { LogSystem::LogError(log, LogSystem::Category::BaseLayer); return false; }
 
 VkAllocationCallbacks* BaseLayer::GetVkAllocator() const
 {
@@ -123,7 +120,12 @@ bool BaseLayer::Init()
 		// Enum physical devices.
 		uint32 physicalDeviceCount = _count_0;
 		_vk_try(vkEnumeratePhysicalDevices(Global::GetVkInstance(), &physicalDeviceCount, nullptr));
-		_bret_false_log(physicalDeviceCount == 0, "Can't find any physical devices on the host!");
+
+		if (physicalDeviceCount == 0)
+		{
+			_log_error("Can't find any physical devices on the host!", LogSystem::Category::BaseLayer);
+			return false;
+		}
 
 		m_physicalDevices.resize(physicalDeviceCount);
 		_vk_try(vkEnumeratePhysicalDevices(Global::GetVkInstance(), &physicalDeviceCount, m_physicalDevices.data()));
@@ -204,7 +206,11 @@ bool BaseLayer::Init()
 			}
 		}
 
-		_bret_false_log(m_mainPDIndex == -1, "Can't find any valid physical devices on the host!");
+		if (m_mainPDIndex == -1)
+		{
+			_log_error("Can't find any valid physical devices on the host!", LogSystem::Category::BaseLayer);
+			return false;
+		}
 	}
 
 	// Create VK Logical Devices & Get Queue & Create Command Pool.
@@ -219,7 +225,11 @@ bool BaseLayer::Init()
 			else ++graphicQueueFamilyIndex;			
 		}
 
-		_bret_false_log(m_mainQFIndex == -1, "Can't find any Valid Graphic & Compute Queue Family!");
+		if (m_mainQFIndex == -1)
+		{
+			_log_error("Can't find any Valid Graphic & Compute Queue Family!", LogSystem::Category::BaseLayer);
+			return false;
+		}
 		
 		VkDeviceQueueCreateInfo deviceQueueCreateInfo = {};
 		deviceQueueCreateInfo.sType                   = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
@@ -296,7 +306,12 @@ bool BaseLayer::Init()
 		if (Util::IsVecContain<const char*>(m_supportInsExts, VK_KHR_WIN32_SURFACE_EXTENSION_NAME, _lambda_is_cstr_equal))
 		{
 			VkBool32 bIsDefaultQueueSupportPresentation = vkGetPhysicalDeviceWin32PresentationSupportKHR(m_physicalDevices[m_mainPDIndex], m_mainQFIndex);
-			_bret_false_log(bIsDefaultQueueSupportPresentation == VK_FALSE, "The Default Queue Do Not Support Presentation (Win32)!");
+
+			if (bIsDefaultQueueSupportPresentation == VK_FALSE)
+			{
+				_log_error("The Default Queue Do Not Support Presentation (Win32)!", LogSystem::Category::BaseLayer);
+				return false;
+			}
 
 			m_pWindow = new Window;
 			if (!m_pWindow->Init()) return false;
@@ -328,7 +343,12 @@ bool BaseLayer::Init()
 			{
 				uint32 formatCount = _count_0;
 				_vk_try(vkGetPhysicalDeviceSurfaceFormatsKHR(m_physicalDevices[m_mainPDIndex], *m_pSurface, &formatCount, nullptr));
-				_bret_false_log(formatCount == 0, "No Surface Format Support!");
+
+				if (formatCount == 0)
+				{
+					_log_error("No Surface Format Support!", LogSystem::Category::BaseLayer);
+					return false;
+				}
 
 				m_surfaceFormats.resize(formatCount);
 				_vk_try(vkGetPhysicalDeviceSurfaceFormatsKHR(m_physicalDevices[m_mainPDIndex], *m_pSurface, &formatCount, m_surfaceFormats.data()));
@@ -356,7 +376,12 @@ bool BaseLayer::Init()
 					m_swapchainCreateInfo.minImageCount = BaseLayerConfig::SwapchainCreateInfo.frameCount;
 				else m_swapchainCreateInfo.minImageCount = m_surfaceCapabilities.minImageCount;
 
-				_bret_false_log(!(m_surfaceCapabilities.supportedUsageFlags & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT), "Surface Do Not Support Color Attachment Usage!");
+				if (!(m_surfaceCapabilities.supportedUsageFlags & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT))
+				{
+					_log_error("Surface Do Not Support Color Attachment Usage!", LogSystem::Category::BaseLayer);
+					return false;
+				}
+
 				m_swapchainCreateInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT & BaseLayerConfig::SwapchainCreateInfo.imageUsage;
 
 				if (BaseLayerConfig::SwapchainCreateInfo.surfacePreTransform & m_surfaceCapabilities.supportedTransforms)
@@ -379,14 +404,23 @@ bool BaseLayer::Init()
 			{
 				VkBool32 surfacePresentationSupport = VK_FALSE;
 				_vk_try(vkGetPhysicalDeviceSurfaceSupportKHR(m_physicalDevices[m_mainPDIndex], m_mainQFIndex, *m_pSurface, &surfacePresentationSupport));
-				_bret_false_log(surfacePresentationSupport == VK_FALSE, "The Default Queue Do Not Support Presentation!");
+
+				if (surfacePresentationSupport == VK_FALSE)
+				{
+					_log_error("The Default Queue Do Not Support Presentation!", LogSystem::Category::BaseLayer);
+					return false;
+				}
 			}
 			
 		}
-		else _bret_false_log(true, "Create Swapchain Failed! Application Terminate!");
+		else
+		{
+			_log_error("Create Swapchain Failed! Application Terminate!", LogSystem::Category::BaseLayer);
+			return false;
+		}
 
 		// TODO:
-		m_device.CreateGraphicPipelines(nullptr, DiskResourceLoader::Load("Json/graphic_pipeline_info.json"));
+		m_device.CreateGraphicPipelines(nullptr, PathParser::Parse("Json/graphic_pipeline_info.json"));
 		
 		//m_pWindow->Show();
 	}
@@ -496,9 +530,14 @@ LogicalDevice BaseLayer::GetLogicalDevice() const
 	return m_device;
 }
 
-VkPhysicalDeviceLimits BaseLayer::GetMainPDLimits() const
+const VkPhysicalDeviceLimits& BaseLayer::GetMainPDLimits() const
 {
 	return m_physicalDevicesProps[m_mainPDIndex].limits;
+}
+
+const VkPhysicalDeviceProperties& BaseLayer::GetMainPDProps() const
+{
+	return m_physicalDevicesProps[m_mainPDIndex];
 }
 
 void BaseLayer::CheckFormatSupport(const std::vector<VkFormat>& InCheckFormats, std::vector<VkFormatProperties>& OutFormatProps)

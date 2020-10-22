@@ -6,6 +6,7 @@
 
 #include "Color.h"
 #include "TimerManager.h"
+#include "StringManager.h"
 
 using namespace ColorUtil;
 
@@ -35,7 +36,10 @@ public:
 		JsonParser, 
 		VkSmartPtr,
 		ModuleLoader,
-		DiskResourceLoader,
+		PathParser,
+
+		IO,
+		Memory,
 
 
 		// Keep it for future use.
@@ -73,3 +77,6 @@ public:
 	static void LogWarning (const std::string& InLog, const Category& InCategory = Category::Unknown);
 	static void LogWarning (const std::string& InLog, const std::string& InCategory);
 };
+
+#define _log_warning(log, category) LogSystem::LogWarning(StringUtil::Printf("% (Detail at file: %, line %)", log, __FILE__, __LINE__), category);
+#define _log_error(log, category)   LogSystem::LogError(StringUtil::Printf("% (Detail at file: %, line %)", log, __FILE__, __LINE__), category);

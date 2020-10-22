@@ -50,6 +50,8 @@ public:
 
 	static uint32                      StrHexToNumeric   (const std::string& InHexStr);
 
+	static std::string                 UUIDToString      (const uint8* InUUID);
+
 public:
 
 	// Extended utilities.

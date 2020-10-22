@@ -8,14 +8,9 @@
 #include "BaseAllocator.h"
 #include "LogicalDevice.h"
 #include "StringManager.h"
-#include "DiskResourceLoader.h"
 #include "Utility.h"
 #include "StringMapper.h"
-
-#define _ret_false_log(log)                    { LogSystem::LogError(log, LogSystem::Category::LogicalDevice); return false; }
-#define _bret_false_log(b, log)                if (b) { LogSystem::LogError(log, LogSystem::Category::LogicalDevice); return false; }
-#define _jverify_ret_false_log(json_key, log)  if ((json_key) == Json::nullValue) { LogSystem::LogError(log, LogSystem::Category::LogicalDevice); return false; }
-#define _is_guaranteed_min(x, min_val, y)      if (Util::IsVkGuaranteedMinimum<uint32>(x, min_val)) x = std::min(x, y);
+#include "FileManager.h"
 
 VkAllocationCallbacks* LogicalDevice::GetVkAllocator() const
 {
@@ -186,32 +181,17 @@ bool LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const ch
 			*OutShaderModule = VK_NULL_HANDLE;
 			LogSystem::LogError(spvData->log, LogSystem::Category::GLSLCompiler);
 			LogSystem::LogError(spvData->debug_log, LogSystem::Category::GLSLCompiler);
-			_ret_false_log("Error: Compiling shader file \"" + std::string(InShaderPath) + "\" failed!");
+
+			_log_error(StringUtil::Printf("Compiling shader file \"%\" failed!", InShaderPath), LogSystem::Category::GLSLCompiler);
+			return false;
 		}
 	}
 	else
 	{
-		std::ifstream is(InShaderPath, std::ios::binary | std::ios::in | std::ios::ate);
-
-		if (is.is_open())
-		{
-			size_t size = (size_t)is.tellg();
-			_bret_false_log(size == -1, _str_name_of(CreateShaderModule) + ", file size go to -1(at std::istream::tellg)!");
-
-			is.seekg(0, std::ios::beg);
-			char* shaderCode = new char[size];
-			is.read(shaderCode, size);
-			is.close();
-
-			this->CreateShaderModule(OutShaderModule, (uint32*)shaderCode, size);
-
-			delete[] shaderCode;
-		}
-		else
-		{
-			*OutShaderModule = VK_NULL_HANDLE;
-			_ret_false_log("Error: Could not open shader file \"" + std::string(InShaderPath) + "\"");
-		}
+		std::vector<uint8> shaderCode;
+		if (!FileUtil::Read(InShaderPath, shaderCode))
+			return false;
+		this->CreateShaderModule(OutShaderModule, (uint32*)shaderCode.data(), shaderCode.size());
 	}
 	
 	return true;
@@ -270,9 +250,28 @@ void LogicalDevice::CreatePipelineCache(VkPipelineCache* OutPipCache, const VkPi
 	_vk_try(vkCreatePipelineCache(m_device, &InCreateInfo, GetVkAllocator(), OutPipCache));
 }
 
-void LogicalDevice::CreatePipelineCache(VkPipelineCache* OutPipCache, const VkPhysicalDeviceProperties& InPDProp)
+void LogicalDevice::CreatePipelineCache(VkPipelineCache* OutPipCache, const void* InData, size_t InSize, VkPipelineCacheCreateFlags InFlags)
 {
-	PipelineCacheHeader pipCacheHeader = PipelineCacheHeader(InPDProp);
+	VkPipelineCacheCreateInfo pipelineCacheInfo = {};
+	pipelineCacheInfo.sType           = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
+	pipelineCacheInfo.initialDataSize = InSize;
+	pipelineCacheInfo.pInitialData    = InData;
+	pipelineCacheInfo.flags           = InFlags;
+
+	this->CreatePipelineCache(OutPipCache, pipelineCacheInfo);
+}
+
+bool LogicalDevice::CreateEmptyPipelineCache(VkPipelineCache* OutPipCache)
+{
+	if (m_pBaseLayer == nullptr)
+	{
+		*OutPipCache = VK_NULL_HANDLE;
+
+		LogSystem::LogError("Func: " + _str_name_of(CreateEmptyPipelineCache) + " expect to Query Physical Device Limits!", LogSystem::Category::LogicalDevice);
+		return false;
+	}
+
+	PipelineCacheHeader pipCacheHeader = PipelineCacheHeader(m_pBaseLayer->GetMainPDProps());
 
 	VkPipelineCacheCreateInfo pipCacheCreateInfo = {};
 	pipCacheCreateInfo.sType           = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
@@ -280,6 +279,111 @@ void LogicalDevice::CreatePipelineCache(VkPipelineCache* OutPipCache, const VkPh
 	pipCacheCreateInfo.pInitialData    = pipCacheHeader.GetData();
 
 	_vk_try(vkCreatePipelineCache(m_device, &pipCacheCreateInfo, GetVkAllocator(), OutPipCache));
+
+	return true;
+}
+
+bool LogicalDevice::CreatePipelineCacheFromFile(VkPipelineCache* OutPipCache, const char* InPath)
+{
+	if (m_pBaseLayer == nullptr)
+	{
+		*OutPipCache = VK_NULL_HANDLE;
+
+		LogSystem::LogError("Func: " + _str_name_of(CreatePipelineCacheFromFile) + " expect to Query Physical Device Limits!", LogSystem::Category::LogicalDevice);
+		return false;
+	}
+
+	std::vector<uint8> cacheData;
+
+	if (!FileUtil::Read(InPath, cacheData))
+		return false;
+
+	if (!cacheData.empty())
+	{
+		// clang-format off
+		//
+		// Check for cache validity
+		//
+		// TODO: Update this as the spec evolves. The fields are not defined by the header.
+		//
+		// The code below supports SDK 0.10 Vulkan spec, which contains the following table:
+		//
+		// Offset	 Size            Meaning
+		// ------    ------------    ------------------------------------------------------------------
+		//      0               4    a device ID equal to VkPhysicalDeviceProperties::DeviceId written
+		//                           as a stream of bytes, with the least significant byte first
+		//
+		//      4    VK_UUID_SIZE    a pipeline cache ID equal to VkPhysicalDeviceProperties::pipelineCacheUUID
+		//
+		//
+		// The code must be updated for latest Vulkan spec, which contains the following table:
+		//
+		// Offset	 Size            Meaning
+		// ------    ------------    ------------------------------------------------------------------
+		//      0               4    length in bytes of the entire pipeline cache header written as a
+		//                           stream of bytes, with the least significant byte first
+		//      4               4    a VkPipelineCacheHeaderVersion value written as a stream of bytes,
+		//                           with the least significant byte first
+		//      8               4    a vendor ID equal to VkPhysicalDeviceProperties::vendorID written
+		//                           as a stream of bytes, with the least significant byte first
+		//     12               4    a device ID equal to VkPhysicalDeviceProperties::deviceID written
+		//                           as a stream of bytes, with the least significant byte first
+		//     16    VK_UUID_SIZE    a pipeline cache ID equal to VkPhysicalDeviceProperties::pipelineCacheUUID
+		//
+		// clang-format on
+		PipelineCacheHeader pipCacheHearder = {};
+
+		memcpy(&pipCacheHearder.Length,   cacheData.data() + 0,  4);
+		memcpy(&pipCacheHearder.Version,  cacheData.data() + 4,  4);
+		memcpy(&pipCacheHearder.VendorID, cacheData.data() + 8,  4);
+		memcpy(&pipCacheHearder.DeviceID, cacheData.data() + 12, 4);
+		memcpy( pipCacheHearder.UUID,     cacheData.data() + 16, VK_UUID_SIZE);
+
+		// Check each field and report bad values before freeing existing cache.
+		bool badCache = false;
+
+		if (pipCacheHearder.Length <= 0)
+		{
+			badCache = true;
+			LogSystem::LogError(StringUtil::Printf("Bad header length in %, value is %", InPath, pipCacheHearder.Length), LogSystem::Category::LogicalDevice);
+		}
+
+		if (pipCacheHearder.Version != VK_PIPELINE_CACHE_HEADER_VERSION_ONE)
+		{
+			badCache = true;
+			LogSystem::LogError(StringUtil::Printf("Unsupported cache header version in %, value is %", InPath, pipCacheHearder.Version), LogSystem::Category::LogicalDevice);
+		}
+
+		if (pipCacheHearder.VendorID != m_pBaseLayer->GetMainPDProps().vendorID)
+		{
+			badCache = true;
+			LogSystem::LogError(StringUtil::Printf("Vendor ID mismatch in %, value is %, Driver expects: %", InPath, pipCacheHearder.VendorID, m_pBaseLayer->GetMainPDProps().vendorID), LogSystem::Category::LogicalDevice);
+		}
+
+		if (pipCacheHearder.DeviceID != m_pBaseLayer->GetMainPDProps().deviceID)
+		{
+			badCache = true;
+			LogSystem::LogError(StringUtil::Printf("Device ID mismatch in %, value is %, Driver expects: %", InPath, pipCacheHearder.DeviceID, m_pBaseLayer->GetMainPDProps().deviceID), LogSystem::Category::LogicalDevice);
+		}
+
+		if (memcmp(pipCacheHearder.UUID, m_pBaseLayer->GetMainPDProps().pipelineCacheUUID, sizeof(pipCacheHearder.UUID)) != 0)
+		{
+			badCache = true;
+			LogSystem::LogError(StringUtil::Printf("UUID ID mismatch in %, value is %, Driver expects: %", InPath, StringUtil::UUIDToString(pipCacheHearder.UUID), StringUtil::UUIDToString(m_pBaseLayer->GetMainPDProps().pipelineCacheUUID)), LogSystem::Category::LogicalDevice);
+		}
+
+		if (badCache)
+		{
+			LogSystem::LogError(StringUtil::Printf("Deleting cache entry % to repopulate.", InPath), LogSystem::Category::LogicalDevice);
+			if (remove(InPath) != 0)
+				LogSystem::LogError("Deleting error", LogSystem::Category::IO);
+			return false;
+		}
+	}
+
+	this->CreatePipelineCache(OutPipCache, cacheData.data(), cacheData.size());
+
+	return true;
 }
 
 size_t LogicalDevice::GetPipelineCacheDataSize(VkPipelineCache InPipCache)
@@ -294,71 +398,33 @@ void LogicalDevice::GetPipelineCacheData(VkPipelineCache InPipCache, size_t InDa
 	_vk_try(vkGetPipelineCacheData(m_device, InPipCache, &InDataSize, OutData));
 }
 
-bool LogicalDevice::SavePipelineCacheToFile(VkPipelineCache InPipCache, const char* InPath)
+void LogicalDevice::GetPipelineCacheData(VkPipelineCache InPipCache, std::vector<uint8>& OutData)
 {
-#if 0
-	FILE* pOutputFile;
+	OutData.resize(this->GetPipelineCacheDataSize(InPipCache));
+	this->GetPipelineCacheData(InPipCache, OutData.size(), OutData.data());
+}
 
-	size_t dataSize = GetPipelineCacheDataSize(InPipCache);
-	void* pData = malloc(dataSize);
-
-	if (pData != nullptr)
+bool LogicalDevice::SavePipelineCacheToFile(const char* InPath)
+{
+	_declare_vk_smart_ptr(VkPipelineCache, pMergedPipCache);
+	if (!this->CreateEmptyPipelineCache(pMergedPipCache.MakeInstance()))
+		return false;
+	
+	// Merge old pipeline caches into new one.
+	if (!m_pipelineCaches.empty())
 	{
-		GetPipelineCacheData(InPipCache, dataSize, pData);
-
-		pOutputFile = fopen_s(InPath, "wb");
-
-		if (pOutputFile != nullptr)
-		{
-			fwrite(pData, 1, dataSize, pOutputFile);
-
-			fclose(pOutputFile);
-
-			free(pData);
-			return true;
-		}
-		else
-		{
-			free(pData);
-			return false;
-		}		
+		this->MergePipelineCaches(*pMergedPipCache, m_pipelineCaches.data(), (uint32)m_pipelineCaches.size());
+		m_pipelineCaches.clear();
+		m_pipelineCachePtrs.clear();
 	}
 
-	return false;
-#endif
+	m_pipelineCaches.push_back(*pMergedPipCache);
+	m_pipelineCachePtrs.push_back(pMergedPipCache);
 
-#if 1
-	std::ofstream ofs;
+	std::vector<uint8> cacheData;
+	this->GetPipelineCacheData(*pMergedPipCache, cacheData);
 
-	size_t dataSize = GetPipelineCacheDataSize(InPipCache);
-	byte* pData = new byte[dataSize];
-
-	if (pData != nullptr)
-	{
-		GetPipelineCacheData(InPipCache, dataSize, pData);
-
-		try
-		{
-			ofs.open(InPath, std::ofstream::out | std::ofstream::binary);
-
-			ofs.write((char*)pData, dataSize);
-
-			ofs.close();
-
-			delete[] pData;
-			return true;
-		}
-		catch (const std::exception& e)
-		{
-			LogSystem::LogError(e.what(), LogSystem::Category::LogicalDevice);
-
-			delete[] pData;
-			return false;
-		}
-	}
-
-	return false;
-#endif
+	return FileUtil::Write(InPath, cacheData);
 }
 
 void LogicalDevice::MergePipelineCaches(VkPipelineCache OutMergedPipCache, const VkPipelineCache* InPipCaches, uint32 InSrcPipCacheCount)
@@ -842,11 +908,15 @@ bool LogicalDevice::CreateFrameBuffer(VkFramebuffer* OutFrameBuffer, const VkFra
 		
 	VkFramebufferCreateInfo frameBufferCreateInfo = InCreateInfo;
 
-	_is_guaranteed_min(frameBufferCreateInfo.width,  4096, m_pBaseLayer->GetMainPDLimits().maxFramebufferWidth );
-	_is_guaranteed_min(frameBufferCreateInfo.height, 4096, m_pBaseLayer->GetMainPDLimits().maxFramebufferHeight);
-	_is_guaranteed_min(frameBufferCreateInfo.layers, 256,  m_pBaseLayer->GetMainPDLimits().maxFramebufferLayers);
+	if (InCreateInfo.width  > m_pBaseLayer->GetMainPDLimits().maxFramebufferWidth  ||
+		InCreateInfo.height > m_pBaseLayer->GetMainPDLimits().maxFramebufferHeight ||
+		InCreateInfo.layers > m_pBaseLayer->GetMainPDLimits().maxFramebufferLayers)
+	{
+		LogSystem::LogError(StringUtil::Printf("Buffer size exceeds physical device limit at: %", _name_of(CreateFrameBuffer)), LogSystem::Category::LogicalDevice);
+		return false;
+	}
 
-	_vk_try(vkCreateFramebuffer(m_device, &frameBufferCreateInfo, GetVkAllocator(), OutFrameBuffer));
+	_vk_try(vkCreateFramebuffer(m_device, &InCreateInfo, GetVkAllocator(), OutFrameBuffer));
 
 	return true;
 }
@@ -870,9 +940,13 @@ bool LogicalDevice::CreateFrameBuffer(VkFramebuffer* OutFrameBuffer, VkRenderPas
 	frameBufferCreateInfo.height          = InSize.height;
 	frameBufferCreateInfo.layers          = InSize.depth;
 
-	_is_guaranteed_min(frameBufferCreateInfo.width,  4096, m_pBaseLayer->GetMainPDLimits().maxFramebufferWidth );
-	_is_guaranteed_min(frameBufferCreateInfo.height, 4096, m_pBaseLayer->GetMainPDLimits().maxFramebufferHeight);
-	_is_guaranteed_min(frameBufferCreateInfo.layers, 256,  m_pBaseLayer->GetMainPDLimits().maxFramebufferLayers);
+	if (frameBufferCreateInfo.width  > m_pBaseLayer->GetMainPDLimits().maxFramebufferWidth  ||
+		frameBufferCreateInfo.height > m_pBaseLayer->GetMainPDLimits().maxFramebufferHeight ||
+		frameBufferCreateInfo.layers > m_pBaseLayer->GetMainPDLimits().maxFramebufferLayers)
+	{
+		LogSystem::LogError(StringUtil::Printf("Buffer size exceeds physical device limit at: %", _name_of(CreateFrameBuffer)), LogSystem::Category::LogicalDevice);
+		return false;
+	}
 
 	_vk_try(vkCreateFramebuffer(m_device, &frameBufferCreateInfo, GetVkAllocator(), OutFrameBuffer));
 
@@ -1001,12 +1075,18 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 	}
 
 	Json::Value root;
-	_bret_false_log(!JsonParser::Parse(InJsonPath, root), _str_name_of(CreateGraphicPipelines) + " Failed! Not Valid File Path!");
 
-	// TODO:
-	// Create an enum map json key's string name.
+	if (!JsonParser::Parse(InJsonPath, root))
+	{
+		_log_error("Func: " + _str_name_of(CreateGraphicPipelines) + " failed! not a valid json file path!", LogSystem::Category::LogicalDevice);
+		return false;
+	}
 
-	_jverify_ret_false_log(root[StringMapper::Map[(size_t)StringMapper::ID::vk_graphic_pipeline_infos]], "json file: [graphic_pipeline_infos] can not be null!");
+	if (root[StringMapper::Map[(size_t)StringMapper::ID::vk_graphic_pipeline_infos]] == Json::nullValue)
+	{
+		LogSystem::LogError("json file: [graphic_pipeline_infos] can not be null!", LogSystem::Category::JsonParser);
+		return false;
+	}
 	
 	bool   bIsArray = root[StringMapper::Map[(size_t)StringMapper::ID::vk_graphic_pipeline_infos]].isArray();
 	uint32 numGInfo = bIsArray ? root[StringMapper::Map[(size_t)StringMapper::ID::vk_graphic_pipeline_infos]].size() : _count_1;
@@ -1036,6 +1116,7 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 	std::vector<VkPipelineDynamicStateCreateInfo>                 pipelineDynamicStateInfos;
 	std::vector<std::vector<VkPipelineColorBlendAttachmentState>> colorBlendAttachmentStates;
 	std::vector<std::vector<VkDynamicState>>                      dynamicStates;
+	std::vector<VkSmartPtr<VkPipelineLayout>>                     pPipelineLayouts;
 
 	graphicInfos.resize(numGInfo);
 	shaderInfos.resize(numGInfo);
@@ -1075,7 +1156,11 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 		graphicInfos[i].flags = JsonParser::GetUInt32(graphicInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_pipeline_flags]]);
 
 		// Pipeline Stage.
-		_jverify_ret_false_log(graphicInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_pipeline_stages_infos]], "json file: [pipeline_stages_infos] can not be null!");
+		if (graphicInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_pipeline_stages_infos]] == Json::nullValue)
+		{
+			LogSystem::LogError("json file: [pipeline_stages_infos] can not be null!", LogSystem::Category::JsonParser);
+			return false;
+		}
 		
 		bIsArray            = graphicInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_pipeline_stages_infos]].isArray();
 		uint32 numStageInfo = bIsArray ? graphicInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_pipeline_stages_infos]].size() : _count_1;
@@ -1097,7 +1182,7 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 
 			_declare_vk_smart_ptr(VkShaderModule, pShaderModule);
 			VkShaderStageFlags currentShaderStage, userDefinedShaderStage;
-			this->CreateShaderModule(pShaderModule.MakeInstance(), DiskResourceLoader::Load(shaderPath).data(), shaderEntrypoints[i * numStageInfo + j].c_str(), &currentShaderStage);
+			this->CreateShaderModule(pShaderModule.MakeInstance(), PathParser::Parse(shaderPath).data(), shaderEntrypoints[i * numStageInfo + j].c_str(), &currentShaderStage);
 
 			shaderModules.push_back(pShaderModule);
 
@@ -1138,7 +1223,11 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 					case Json::ValueType::uintValue:    specMaps[i][k].size = sizeof(uint32);   _reinterpret_data(specData[i][k], value.asUInt());  break;
 					case Json::ValueType::realValue:    specMaps[i][k].size = sizeof(float);    _reinterpret_data(specData[i][k], value.asFloat()); break;
 					case Json::ValueType::booleanValue: specMaps[i][k].size = sizeof(VkBool32); _reinterpret_data(specData[i][k], value.asBool());  break;
-					default: _ret_false_log("json file: not support [specialization_constants] value type!");
+					default: 
+					{
+						_log_error("json file: not support [specialization_constants] value type!", LogSystem::Category::JsonParser);
+						return false;
+					}
 					}
 					//////////////////////////////////////////////////////////////
 				}				
@@ -1161,7 +1250,11 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 
 		// Vertex Input State.
 		graphicInfos[i].pVertexInputState = &vertexInputStateInfos[i];
-		_jverify_ret_false_log(graphicInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_vertex_input_attributes]], "json file: [vertex_input_attributes] can not be null!");
+		if (graphicInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_vertex_input_attributes]] == Json::nullValue)
+		{
+			LogSystem::LogError("json file: [vertex_input_attributes] can not be null!", LogSystem::Category::JsonParser);
+			return false;
+		}
 
 		// Bindings.
 		bIsArray          = graphicInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_vertex_input_attributes]].isArray();
@@ -1260,11 +1353,31 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 				auto& viewport = bIsArray ? viewportInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_viewports]][j] : viewportInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_viewports]];
 				auto& scissor  = viewportInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_scissor_rectangles]].isArray() ? viewportInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_scissor_rectangles]][j] : viewportInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_scissor_rectangles]];
 
-				_bret_false_log(!viewport[StringMapper::Map[(size_t)StringMapper::ID::vk_position]].isArray(),    "json file: viewport [position] must be an array [ first, second ]!"   );
-				_bret_false_log(!viewport[StringMapper::Map[(size_t)StringMapper::ID::vk_size]].isArray(),        "json file: viewport [size] must be an array [ first, second ]!"       );
-				_bret_false_log(!viewport[StringMapper::Map[(size_t)StringMapper::ID::vk_depth_range]].isArray(), "json file: viewport [depth_range] must be an array [ first, second ]!");
-				_bret_false_log(!scissor [StringMapper::Map[(size_t)StringMapper::ID::vk_offset]].isArray(),      "json file: scissor [offset] must be an array [ first, second ]!"      );
-				_bret_false_log(!scissor [StringMapper::Map[(size_t)StringMapper::ID::vk_size]].isArray(),        "json file: scissor [size] must be an array [ first, second ]!"        );
+				if (!viewport[StringMapper::Map[(size_t)StringMapper::ID::vk_position]].isArray())
+				{
+					_log_error("json file: viewport [position] must be an array [ first, second ]!", LogSystem::Category::JsonParser);
+					return false;
+				}
+				if (!viewport[StringMapper::Map[(size_t)StringMapper::ID::vk_size]].isArray())
+				{
+					_log_error("json file: viewport [size] must be an array [ first, second ]!", LogSystem::Category::JsonParser);
+					return false;
+				}
+				if (!viewport[StringMapper::Map[(size_t)StringMapper::ID::vk_depth_range]].isArray())
+				{
+					_log_error("json file: viewport [depth_range] must be an array [ first, second ]!", LogSystem::Category::JsonParser);
+					return false;
+				}
+				if (!scissor[StringMapper::Map[(size_t)StringMapper::ID::vk_offset]].isArray())
+				{
+					_log_error("json file: scissor [offset] must be an array [ first, second ]!", LogSystem::Category::JsonParser);
+					return false;
+				}
+				if (!scissor[StringMapper::Map[(size_t)StringMapper::ID::vk_size]].isArray())
+				{
+					_log_error("json file: scissor [size] must be an array [ first, second ]!", LogSystem::Category::JsonParser);
+					return false;
+				}
 
 				currentViewport.x        = JsonParser::GetFloat(viewport[StringMapper::Map[(size_t)StringMapper::ID::vk_position]][0]);
 				currentViewport.y        = JsonParser::GetFloat(viewport[StringMapper::Map[(size_t)StringMapper::ID::vk_position]][1]);
@@ -1439,9 +1552,11 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 		_declare_vk_smart_ptr(VkPipelineLayout, pPipelineLayout);
 
 		this->CreatePipelineLayout(pPipelineLayout.MakeInstance(), descSetLayouts.data(), (uint32)descSetLayouts.size(), &pushConstantRange, _count_1);
+		pPipelineLayouts.push_back(pPipelineLayout);
 
 		graphicInfos[i].layout = *pPipelineLayout;
 
+		_log_error("test", LogSystem::Category::LogicalDevice);
 	}
 
 	// _vk_try(vkCreateGraphicsPipelines(m_device, InPipCache, numGInfo, graphicInfos, GetVkAllocator(), OutPipeline));

@@ -35,9 +35,6 @@
     <ClCompile Include="Core\StringManager.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="Core\DiskResourceLoader.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
     <ClCompile Include="Core\GLSLCompiler.cpp">
       <Filter>Core</Filter>
     </ClCompile>
@@ -58,6 +55,12 @@
       <Filter>Core</Filter>
     </ClCompile>
     <ClCompile Include="Core\StringMapper.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\FileManager.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\PathParser.cpp">
       <Filter>Core</Filter>
     </ClCompile>
   </ItemGroup>
@@ -309,9 +312,6 @@
     <ClInclude Include="Core\MemoryLeakCheck.h">
       <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="Core\DiskResourceLoader.h">
-      <Filter>Core</Filter>
-    </ClInclude>
     <ClInclude Include="Core\LogSystem.h">
       <Filter>Core</Filter>
     </ClInclude>
@@ -328,6 +328,12 @@
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="Core\StringMapper.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\FileManager.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\PathParser.h">
       <Filter>Core</Filter>
     </ClInclude>
   </ItemGroup>

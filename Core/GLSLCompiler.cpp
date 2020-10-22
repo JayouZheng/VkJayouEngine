@@ -3,7 +3,6 @@
 //
 
 #include "GLSLCompiler.h"
-#include "DiskResourceLoader.h"
 #include "StringManager.h"
 #include "ModuleLoader.h"
 #include "Utility.h"
@@ -12,7 +11,7 @@ GLSLCompiler::GLSLCompiler()
 {
     m_pModule = new ModuleLoader;
 
-    if (m_pModule->Load(DiskResourceLoader::Load(StringUtil::Printf("ThirdParty/CMBuild/GLSLCompiler/%/GLSLCompiler.dll", _platform))))
+    if (m_pModule->Load(PathParser::Parse(StringUtil::Printf("ThirdParty/CMBuild/GLSLCompiler/%/GLSLCompiler.dll", _platform))))
     {
         m_pInterface = m_pModule->GetInterface<PFGetGLSLCompilerInterface>("GetInterface");
 

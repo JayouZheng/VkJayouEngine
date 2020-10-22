@@ -5,6 +5,7 @@
 #include "StringManager.h"
 #include "Platform.h"
 #include <clocale>
+#include <iomanip>
 
 wchar_t const* const WCharDigitTables[] =
 {
@@ -343,6 +344,20 @@ uint32 StringUtil::StrHexToNumeric(const std::string& InHexStr)
 	uint32 value;
 	strs >> std::hex >> value;
 	return value;
+}
+
+std::string StringUtil::UUIDToString(const uint8* InUUID)
+{
+	std::stringstream strs;
+	for (uint32 j = 0; j < _uuid_size; ++j)
+	{
+		strs << std::setw(2) << (uint32)InUUID[j];
+		if (j == 3 || j == 5 || j == 7 || j == 9)
+		{
+			strs << '-';
+		}
+	}
+	return strs.str();
 }
 
 std::string StringUtil::WStringToStringV2(const std::wstring& wstr)

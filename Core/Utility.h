@@ -39,10 +39,4 @@ namespace Util
 		}
 		return false;
 	}
-
-	template<typename T>
-	bool IsVkGuaranteedMinimum(T InValue, T InMinimum)
-	{
-		return InValue >= InMinimum;
-	}
 }

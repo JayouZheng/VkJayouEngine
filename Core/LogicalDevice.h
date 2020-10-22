@@ -180,8 +180,11 @@ protected:
 
 	GLSLCompiler    m_compiler;
 
-	_declare_vk_smart_ptr(VkCommandPool,    m_pCmdPool);
-	_declare_vk_smart_ptr(VkDescriptorPool, m_pDescPool);
+	_declare_vk_smart_ptr(VkCommandPool,     m_pCmdPool);
+	_declare_vk_smart_ptr(VkDescriptorPool,  m_pDescPool);
+
+	std::vector<VkPipelineCache>             m_pipelineCaches;
+	std::vector<VkSmartPtr<VkPipelineCache>> m_pipelineCachePtrs;
 
 	VkAllocationCallbacks* GetVkAllocator() const;
 
@@ -275,6 +278,8 @@ public:
 		uint32 DeviceID;
 		uint8  UUID[VK_UUID_SIZE];
 
+		PipelineCacheHeader() {}
+
 		PipelineCacheHeader(const VkPhysicalDeviceProperties& InPDProp)
 		{
 			Length   = 32;
@@ -315,10 +320,13 @@ public:
 	void           CreateComputePipelines        (VkPipeline* OutPipeline, const PipelineComputeDesc* InDescs, uint32 InDescCount = _count_1, VkPipelineCache InPipCache = VK_NULL_HANDLE);
 
 	void           CreatePipelineCache           (VkPipelineCache* OutPipCache, const VkPipelineCacheCreateInfo& InCreateInfo);
-	void           CreatePipelineCache           (VkPipelineCache* OutPipCache, const VkPhysicalDeviceProperties& InPDProp);
+	void           CreatePipelineCache           (VkPipelineCache* OutPipCache, const void* InData, size_t InSize, VkPipelineCacheCreateFlags InFlags = _flag_none);
+	bool           CreateEmptyPipelineCache      (VkPipelineCache* OutPipCache);
+	bool           CreatePipelineCacheFromFile   (VkPipelineCache* OutPipCache, const char* InPath);
 	size_t         GetPipelineCacheDataSize      (VkPipelineCache  InPipCache);
 	void           GetPipelineCacheData          (VkPipelineCache  InPipCache, size_t InDataSize, void* OutData);
-	bool           SavePipelineCacheToFile       (VkPipelineCache  InPipCache, const char* InPath);
+	void           GetPipelineCacheData          (VkPipelineCache  InPipCache, std::vector<uint8>& OutData);
+	bool           SavePipelineCacheToFile       (const char*      InPath);
 	void           MergePipelineCaches           (VkPipelineCache  OutMergedPipCache, const VkPipelineCache* InPipCaches, uint32 InSrcPipCacheCount);
 
 	void           CreateDescriptorSetLayout     (VkDescriptorSetLayout* OutLayout, const VkDescriptorSetLayoutCreateInfo& InCreateInfo);

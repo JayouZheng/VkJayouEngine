@@ -173,7 +173,8 @@
     <ClCompile Include="Core\Color.cpp" />
     <ClCompile Include="Core\CommandList.cpp" />
     <ClCompile Include="Core\CommandQueue.cpp" />
-    <ClCompile Include="Core\DiskResourceLoader.cpp" />
+    <ClCompile Include="Core\PathParser.cpp" />
+    <ClCompile Include="Core\FileManager.cpp" />
     <ClCompile Include="Core\Global.cpp" />
     <ClCompile Include="Core\GLSLCompiler.cpp" />
     <ClCompile Include="Core\JsonParser.cpp" />
@@ -196,8 +197,9 @@
     <ClInclude Include="Core\CommandList.h" />
     <ClInclude Include="Core\CommandQueue.h" />
     <ClInclude Include="Core\Common.h" />
-    <ClInclude Include="Core\DiskResourceLoader.h" />
+    <ClInclude Include="Core\PathParser.h" />
     <ClInclude Include="Core\Exception.h" />
+    <ClInclude Include="Core\FileManager.h" />
     <ClInclude Include="Core\Global.h" />
     <ClInclude Include="Core\GLSLCompiler.h" />
     <ClInclude Include="Core\JsonParser.h" />

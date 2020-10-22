@@ -13,4 +13,5 @@
 #include "TypeDef.h"
 #include "Exception.h"
 #include "LogSystem.h"
+#include "PathParser.h"
 #include "MemoryLeakCheck.h"

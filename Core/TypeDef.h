@@ -68,6 +68,8 @@
 #define _flag_none         0
 #define _max_path          260
 
+#define _uuid_size         16
+
 #define _false             0
 #define _true              1
 

@@ -3,7 +3,6 @@
 //
 
 #include "LogSystem.h"
-#include "StringManager.h"
 
 namespace
 {
@@ -73,7 +72,9 @@ std::string LogSystem::LogInfo::LevelToString() const
 {
 #define LOG_LEVEL_TO_STRING(level) if (Level == LogSystem::Level::level) return _name_of(level);
 
-	LOG_LEVEL_TO_STRING(Common);
+	//LOG_LEVEL_TO_STRING(Common);
+	if (Level == LogSystem::Level::Common) return "";
+
 	LOG_LEVEL_TO_STRING(Warning);
 	LOG_LEVEL_TO_STRING(Error);
 
@@ -94,7 +95,10 @@ std::string LogSystem::LogInfo::CategoryToString() const
 	LOG_CATEGORY_TO_STRING(JsonParser);
 	LOG_CATEGORY_TO_STRING(VkSmartPtr);
 	LOG_CATEGORY_TO_STRING(ModuleLoader);
-	LOG_CATEGORY_TO_STRING(DiskResourceLoader);
+	LOG_CATEGORY_TO_STRING(PathParser);
+
+	LOG_CATEGORY_TO_STRING(IO);
+	LOG_CATEGORY_TO_STRING(Memory);
 
 	// Keep it for future use.
 	LOG_CATEGORY_TO_STRING(Engine);
@@ -110,5 +114,5 @@ std::string LogSystem::LogInfo::CategoryToString() const
 
 std::string LogSystem::LogInfo::ToString() const
 {
-	return StringUtil::Printf("[%][%] %: %", TimeStamp.ToString(), CategoryToString(), LevelToString(), Content);
+	return Level != LogSystem::Level::Common ? StringUtil::Printf("[%][%] !!!%: %", TimeStamp.ToString(), CategoryToString(), LevelToString(), Content) : StringUtil::Printf("[%][%]>%", TimeStamp.ToString(), CategoryToString(), Content);
 }
