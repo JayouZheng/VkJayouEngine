@@ -1155,7 +1155,7 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 
 		graphicInfos[i].sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 		graphicInfos[i].pNext = nullptr;
-		graphicInfos[i].flags = JsonParser::GetUInt32(graphicInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_pipeline_flags]]);
+		graphicInfos[i].flags = JsonParser::GetUInt32(graphicInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_flags]]);
 
 		// Pipeline Stage.
 		if (graphicInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_pipeline_stages_infos]] == Json::nullValue)
@@ -1190,7 +1190,7 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 
 			shaderInfos[i][j].sType  = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 			shaderInfos[i][j].pNext  = nullptr;
-			shaderInfos[i][j].flags  = JsonParser::GetUInt32(shaderInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_stage_flags]]);
+			shaderInfos[i][j].flags  = JsonParser::GetUInt32(shaderInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_flags]]);
 			shaderInfos[i][j].stage  = (VkShaderStageFlagBits)((shaderInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_stage_type]] != Json::nullValue) ? (Util::GetShaderStage(JsonParser::GetString(shaderInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_stage_type]]), userDefinedShaderStage) ? userDefinedShaderStage : currentShaderStage) : currentShaderStage);
 			shaderInfos[i][j].module = *pShaderModule;	
 			shaderInfos[i][j].pName  = shaderEntrypoints[i * numStageInfo + j].c_str();
@@ -1560,7 +1560,7 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 
 		_log_error("test", LogSystem::Category::LogicalDevice);
 
-		// TODO: XXXflags need to be support array ( xxx | xxx | xxx ).
+		
 	}
 
 	// _vk_try(vkCreateGraphicsPipelines(m_device, InPipCache, numGInfo, graphicInfos, GetVkAllocator(), OutPipeline));

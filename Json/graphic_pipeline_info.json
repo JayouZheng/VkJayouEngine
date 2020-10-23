@@ -2,11 +2,11 @@
     "graphic_pipeline_infos": 
     [
         {
-            "pipeline_flags": 0,
+            "flags": 0,
             "pipeline_stages_infos": 
             [
                 {
-                    "stage_flags": 0,
+                    "flags": 0,
                     "stage_type":      "vertex",
                     "stage_code_path": "Core/Shaders/triangle.vert",
                     "entrypoint":      "main",

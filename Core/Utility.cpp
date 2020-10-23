@@ -270,18 +270,18 @@ namespace
 		{ "state_stencil_op_ext",             VK_DYNAMIC_STATE_STENCIL_OP_EXT                   }
 	};
 
-	const char* DefaultShaderEntryPoint = "main";
-	const char* DefaultPrimitiveTopology = "triangle_list";
-	const char* DefaultPolygonMode = "fill";
-	const char* DefaultCullMode = "cull_none";
-	const char* DefaultFrontFace = "counter_clockwise";
-	const char* DefaultCompareOp = "less_equal";
-	const char* DefaultStencilOp = "keep";
-	const char* DefaultLogicOp = "clear";
-	const char* DefaultBlendFactor = "zero";
-	const char* DefaultBlendOp = "add";
+	const char* DefaultShaderEntryPoint   = "main";
+	const char* DefaultPrimitiveTopology  = "triangle_list";
+	const char* DefaultPolygonMode        = "fill";
+	const char* DefaultCullMode           = "cull_none";
+	const char* DefaultFrontFace          = "counter_clockwise";
+	const char* DefaultCompareOp          = "less_equal";
+	const char* DefaultStencilOp          = "keep";
+	const char* DefaultLogicOp            = "clear";
+	const char* DefaultBlendFactor        = "zero";
+	const char* DefaultBlendOp            = "add";
 	const char* DefaultColorComponentMask = "rgba";
-	const char* DefaultDynamicState = "viewport";
+	const char* DefaultDynamicState       = "viewport";
 }
 
 /// Implementation...

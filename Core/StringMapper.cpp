@@ -17,10 +17,8 @@ namespace StringMapper
 		"offset",
 
 		"graphic_pipeline_infos",
-		"pipeline_flags",
 
 		"pipeline_stages_infos",
-		"stage_flags",
 		"stage_type",
 		"stage_code_path",
 		"entrypoint",

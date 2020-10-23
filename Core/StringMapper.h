@@ -18,10 +18,8 @@ namespace StringMapper
 		vk_offset,
 
 		vk_graphic_pipeline_infos,
-		vk_pipeline_flags,
 
 		vk_pipeline_stages_infos,
-		vk_stage_flags,
 		vk_stage_type,
 		vk_stage_code_path,
 		vk_entrypoint,
