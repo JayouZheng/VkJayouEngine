@@ -74,7 +74,7 @@ namespace
 		{ "point",  VK_POLYGON_MODE_POINT }
 	};
 
-	const std::unordered_map<std::string, VkCullModeFlagBits> VkCullModeMap =
+	const std::unordered_map<std::string, VkCullModeFlags> VkCullModeFlagsMap =
 	{
 		{ "cull_none",   VK_CULL_MODE_NONE           },
 		{ "cull_front",  VK_CULL_MODE_FRONT_BIT      },
@@ -230,7 +230,7 @@ namespace
 		{ "blue",               VK_BLEND_OP_BLUE_EXT               }
 	};
 
-	const std::unordered_map<std::string, VkColorComponentFlagBits> VkColorComponentMaskMap =
+	const std::unordered_map<std::string, VkColorComponentFlags> VkColorComponentMaskMap =
 	{
 		{ "r", VK_COLOR_COMPONENT_R_BIT },
 		{ "g", VK_COLOR_COMPONENT_G_BIT },
@@ -615,18 +615,95 @@ namespace
 		{ "ray_tracing",  VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR }
 	};
 
-	const char* DefaultShaderEntryPoint   = "main";
-	const char* DefaultPrimitiveTopology  = "triangle_list";
-	const char* DefaultPolygonMode        = "fill";
-	const char* DefaultCullMode           = "cull_none";
-	const char* DefaultFrontFace          = "counter_clockwise";
-	const char* DefaultCompareOp          = "less_equal";
-	const char* DefaultStencilOp          = "keep";
-	const char* DefaultLogicOp            = "clear";
-	const char* DefaultBlendFactor        = "zero";
-	const char* DefaultBlendOp            = "add";
-	const char* DefaultColorComponentMask = "rgba";
-	const char* DefaultDynamicState       = "viewport";
+	const std::unordered_map<std::string, VkPipelineStageFlags> VkPipelineStageFlagsMap =
+	{
+		{ "top",                           VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT                      },
+		{ "draw_indirect",                 VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT                    },
+		{ "vertex_input",                  VK_PIPELINE_STAGE_VERTEX_INPUT_BIT                     },
+		{ "vertex",                        VK_PIPELINE_STAGE_VERTEX_SHADER_BIT                    },
+		{ "tessellation_control",          VK_PIPELINE_STAGE_TESSELLATION_CONTROL_SHADER_BIT      },
+		{ "tessellation_evaluation",       VK_PIPELINE_STAGE_TESSELLATION_EVALUATION_SHADER_BIT   },
+		{ "geometry",                      VK_PIPELINE_STAGE_GEOMETRY_SHADER_BIT                  },
+		{ "fragment",                      VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT                  },
+		{ "early_fragment",                VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT             },
+		{ "late_fragment",                 VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT              },
+		{ "color_output",                  VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT          },
+		{ "compute",                       VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT                   },
+		{ "transfer",                      VK_PIPELINE_STAGE_TRANSFER_BIT                         },
+		{ "bottom",                        VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT                   },
+		{ "host",                          VK_PIPELINE_STAGE_HOST_BIT                             },
+		{ "all_graphics",                  VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT                     },
+		{ "all_commands",                  VK_PIPELINE_STAGE_ALL_COMMANDS_BIT                     },
+		{ "transform_feedback",            VK_PIPELINE_STAGE_TRANSFORM_FEEDBACK_BIT_EXT           },
+		{ "conditional_rendering",         VK_PIPELINE_STAGE_CONDITIONAL_RENDERING_BIT_EXT        },
+		{ "ray_tracing",                   VK_PIPELINE_STAGE_RAY_TRACING_SHADER_BIT_KHR           },
+		{ "acceleration_structure_build",  VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR },
+		{ "shading_rate_image",            VK_PIPELINE_STAGE_SHADING_RATE_IMAGE_BIT_NV            },
+		{ "task_shader",                   VK_PIPELINE_STAGE_TASK_SHADER_BIT_NV                   },
+		{ "mesh_shader",                   VK_PIPELINE_STAGE_MESH_SHADER_BIT_NV                   },
+		{ "fragment_density_process",      VK_PIPELINE_STAGE_FRAGMENT_DENSITY_PROCESS_BIT_EXT     },
+		{ "command_preprocess",            VK_PIPELINE_STAGE_COMMAND_PREPROCESS_BIT_NV            }
+	};
+
+	const std::unordered_map<std::string, VkAccessFlags> VkAccessFlagsMap =
+	{
+		{ "indirect_command_read",              VK_ACCESS_INDIRECT_COMMAND_READ_BIT                 },
+		{ "index_read",                         VK_ACCESS_INDEX_READ_BIT                            },
+		{ "vertex_attribute_read",              VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT                 },
+		{ "uniform_read",                       VK_ACCESS_UNIFORM_READ_BIT                          },
+		{ "input_attachment_read",              VK_ACCESS_INPUT_ATTACHMENT_READ_BIT                 },
+		{ "shader_read",                        VK_ACCESS_SHADER_READ_BIT                           },
+		{ "shader_write",                       VK_ACCESS_SHADER_WRITE_BIT                          },
+		{ "color_attachment_read",              VK_ACCESS_COLOR_ATTACHMENT_READ_BIT                 },
+		{ "color_attachment_write",             VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT                },
+		{ "depth_stencil_attachment_read",      VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT         },
+		{ "depth_stencil_attachment_write",     VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT        },
+		{ "transfer_read",                      VK_ACCESS_TRANSFER_READ_BIT                         },
+		{ "transfer_write",                     VK_ACCESS_TRANSFER_WRITE_BIT                        },
+		{ "host_read",                          VK_ACCESS_HOST_READ_BIT                             },
+		{ "host_write",                         VK_ACCESS_HOST_WRITE_BIT                            },
+		{ "memory_read",                        VK_ACCESS_MEMORY_READ_BIT                           },
+		{ "memory_write",                       VK_ACCESS_MEMORY_WRITE_BIT                          },
+		{ "transform_feedback_write",           VK_ACCESS_TRANSFORM_FEEDBACK_WRITE_BIT_EXT          },
+		{ "transform_feedback_counter_read",    VK_ACCESS_TRANSFORM_FEEDBACK_COUNTER_READ_BIT_EXT   },
+		{ "transform_feedback_counter_write",   VK_ACCESS_TRANSFORM_FEEDBACK_COUNTER_WRITE_BIT_EXT  },
+		{ "conditional_rendering_read",         VK_ACCESS_CONDITIONAL_RENDERING_READ_BIT_EXT        },
+		{ "color_attachment_read_noncoherent",  VK_ACCESS_COLOR_ATTACHMENT_READ_NONCOHERENT_BIT_EXT },
+		{ "acceleration_structure_read",        VK_ACCESS_ACCELERATION_STRUCTURE_READ_BIT_KHR       },
+		{ "acceleration_structure_write",       VK_ACCESS_ACCELERATION_STRUCTURE_WRITE_BIT_KHR      },
+		{ "shading_rate_image_read",            VK_ACCESS_SHADING_RATE_IMAGE_READ_BIT_NV            },
+		{ "fragment_density_map_read",          VK_ACCESS_FRAGMENT_DENSITY_MAP_READ_BIT_EXT         },
+		{ "command_preprocess_read",            VK_ACCESS_COMMAND_PREPROCESS_READ_BIT_NV            },
+		{ "command_preprocess_write",           VK_ACCESS_COMMAND_PREPROCESS_WRITE_BIT_NV           }
+	};
+
+	const std::unordered_map<std::string, VkDependencyFlags> VkDependencyFlagsMap =
+	{
+		{ "region",        VK_DEPENDENCY_BY_REGION_BIT        },
+		{ "device_group",  VK_DEPENDENCY_DEVICE_GROUP_BIT     },
+		{ "view_local",    VK_DEPENDENCY_VIEW_LOCAL_BIT       }
+	};
+
+	const char* DefaultShaderEntryPoint     = "main";
+	const char* DefaultVkPrimitiveTopology  = "triangle_list";
+	const char* DefaultVkPolygonMode        = "fill";
+	const char* DefaultVkCullModeFlags      = "cull_none";
+	const char* DefaultVkFrontFace          = "counter_clockwise";
+	const char* DefaultVkCompareOp          = "less_equal";
+	const char* DefaultVkStencilOp          = "keep";
+	const char* DefaultVkLogicOp            = "clear";
+	const char* DefaultVkBlendFactor        = "zero";
+	const char* DefaultVkBlendOp            = "add";
+	const char* DefaultColorComponentMask   = "rgba";
+	const char* DefaultVkDynamicState       = "viewport";
+	const char* DefaultVkFormat             = "R8G8B8A8_UNORM";
+	const char* DefaultVkAttachmentLoadOp   = "dont_care";
+	const char* DefaultVkAttachmentStoreOp  = "dont_care";
+	const char* DefaultVkImageLayout        = "undefined";
+	const char* DefaultVkPipelineBindPoint  = "graphics";
+	const char* DefaultVkPipelineStageFlags = "all_commands";
+	const char* DefaultVkAccessFlags        = "memory_read";
+	const char* DefaultVkDependencyFlags    = "region";
 }
 
 /// Implementation...
@@ -677,171 +754,6 @@ uint32 Util::GetVertexAttributeSize(const std::string& InKey)
 	}
 }
 
-VkPrimitiveTopology Util::GetPrimitiveTopology(const std::string& InKey)
-{
-	VkPrimitiveTopology result;
-	try
-	{
-		result = VkPrimitiveTopologyMap.at(InKey);
-		return result;
-	}
-	catch (const std::out_of_range& msg)
-	{
-		result = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-		_log_warning(std::string(msg.what()) + ", pipeline input assembly, primitive topology invalid! default set to \"" + DefaultPrimitiveTopology + "\"!", _name_of(GetPrimitiveTopology));
-		return result;
-	}
-}
-
-VkPolygonMode Util::GetPolygonMode(const std::string& InKey)
-{
-	VkPolygonMode result;
-	try
-	{
-		result = VkPolygonModeMap.at(InKey);
-		return result;
-	}
-	catch (const std::out_of_range& msg)
-	{
-		result = VK_POLYGON_MODE_FILL;
-		_log_warning(std::string(msg.what()) + ", pipeline rasterization state, polygon mode invalid! default set to \"" + DefaultPolygonMode + "\"!", _name_of(GetPolygonMode));
-		return result;
-	}
-}
-
-VkCullModeFlagBits Util::GetCullMode(const std::string& InKey)
-{
-	VkCullModeFlagBits result;
-	try
-	{
-		result = VkCullModeMap.at(InKey);
-		return result;
-	}
-	catch (const std::out_of_range& msg)
-	{
-		result = VK_CULL_MODE_NONE;
-		_log_warning(std::string(msg.what()) + ", pipeline rasterization state, cull mode invalid! default set to \"" + DefaultCullMode + "\"!", _name_of(GetCullMode));
-		return result;
-	}
-}
-
-VkFrontFace Util::GetFrontFace(const std::string& InKey)
-{
-	VkFrontFace result;
-	try
-	{
-		result = VkFrontFaceMap.at(InKey);
-		return result;
-	}
-	catch (const std::out_of_range& msg)
-	{
-		result = VK_FRONT_FACE_COUNTER_CLOCKWISE;
-		_log_warning(std::string(msg.what()) + ", pipeline rasterization state, front face invalid! default set to \"" + DefaultFrontFace + "\"!", _name_of(GetFrontFace));
-		return result;
-	}
-}
-
-VkSampleCountFlagBits Util::GetMultisampleCount(uint32 InCount)
-{
-	if (InCount <= 1u)
-		return VK_SAMPLE_COUNT_1_BIT;
-	if (InCount <= 2u)
-		return VK_SAMPLE_COUNT_2_BIT;
-	if (InCount <= 4u)
-		return VK_SAMPLE_COUNT_4_BIT;
-	if (InCount <= 8u)
-		return VK_SAMPLE_COUNT_8_BIT;
-	if (InCount <= 16u)
-		return VK_SAMPLE_COUNT_16_BIT;
-	if (InCount <= 32u)
-		return VK_SAMPLE_COUNT_32_BIT;
-	if (InCount <= 64u)
-		return VK_SAMPLE_COUNT_64_BIT;
-	if (InCount > 64u)
-		return VK_SAMPLE_COUNT_64_BIT;
-	return VK_SAMPLE_COUNT_1_BIT;
-}
-
-VkCompareOp Util::GetCompareOp(const std::string& InKey)
-{
-	VkCompareOp result;
-	try
-	{
-		result = VkCompareOpMap.at(InKey);
-		return result;
-	}
-	catch (const std::out_of_range& msg)
-	{
-		result = VK_COMPARE_OP_LESS_OR_EQUAL;
-		_log_warning(std::string(msg.what()) + ", pipeline depth stencil state, compare op invalid! default set to \"" + DefaultCompareOp + "\"!", _name_of(GetCompareOp));
-		return result;
-	}
-}
-
-VkStencilOp Util::GetStencilOp(const std::string& InKey)
-{
-	VkStencilOp result;
-	try
-	{
-		result = VkStencilOpMap.at(InKey);
-		return result;
-	}
-	catch (const std::out_of_range& msg)
-	{
-		result = VK_STENCIL_OP_KEEP;
-		_log_warning(std::string(msg.what()) + ", pipeline depth stencil state, stencil op invalid! default set to \"" + DefaultStencilOp + "\"!", _name_of(GetStencilOp));
-		return result;
-	}
-}
-
-VkLogicOp Util::GetLogicOp(const std::string& InKey)
-{
-	VkLogicOp result;
-	try
-	{
-		result = VkLogicOpMap.at(InKey);
-		return result;
-	}
-	catch (const std::out_of_range& msg)
-	{
-		result = VK_LOGIC_OP_CLEAR;
-		_log_warning(std::string(msg.what()) + ", pipeline color blend state, logic op invalid! default set to \"" + DefaultLogicOp + "\"!", _name_of(GetLogicOp));
-		return result;
-	}
-}
-
-VkBlendFactor Util::GetBlendFactor(const std::string& InKey)
-{
-	VkBlendFactor result;
-	try
-	{
-		result = VkBlendFactorMap.at(InKey);
-		return result;
-	}
-	catch (const std::out_of_range& msg)
-	{
-		result = VK_BLEND_FACTOR_ZERO;
-		_log_warning(std::string(msg.what()) + ", pipeline color blend state, blend factor invalid! default set to \"" + DefaultBlendFactor + "\"!", _name_of(GetBlendFactor));
-		return result;
-	}
-}
-
-VkBlendOp Util::GetBlendOp(const std::string& InKey)
-{
-	VkBlendOp result;
-	try
-	{
-		result = VkBlendOpMap.at(InKey);
-		return result;
-	}
-	catch (const std::out_of_range& msg)
-	{
-		result = VK_BLEND_OP_ADD;
-		_log_warning(std::string(msg.what()) + ", pipeline color blend state, blend op invalid! default set to \"" + DefaultBlendOp + "\"!", _name_of(GetBlendOp));
-		return result;
-	}
-}
-
 VkColorComponentFlags Util::GetColorComponentMask(const std::string& InKey)
 {
 	VkColorComponentFlags result = 0;
@@ -868,21 +780,74 @@ VkColorComponentFlags Util::GetColorComponentMask(const std::string& InKey)
 	return result;
 }
 
-VkDynamicState Util::GetDynamicState(const std::string& InKey)
+VkSampleCountFlags Util::GetMultisampleCount(uint32 InCount)
 {
-	VkDynamicState result;
-	try
-	{
-		result = VkDynamicStateMap.at(InKey);
-		return result;
-	}
-	catch (const std::out_of_range& msg)
-	{
-		result = VK_DYNAMIC_STATE_VIEWPORT;
-		_log_warning(std::string(msg.what()) + ", pipeline dynamic state, state invalid! default set to \"" + DefaultDynamicState + "\"!", _name_of(GetDynamicState));
-		return result;
-	}
+	if (InCount <= 1u)
+		return VK_SAMPLE_COUNT_1_BIT;
+	if (InCount <= 2u)
+		return VK_SAMPLE_COUNT_2_BIT;
+	if (InCount <= 4u)
+		return VK_SAMPLE_COUNT_4_BIT;
+	if (InCount <= 8u)
+		return VK_SAMPLE_COUNT_8_BIT;
+	if (InCount <= 16u)
+		return VK_SAMPLE_COUNT_16_BIT;
+	if (InCount <= 32u)
+		return VK_SAMPLE_COUNT_32_BIT;
+	if (InCount <= 64u)
+		return VK_SAMPLE_COUNT_64_BIT;
+	if (InCount > 64u)
+		return VK_SAMPLE_COUNT_64_BIT;
+	return VK_SAMPLE_COUNT_1_BIT;
 }
+
+/*--------------------------------------------------------------------
+                              boundary
+---------------------------------------------------------------------*/
+
+#define GET_VK_TYPE_IMPL(type)                                        \
+type Util::Get##type(const std::string& InKey)                        \
+{                                                                     \
+	type result;                                                      \
+	try                                                               \
+	{                                                                 \
+		result = type##Map.at(InKey);                                 \
+		return result;                                                \
+	}                                                                 \
+	catch (const std::out_of_range& msg)                              \
+	{                                                                 \
+		result = type##Map.at(Default##type);                         \
+		_log_warning(std::string(msg.what()) +                        \
+			"Map failed because of invalid key! default set to \"" +  \
+			Default##type + "\"!", _name_of(Get##type));              \
+		return result;                                                \
+	}                                                                 \
+}                                                                     \
+
+
+GET_VK_TYPE_IMPL(VkPrimitiveTopology)
+GET_VK_TYPE_IMPL(VkPolygonMode)
+GET_VK_TYPE_IMPL(VkCullModeFlags)
+GET_VK_TYPE_IMPL(VkFrontFace)
+GET_VK_TYPE_IMPL(VkCompareOp)
+GET_VK_TYPE_IMPL(VkStencilOp)
+GET_VK_TYPE_IMPL(VkLogicOp)
+GET_VK_TYPE_IMPL(VkBlendFactor)
+GET_VK_TYPE_IMPL(VkBlendOp)
+GET_VK_TYPE_IMPL(VkDynamicState)
+GET_VK_TYPE_IMPL(VkFormat)
+GET_VK_TYPE_IMPL(VkAttachmentLoadOp)
+GET_VK_TYPE_IMPL(VkAttachmentStoreOp)
+GET_VK_TYPE_IMPL(VkImageLayout)
+GET_VK_TYPE_IMPL(VkPipelineBindPoint)
+GET_VK_TYPE_IMPL(VkPipelineStageFlags)
+GET_VK_TYPE_IMPL(VkAccessFlags)
+GET_VK_TYPE_IMPL(VkDependencyFlags)
+
+
+/*--------------------------------------------------------------------
+							  boundary
+---------------------------------------------------------------------*/
 
 std::string Util::VkShaderStageToString(VkShaderStageFlags InStage)
 {

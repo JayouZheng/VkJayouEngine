@@ -146,7 +146,7 @@ namespace GConfig
 			{ 0.0f, 0.0f, 0.0f, 0.0f }                                  // blendConstants[4]
 		};
 
-		static const std::array<VkDynamicState, 2>          DefaultDynamicState =
+		static const std::array<VkDynamicState, 2>          DefaultVkDynamicState =
 		{
 			VK_DYNAMIC_STATE_VIEWPORT,
 			VK_DYNAMIC_STATE_SCISSOR
@@ -157,8 +157,8 @@ namespace GConfig
 			VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,       // sType
 			nullptr,                                                    // pNext
 			_flag_none,                                                 // flags
-			static_cast<uint32>(DefaultDynamicState.size()),            // dynamicStateCount
-			DefaultDynamicState.data(),                                 // pDynamicStates
+			static_cast<uint32>(DefaultVkDynamicState.size()),            // dynamicStateCount
+			DefaultVkDynamicState.data(),                                 // pDynamicStates
 		};
 	}
 }

@@ -33,7 +33,7 @@ int main()
     std::cout << "EnumHelper v1.0\n";
 
     Config config = {};
-    std::cout << "config interval: ";
+    std::cout << "config interval, custom key (1 no prefix), prefix: ";
     std::cin >> config.interval_center;
     std::cin >> config.custom_key;
     if (!config.custom_key) std::cin >> config.vk_prefix;
