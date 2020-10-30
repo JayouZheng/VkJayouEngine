@@ -9,7 +9,7 @@
 #include "LogicalDevice.h"
 #include "StringManager.h"
 #include "Utility.h"
-#include "StringMapper.h"
+#include "TextMapper.h"
 #include "FileManager.h"
 
 VkAllocationCallbacks* LogicalDevice::GetVkAllocator() const
@@ -1084,14 +1084,14 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 		return false;
 	}
 
-	if (root[StringMapper::Map[(size_t)StringMapper::ID::vk_graphic_pipeline_infos]] == Json::nullValue)
+	if (root[_text_mapper(vk_graphic_pipeline_infos)] == Json::nullValue)
 	{
 		_log_error("json file: [graphic_pipeline_infos] can not be null!", LogSystem::Category::JsonParser);
 		return false;
 	}
 	
-	bool   bIsArray = root[StringMapper::Map[(size_t)StringMapper::ID::vk_graphic_pipeline_infos]].isArray();
-	uint32 numGInfo = bIsArray ? root[StringMapper::Map[(size_t)StringMapper::ID::vk_graphic_pipeline_infos]].size() : _count_1;
+	bool   bIsArray = root[_text_mapper(vk_graphic_pipeline_infos)].isArray();
+	uint32 numGInfo = bIsArray ? root[_text_mapper(vk_graphic_pipeline_infos)].size() : _count_1;
 
 	VkViewport currentViewport = {};
 	VkRect2D   currentScissor  = {};
@@ -1119,6 +1119,7 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 	std::vector<std::vector<VkPipelineColorBlendAttachmentState>> colorBlendAttachmentStates;
 	std::vector<std::vector<VkDynamicState>>                      dynamicStates;
 	std::vector<VkSmartPtr<VkPipelineLayout>>                     pPipelineLayouts;
+	std::vector<VkSmartPtr<VkRenderPass>>                         pRenderPasses;
 
 	graphicInfos.resize(numGInfo);
 	shaderInfos.resize(numGInfo);
@@ -1151,21 +1152,21 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 		pipelineColorBlendStateInfos[i]   = GConfig::Pipeline::DefaultColorBlendStateInfo;		
 		pipelineDynamicStateInfos[i]      = GConfig::Pipeline::DefaultDynamicStateInfo;
 
-		auto& graphicInfo = bIsArray ? root[StringMapper::Map[(size_t)StringMapper::ID::vk_graphic_pipeline_infos]][i] : root[StringMapper::Map[(size_t)StringMapper::ID::vk_graphic_pipeline_infos]];
+		auto& graphicInfo = bIsArray ? root[_text_mapper(vk_graphic_pipeline_infos)][i] : root[_text_mapper(vk_graphic_pipeline_infos)];
 
 		graphicInfos[i].sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 		graphicInfos[i].pNext = nullptr;
-		graphicInfos[i].flags = JsonParser::GetUInt32(graphicInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_flags]]);
+		graphicInfos[i].flags = JsonParser::GetUInt32(graphicInfo[_text_mapper(vk_flags)]);
 
 		// Pipeline Stage.
-		if (graphicInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_pipeline_stages_infos]] == Json::nullValue)
+		if (graphicInfo[_text_mapper(vk_pipeline_stages_infos)] == Json::nullValue)
 		{
 			_log_error("json file: [pipeline_stages_infos] can not be null!", LogSystem::Category::JsonParser);
 			return false;
 		}
 		
-		bIsArray            = graphicInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_pipeline_stages_infos]].isArray();
-		uint32 numStageInfo = bIsArray ? graphicInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_pipeline_stages_infos]].size() : _count_1;
+		bIsArray            = graphicInfo[_text_mapper(vk_pipeline_stages_infos)].isArray();
+		uint32 numStageInfo = bIsArray ? graphicInfo[_text_mapper(vk_pipeline_stages_infos)].size() : _count_1;
 
 		shaderInfos[i].resize(numStageInfo);
 		shaderEntrypoints.resize(numGInfo * numStageInfo);
@@ -1175,12 +1176,16 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 
 		for (uint32 j = 0; j < numStageInfo; j++)
 		{
-			auto& shaderInfo = bIsArray ? graphicInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_pipeline_stages_infos]][j] : graphicInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_pipeline_stages_infos]];
+			auto& shaderInfo = bIsArray ? graphicInfo[_text_mapper(vk_pipeline_stages_infos)][j] : graphicInfo[_text_mapper(vk_pipeline_stages_infos)];		
 
-			std::string shaderPath = JsonParser::GetString(shaderInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_stage_code_path]]);
-			if (shaderPath == _str_null) return false;
+			std::string shaderPath = JsonParser::GetString(shaderInfo[_text_mapper(vk_stage_code_path)]);
+			if (shaderPath == _str_null)
+			{
+				_log_error("json file: [stage_code_path] can not be null!", LogSystem::Category::JsonParser);
+				return false;
+			}
 
-			shaderEntrypoints[i * numStageInfo + j] = JsonParser::GetString(shaderInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_entrypoint]], "main");
+			shaderEntrypoints[i * numStageInfo + j] = JsonParser::GetString(shaderInfo[_text_mapper(vk_entrypoint)], "main");
 
 			_declare_vk_smart_ptr(VkShaderModule, pShaderModule);
 			VkShaderStageFlags currentShaderStage, userDefinedShaderStage;
@@ -1190,16 +1195,16 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 
 			shaderInfos[i][j].sType  = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 			shaderInfos[i][j].pNext  = nullptr;
-			shaderInfos[i][j].flags  = JsonParser::GetUInt32(shaderInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_flags]]);
-			shaderInfos[i][j].stage  = (VkShaderStageFlagBits)((shaderInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_stage_type]] != Json::nullValue) ? (Util::GetShaderStage(JsonParser::GetString(shaderInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_stage_type]]), userDefinedShaderStage) ? userDefinedShaderStage : currentShaderStage) : currentShaderStage);
+			shaderInfos[i][j].flags  = JsonParser::GetUInt32(shaderInfo[_text_mapper(vk_flags)]);
+			shaderInfos[i][j].stage  = (VkShaderStageFlagBits)((shaderInfo[_text_mapper(vk_stage_type)] != Json::nullValue) ? (Util::GetShaderStage(JsonParser::GetString(shaderInfo[_text_mapper(vk_stage_type)]), userDefinedShaderStage) ? userDefinedShaderStage : currentShaderStage) : currentShaderStage);
 			shaderInfos[i][j].module = *pShaderModule;	
 			shaderInfos[i][j].pName  = shaderEntrypoints[i * numStageInfo + j].c_str();
 			shaderInfos[i][j].pSpecializationInfo = &specInfos[i];
 			
-			if (shaderInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_specialization_constants]] != Json::nullValue)
+			if (shaderInfo[_text_mapper(vk_specialization_constants)] != Json::nullValue)
 			{			
-				bIsArray            = shaderInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_specialization_constants]].isArray();
-				uint32 numSpecConst = bIsArray ? shaderInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_specialization_constants]].size() : _count_1;
+				bIsArray            = shaderInfo[_text_mapper(vk_specialization_constants)].isArray();
+				uint32 numSpecConst = bIsArray ? shaderInfo[_text_mapper(vk_specialization_constants)].size() : _count_1;
 
 				specMaps[i].resize(numSpecConst);
 				specData[i].resize(numSpecConst);
@@ -1211,7 +1216,7 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 
 				for (uint32 k = 0; k < numSpecConst; k++)
 				{
-					auto& value = bIsArray ? shaderInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_specialization_constants]][k] : shaderInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_specialization_constants]];
+					auto& value = bIsArray ? shaderInfo[_text_mapper(vk_specialization_constants)][k] : shaderInfo[_text_mapper(vk_specialization_constants)];
 
 					specMaps[i][k].constantID = k;
 					specMaps[i][k].offset     = k * 4; // 4 byte per const, 32 bit value.
@@ -1252,22 +1257,23 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 
 		// Vertex Input State.
 		graphicInfos[i].pVertexInputState = &vertexInputStateInfos[i];
-		if (graphicInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_vertex_input_attributes]] == Json::nullValue)
+		if (graphicInfo[_text_mapper(vk_vertex_input_attributes)] == Json::nullValue)
 		{
 			_log_error("json file: [vertex_input_attributes] can not be null!", LogSystem::Category::JsonParser);
 			return false;
 		}
 
 		// Bindings.
-		bIsArray          = graphicInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_vertex_input_attributes]].isArray();
-		uint32 numBinding = bIsArray ? graphicInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_vertex_input_attributes]].size() : _count_1;
+		bIsArray          = graphicInfo[_text_mapper(vk_vertex_input_attributes)].isArray();
+		uint32 numBinding = bIsArray ? graphicInfo[_text_mapper(vk_vertex_input_attributes)].size() : _count_1;
 
 		vertexInputBindings[i].resize(numBinding);
 
 		for (uint32 j = 0; j < numBinding; j++)
 		{
-			auto& binding    = bIsArray ? graphicInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_vertex_input_attributes]][j] : graphicInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_vertex_input_attributes]];
-			uint32 bindingID = binding[StringMapper::Map[(size_t)StringMapper::ID::vk_binding_id]] != Json::nullValue ? binding[StringMapper::Map[(size_t)StringMapper::ID::vk_binding_id]].asUInt() : j;
+			auto& binding    = bIsArray ? graphicInfo[_text_mapper(vk_vertex_input_attributes)][j] : graphicInfo[_text_mapper(vk_vertex_input_attributes)];		
+
+			uint32 bindingID = binding[_text_mapper(vk_binding_id)] != Json::nullValue ? binding[_text_mapper(vk_binding_id)].asUInt() : j;
 
 			if (j >= 16u)
 			{
@@ -1282,8 +1288,8 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 			}
 
 			// Vertex Attributes.
-			bIsArray               = binding[StringMapper::Map[(size_t)StringMapper::ID::vk_attributes]].isArray();
-			uint32 numAttribute    = bIsArray ? binding[StringMapper::Map[(size_t)StringMapper::ID::vk_attributes]].size() : _count_1;
+			bIsArray               = binding[_text_mapper(vk_attributes)].isArray();
+			uint32 numAttribute    = bIsArray ? binding[_text_mapper(vk_attributes)].size() : _count_1;
 
 			vertexInputAttributes[i].resize(numAttribute);
 
@@ -1291,7 +1297,7 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 			uint32& allAttributeSize = attributeOffset;
 			for (uint32 k = 0; k < numAttribute; k++)
 			{
-				std::string attribute = bIsArray ? binding[StringMapper::Map[(size_t)StringMapper::ID::vk_attributes]][k].asString() : binding[StringMapper::Map[(size_t)StringMapper::ID::vk_attributes]].asString();
+				std::string attribute = bIsArray ? binding[_text_mapper(vk_attributes)][k].asString() : binding[_text_mapper(vk_attributes)].asString();
 
 				vertexInputAttributes[i][k].binding  = _index_0;
 				vertexInputAttributes[i][k].location = k;
@@ -1314,22 +1320,22 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 		
 		// IA State.
 		graphicInfos[i].pInputAssemblyState = &pipelineIAStateInfos[i];
-		auto& inputAssemblyInfo             = graphicInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_pipeline_input_assembly]];
+		auto& inputAssemblyInfo             = graphicInfo[_text_mapper(vk_pipeline_input_assembly)];
 		if (inputAssemblyInfo != Json::nullValue)
 		{
-			pipelineIAStateInfos[i].flags                  = JsonParser::GetUInt32(inputAssemblyInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_flags]]);
-			pipelineIAStateInfos[i].topology               = Util::GetVkPrimitiveTopology(JsonParser::GetString(inputAssemblyInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_primitive_topology]]));
-			pipelineIAStateInfos[i].primitiveRestartEnable = JsonParser::GetUInt32(inputAssemblyInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_primitive_restart_enable]]);
+			pipelineIAStateInfos[i].flags                  = JsonParser::GetUInt32(inputAssemblyInfo[_text_mapper(vk_flags)]);
+			pipelineIAStateInfos[i].topology               = Util::GetVkPrimitiveTopology(JsonParser::GetString(inputAssemblyInfo[_text_mapper(vk_primitive_topology)]));
+			pipelineIAStateInfos[i].primitiveRestartEnable = JsonParser::GetUInt32(inputAssemblyInfo[_text_mapper(vk_primitive_restart_enable)]);
 		}
 
 		// Tessellation State.
-		auto& tessellationInfo = graphicInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_tessellation_state]];
+		auto& tessellationInfo = graphicInfo[_text_mapper(vk_tessellation_state)];
 		if (tessellationInfo != Json::nullValue)
 		{
 			graphicInfos[i].pTessellationState           = &pipelineTessStateInfos[i];
 			pipelineTessStateInfos[i].sType              = VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_STATE_CREATE_INFO;
-			pipelineTessStateInfos[i].flags              = JsonParser::GetUInt32(tessellationInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_flags]]);
-			pipelineTessStateInfos[i].patchControlPoints = JsonParser::GetUInt32(tessellationInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_patch_control_points_count]]);
+			pipelineTessStateInfos[i].flags              = JsonParser::GetUInt32(tessellationInfo[_text_mapper(vk_flags)]);
+			pipelineTessStateInfos[i].patchControlPoints = JsonParser::GetUInt32(tessellationInfo[_text_mapper(vk_patch_control_points_count)]);
 		}
 		else
 		{
@@ -1338,13 +1344,13 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 
 		// Viewport State.
 		graphicInfos[i].pViewportState = &pipelineViewportStateInfos[i];
-		auto& viewportInfo             = graphicInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_viewport_state]];
+		auto& viewportInfo             = graphicInfo[_text_mapper(vk_viewport_state)];
 		if (viewportInfo != Json::nullValue)
 		{
-			bIsArray           = viewportInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_viewports]].isArray();
-			uint32 numViewport = bIsArray ? viewportInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_viewports]].size() : _count_1;
+			bIsArray           = viewportInfo[_text_mapper(vk_viewports)].isArray();
+			uint32 numViewport = bIsArray ? viewportInfo[_text_mapper(vk_viewports)].size() : _count_1;
 
-			pipelineViewportStateInfos[i].flags         = JsonParser::GetUInt32(viewportInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_flags]]);
+			pipelineViewportStateInfos[i].flags         = JsonParser::GetUInt32(viewportInfo[_text_mapper(vk_flags)]);
 			pipelineViewportStateInfos[i].viewportCount = numViewport;
 			pipelineViewportStateInfos[i].scissorCount  = numViewport;
 			pipelineViewportStateInfos[i].pViewports    = &currentViewport;
@@ -1352,188 +1358,188 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 
 			for (uint32 j = 0; j < numViewport; j++)
 			{
-				auto& viewport = bIsArray ? viewportInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_viewports]][j] : viewportInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_viewports]];
-				auto& scissor  = viewportInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_scissor_rectangles]].isArray() ? viewportInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_scissor_rectangles]][j] : viewportInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_scissor_rectangles]];
+				auto& viewport = bIsArray ? viewportInfo[_text_mapper(vk_viewports)][j] : viewportInfo[_text_mapper(vk_viewports)];				
+				auto& scissor  = viewportInfo[_text_mapper(vk_scissor_rectangles)].isArray() ? viewportInfo[_text_mapper(vk_scissor_rectangles)][j] : viewportInfo[_text_mapper(vk_scissor_rectangles)];
 
-				if (!viewport[StringMapper::Map[(size_t)StringMapper::ID::vk_position]].isArray())
+				if (!viewport[_text_mapper(vk_position)].isArray())
 				{
 					_log_error("json file: viewport [position] must be an array [ first, second ]!", LogSystem::Category::JsonParser);
 					return false;
 				}
-				if (!viewport[StringMapper::Map[(size_t)StringMapper::ID::vk_size]].isArray())
+				if (!viewport[_text_mapper(vk_size)].isArray())
 				{
 					_log_error("json file: viewport [size] must be an array [ first, second ]!", LogSystem::Category::JsonParser);
 					return false;
 				}
-				if (!viewport[StringMapper::Map[(size_t)StringMapper::ID::vk_depth_range]].isArray())
+				if (!viewport[_text_mapper(vk_depth_range)].isArray())
 				{
 					_log_error("json file: viewport [depth_range] must be an array [ first, second ]!", LogSystem::Category::JsonParser);
 					return false;
 				}
-				if (!scissor[StringMapper::Map[(size_t)StringMapper::ID::vk_offset]].isArray())
+				if (!scissor[_text_mapper(vk_offset)].isArray())
 				{
 					_log_error("json file: scissor [offset] must be an array [ first, second ]!", LogSystem::Category::JsonParser);
 					return false;
 				}
-				if (!scissor[StringMapper::Map[(size_t)StringMapper::ID::vk_size]].isArray())
+				if (!scissor[_text_mapper(vk_size)].isArray())
 				{
 					_log_error("json file: scissor [size] must be an array [ first, second ]!", LogSystem::Category::JsonParser);
 					return false;
 				}
 
-				currentViewport.x        = JsonParser::GetFloat(viewport[StringMapper::Map[(size_t)StringMapper::ID::vk_position]][0]);
-				currentViewport.y        = JsonParser::GetFloat(viewport[StringMapper::Map[(size_t)StringMapper::ID::vk_position]][1]);
-				currentViewport.width    = JsonParser::GetString(viewport[StringMapper::Map[(size_t)StringMapper::ID::vk_size]][0]) == "auto" ? (float)m_pWindow->GetWindowDesc().Width  : JsonParser::GetFloat(viewport[StringMapper::Map[(size_t)StringMapper::ID::vk_size]][0]);
-				currentViewport.height   = JsonParser::GetString(viewport[StringMapper::Map[(size_t)StringMapper::ID::vk_size]][1]) == "auto" ? (float)m_pWindow->GetWindowDesc().Height : JsonParser::GetFloat(viewport[StringMapper::Map[(size_t)StringMapper::ID::vk_size]][1]);
-				currentViewport.minDepth = JsonParser::GetFloat(viewport[StringMapper::Map[(size_t)StringMapper::ID::vk_depth_range]][0]);
-				currentViewport.maxDepth = JsonParser::GetFloat(viewport[StringMapper::Map[(size_t)StringMapper::ID::vk_depth_range]][1]);
+				currentViewport.x        = JsonParser::GetFloat(viewport[_text_mapper(vk_position)][0]);
+				currentViewport.y        = JsonParser::GetFloat(viewport[_text_mapper(vk_position)][1]);
+				currentViewport.width    = JsonParser::GetString(viewport[_text_mapper(vk_size)][0]) == "auto" ? (float)m_pWindow->GetWindowDesc().Width  : JsonParser::GetFloat(viewport[_text_mapper(vk_size)][0]);
+				currentViewport.height   = JsonParser::GetString(viewport[_text_mapper(vk_size)][1]) == "auto" ? (float)m_pWindow->GetWindowDesc().Height : JsonParser::GetFloat(viewport[_text_mapper(vk_size)][1]);
+				currentViewport.minDepth = JsonParser::GetFloat(viewport[_text_mapper(vk_depth_range)][0]);
+				currentViewport.maxDepth = JsonParser::GetFloat(viewport[_text_mapper(vk_depth_range)][1]);
 
-				currentScissor.offset.x      = JsonParser::GetInt32(scissor[StringMapper::Map[(size_t)StringMapper::ID::vk_offset]][0]);
-				currentScissor.offset.y      = JsonParser::GetInt32(scissor[StringMapper::Map[(size_t)StringMapper::ID::vk_offset]][1]);
-				currentScissor.extent.width  = JsonParser::GetString(scissor[StringMapper::Map[(size_t)StringMapper::ID::vk_size]][0]) == "auto" ? m_pWindow->GetWindowDesc().Width  : JsonParser::GetUInt32(scissor[StringMapper::Map[(size_t)StringMapper::ID::vk_size]][0]);
-				currentScissor.extent.height = JsonParser::GetString(scissor[StringMapper::Map[(size_t)StringMapper::ID::vk_size]][1]) == "auto" ? m_pWindow->GetWindowDesc().Height : JsonParser::GetUInt32(scissor[StringMapper::Map[(size_t)StringMapper::ID::vk_size]][1]);
+				currentScissor.offset.x      = JsonParser::GetInt32(scissor[_text_mapper(vk_offset)][0]);
+				currentScissor.offset.y      = JsonParser::GetInt32(scissor[_text_mapper(vk_offset)][1]);
+				currentScissor.extent.width  = JsonParser::GetString(scissor[_text_mapper(vk_size)][0]) == "auto" ? m_pWindow->GetWindowDesc().Width  : JsonParser::GetUInt32(scissor[_text_mapper(vk_size)][0]);
+				currentScissor.extent.height = JsonParser::GetString(scissor[_text_mapper(vk_size)][1]) == "auto" ? m_pWindow->GetWindowDesc().Height : JsonParser::GetUInt32(scissor[_text_mapper(vk_size)][1]);
 			}
 		}
 
 		// RS State.
 		graphicInfos[i].pRasterizationState = &pipelineRSStateInfos[i];
-		auto& rasterizationInfo             = graphicInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_rasterization_state]];
+		auto& rasterizationInfo             = graphicInfo[_text_mapper(vk_rasterization_state)];
 		if (rasterizationInfo != Json::nullValue)
 		{
-			pipelineRSStateInfos[i].flags                   = JsonParser::GetUInt32(rasterizationInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_flags]]);
-			pipelineRSStateInfos[i].depthClampEnable        = JsonParser::GetUInt32(rasterizationInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_depth_clamp_enable]]);
-			pipelineRSStateInfos[i].rasterizerDiscardEnable = JsonParser::GetUInt32(rasterizationInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_rasterizer_discard_enable]]);
-			pipelineRSStateInfos[i].polygonMode             = Util::GetVkPolygonMode(JsonParser::GetString(rasterizationInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_polygon_mode]]));
-			pipelineRSStateInfos[i].cullMode                = Util::GetVkCullModeFlags(JsonParser::GetString(rasterizationInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_cull_mode]]));
-			pipelineRSStateInfos[i].frontFace               = Util::GetVkFrontFace(JsonParser::GetString(rasterizationInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_front_face]]));
-			pipelineRSStateInfos[i].depthBiasEnable         = JsonParser::GetUInt32(rasterizationInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_depth_bias_enable]]);
-			pipelineRSStateInfos[i].depthBiasConstantFactor = JsonParser::GetFloat(rasterizationInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_depth_bias_constant_factor]]);
-			pipelineRSStateInfos[i].depthBiasClamp          = JsonParser::GetFloat(rasterizationInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_depth_bias_clamp]]);
-			pipelineRSStateInfos[i].depthBiasSlopeFactor    = JsonParser::GetFloat(rasterizationInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_depth_bias_slope_factor]]);
-			pipelineRSStateInfos[i].lineWidth               = JsonParser::GetFloat(rasterizationInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_line_width]]);
+			pipelineRSStateInfos[i].flags                   = JsonParser::GetUInt32(rasterizationInfo[_text_mapper(vk_flags)]);
+			pipelineRSStateInfos[i].depthClampEnable        = JsonParser::GetUInt32(rasterizationInfo[_text_mapper(vk_depth_clamp_enable)]);
+			pipelineRSStateInfos[i].rasterizerDiscardEnable = JsonParser::GetUInt32(rasterizationInfo[_text_mapper(vk_rasterizer_discard_enable)]);
+			pipelineRSStateInfos[i].polygonMode             = Util::GetVkPolygonMode(JsonParser::GetString(rasterizationInfo[_text_mapper(vk_polygon_mode)]));
+			pipelineRSStateInfos[i].cullMode                = Util::GetVkCullModeFlags(JsonParser::GetString(rasterizationInfo[_text_mapper(vk_cull_mode)]));
+			pipelineRSStateInfos[i].frontFace               = Util::GetVkFrontFace(JsonParser::GetString(rasterizationInfo[_text_mapper(vk_front_face)]));
+			pipelineRSStateInfos[i].depthBiasEnable         = JsonParser::GetUInt32(rasterizationInfo[_text_mapper(vk_depth_bias_enable)]);
+			pipelineRSStateInfos[i].depthBiasConstantFactor = JsonParser::GetFloat(rasterizationInfo[_text_mapper(vk_depth_bias_constant_factor)]);
+			pipelineRSStateInfos[i].depthBiasClamp          = JsonParser::GetFloat(rasterizationInfo[_text_mapper(vk_depth_bias_clamp)]);
+			pipelineRSStateInfos[i].depthBiasSlopeFactor    = JsonParser::GetFloat(rasterizationInfo[_text_mapper(vk_depth_bias_slope_factor)]);
+			pipelineRSStateInfos[i].lineWidth               = JsonParser::GetFloat(rasterizationInfo[_text_mapper(vk_line_width)]);
 		}
 
 		// Multisample State.
 		graphicInfos[i].pMultisampleState = &pipelineMultisampleStateInfos[i];
-		auto& multisampleInfo             = graphicInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_multisample_state]];
+		auto& multisampleInfo             = graphicInfo[_text_mapper(vk_multisample_state)];
 		if (multisampleInfo != Json::nullValue)
 		{
-			bIsArray             = multisampleInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_sample_masks]].isArray();
-			uint32 numSampleMask = bIsArray ? multisampleInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_sample_masks]].size() : _count_1;
+			bIsArray             = multisampleInfo[_text_mapper(vk_sample_masks)].isArray();
+			uint32 numSampleMask = bIsArray ? multisampleInfo[_text_mapper(vk_sample_masks)].size() : _count_1;
 
 			sampleMasks[i].resize(numSampleMask);
 
 			for (uint32 j = 0; j < numSampleMask; j++)
-				sampleMasks[i][j] = bIsArray ? multisampleInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_sample_masks]][j].asUInt() : multisampleInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_sample_masks]].asUInt();
+				sampleMasks[i][j] = bIsArray ? multisampleInfo[_text_mapper(vk_sample_masks)][j].asUInt() : multisampleInfo[_text_mapper(vk_sample_masks)].asUInt();
 
-			pipelineMultisampleStateInfos[i].flags                 = JsonParser::GetUInt32(multisampleInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_flags]]);
-			pipelineMultisampleStateInfos[i].rasterizationSamples  = (VkSampleCountFlagBits)Util::GetMultisampleCount(JsonParser::GetUInt32(multisampleInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_multisample_count]]));
-			pipelineMultisampleStateInfos[i].sampleShadingEnable   = JsonParser::GetUInt32(multisampleInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_sample_shading_enable]]);
-			pipelineMultisampleStateInfos[i].minSampleShading      = JsonParser::GetFloat(multisampleInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_min_sample_shading_factor]]);
+			pipelineMultisampleStateInfos[i].flags                 = JsonParser::GetUInt32(multisampleInfo[_text_mapper(vk_flags)]);
+			pipelineMultisampleStateInfos[i].rasterizationSamples  = (VkSampleCountFlagBits)Util::GetMultisampleCount(JsonParser::GetUInt32(multisampleInfo[_text_mapper(vk_multisample_count)]));
+			pipelineMultisampleStateInfos[i].sampleShadingEnable   = JsonParser::GetUInt32(multisampleInfo[_text_mapper(vk_sample_shading_enable)]);
+			pipelineMultisampleStateInfos[i].minSampleShading      = JsonParser::GetFloat(multisampleInfo[_text_mapper(vk_min_sample_shading_factor)]);
 			pipelineMultisampleStateInfos[i].pSampleMask           = sampleMasks[i].data();
-			pipelineMultisampleStateInfos[i].alphaToCoverageEnable = JsonParser::GetUInt32(multisampleInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_alpha_to_coverage_enable]]);
-			pipelineMultisampleStateInfos[i].alphaToOneEnable      = JsonParser::GetUInt32(multisampleInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_alpha_to_one_enable]]);		
+			pipelineMultisampleStateInfos[i].alphaToCoverageEnable = JsonParser::GetUInt32(multisampleInfo[_text_mapper(vk_alpha_to_coverage_enable)]);
+			pipelineMultisampleStateInfos[i].alphaToOneEnable      = JsonParser::GetUInt32(multisampleInfo[_text_mapper(vk_alpha_to_one_enable)]);		
 		}
 
 		// Depth Stencil State.
 		graphicInfos[i].pDepthStencilState = &pipelineDepthStencilStateInfos[i];
-		auto& depthStencilInfo             = graphicInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_depth_stencil_state]];
+		auto& depthStencilInfo             = graphicInfo[_text_mapper(vk_depth_stencil_state)];
 		if (depthStencilInfo != Json::nullValue)
 		{
-			pipelineDepthStencilStateInfos[i].flags                 = JsonParser::GetUInt32(depthStencilInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_flags]]);
-			pipelineDepthStencilStateInfos[i].depthTestEnable       = JsonParser::GetUInt32(depthStencilInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_depth_test_enable]]);
-			pipelineDepthStencilStateInfos[i].depthWriteEnable      = JsonParser::GetUInt32(depthStencilInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_depth_write_enable]]);
-			pipelineDepthStencilStateInfos[i].depthCompareOp        = Util::GetVkCompareOp(JsonParser::GetString(depthStencilInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_depth_compare_op]]));
-			pipelineDepthStencilStateInfos[i].depthBoundsTestEnable = JsonParser::GetUInt32(depthStencilInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_depth_bounds_test_enable]]);
-			pipelineDepthStencilStateInfos[i].stencilTestEnable     = JsonParser::GetUInt32(depthStencilInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_stencil_test_enable]]);
-			pipelineDepthStencilStateInfos[i].minDepthBounds        = JsonParser::GetFloat(depthStencilInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_min_depth_bounds]]);
-			pipelineDepthStencilStateInfos[i].maxDepthBounds        = JsonParser::GetFloat(depthStencilInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_max_depth_bounds]]);
+			pipelineDepthStencilStateInfos[i].flags                 = JsonParser::GetUInt32(depthStencilInfo[_text_mapper(vk_flags)]);
+			pipelineDepthStencilStateInfos[i].depthTestEnable       = JsonParser::GetUInt32(depthStencilInfo[_text_mapper(vk_depth_test_enable)]);
+			pipelineDepthStencilStateInfos[i].depthWriteEnable      = JsonParser::GetUInt32(depthStencilInfo[_text_mapper(vk_depth_write_enable)]);
+			pipelineDepthStencilStateInfos[i].depthCompareOp        = Util::GetVkCompareOp(JsonParser::GetString(depthStencilInfo[_text_mapper(vk_depth_compare_op)]));
+			pipelineDepthStencilStateInfos[i].depthBoundsTestEnable = JsonParser::GetUInt32(depthStencilInfo[_text_mapper(vk_depth_bounds_test_enable)]);
+			pipelineDepthStencilStateInfos[i].stencilTestEnable     = JsonParser::GetUInt32(depthStencilInfo[_text_mapper(vk_stencil_test_enable)]);
+			pipelineDepthStencilStateInfos[i].minDepthBounds        = JsonParser::GetFloat(depthStencilInfo[_text_mapper(vk_min_depth_bounds)]);
+			pipelineDepthStencilStateInfos[i].maxDepthBounds        = JsonParser::GetFloat(depthStencilInfo[_text_mapper(vk_max_depth_bounds)]);
 
-			auto& stencilInfo = depthStencilInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_stencil_test_state]];
+			auto& stencilInfo = depthStencilInfo[_text_mapper(vk_stencil_test_state)];
 			if (stencilInfo != Json::nullValue)
 			{
-				if (JsonParser::GetString(stencilInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_front]]) != "auto")
+				if (JsonParser::GetString(stencilInfo[_text_mapper(vk_front)]) != "auto")
 				{
-					pipelineDepthStencilStateInfos[i].front.failOp      = Util::GetVkStencilOp(JsonParser::GetString(stencilInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_front]][StringMapper::Map[(size_t)StringMapper::ID::vk_fail_op]]));
-					pipelineDepthStencilStateInfos[i].front.passOp      = Util::GetVkStencilOp(JsonParser::GetString(stencilInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_front]][StringMapper::Map[(size_t)StringMapper::ID::vk_pass_op]]));
-					pipelineDepthStencilStateInfos[i].front.depthFailOp = Util::GetVkStencilOp(JsonParser::GetString(stencilInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_front]][StringMapper::Map[(size_t)StringMapper::ID::vk_depth_fail_op]]));
-					pipelineDepthStencilStateInfos[i].front.compareOp   = Util::GetVkCompareOp(JsonParser::GetString(stencilInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_front]][StringMapper::Map[(size_t)StringMapper::ID::vk_compare_op]]));
-					pipelineDepthStencilStateInfos[i].front.compareMask = StringUtil::StrHexToNumeric(JsonParser::GetString(stencilInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_front]][StringMapper::Map[(size_t)StringMapper::ID::vk_compare_mask]], "0x00"));
-					pipelineDepthStencilStateInfos[i].front.writeMask   = StringUtil::StrHexToNumeric(JsonParser::GetString(stencilInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_front]][StringMapper::Map[(size_t)StringMapper::ID::vk_write_mask]],   "0x00"));
-					pipelineDepthStencilStateInfos[i].front.reference   = JsonParser::GetUInt32(stencilInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_front]][StringMapper::Map[(size_t)StringMapper::ID::vk_reference]]);
+					pipelineDepthStencilStateInfos[i].front.failOp      = Util::GetVkStencilOp(JsonParser::GetString(stencilInfo[_text_mapper(vk_front)][_text_mapper(vk_fail_op)]));
+					pipelineDepthStencilStateInfos[i].front.passOp      = Util::GetVkStencilOp(JsonParser::GetString(stencilInfo[_text_mapper(vk_front)][_text_mapper(vk_pass_op)]));
+					pipelineDepthStencilStateInfos[i].front.depthFailOp = Util::GetVkStencilOp(JsonParser::GetString(stencilInfo[_text_mapper(vk_front)][_text_mapper(vk_depth_fail_op)]));
+					pipelineDepthStencilStateInfos[i].front.compareOp   = Util::GetVkCompareOp(JsonParser::GetString(stencilInfo[_text_mapper(vk_front)][_text_mapper(vk_compare_op)]));
+					pipelineDepthStencilStateInfos[i].front.compareMask = StringUtil::StrHexToNumeric(JsonParser::GetString(stencilInfo[_text_mapper(vk_front)][_text_mapper(vk_compare_mask)], "0x00"));
+					pipelineDepthStencilStateInfos[i].front.writeMask   = StringUtil::StrHexToNumeric(JsonParser::GetString(stencilInfo[_text_mapper(vk_front)][_text_mapper(vk_write_mask)],   "0x00"));
+					pipelineDepthStencilStateInfos[i].front.reference   = JsonParser::GetUInt32(stencilInfo[_text_mapper(vk_front)][_text_mapper(vk_reference)]);
 				}
 
-				if (JsonParser::GetString(stencilInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_back]]) != "auto")
+				if (JsonParser::GetString(stencilInfo[_text_mapper(vk_back)]) != "auto")
 				{
-					pipelineDepthStencilStateInfos[i].back.failOp      = Util::GetVkStencilOp(JsonParser::GetString(stencilInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_back]][StringMapper::Map[(size_t)StringMapper::ID::vk_fail_op]]));
-					pipelineDepthStencilStateInfos[i].back.passOp      = Util::GetVkStencilOp(JsonParser::GetString(stencilInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_back]][StringMapper::Map[(size_t)StringMapper::ID::vk_pass_op]]));
-					pipelineDepthStencilStateInfos[i].back.depthFailOp = Util::GetVkStencilOp(JsonParser::GetString(stencilInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_back]][StringMapper::Map[(size_t)StringMapper::ID::vk_depth_fail_op]]));
-					pipelineDepthStencilStateInfos[i].back.compareOp   = Util::GetVkCompareOp(JsonParser::GetString(stencilInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_back]][StringMapper::Map[(size_t)StringMapper::ID::vk_compare_op]]));
-					pipelineDepthStencilStateInfos[i].back.compareMask = StringUtil::StrHexToNumeric(JsonParser::GetString(stencilInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_back]][StringMapper::Map[(size_t)StringMapper::ID::vk_compare_mask]], "0x00"));
-					pipelineDepthStencilStateInfos[i].back.writeMask   = StringUtil::StrHexToNumeric(JsonParser::GetString(stencilInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_back]][StringMapper::Map[(size_t)StringMapper::ID::vk_write_mask]],   "0x00"));
-					pipelineDepthStencilStateInfos[i].back.reference   = JsonParser::GetUInt32(stencilInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_back]][StringMapper::Map[(size_t)StringMapper::ID::vk_reference]]);
+					pipelineDepthStencilStateInfos[i].back.failOp      = Util::GetVkStencilOp(JsonParser::GetString(stencilInfo[_text_mapper(vk_back)][_text_mapper(vk_fail_op)]));
+					pipelineDepthStencilStateInfos[i].back.passOp      = Util::GetVkStencilOp(JsonParser::GetString(stencilInfo[_text_mapper(vk_back)][_text_mapper(vk_pass_op)]));
+					pipelineDepthStencilStateInfos[i].back.depthFailOp = Util::GetVkStencilOp(JsonParser::GetString(stencilInfo[_text_mapper(vk_back)][_text_mapper(vk_depth_fail_op)]));
+					pipelineDepthStencilStateInfos[i].back.compareOp   = Util::GetVkCompareOp(JsonParser::GetString(stencilInfo[_text_mapper(vk_back)][_text_mapper(vk_compare_op)]));
+					pipelineDepthStencilStateInfos[i].back.compareMask = StringUtil::StrHexToNumeric(JsonParser::GetString(stencilInfo[_text_mapper(vk_back)][_text_mapper(vk_compare_mask)], "0x00"));
+					pipelineDepthStencilStateInfos[i].back.writeMask   = StringUtil::StrHexToNumeric(JsonParser::GetString(stencilInfo[_text_mapper(vk_back)][_text_mapper(vk_write_mask)],   "0x00"));
+					pipelineDepthStencilStateInfos[i].back.reference   = JsonParser::GetUInt32(stencilInfo[_text_mapper(vk_back)][_text_mapper(vk_reference)]);
 				}			
 
-				if (JsonParser::GetString(stencilInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_front]]) == "auto")
+				if (JsonParser::GetString(stencilInfo[_text_mapper(vk_front)]) == "auto")
 					pipelineDepthStencilStateInfos[i].front = pipelineDepthStencilStateInfos[i].back;
-				if (JsonParser::GetString(stencilInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_back]])  == "auto")
+				if (JsonParser::GetString(stencilInfo[_text_mapper(vk_back)])  == "auto")
 					pipelineDepthStencilStateInfos[i].back  = pipelineDepthStencilStateInfos[i].front;
 			}
 		}
 
 		// Color Blend State.
 		graphicInfos[i].pColorBlendState = &pipelineColorBlendStateInfos[i];
-		auto& colorBlendInfo             = graphicInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_color_blend_state]];
-		if (colorBlendInfo != Json::nullValue)
+		auto& colorBlendInfo             = graphicInfo[_text_mapper(vk_color_blend_state)];
+		if (colorBlendInfo != Json::nullValue && colorBlendInfo[_text_mapper(vk_attachments)] != Json::nullValue)
 		{
-			bIsArray             = colorBlendInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_attachments]].isArray();
-			uint32 numAttachment = bIsArray ? colorBlendInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_attachments]].size() : _count_1;
+			bIsArray             = colorBlendInfo[_text_mapper(vk_attachments)].isArray();
+			uint32 numAttachment = bIsArray ? colorBlendInfo[_text_mapper(vk_attachments)].size() : _count_1;
 
 			colorBlendAttachmentStates[i].resize(numAttachment);
 
 			for (uint32 j = 0; j < numAttachment; j++)
 			{
-				auto& attachment = bIsArray ? colorBlendInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_attachments]][j] : colorBlendInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_attachments]];
+				auto& attachment = bIsArray ? colorBlendInfo[_text_mapper(vk_attachments)][j] : colorBlendInfo[_text_mapper(vk_attachments)];				
 
-				colorBlendAttachmentStates[i][j].blendEnable         = JsonParser::GetUInt32(attachment[StringMapper::Map[(size_t)StringMapper::ID::vk_blend_enable]]);
-				colorBlendAttachmentStates[i][j].srcColorBlendFactor = attachment[StringMapper::Map[(size_t)StringMapper::ID::vk_src_color_factor]].isUInt() ? static_cast<VkBlendFactor>(JsonParser::GetUInt32(attachment[StringMapper::Map[(size_t)StringMapper::ID::vk_src_color_factor]])) : Util::GetVkBlendFactor(JsonParser::GetString(attachment[StringMapper::Map[(size_t)StringMapper::ID::vk_src_color_factor]]));
-				colorBlendAttachmentStates[i][j].dstColorBlendFactor = attachment[StringMapper::Map[(size_t)StringMapper::ID::vk_dst_color_factor]].isUInt() ? static_cast<VkBlendFactor>(JsonParser::GetUInt32(attachment[StringMapper::Map[(size_t)StringMapper::ID::vk_dst_color_factor]])) : Util::GetVkBlendFactor(JsonParser::GetString(attachment[StringMapper::Map[(size_t)StringMapper::ID::vk_dst_color_factor]]));
-				colorBlendAttachmentStates[i][j].colorBlendOp        = Util::GetVkBlendOp(JsonParser::GetString(attachment[StringMapper::Map[(size_t)StringMapper::ID::vk_color_blend_op]]));
-				colorBlendAttachmentStates[i][j].srcAlphaBlendFactor = attachment[StringMapper::Map[(size_t)StringMapper::ID::vk_src_alpha_factor]].isUInt() ? static_cast<VkBlendFactor>(JsonParser::GetUInt32(attachment[StringMapper::Map[(size_t)StringMapper::ID::vk_src_alpha_factor]])) : Util::GetVkBlendFactor(JsonParser::GetString(attachment[StringMapper::Map[(size_t)StringMapper::ID::vk_src_alpha_factor]]));
-				colorBlendAttachmentStates[i][j].dstAlphaBlendFactor = attachment[StringMapper::Map[(size_t)StringMapper::ID::vk_dst_alpha_factor]].isUInt() ? static_cast<VkBlendFactor>(JsonParser::GetUInt32(attachment[StringMapper::Map[(size_t)StringMapper::ID::vk_dst_alpha_factor]])) : Util::GetVkBlendFactor(JsonParser::GetString(attachment[StringMapper::Map[(size_t)StringMapper::ID::vk_dst_alpha_factor]]));
-				colorBlendAttachmentStates[i][j].alphaBlendOp        = Util::GetVkBlendOp(JsonParser::GetString(attachment[StringMapper::Map[(size_t)StringMapper::ID::vk_alpha_blend_op]]));
-				colorBlendAttachmentStates[i][j].colorWriteMask      = Util::GetColorComponentMask(JsonParser::GetString(attachment[StringMapper::Map[(size_t)StringMapper::ID::vk_component_mask]]));
+				colorBlendAttachmentStates[i][j].blendEnable         = JsonParser::GetUInt32(attachment[_text_mapper(vk_blend_enable)]);
+				colorBlendAttachmentStates[i][j].srcColorBlendFactor = attachment[_text_mapper(vk_src_color_factor)].isUInt() ? static_cast<VkBlendFactor>(JsonParser::GetUInt32(attachment[_text_mapper(vk_src_color_factor)])) : Util::GetVkBlendFactor(JsonParser::GetString(attachment[_text_mapper(vk_src_color_factor)]));
+				colorBlendAttachmentStates[i][j].dstColorBlendFactor = attachment[_text_mapper(vk_dst_color_factor)].isUInt() ? static_cast<VkBlendFactor>(JsonParser::GetUInt32(attachment[_text_mapper(vk_dst_color_factor)])) : Util::GetVkBlendFactor(JsonParser::GetString(attachment[_text_mapper(vk_dst_color_factor)]));
+				colorBlendAttachmentStates[i][j].colorBlendOp        = Util::GetVkBlendOp(JsonParser::GetString(attachment[_text_mapper(vk_color_blend_op)]));
+				colorBlendAttachmentStates[i][j].srcAlphaBlendFactor = attachment[_text_mapper(vk_src_alpha_factor)].isUInt() ? static_cast<VkBlendFactor>(JsonParser::GetUInt32(attachment[_text_mapper(vk_src_alpha_factor)])) : Util::GetVkBlendFactor(JsonParser::GetString(attachment[_text_mapper(vk_src_alpha_factor)]));
+				colorBlendAttachmentStates[i][j].dstAlphaBlendFactor = attachment[_text_mapper(vk_dst_alpha_factor)].isUInt() ? static_cast<VkBlendFactor>(JsonParser::GetUInt32(attachment[_text_mapper(vk_dst_alpha_factor)])) : Util::GetVkBlendFactor(JsonParser::GetString(attachment[_text_mapper(vk_dst_alpha_factor)]));
+				colorBlendAttachmentStates[i][j].alphaBlendOp        = Util::GetVkBlendOp(JsonParser::GetString(attachment[_text_mapper(vk_alpha_blend_op)]));
+				colorBlendAttachmentStates[i][j].colorWriteMask      = Util::GetColorComponentMask(JsonParser::GetString(attachment[_text_mapper(vk_component_mask)]));
 			}
 
-			pipelineColorBlendStateInfos[i].flags           = JsonParser::GetUInt32(colorBlendInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_flags]]);
-			pipelineColorBlendStateInfos[i].logicOpEnable   = JsonParser::GetUInt32(colorBlendInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_logic_op_enable]]);
-			pipelineColorBlendStateInfos[i].logicOp         = Util::GetVkLogicOp(JsonParser::GetString(colorBlendInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_logic_op]]));
+			pipelineColorBlendStateInfos[i].flags           = JsonParser::GetUInt32(colorBlendInfo[_text_mapper(vk_flags)]);
+			pipelineColorBlendStateInfos[i].logicOpEnable   = JsonParser::GetUInt32(colorBlendInfo[_text_mapper(vk_logic_op_enable)]);
+			pipelineColorBlendStateInfos[i].logicOp         = Util::GetVkLogicOp(JsonParser::GetString(colorBlendInfo[_text_mapper(vk_logic_op)]));
 			pipelineColorBlendStateInfos[i].attachmentCount = numAttachment;
 			pipelineColorBlendStateInfos[i].pAttachments    = colorBlendAttachmentStates[i].data();
 
-			bIsArray           = colorBlendInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_blend_constants]].isArray();
-			uint32 numConstant = bIsArray ? colorBlendInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_blend_constants]].size() : _count_1;
+			bIsArray           = colorBlendInfo[_text_mapper(vk_blend_constants)].isArray();
+			uint32 numConstant = bIsArray ? colorBlendInfo[_text_mapper(vk_blend_constants)].size() : _count_1;
 			for (uint32 j = 0; j < numConstant; j++)
 			{
 				if (j >= 4) break;
-				pipelineColorBlendStateInfos[i].blendConstants[j] = JsonParser::GetFloat(bIsArray ? colorBlendInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_blend_constants]][j] : colorBlendInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_blend_constants]]);
+				pipelineColorBlendStateInfos[i].blendConstants[j] = JsonParser::GetFloat(bIsArray ? colorBlendInfo[_text_mapper(vk_blend_constants)][j] : colorBlendInfo[_text_mapper(vk_blend_constants)]);
 			}
 		}
 
 		// Dynamic State.
 		graphicInfos[i].pDynamicState = &pipelineDynamicStateInfos[i];
-		auto& dynamicStateInfo        = graphicInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_dynamic_state]];
-		if (dynamicStateInfo != Json::nullValue)
+		auto& dynamicStateInfo        = graphicInfo[_text_mapper(vk_dynamic_state)];
+		if (dynamicStateInfo != Json::nullValue && dynamicStateInfo[_text_mapper(vk_state)] != Json::nullValue)
 		{
-			bIsArray               = dynamicStateInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_state]].isArray();
-			uint32 numDynamicState = bIsArray ? dynamicStateInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_state]].size() : _count_1;
+			bIsArray               = dynamicStateInfo[_text_mapper(vk_state)].isArray();
+			uint32 numDynamicState = bIsArray ? dynamicStateInfo[_text_mapper(vk_state)].size() : _count_1;
 
 			dynamicStates[i].resize(numDynamicState);
 
 			for (uint32 j = 0; j < numDynamicState; j++)
-				dynamicStates[i][j] = Util::GetVkDynamicState(JsonParser::GetString(bIsArray ? dynamicStateInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_state]][j] : dynamicStateInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_state]]));
+				dynamicStates[i][j] = Util::GetVkDynamicState(JsonParser::GetString(bIsArray ? dynamicStateInfo[_text_mapper(vk_state)][j] : dynamicStateInfo[_text_mapper(vk_state)]));
 
-			pipelineDynamicStateInfos[i].flags             = JsonParser::GetUInt32(dynamicStateInfo[StringMapper::Map[(size_t)StringMapper::ID::vk_flags]]);
+			pipelineDynamicStateInfos[i].flags             = JsonParser::GetUInt32(dynamicStateInfo[_text_mapper(vk_flags)]);
 			pipelineDynamicStateInfos[i].dynamicStateCount = numDynamicState;
 			pipelineDynamicStateInfos[i].pDynamicStates    = dynamicStates[i].data();
 		}
@@ -1557,6 +1563,319 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 		pPipelineLayouts.push_back(pPipelineLayout);
 
 		graphicInfos[i].layout = *pPipelineLayout;
+		
+		// RenderPass.
+		{
+			std::vector<VkAttachmentDescription>             renderPassAttachmentDescs;
+			std::vector<VkSubpassDescription>                renderPassSubpassDescs;
+			std::vector<std::vector<VkAttachmentReference>>  renderPassSubpassInputAttachments;
+			std::vector<std::vector<VkAttachmentReference>>  renderPassSubpassColorAttachments;
+			std::vector<std::vector<VkAttachmentReference>>  renderPassSubpassResolveAttachments;
+			std::vector<std::vector<uint32>>                 renderPassSubpassPreserveAttachments;
+			std::vector<VkAttachmentReference>               renderPassSubpassDepthAttachments;
+			std::vector<VkSubpassDependency>                 renderPassSubpassDependency;
+
+			std::unordered_map<std::string, uint32>          attachmentNameIDMap;
+			std::unordered_map<std::string, uint32>          subpassNameIDMap;
+
+			_declare_vk_smart_ptr(VkRenderPass, pRenderPass);
+			VkRenderPassCreateInfo renderPassCreateInfo = {};
+			
+			std::string renderPassJson = JsonParser::GetString(graphicInfo[_text_mapper(vk_renderpass_info)]);
+
+			LogSystem::Log("Begin creating renderpass with " + renderPassJson, LogSystem::Category::LogicalDevice);
+
+			Json::Value renderPassRoot;
+
+			if (!JsonParser::Parse(renderPassJson, renderPassRoot))
+			{
+				_log_error("JsonParser failed at file: " + renderPassJson, LogSystem::Category::LogicalDevice);
+				return false;
+			}
+
+			auto& renderPassInfo = renderPassRoot[_text_mapper(vk_renderpass_info)];
+
+			if (renderPassInfo == Json::nullValue)
+			{
+				_log_error("json file: [renderpass_info] can not be null!", LogSystem::Category::JsonParser);
+				return false;
+			}	
+
+			renderPassCreateInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+			renderPassCreateInfo.flags = JsonParser::GetUInt32(renderPassInfo[_text_mapper(vk_flags)]);
+
+			// Attachment.
+			bIsArray = renderPassInfo[_text_mapper(vk_attachment_descriptions)].isArray();
+			uint32 numAttachDesc = bIsArray ? renderPassInfo[_text_mapper(vk_attachment_descriptions)].size() : _count_1;
+
+			renderPassAttachmentDescs.resize(numAttachDesc);
+
+			renderPassCreateInfo.attachmentCount = numAttachDesc;
+			renderPassCreateInfo.pAttachments    = renderPassAttachmentDescs.data();
+
+			for (uint32 j = 0; j < numAttachDesc; j++)
+			{
+				auto& attachment = bIsArray ? renderPassInfo[_text_mapper(vk_attachment_descriptions)][j] : renderPassInfo[_text_mapper(vk_attachment_descriptions)];				
+
+				attachmentNameIDMap.emplace(JsonParser::GetString(attachment[_text_mapper(vk_name)]), j);
+
+				renderPassAttachmentDescs[j].flags          = JsonParser::GetUInt32(attachment[_text_mapper(vk_flags)]);
+				renderPassAttachmentDescs[j].format         = Util::GetVkFormat(JsonParser::GetString(attachment[_text_mapper(vk_format)]));
+				renderPassAttachmentDescs[j].samples        = (VkSampleCountFlagBits)Util::GetMultisampleCount(JsonParser::GetUInt32(attachment[_text_mapper(vk_sample_count)]));
+				renderPassAttachmentDescs[j].loadOp         = Util::GetVkAttachmentLoadOp(JsonParser::GetString(attachment[_text_mapper(vk_load_op)]));
+				renderPassAttachmentDescs[j].storeOp        = Util::GetVkAttachmentStoreOp(JsonParser::GetString(attachment[_text_mapper(vk_store_op)]));
+				renderPassAttachmentDescs[j].stencilLoadOp  = Util::GetVkAttachmentLoadOp(JsonParser::GetString(attachment[_text_mapper(vk_stencil_load_op)]));
+				renderPassAttachmentDescs[j].stencilStoreOp = Util::GetVkAttachmentStoreOp(JsonParser::GetString(attachment[_text_mapper(vk_stencil_store_op)]));
+				renderPassAttachmentDescs[j].initialLayout  = Util::GetVkImageLayout(JsonParser::GetString(attachment[_text_mapper(vk_in_state)]));
+				renderPassAttachmentDescs[j].finalLayout    = Util::GetVkImageLayout(JsonParser::GetString(attachment[_text_mapper(vk_out_state)]));
+			}
+
+			// Subpass.
+			bIsArray = renderPassInfo[_text_mapper(vk_subpass_descriptions)].isArray();
+			uint32 numSubpassDesc = bIsArray ? renderPassInfo[_text_mapper(vk_subpass_descriptions)].size() : _count_1;
+
+			renderPassSubpassDescs.resize(numSubpassDesc);
+			renderPassSubpassInputAttachments.resize(numSubpassDesc);
+			renderPassSubpassColorAttachments.resize(numSubpassDesc);
+			renderPassSubpassResolveAttachments.resize(numSubpassDesc);
+			renderPassSubpassPreserveAttachments.resize(numSubpassDesc);
+			renderPassSubpassDepthAttachments.resize(numSubpassDesc);
+
+			renderPassCreateInfo.subpassCount = numSubpassDesc;
+			renderPassCreateInfo.pSubpasses   = renderPassSubpassDescs.data();
+
+			for (uint32 j = 0; j < numSubpassDesc; j++)
+			{
+				auto& subpass = bIsArray ? renderPassInfo[_text_mapper(vk_subpass_descriptions)][j] : renderPassInfo[_text_mapper(vk_subpass_descriptions)];				
+
+				subpassNameIDMap.emplace(JsonParser::GetString(subpass[_text_mapper(vk_name)]), j);
+
+				renderPassSubpassDescs[j].flags             = JsonParser::GetUInt32(subpass[_text_mapper(vk_flags)]);
+				renderPassSubpassDescs[j].pipelineBindPoint = Util::GetVkPipelineBindPoint(JsonParser::GetString(subpass[_text_mapper(vk_pipeline_bind_point)]));
+
+				// Input Attachment Reference.
+				if (subpass[_text_mapper(vk_input_attachments)] != Json::nullValue)
+				{
+					bIsArray = subpass[_text_mapper(vk_input_attachments)].isArray();
+					uint32 numInputAttach = bIsArray ? subpass[_text_mapper(vk_input_attachments)].size() : _count_1;
+
+					renderPassSubpassInputAttachments[j].resize(numInputAttach);
+
+					renderPassSubpassDescs[j].inputAttachmentCount = numInputAttach;
+					renderPassSubpassDescs[j].pInputAttachments    = renderPassSubpassInputAttachments[j].data();
+
+					for (uint32 k = 0; k < numInputAttach; k++)
+					{
+						auto& inputAttach = bIsArray ? subpass[_text_mapper(vk_input_attachments)][k] : subpass[_text_mapper(vk_input_attachments)];						
+
+						std::string name = JsonParser::GetString(inputAttach[_text_mapper(vk_attachment_name)]);
+
+						try
+						{
+							renderPassSubpassInputAttachments[j][k].attachment = attachmentNameIDMap.at(name);
+							renderPassSubpassInputAttachments[j][k].layout     = Util::GetVkImageLayout(JsonParser::GetString(inputAttach[_text_mapper(vk_state)]));
+						}
+						catch (const std::out_of_range& msg)
+						{
+							_log_error(StringUtil::Printf("Exception: %, specified name \"%\" was not found!", std::string(msg.what()), name), LogSystem::Category::JsonParser);
+							return false;
+						}
+					}
+				}
+				else
+				{
+					renderPassSubpassDescs[j].inputAttachmentCount = _count_0;
+					renderPassSubpassDescs[j].pInputAttachments    = nullptr;
+
+					_log_warning("Input Attachment Reference is NULL!", LogSystem::Category::RenderPass);
+				}
+
+				// Color Attachment Reference.
+				if (subpass[_text_mapper(vk_color_attachments)] != Json::nullValue)
+				{
+					bIsArray = subpass[_text_mapper(vk_color_attachments)].isArray();
+					uint32 numColorAttach = bIsArray ? subpass[_text_mapper(vk_color_attachments)].size() : _count_1;
+
+					renderPassSubpassColorAttachments[j].resize(numColorAttach);
+
+					renderPassSubpassDescs[j].colorAttachmentCount = numColorAttach;
+					renderPassSubpassDescs[j].pColorAttachments    = renderPassSubpassColorAttachments[j].data();
+
+					for (uint32 k = 0; k < numColorAttach; k++)
+					{
+						auto& colorAttach = bIsArray ? subpass[_text_mapper(vk_color_attachments)][k] : subpass[_text_mapper(vk_color_attachments)];						
+
+						std::string name = JsonParser::GetString(colorAttach[_text_mapper(vk_attachment_name)]);
+
+						try
+						{
+							renderPassSubpassColorAttachments[j][k].attachment = attachmentNameIDMap.at(name);
+							renderPassSubpassColorAttachments[j][k].layout = Util::GetVkImageLayout(JsonParser::GetString(colorAttach[_text_mapper(vk_state)]));
+						}
+						catch (const std::out_of_range& msg)
+						{
+							_log_error(StringUtil::Printf("Exception: %, specified name \"%\" was not found!", std::string(msg.what()), name), LogSystem::Category::JsonParser);
+							return false;
+						}
+					}
+				}
+				else
+				{
+					renderPassSubpassDescs[j].colorAttachmentCount = _count_0;
+					renderPassSubpassDescs[j].pColorAttachments    = nullptr;
+
+					_log_warning("Color Attachment Reference is NULL!", LogSystem::Category::RenderPass);
+				}
+				
+				// Resolve Attachment Reference.
+				if (subpass[_text_mapper(vk_resolve_attachments)] != Json::nullValue)
+				{
+					bIsArray = subpass[_text_mapper(vk_resolve_attachments)].isArray();
+					uint32 numResolveAttach = bIsArray ? subpass[_text_mapper(vk_resolve_attachments)].size() : _count_1;
+
+					renderPassSubpassResolveAttachments[j].resize(numResolveAttach);
+
+					renderPassSubpassDescs[j].pResolveAttachments = renderPassSubpassResolveAttachments[j].data();
+
+					for (uint32 k = 0; k < numResolveAttach; k++)
+					{
+						auto& resolveAttach = bIsArray ? subpass[_text_mapper(vk_resolve_attachments)][k] : subpass[_text_mapper(vk_resolve_attachments)];					
+
+						std::string name = JsonParser::GetString(resolveAttach[_text_mapper(vk_attachment_name)]);
+
+						try
+						{
+							renderPassSubpassResolveAttachments[j][k].attachment = attachmentNameIDMap.at(name);
+							renderPassSubpassResolveAttachments[j][k].layout     = Util::GetVkImageLayout(JsonParser::GetString(resolveAttach[_text_mapper(vk_state)]));
+						}
+						catch (const std::out_of_range& msg)
+						{
+							_log_error(StringUtil::Printf("Exception: %, specified name \"%\" was not found!", std::string(msg.what()), name), LogSystem::Category::JsonParser);
+							return false;
+						}
+					}
+				}
+				else renderPassSubpassDescs[j].pResolveAttachments = nullptr;
+				
+				// Preserve Attachment ID.
+				if (subpass[_text_mapper(vk_preserve_attachment_names)] != Json::nullValue)
+				{
+					bIsArray = subpass[_text_mapper(vk_preserve_attachment_names)].isArray();
+					uint32 numPreserveAttach = bIsArray ? subpass[_text_mapper(vk_preserve_attachment_names)].size() : _count_1;
+
+					renderPassSubpassPreserveAttachments[j].resize(numPreserveAttach);
+
+					renderPassSubpassDescs[j].pPreserveAttachments = renderPassSubpassPreserveAttachments[j].data();
+
+					for (uint32 k = 0; k < numPreserveAttach; k++)
+					{
+						auto& preserveAttach = bIsArray ? subpass[_text_mapper(vk_preserve_attachment_names)][k] : subpass[_text_mapper(vk_preserve_attachment_names)];						
+
+						std::string name = JsonParser::GetString(preserveAttach);
+
+						try
+						{
+							renderPassSubpassPreserveAttachments[j][k] = attachmentNameIDMap.at(name);
+						}
+						catch (const std::out_of_range& msg)
+						{
+							_log_error(StringUtil::Printf("Exception: %, specified name \"%\" was not found!", std::string(msg.what()), name), LogSystem::Category::JsonParser);
+							return false;
+						}
+					}
+				}
+				else renderPassSubpassDescs[j].pPreserveAttachments = nullptr;
+				
+				// Depth Attachment Reference.
+				if (subpass[_text_mapper(vk_depth_attachment)] != Json::nullValue)
+				{
+					renderPassSubpassDescs[j].pDepthStencilAttachment = &renderPassSubpassDepthAttachments[j];
+
+					auto& depthAttach = subpass[_text_mapper(vk_depth_attachment)];
+
+					std::string name = JsonParser::GetString(depthAttach[_text_mapper(vk_attachment_name)]);
+
+					try
+					{
+						renderPassSubpassDepthAttachments[j].attachment = attachmentNameIDMap.at(name);
+						renderPassSubpassDepthAttachments[j].layout = Util::GetVkImageLayout(JsonParser::GetString(depthAttach[_text_mapper(vk_state)]));
+					}
+					catch (const std::out_of_range& msg)
+					{
+						_log_error(StringUtil::Printf("Exception: %, specified name \"%\" was not found!", std::string(msg.what()), name), LogSystem::Category::JsonParser);
+						return false;
+					}
+				}
+				else
+				{
+					renderPassSubpassDescs[j].pDepthStencilAttachment = nullptr;
+
+					_log_warning("Depth Attachment Reference is NULL!", LogSystem::Category::RenderPass);
+				}
+			}
+
+			// Dependency.
+			bIsArray = renderPassInfo[_text_mapper(vk_subpass_dependencies)].isArray();
+			uint32 numDependency = bIsArray ? renderPassInfo[_text_mapper(vk_subpass_dependencies)].size() : _count_1;
+
+			renderPassSubpassDependency.resize(numDependency);
+			renderPassCreateInfo.dependencyCount = numDependency;
+			renderPassCreateInfo.pDependencies   = renderPassSubpassDependency.data();
+
+			for (uint32 j = 0; j < numDependency; j++)
+			{
+				auto& dependency = bIsArray ? renderPassInfo[_text_mapper(vk_subpass_dependencies)][j] : renderPassInfo[_text_mapper(vk_subpass_dependencies)];				
+
+				renderPassSubpassDependency[j].srcSubpass = subpassNameIDMap.at(JsonParser::GetString(dependency[_text_mapper(vk_src_subpass_name)]));
+				renderPassSubpassDependency[j].dstSubpass = subpassNameIDMap.at(JsonParser::GetString(dependency[_text_mapper(vk_dst_subpass_name)]));
+
+				renderPassSubpassDependency[j].srcStageMask = Util::GetVkPipelineStageFlags(JsonParser::GetString(dependency[_text_mapper(vk_src_stage_mask)]));
+				renderPassSubpassDependency[j].dstStageMask = Util::GetVkPipelineStageFlags(JsonParser::GetString(dependency[_text_mapper(vk_dst_stage_mask)]));
+
+				// Deal with Multi-Access-Flags.
+				{
+					bIsArray = dependency[_text_mapper(vk_src_access_mask)].isArray();
+					uint32 numSrcAccessMask = bIsArray ? dependency[_text_mapper(vk_src_access_mask)].size() : _count_1;
+
+					VkAccessFlags srcAccessMask = 0;
+					for (uint32 k = 0; k < numSrcAccessMask; k++)
+					{
+						auto& mask = bIsArray ? dependency[_text_mapper(vk_src_access_mask)][k] : dependency[_text_mapper(vk_src_access_mask)];						
+						srcAccessMask |= Util::GetVkAccessFlags(JsonParser::GetString(mask));
+					}
+
+					bIsArray = dependency[_text_mapper(vk_dst_access_mask)].isArray();
+					uint32 numDstAccessMask = bIsArray ? dependency[_text_mapper(vk_dst_access_mask)].size() : _count_1;
+
+					VkAccessFlags dstAccessMask = 0;
+					for (uint32 k = 0; k < numDstAccessMask; k++)
+					{
+						auto& mask = bIsArray ? dependency[_text_mapper(vk_dst_access_mask)][k] : dependency[_text_mapper(vk_dst_access_mask)];						
+						dstAccessMask |= Util::GetVkAccessFlags(JsonParser::GetString(mask));;
+					}
+
+					renderPassSubpassDependency[j].srcAccessMask = srcAccessMask;
+					renderPassSubpassDependency[j].dstAccessMask = dstAccessMask;
+				}
+
+				renderPassSubpassDependency[j].dependencyFlags = Util::GetVkDependencyFlags(JsonParser::GetString(dependency[_text_mapper(vk_dependency_flags)]));
+			}
+
+			this->CreateRenderPass(pRenderPass.MakeInstance(), renderPassCreateInfo);
+			pRenderPasses.push_back(pRenderPass);
+
+			graphicInfos[i].renderPass = *pRenderPass;
+
+			LogSystem::Log("End creating renderpass with " + renderPassJson, LogSystem::Category::LogicalDevice);
+		}
+
+
+		graphicInfos[i].subpass;
+
+
+		// Through name of GInfo or exit pipeline.
+		graphicInfos[i].basePipelineHandle;
+		graphicInfos[i].basePipelineIndex;
 
 		_log_error("test", LogSystem::Category::LogicalDevice);
 

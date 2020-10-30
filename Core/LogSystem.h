@@ -32,6 +32,7 @@ public:
 		BaseLayer,
 		LogicalDevice,
 		CommandList,
+		RenderPass,
 		GLSLCompiler, 
 		JsonParser, 
 		VkSmartPtr,

@@ -1,18 +1,22 @@
 ﻿//
-// StringMapper.h
+// TextMapper.h
 //
 
 #pragma once
 
 #include <string>
 
-namespace StringMapper
+namespace TextMapper
 {
 	enum class ID
 	{
 		Begin = 0,
 
+		/// Begin Vulkan Json Key.
+
 		// Begin graphic_pipeline_infos.
+
+		vk_name,
 		vk_flags,
 		vk_size,
 		vk_offset,
@@ -98,8 +102,43 @@ namespace StringMapper
 
 		vk_dynamic_state,
 		vk_state,
+		vk_renderpass_info,
+		vk_subpass,
+		vk_base_pipeline,
 
 		// End graphic_pipeline_infos.
+
+		// Begin renderpass_info.
+
+		vk_attachment_descriptions,
+		vk_format,
+		vk_sample_count,
+		vk_load_op,
+		vk_store_op,
+		vk_stencil_load_op,
+		vk_stencil_store_op,
+		vk_in_state,
+		vk_out_state,
+		vk_subpass_descriptions,
+		vk_pipeline_bind_point,
+		vk_input_attachments,
+		vk_attachment_name,
+		vk_color_attachments,
+		vk_resolve_attachments,
+		vk_preserve_attachment_names,
+		vk_depth_attachment,
+		vk_subpass_dependencies,
+		vk_src_subpass_name,
+		vk_dst_subpass_name,
+		vk_src_stage_mask,
+		vk_dst_stage_mask,
+		vk_src_access_mask,
+		vk_dst_access_mask,
+		vk_dependency_flags,
+
+		// End renderpass_info.
+
+		/// End Vulkan Json Key.
 
 		End,
 		Size = End,
@@ -112,3 +151,5 @@ namespace StringMapper
 
 	extern std::string Map[size_t(ID::RANGE_SIZE)];
 }
+
+#define _text_mapper(id) TextMapper::Map[(size_t)TextMapper::ID::id]

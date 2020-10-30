@@ -1,17 +1,21 @@
 ﻿//
-// StringMapper.cpp
+// TextMapper.cpp
 //
 
-#include "StringMapper.h"
+#include "TextMapper.h"
 //#include "TypeDef.h"
 
-namespace StringMapper
+namespace TextMapper
 {
 	std::string Map[size_t(ID::RANGE_SIZE)] =
 	{
 		"Begin",
 
-		// Vulkan
+		/// Begin Vulkan Json Key.
+
+		// Begin graphic_pipeline_infos.
+
+		"name",
 		"flags",
 		"size",
 		"offset",
@@ -97,7 +101,43 @@ namespace StringMapper
 
 		"dynamic_state",
 		"state",
+		"renderpass_info",
+		"subpass",
+		"base_pipeline",
 
+		// End graphic_pipeline_infos.
+
+		// Begin renderpass_info.
+
+		"attachment_descriptions",
+		"format",
+		"sample_count",
+		"load_op",
+		"store_op",
+		"stencil_load_op",
+		"stencil_store_op",
+		"in_state",
+		"out_state",
+		"subpass_descriptions",
+		"pipeline_bind_point",
+		"input_attachments",
+		"attachment_name",
+		"color_attachments",
+		"resolve_attachments",
+		"preserve_attachment_names",
+		"depth_attachment",
+		"subpass_dependencies",
+		"src_subpass_name",
+		"dst_subpass_name",
+		"src_stage_mask",
+		"dst_stage_mask",
+		"src_access_mask",
+		"dst_access_mask",
+		"dependency_flags",
+
+		// End renderpass_info.
+
+		/// End Vulkan Json Key.
 
 		"End"
 	};

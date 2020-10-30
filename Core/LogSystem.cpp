@@ -91,6 +91,7 @@ std::string LogSystem::LogInfo::CategoryToString() const
 	LOG_CATEGORY_TO_STRING(BaseLayer);
 	LOG_CATEGORY_TO_STRING(LogicalDevice);
 	LOG_CATEGORY_TO_STRING(CommandList);
+	LOG_CATEGORY_TO_STRING(RenderPass);
 	LOG_CATEGORY_TO_STRING(GLSLCompiler);
 	LOG_CATEGORY_TO_STRING(JsonParser);
 	LOG_CATEGORY_TO_STRING(VkSmartPtr);

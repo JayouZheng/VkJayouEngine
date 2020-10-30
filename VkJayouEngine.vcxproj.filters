@@ -54,13 +54,13 @@
     <ClCompile Include="Core\Utility.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="Core\StringMapper.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
     <ClCompile Include="Core\FileManager.cpp">
       <Filter>Core</Filter>
     </ClCompile>
     <ClCompile Include="Core\PathParser.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\TextMapper.cpp">
       <Filter>Core</Filter>
     </ClCompile>
   </ItemGroup>
@@ -327,13 +327,13 @@
     <ClInclude Include="Core\Utility.h">
       <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="Core\StringMapper.h">
-      <Filter>Core</Filter>
-    </ClInclude>
     <ClInclude Include="Core\FileManager.h">
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="Core\PathParser.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\TextMapper.h">
       <Filter>Core</Filter>
     </ClInclude>
   </ItemGroup>
