@@ -28,6 +28,8 @@ public:
 	{
 		Unknown = 0,
 
+		VulkanAPI,
+
 		Global,
 		BaseLayer,
 		LogicalDevice,

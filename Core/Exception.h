@@ -92,15 +92,11 @@ public:
 template<typename TLambda>
 void vk_try(const TLambda& InLambda, const char* InFuncName, const char* InFileName, uint32 InFileLine)
 {
-	try
-	{
-		_vk_throw(InLambda, InFuncName, InFileName, InFileLine);
-	}
-	catch (const vkException& e)
-	{
-        // TODO: Log...
-		_cmd_print_line(e.ToString());
-	}
+    VkResult result = (InLambda);
+    if (result != VK_SUCCESS)
+    {
+        _log_error(vkException(result, InFuncName, InFileName, InFileLine).ToString(), LogSystem::Category::VulkanAPI);
+    }
 }
 
 #define _vk_try(x) vk_try(x, _name_of(x), __FILE__, __LINE__);

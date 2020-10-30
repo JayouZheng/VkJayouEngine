@@ -87,6 +87,8 @@ std::string LogSystem::LogInfo::CategoryToString() const
 
 	LOG_CATEGORY_TO_STRING(Unknown);
 
+	LOG_CATEGORY_TO_STRING(VulkanAPI);
+
 	LOG_CATEGORY_TO_STRING(Global);
 	LOG_CATEGORY_TO_STRING(BaseLayer);
 	LOG_CATEGORY_TO_STRING(LogicalDevice);
