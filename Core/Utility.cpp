@@ -684,73 +684,66 @@ namespace
 		{ "view_local",    VK_DEPENDENCY_VIEW_LOCAL_BIT       }
 	};
 
-	const char* DefaultShaderEntryPoint     = "main";
-	const char* DefaultVkPrimitiveTopology  = "triangle_list";
-	const char* DefaultVkPolygonMode        = "fill";
-	const char* DefaultVkCullModeFlags      = "cull_none";
-	const char* DefaultVkFrontFace          = "counter_clockwise";
-	const char* DefaultVkCompareOp          = "less_equal";
-	const char* DefaultVkStencilOp          = "keep";
-	const char* DefaultVkLogicOp            = "clear";
-	const char* DefaultVkBlendFactor        = "zero";
-	const char* DefaultVkBlendOp            = "add";
-	const char* DefaultColorComponentMask   = "rgba";
-	const char* DefaultVkDynamicState       = "viewport";
-	const char* DefaultVkFormat             = "R8G8B8A8_UNORM";
-	const char* DefaultVkAttachmentLoadOp   = "dont_care";
-	const char* DefaultVkAttachmentStoreOp  = "dont_care";
-	const char* DefaultVkImageLayout        = "undefined";
-	const char* DefaultVkPipelineBindPoint  = "graphics";
-	const char* DefaultVkPipelineStageFlags = "all_commands";
-	const char* DefaultVkAccessFlags        = "memory_read";
-	const char* DefaultVkDependencyFlags    = "region";
+	const std::string DefaultShaderEntryPoint     = "main";
+	const std::string DefaultVkPrimitiveTopology  = "triangle_list";
+	const std::string DefaultVkPolygonMode        = "fill";
+	const std::string DefaultVkCullModeFlags      = "cull_none";
+	const std::string DefaultVkFrontFace          = "counter_clockwise";
+	const std::string DefaultVkCompareOp          = "less_equal";
+	const std::string DefaultVkStencilOp          = "keep";
+	const std::string DefaultVkLogicOp            = "clear";
+	const std::string DefaultVkBlendFactor        = "zero";
+	const std::string DefaultVkBlendOp            = "add";
+	const std::string DefaultColorComponentMask   = "rgba";
+	const std::string DefaultVkDynamicState       = "viewport";
+	const std::string DefaultVkFormat             = "UNDEFINED";
+	const std::string DefaultVkAttachmentLoadOp   = "dont_care";
+	const std::string DefaultVkAttachmentStoreOp  = "dont_care";
+	const std::string DefaultVkImageLayout        = "undefined";
+	const std::string DefaultVkPipelineBindPoint  = "graphics";
+	const std::string DefaultVkPipelineStageFlags = "all_commands";
+	const std::string DefaultVkAccessFlags        = "memory_read";
+	const std::string DefaultVkDependencyFlags    = "region";
 }
 
 /// Implementation...
 
 bool Util::GetShaderStage(const std::string& InKey, VkShaderStageFlags& OutShaderStage)
 {
-	try
+	auto result = VkShaderStageMap.find(StringUtil::ToLowerCase(InKey));
+	if (result != VkShaderStageMap.end())
 	{
-		OutShaderStage = VkShaderStageMap.at(StringUtil::ToLowerCase(InKey));
+		OutShaderStage = (*result).second;
 		return true;
 	}
-	catch (const std::out_of_range& msg)
+	else
 	{
-		_log_error(std::string(msg.what()) + ", pipeline stage type invalid!", _name_of(GetShaderStage));
+		_log_error("Specified key is not exit!", _name_of(GetShaderStage));
 		return false;
 	}
 }
 
 VkFormat Util::GetVertexAttributeVkFormat(const std::string& InKey)
 {
-	VkFormat result;
-	try
+	auto result = VkVertexAttributeMap.find(InKey);
+	if (result != VkVertexAttributeMap.end())
+		return (*result).second.Format;
+	else
 	{
-		result = VkVertexAttributeMap.at(InKey).Format;
-		return result;
-	}
-	catch (const std::out_of_range& msg)
-	{
-		result = VK_FORMAT_UNDEFINED;
-		_log_warning(std::string(msg.what()) + ", Function input is not valid!", _name_of(GetVertexAttributeVkFormat));
-		return result;
+		_log_error("Specified key is not exit!", _name_of(GetVertexAttributeVkFormat));
+		return VK_FORMAT_UNDEFINED;
 	}
 }
 
 uint32 Util::GetVertexAttributeSize(const std::string& InKey)
 {
-	uint32 result;
-	try
+	auto result = VkVertexAttributeMap.find(InKey);
+	if (result != VkVertexAttributeMap.end())
+		return (*result).second.Size;
+	else
 	{
-		result = VkVertexAttributeMap.at(InKey).Size;
-		return result;
-	}
-	catch (const std::out_of_range& msg)
-	{
-		result = 0;
-		_log_warning(std::string(msg.what()) + ", Function input is not valid!", _name_of(GetVertexAttributeSize));
-		return result;
+		_log_error("Specified key is not exit!", _name_of(GetVertexAttributeSize));
+		return 0u;
 	}
 }
 
@@ -759,13 +752,12 @@ VkColorComponentFlags Util::GetColorComponentMask(const std::string& InKey)
 	VkColorComponentFlags result = 0;
 	for (size_t i = 0; i < InKey.length(); i++)
 	{
-		try
+		auto found = VkColorComponentMaskMap.find(InKey.substr(i, _count_1));
+		if (found != VkColorComponentMaskMap.end())
+			result |= (*found).second;
+		else
 		{
-			result |= VkColorComponentMaskMap.at(InKey.substr(i, _count_1));
-		}
-		catch (const std::out_of_range& msg)
-		{
-			_log_warning(std::string(msg.what()) + ", pipeline color blend state, component mask detects an invalid char present, please fill this field with \"r,g,b,a\"!", _name_of(GetColorComponentMask));
+			_log_warning("Pipeline color blend state, component mask detects an invalid char present, please fill this field with \"r,g,b,a\"!", _name_of(GetColorComponentMask));
 			continue;
 		}
 	}
@@ -808,19 +800,14 @@ VkSampleCountFlags Util::GetMultisampleCount(uint32 InCount)
 #define GET_VK_TYPE_IMPL(type)                                        \
 type Util::Get##type(const std::string& InKey)                        \
 {                                                                     \
-	type result;                                                      \
-	try                                                               \
+	auto result = type##Map.find(InKey);                              \
+	if (result != type##Map.end())                                    \
+		return (*result).second;                                      \
+	else                                                              \
 	{                                                                 \
-		result = type##Map.at(InKey);                                 \
-		return result;                                                \
-	}                                                                 \
-	catch (const std::out_of_range& msg)                              \
-	{                                                                 \
-		result = type##Map.at(Default##type);                         \
-		_log_warning(std::string(msg.what()) +                        \
-			"Map failed because of invalid key! default set to \"" +  \
+		_log_warning("Specified key is not exit! default set to \"" + \
 			Default##type + "\"!", _name_of(Get##type));              \
-		return result;                                                \
+		return type##Map.at(Default##type);                           \
 	}                                                                 \
 }                                                                     \
 

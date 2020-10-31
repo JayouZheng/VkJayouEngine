@@ -12,7 +12,7 @@ bool FileUtil::Read(const std::string& InPath, std::vector<uint8>& OutData)
 {
 	LogSystem::Log(StringUtil::Printf("Begin read file: %", InPath), LogSystem::Category::IO);
 
-#ifndef ENABLE_CATCH
+#ifndef ENABLE_TRY_CATCH
 
 	FILE* pFile;
 	pFile = fopen(InPath.c_str(), "rb");
@@ -87,7 +87,7 @@ bool FileUtil::Write(const std::string& InPath, const std::vector<uint8>& InData
 {
 	LogSystem::Log(StringUtil::Printf("Begin write file: %", InPath), LogSystem::Category::IO);
 
-#ifndef ENABLE_CATCH
+#ifndef ENABLE_TRY_CATCH
 
 	FILE* pFile;
 	pFile = fopen(InPath.c_str(), "wb");

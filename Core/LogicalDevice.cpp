@@ -1670,14 +1670,15 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 
 						std::string name = JsonParser::GetString(inputAttach[_text_mapper(vk_attachment_name)]);
 
-						try
+						auto found = attachmentNameIDMap.find(name);
+						if (found != attachmentNameIDMap.end())
 						{
-							renderPassSubpassInputAttachments[j][k].attachment = attachmentNameIDMap.at(name);
+							renderPassSubpassInputAttachments[j][k].attachment = (*found).second;
 							renderPassSubpassInputAttachments[j][k].layout     = Util::GetVkImageLayout(JsonParser::GetString(inputAttach[_text_mapper(vk_state)]));
 						}
-						catch (const std::out_of_range& msg)
+						else
 						{
-							_log_error(StringUtil::Printf("Exception: %, specified name \"%\" was not found!", std::string(msg.what()), name), LogSystem::Category::JsonParser);
+							_log_error(StringUtil::Printf("Specified name \"%\" was not found!", name), LogSystem::Category::JsonParser);
 							return false;
 						}
 					}
@@ -1707,14 +1708,15 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 
 						std::string name = JsonParser::GetString(colorAttach[_text_mapper(vk_attachment_name)]);
 
-						try
+						auto found = attachmentNameIDMap.find(name);
+						if (found != attachmentNameIDMap.end())
 						{
-							renderPassSubpassColorAttachments[j][k].attachment = attachmentNameIDMap.at(name);
-							renderPassSubpassColorAttachments[j][k].layout = Util::GetVkImageLayout(JsonParser::GetString(colorAttach[_text_mapper(vk_state)]));
+							renderPassSubpassColorAttachments[j][k].attachment = (*found).second;
+							renderPassSubpassColorAttachments[j][k].layout     = Util::GetVkImageLayout(JsonParser::GetString(colorAttach[_text_mapper(vk_state)]));
 						}
-						catch (const std::out_of_range& msg)
+						else
 						{
-							_log_error(StringUtil::Printf("Exception: %, specified name \"%\" was not found!", std::string(msg.what()), name), LogSystem::Category::JsonParser);
+							_log_error(StringUtil::Printf("Specified name \"%\" was not found!", name), LogSystem::Category::JsonParser);
 							return false;
 						}
 					}
@@ -1743,14 +1745,15 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 
 						std::string name = JsonParser::GetString(resolveAttach[_text_mapper(vk_attachment_name)]);
 
-						try
+						auto found = attachmentNameIDMap.find(name);
+						if (found != attachmentNameIDMap.end())
 						{
-							renderPassSubpassResolveAttachments[j][k].attachment = attachmentNameIDMap.at(name);
+							renderPassSubpassResolveAttachments[j][k].attachment = (*found).second;
 							renderPassSubpassResolveAttachments[j][k].layout     = Util::GetVkImageLayout(JsonParser::GetString(resolveAttach[_text_mapper(vk_state)]));
 						}
-						catch (const std::out_of_range& msg)
+						else
 						{
-							_log_error(StringUtil::Printf("Exception: %, specified name \"%\" was not found!", std::string(msg.what()), name), LogSystem::Category::JsonParser);
+							_log_error(StringUtil::Printf("Specified name \"%\" was not found!", name), LogSystem::Category::JsonParser);
 							return false;
 						}
 					}
@@ -1773,13 +1776,12 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 
 						std::string name = JsonParser::GetString(preserveAttach);
 
-						try
+						auto found = attachmentNameIDMap.find(name);
+						if (found != attachmentNameIDMap.end())
+							renderPassSubpassPreserveAttachments[j][k] = (*found).second;
+						else
 						{
-							renderPassSubpassPreserveAttachments[j][k] = attachmentNameIDMap.at(name);
-						}
-						catch (const std::out_of_range& msg)
-						{
-							_log_error(StringUtil::Printf("Exception: %, specified name \"%\" was not found!", std::string(msg.what()), name), LogSystem::Category::JsonParser);
+							_log_error(StringUtil::Printf("Specified name \"%\" was not found!", name), LogSystem::Category::JsonParser);
 							return false;
 						}
 					}
@@ -1795,14 +1797,15 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 
 					std::string name = JsonParser::GetString(depthAttach[_text_mapper(vk_attachment_name)]);
 
-					try
+					auto found = attachmentNameIDMap.find(name);
+					if (found != attachmentNameIDMap.end())
 					{
-						renderPassSubpassDepthAttachments[j].attachment = attachmentNameIDMap.at(name);
+						renderPassSubpassDepthAttachments[j].attachment = (*found).second;
 						renderPassSubpassDepthAttachments[j].layout = Util::GetVkImageLayout(JsonParser::GetString(depthAttach[_text_mapper(vk_state)]));
 					}
-					catch (const std::out_of_range& msg)
+					else
 					{
-						_log_error(StringUtil::Printf("Exception: %, specified name \"%\" was not found!", std::string(msg.what()), name), LogSystem::Category::JsonParser);
+						_log_error(StringUtil::Printf("Specified name \"%\" was not found!", name), LogSystem::Category::JsonParser);
 						return false;
 					}
 				}
@@ -1826,8 +1829,27 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 			{
 				auto& dependency = bIsArray ? renderPassInfo[_text_mapper(vk_subpass_dependencies)][j] : renderPassInfo[_text_mapper(vk_subpass_dependencies)];				
 
-				renderPassSubpassDependency[j].srcSubpass = subpassNameIDMap.at(JsonParser::GetString(dependency[_text_mapper(vk_src_subpass_name)]));
-				renderPassSubpassDependency[j].dstSubpass = subpassNameIDMap.at(JsonParser::GetString(dependency[_text_mapper(vk_dst_subpass_name)]));
+				std::string name = JsonParser::GetString(dependency[_text_mapper(vk_src_subpass_name)]);
+
+				auto found_src = subpassNameIDMap.find(name);
+				if (found_src != subpassNameIDMap.end())
+					renderPassSubpassDependency[j].srcSubpass = (*found_src).second;
+				else
+				{
+					_log_error(StringUtil::Printf("Specified name \"%\" was not found!", name), LogSystem::Category::JsonParser);
+					return false;
+				}
+
+				name = JsonParser::GetString(dependency[_text_mapper(vk_dst_subpass_name)]);
+
+				auto found_dst = subpassNameIDMap.find(name);
+				if (found_dst != subpassNameIDMap.end())
+					renderPassSubpassDependency[j].dstSubpass = (*found_dst).second;
+				else
+				{
+					_log_error(StringUtil::Printf("Specified name \"%\" was not found!", name), LogSystem::Category::JsonParser);
+					return false;
+				}
 
 				renderPassSubpassDependency[j].srcStageMask = Util::GetVkPipelineStageFlags(JsonParser::GetString(dependency[_text_mapper(vk_src_stage_mask)]));
 				renderPassSubpassDependency[j].dstStageMask = Util::GetVkPipelineStageFlags(JsonParser::GetString(dependency[_text_mapper(vk_dst_stage_mask)]));
