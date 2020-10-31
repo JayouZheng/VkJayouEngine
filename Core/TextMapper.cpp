@@ -101,7 +101,7 @@ namespace TextMapper
 
 		"dynamic_state",
 		"state",
-		"renderpass_info",
+		"renderpass",
 		"subpass",
 		"base_pipeline",
 
@@ -109,6 +109,7 @@ namespace TextMapper
 
 		// Begin renderpass_info.
 
+		"renderpass_info",
 		"attachment_descriptions",
 		"format",
 		"sample_count",

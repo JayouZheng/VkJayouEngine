@@ -104,16 +104,18 @@ public:
 		return *this;
 	}
 
-	VkSmartPtr& operator=(const T* other)
+	VkSmartPtr& operator=(T* other)
 	{
 		if (this->m_counter->m_object == other)
 			return *this;
 
+		std::string type = m_counter->m_type;
 		m_counter->m_count--;
 		if (m_counter->m_count == 0)
 			delete m_counter;
 
 		m_counter = new VkCounter<T>(other);
+		m_counter->SetType(type);
 
 		return *this;
 	}
@@ -126,12 +128,12 @@ private:
 
 	T*            m_object;
 	uint32        m_count;
-	const char*   m_type;
+	std::string   m_type;
 
 	template<typename T>
 	friend class VkSmartPtr;
 
-	void SetType(const char* type)
+	void SetType(const std::string& type)
 	{
 		m_type = type;
 	}
@@ -154,11 +156,10 @@ private:
 #endif // _vk_destroy
 #define _vk_destroy(object)                                                                        \
 {                                                                                                  \
-	if (_is_cstrlen_equal(_name_of(Vk##object), m_type) &&                                         \
-		_is_cstr_equal(_name_of(Vk##object), m_type))                                              \
+	if (m_type == _name_of(Vk##object))                                                            \
 	{                                                                                              \
 		vkDestroy##object(Global::GetVkDevice(), (Vk##object)*m_object, Global::GetVkAllocator()); \
-		LogSystem::Log("_vk_destroy: " + _str_name_of(object), LogSystem::Category::VkSmartPtr);   \
+		LogSystem::Log("_vk_destroy: " + _str_name_of(Vk##object), LogSystem::Category::VkSmartPtr);   \
 	}                                                                                              \
 }                                                                                                  \
 
@@ -187,7 +188,7 @@ private:
 			_vk_destroy(SwapchainKHR);
 			
 			// Using VkInstance...
-			if (_is_cstr_equal(_name_of(VkSurfaceKHR), m_type))
+			if (m_type == _name_of(VkSurfaceKHR))
 			{
 				vkDestroySurfaceKHR(Global::GetVkInstance(), (VkSurfaceKHR)*m_object, Global::GetVkAllocator());
 				LogSystem::Log("_vk_destroy: " + _str_name_of(VkSurfaceKHR), LogSystem::Category::VkSmartPtr);

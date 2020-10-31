@@ -2,8 +2,6 @@
 // LogicalDevice.cpp
 //
 
-#include "JsonParser.h"
-
 #include "BaseLayer.h"
 #include "BaseAllocator.h"
 #include "LogicalDevice.h"
@@ -109,6 +107,30 @@ uint32 LogicalDevice::GetSwapchainNextImageKHR(VkSwapchainKHR InSwapchain, uint6
 	uint32 nextImageIndex = _index_0;
 	_vk_try(vkAcquireNextImageKHR(m_device, InSwapchain, InTimeout, InSemaphore, InFence, &nextImageIndex));
 	return nextImageIndex;
+}
+
+VkRenderPass LogicalDevice::GetRenderPass(const std::string& InName)
+{
+	auto found = m_renderPassNamePtrMap.find(InName);
+	if (found != m_renderPassNamePtrMap.end())
+		return *((*found).second);
+	else
+	{
+		_log_warning(StringUtil::Printf("%: Specified renderpass name(%) is not exit!", _name_of(GetRenderPass), InName), LogSystem::Category::LogicalDevice);
+		return VK_NULL_HANDLE;
+	}
+}
+
+VkPipeline LogicalDevice::GetPipeline(const std::string& InName)
+{
+	auto found = m_pipelineNamePtrMap.find(InName);
+	if (found != m_pipelineNamePtrMap.end())
+		return *((*found).second);
+	else
+	{
+		_log_warning(StringUtil::Printf("%: Specified pipeline name(%) is not exit!", _name_of(GetPipeline), InName), LogSystem::Category::LogicalDevice);
+		return VK_NULL_HANDLE;
+	}
 }
 
 void LogicalDevice::CreateCommandPool(const VkCommandPoolCreateInfo& InCreateInfo)
@@ -824,6 +846,336 @@ void LogicalDevice::CreateRenderPass(VkRenderPass* OutRenderPass, const VkRender
 	_vk_try(vkCreateRenderPass(m_device, &InCreateInfo, GetVkAllocator(), OutRenderPass));
 }
 
+bool LogicalDevice::CreateRenderPass(const std::string& InJsonPath)
+{
+	LogSystem::Log("Begin creating renderpass with " + InJsonPath, LogSystem::Category::RenderPass);
+
+	// RenderPass.
+	{
+		std::vector<VkAttachmentDescription>             renderPassAttachmentDescs;
+		std::vector<VkSubpassDescription>                renderPassSubpassDescs;
+		std::vector<std::vector<VkAttachmentReference>>  renderPassSubpassInputAttachments;
+		std::vector<std::vector<VkAttachmentReference>>  renderPassSubpassColorAttachments;
+		std::vector<std::vector<VkAttachmentReference>>  renderPassSubpassResolveAttachments;
+		std::vector<std::vector<uint32>>                 renderPassSubpassPreserveAttachments;
+		std::vector<VkAttachmentReference>               renderPassSubpassDepthAttachments;
+		std::vector<VkSubpassDependency>                 renderPassSubpassDependency;
+
+		std::unordered_map<std::string, uint32>          attachmentNameIDMap;
+
+		VkRenderPassCreateInfo renderPassCreateInfo = {};
+
+		Json::Value renderPassRoot;
+		bool        bIsArray;
+
+		if (!JsonParser::Parse(InJsonPath, renderPassRoot))
+		{
+			_log_error("JsonParser failed at file: " + InJsonPath, LogSystem::Category::LogicalDevice);
+			return false;
+		}
+
+		auto& renderPassInfo = renderPassRoot[_text_mapper(vk_renderpass_info)];
+
+		if (renderPassInfo == Json::nullValue)
+		{
+			_log_error("json file: [renderpass_info] can not be null!", LogSystem::Category::JsonParser);
+			return false;
+		}
+
+		renderPassCreateInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+		renderPassCreateInfo.flags = JsonParser::GetUInt32(renderPassInfo[_text_mapper(vk_flags)]);
+
+		// Attachment.
+		bIsArray = renderPassInfo[_text_mapper(vk_attachment_descriptions)].isArray();
+		uint32 numAttachDesc = bIsArray ? renderPassInfo[_text_mapper(vk_attachment_descriptions)].size() : _count_1;
+
+		renderPassAttachmentDescs.resize(numAttachDesc);
+
+		renderPassCreateInfo.attachmentCount = numAttachDesc;
+		renderPassCreateInfo.pAttachments    = renderPassAttachmentDescs.data();
+
+		for (uint32 j = 0; j < numAttachDesc; j++)
+		{
+			auto& attachment = bIsArray ? renderPassInfo[_text_mapper(vk_attachment_descriptions)][j] : renderPassInfo[_text_mapper(vk_attachment_descriptions)];
+
+			attachmentNameIDMap.emplace(JsonParser::GetString(attachment[_text_mapper(vk_name)]), j);
+
+			renderPassAttachmentDescs[j].flags          = JsonParser::GetUInt32(attachment[_text_mapper(vk_flags)]);
+			renderPassAttachmentDescs[j].format         = Util::GetVkFormat(JsonParser::GetString(attachment[_text_mapper(vk_format)]));
+			renderPassAttachmentDescs[j].samples        = (VkSampleCountFlagBits)Util::GetMultisampleCount(JsonParser::GetUInt32(attachment[_text_mapper(vk_sample_count)]));
+			renderPassAttachmentDescs[j].loadOp         = Util::GetVkAttachmentLoadOp(JsonParser::GetString(attachment[_text_mapper(vk_load_op)]));
+			renderPassAttachmentDescs[j].storeOp        = Util::GetVkAttachmentStoreOp(JsonParser::GetString(attachment[_text_mapper(vk_store_op)]));
+			renderPassAttachmentDescs[j].stencilLoadOp  = Util::GetVkAttachmentLoadOp(JsonParser::GetString(attachment[_text_mapper(vk_stencil_load_op)]));
+			renderPassAttachmentDescs[j].stencilStoreOp = Util::GetVkAttachmentStoreOp(JsonParser::GetString(attachment[_text_mapper(vk_stencil_store_op)]));
+			renderPassAttachmentDescs[j].initialLayout  = Util::GetVkImageLayout(JsonParser::GetString(attachment[_text_mapper(vk_in_state)]));
+			renderPassAttachmentDescs[j].finalLayout    = Util::GetVkImageLayout(JsonParser::GetString(attachment[_text_mapper(vk_out_state)]));
+		}
+
+		// Subpass.
+		bIsArray = renderPassInfo[_text_mapper(vk_subpass_descriptions)].isArray();
+		uint32 numSubpassDesc = bIsArray ? renderPassInfo[_text_mapper(vk_subpass_descriptions)].size() : _count_1;
+
+		renderPassSubpassDescs.resize(numSubpassDesc);
+		renderPassSubpassInputAttachments.resize(numSubpassDesc);
+		renderPassSubpassColorAttachments.resize(numSubpassDesc);
+		renderPassSubpassResolveAttachments.resize(numSubpassDesc);
+		renderPassSubpassPreserveAttachments.resize(numSubpassDesc);
+		renderPassSubpassDepthAttachments.resize(numSubpassDesc);
+
+		renderPassCreateInfo.subpassCount = numSubpassDesc;
+		renderPassCreateInfo.pSubpasses = renderPassSubpassDescs.data();
+
+		for (uint32 j = 0; j < numSubpassDesc; j++)
+		{
+			auto& subpass = bIsArray ? renderPassInfo[_text_mapper(vk_subpass_descriptions)][j] : renderPassInfo[_text_mapper(vk_subpass_descriptions)];
+
+			m_subpassNameIDMap.emplace(JsonParser::GetString(subpass[_text_mapper(vk_name)]), j);
+
+			renderPassSubpassDescs[j].flags = JsonParser::GetUInt32(subpass[_text_mapper(vk_flags)]);
+			renderPassSubpassDescs[j].pipelineBindPoint = Util::GetVkPipelineBindPoint(JsonParser::GetString(subpass[_text_mapper(vk_pipeline_bind_point)]));
+
+			// Input Attachment Reference.
+			if (subpass[_text_mapper(vk_input_attachments)] != Json::nullValue)
+			{
+				bIsArray = subpass[_text_mapper(vk_input_attachments)].isArray();
+				uint32 numInputAttach = bIsArray ? subpass[_text_mapper(vk_input_attachments)].size() : _count_1;
+
+				renderPassSubpassInputAttachments[j].resize(numInputAttach);
+
+				renderPassSubpassDescs[j].inputAttachmentCount = numInputAttach;
+				renderPassSubpassDescs[j].pInputAttachments    = renderPassSubpassInputAttachments[j].data();
+
+				for (uint32 k = 0; k < numInputAttach; k++)
+				{
+					auto& inputAttach = bIsArray ? subpass[_text_mapper(vk_input_attachments)][k] : subpass[_text_mapper(vk_input_attachments)];
+
+					std::string name = JsonParser::GetString(inputAttach[_text_mapper(vk_attachment_name)]);
+
+					auto found = attachmentNameIDMap.find(name);
+					if (found != attachmentNameIDMap.end())
+					{
+						renderPassSubpassInputAttachments[j][k].attachment = (*found).second;
+						renderPassSubpassInputAttachments[j][k].layout     = Util::GetVkImageLayout(JsonParser::GetString(inputAttach[_text_mapper(vk_state)]));
+					}
+					else
+					{
+						_log_error(StringUtil::Printf("Specified attachment name \"%\" was not found!", name), LogSystem::Category::JsonParser);
+						return false;
+					}
+				}
+			}
+			else
+			{
+				renderPassSubpassDescs[j].inputAttachmentCount = _count_0;
+				renderPassSubpassDescs[j].pInputAttachments    = nullptr;
+
+				_log_warning("Input Attachment Reference is NULL!", LogSystem::Category::RenderPass);
+			}
+
+			// Color Attachment Reference.
+			if (subpass[_text_mapper(vk_color_attachments)] != Json::nullValue)
+			{
+				bIsArray = subpass[_text_mapper(vk_color_attachments)].isArray();
+				uint32 numColorAttach = bIsArray ? subpass[_text_mapper(vk_color_attachments)].size() : _count_1;
+
+				renderPassSubpassColorAttachments[j].resize(numColorAttach);
+
+				renderPassSubpassDescs[j].colorAttachmentCount = numColorAttach;
+				renderPassSubpassDescs[j].pColorAttachments    = renderPassSubpassColorAttachments[j].data();
+
+				for (uint32 k = 0; k < numColorAttach; k++)
+				{
+					auto& colorAttach = bIsArray ? subpass[_text_mapper(vk_color_attachments)][k] : subpass[_text_mapper(vk_color_attachments)];
+
+					std::string name = JsonParser::GetString(colorAttach[_text_mapper(vk_attachment_name)]);
+
+					auto found = attachmentNameIDMap.find(name);
+					if (found != attachmentNameIDMap.end())
+					{
+						renderPassSubpassColorAttachments[j][k].attachment = (*found).second;
+						renderPassSubpassColorAttachments[j][k].layout     = Util::GetVkImageLayout(JsonParser::GetString(colorAttach[_text_mapper(vk_state)]));
+					}
+					else
+					{
+						_log_error(StringUtil::Printf("Specified attachment name \"%\" was not found!", name), LogSystem::Category::JsonParser);
+						return false;
+					}
+				}
+			}
+			else
+			{
+				renderPassSubpassDescs[j].colorAttachmentCount = _count_0;
+				renderPassSubpassDescs[j].pColorAttachments    = nullptr;
+
+				_log_warning("Color Attachment Reference is NULL!", LogSystem::Category::RenderPass);
+			}
+
+			// Resolve Attachment Reference.
+			if (subpass[_text_mapper(vk_resolve_attachments)] != Json::nullValue)
+			{
+				bIsArray = subpass[_text_mapper(vk_resolve_attachments)].isArray();
+				uint32 numResolveAttach = bIsArray ? subpass[_text_mapper(vk_resolve_attachments)].size() : _count_1;
+
+				renderPassSubpassResolveAttachments[j].resize(numResolveAttach);
+
+				renderPassSubpassDescs[j].pResolveAttachments = renderPassSubpassResolveAttachments[j].data();
+
+				for (uint32 k = 0; k < numResolveAttach; k++)
+				{
+					auto& resolveAttach = bIsArray ? subpass[_text_mapper(vk_resolve_attachments)][k] : subpass[_text_mapper(vk_resolve_attachments)];
+
+					std::string name = JsonParser::GetString(resolveAttach[_text_mapper(vk_attachment_name)]);
+
+					auto found = attachmentNameIDMap.find(name);
+					if (found != attachmentNameIDMap.end())
+					{
+						renderPassSubpassResolveAttachments[j][k].attachment = (*found).second;
+						renderPassSubpassResolveAttachments[j][k].layout     = Util::GetVkImageLayout(JsonParser::GetString(resolveAttach[_text_mapper(vk_state)]));
+					}
+					else
+					{
+						_log_error(StringUtil::Printf("Specified attachment name \"%\" was not found!", name), LogSystem::Category::JsonParser);
+						return false;
+					}
+				}
+			}
+			else renderPassSubpassDescs[j].pResolveAttachments = nullptr;
+
+			// Preserve Attachment ID.
+			if (subpass[_text_mapper(vk_preserve_attachment_names)] != Json::nullValue)
+			{
+				bIsArray = subpass[_text_mapper(vk_preserve_attachment_names)].isArray();
+				uint32 numPreserveAttach = bIsArray ? subpass[_text_mapper(vk_preserve_attachment_names)].size() : _count_1;
+
+				renderPassSubpassPreserveAttachments[j].resize(numPreserveAttach);
+
+				renderPassSubpassDescs[j].pPreserveAttachments = renderPassSubpassPreserveAttachments[j].data();
+
+				for (uint32 k = 0; k < numPreserveAttach; k++)
+				{
+					auto& preserveAttach = bIsArray ? subpass[_text_mapper(vk_preserve_attachment_names)][k] : subpass[_text_mapper(vk_preserve_attachment_names)];
+
+					std::string name = JsonParser::GetString(preserveAttach);
+
+					auto found = attachmentNameIDMap.find(name);
+					if (found != attachmentNameIDMap.end())
+						renderPassSubpassPreserveAttachments[j][k] = (*found).second;
+					else
+					{
+						_log_error(StringUtil::Printf("Specified attachment name \"%\" was not found!", name), LogSystem::Category::JsonParser);
+						return false;
+					}
+				}
+			}
+			else renderPassSubpassDescs[j].pPreserveAttachments = nullptr;
+
+			// Depth Attachment Reference.
+			if (subpass[_text_mapper(vk_depth_attachment)] != Json::nullValue)
+			{
+				renderPassSubpassDescs[j].pDepthStencilAttachment = &renderPassSubpassDepthAttachments[j];
+
+				auto& depthAttach = subpass[_text_mapper(vk_depth_attachment)];
+
+				std::string name = JsonParser::GetString(depthAttach[_text_mapper(vk_attachment_name)]);
+
+				auto found = attachmentNameIDMap.find(name);
+				if (found != attachmentNameIDMap.end())
+				{
+					renderPassSubpassDepthAttachments[j].attachment = (*found).second;
+					renderPassSubpassDepthAttachments[j].layout     = Util::GetVkImageLayout(JsonParser::GetString(depthAttach[_text_mapper(vk_state)]));
+				}
+				else
+				{
+					_log_error(StringUtil::Printf("Specified attachment name \"%\" was not found!", name), LogSystem::Category::JsonParser);
+					return false;
+				}
+			}
+			else
+			{
+				renderPassSubpassDescs[j].pDepthStencilAttachment = nullptr;
+
+				_log_warning("Depth Attachment Reference is NULL!", LogSystem::Category::RenderPass);
+			}
+		}
+
+		// Dependency.
+		bIsArray = renderPassInfo[_text_mapper(vk_subpass_dependencies)].isArray();
+		uint32 numDependency = bIsArray ? renderPassInfo[_text_mapper(vk_subpass_dependencies)].size() : _count_1;
+
+		renderPassSubpassDependency.resize(numDependency);
+		renderPassCreateInfo.dependencyCount = numDependency;
+		renderPassCreateInfo.pDependencies   = renderPassSubpassDependency.data();
+
+		for (uint32 j = 0; j < numDependency; j++)
+		{
+			auto& dependency = bIsArray ? renderPassInfo[_text_mapper(vk_subpass_dependencies)][j] : renderPassInfo[_text_mapper(vk_subpass_dependencies)];
+
+			std::string name = JsonParser::GetString(dependency[_text_mapper(vk_src_subpass_name)]);
+
+			auto found_src = m_subpassNameIDMap.find(name);
+			if (found_src != m_subpassNameIDMap.end())
+				renderPassSubpassDependency[j].srcSubpass = (*found_src).second;
+			else
+			{
+				_log_error(StringUtil::Printf("Specified subpass name \"%\" was not found!", name), LogSystem::Category::JsonParser);
+				return false;
+			}
+
+			name = JsonParser::GetString(dependency[_text_mapper(vk_dst_subpass_name)]);
+
+			auto found_dst = m_subpassNameIDMap.find(name);
+			if (found_dst != m_subpassNameIDMap.end())
+				renderPassSubpassDependency[j].dstSubpass = (*found_dst).second;
+			else
+			{
+				_log_error(StringUtil::Printf("Specified subpass name \"%\" was not found!", name), LogSystem::Category::JsonParser);
+				return false;
+			}
+
+			renderPassSubpassDependency[j].srcStageMask = Util::GetVkPipelineStageFlags(JsonParser::GetString(dependency[_text_mapper(vk_src_stage_mask)]));
+			renderPassSubpassDependency[j].dstStageMask = Util::GetVkPipelineStageFlags(JsonParser::GetString(dependency[_text_mapper(vk_dst_stage_mask)]));
+
+			// Deal with Multi-Access-Flags.
+			{
+				bIsArray = dependency[_text_mapper(vk_src_access_mask)].isArray();
+				uint32 numSrcAccessMask = bIsArray ? dependency[_text_mapper(vk_src_access_mask)].size() : _count_1;
+
+				VkAccessFlags srcAccessMask = 0;
+				for (uint32 k = 0; k < numSrcAccessMask; k++)
+				{
+					auto& mask = bIsArray ? dependency[_text_mapper(vk_src_access_mask)][k] : dependency[_text_mapper(vk_src_access_mask)];
+					srcAccessMask |= Util::GetVkAccessFlags(JsonParser::GetString(mask));
+				}
+
+				bIsArray = dependency[_text_mapper(vk_dst_access_mask)].isArray();
+				uint32 numDstAccessMask = bIsArray ? dependency[_text_mapper(vk_dst_access_mask)].size() : _count_1;
+
+				VkAccessFlags dstAccessMask = 0;
+				for (uint32 k = 0; k < numDstAccessMask; k++)
+				{
+					auto& mask = bIsArray ? dependency[_text_mapper(vk_dst_access_mask)][k] : dependency[_text_mapper(vk_dst_access_mask)];
+					dstAccessMask |= Util::GetVkAccessFlags(JsonParser::GetString(mask));;
+				}
+
+				renderPassSubpassDependency[j].srcAccessMask = srcAccessMask;
+				renderPassSubpassDependency[j].dstAccessMask = dstAccessMask;
+			}
+
+			renderPassSubpassDependency[j].dependencyFlags = Util::GetVkDependencyFlags(JsonParser::GetString(dependency[_text_mapper(vk_dependency_flags)]));
+		}
+
+		_declare_vk_smart_ptr(VkRenderPass, pRenderPass);
+		this->CreateRenderPass(pRenderPass.MakeInstance(), renderPassCreateInfo);
+
+		std::string name = JsonParser::GetString(renderPassInfo[_text_mapper(vk_name)]);
+		m_renderPassNamePtrMap.emplace(name, pRenderPass);
+	}
+
+	LogSystem::Log("End creating renderpass with " + InJsonPath, LogSystem::Category::RenderPass);
+
+	return true;
+}
+
 void LogicalDevice::CreateSingleRenderPass(VkRenderPass* OutRenderPass, VkFormat InColorFormat, VkFormat InDepthFormat)
 {
 	std::array<VkAttachmentDescription, 2> attachments{};
@@ -1060,18 +1412,14 @@ void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const Pipeli
 	_vk_try(vkCreateGraphicsPipelines(m_device, InPipCache, _count_1, &graphicsPipelineCreateInfo, GetVkAllocator(), OutPipeline));
 }
 
-bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::string& InJsonPath, VkPipelineCache InPipCache)
+bool LogicalDevice::CreateGraphicPipelines(const std::string& InJsonPath, VkPipelineCache InPipCache)
 {
 	LogSystem::Log("Begin creating graphic pipeline with " + InJsonPath, LogSystem::Category::LogicalDevice);
 
 	TimerUtil::PerformanceScope scope(_name_of(CreateGraphicPipelines));
 
-	if (OutPipeline != nullptr) *OutPipeline = VK_NULL_HANDLE;
-
 	if (m_pBaseLayer == nullptr)
 	{
-		*OutPipeline = VK_NULL_HANDLE;
-
 		_log_error("Func: " + _str_name_of(CreateGraphicPipelines) + " expect to Query Physical Device Limits!", LogSystem::Category::LogicalDevice);
 		return false;
 	}
@@ -1119,7 +1467,7 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 	std::vector<std::vector<VkPipelineColorBlendAttachmentState>> colorBlendAttachmentStates;
 	std::vector<std::vector<VkDynamicState>>                      dynamicStates;
 	std::vector<VkSmartPtr<VkPipelineLayout>>                     pPipelineLayouts;
-	std::vector<VkSmartPtr<VkRenderPass>>                         pRenderPasses;
+	std::unordered_map<std::string, int32>                        basePipelineNameIDMap;
 
 	graphicInfos.resize(numGInfo);
 	shaderInfos.resize(numGInfo);
@@ -1153,6 +1501,8 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 		pipelineDynamicStateInfos[i]      = GConfig::Pipeline::DefaultDynamicStateInfo;
 
 		auto& graphicInfo = bIsArray ? root[_text_mapper(vk_graphic_pipeline_infos)][i] : root[_text_mapper(vk_graphic_pipeline_infos)];
+
+		basePipelineNameIDMap.emplace(JsonParser::GetString(graphicInfo[_text_mapper(vk_name)]), i);
 
 		graphicInfos[i].sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 		graphicInfos[i].pNext = nullptr;
@@ -1564,350 +1914,57 @@ bool LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const std::s
 
 		graphicInfos[i].layout = *pPipelineLayout;
 		
+		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// RenderPass.
 		{
-			std::vector<VkAttachmentDescription>             renderPassAttachmentDescs;
-			std::vector<VkSubpassDescription>                renderPassSubpassDescs;
-			std::vector<std::vector<VkAttachmentReference>>  renderPassSubpassInputAttachments;
-			std::vector<std::vector<VkAttachmentReference>>  renderPassSubpassColorAttachments;
-			std::vector<std::vector<VkAttachmentReference>>  renderPassSubpassResolveAttachments;
-			std::vector<std::vector<uint32>>                 renderPassSubpassPreserveAttachments;
-			std::vector<VkAttachmentReference>               renderPassSubpassDepthAttachments;
-			std::vector<VkSubpassDependency>                 renderPassSubpassDependency;
+			std::string renderPassJson = PathParser::Parse("Json/renderpass_info.json");
+			this->CreateRenderPass(renderPassJson);
 
-			std::unordered_map<std::string, uint32>          attachmentNameIDMap;
-			std::unordered_map<std::string, uint32>          subpassNameIDMap;
+			graphicInfos[i].renderPass = this->GetRenderPass(JsonParser::GetString(graphicInfo[_text_mapper(vk_renderpass)]));
 
-			_declare_vk_smart_ptr(VkRenderPass, pRenderPass);
-			VkRenderPassCreateInfo renderPassCreateInfo = {};
-			
-			std::string renderPassJson = JsonParser::GetString(graphicInfo[_text_mapper(vk_renderpass_info)]);
+			// Subpass ID.
+			std::string name = JsonParser::GetString(graphicInfo[_text_mapper(vk_subpass)]);
 
-			LogSystem::Log("Begin creating renderpass with " + renderPassJson, LogSystem::Category::LogicalDevice);
-
-			Json::Value renderPassRoot;
-
-			if (!JsonParser::Parse(renderPassJson, renderPassRoot))
+			auto found = m_subpassNameIDMap.find(name);
+			if (found != m_subpassNameIDMap.end())
+				graphicInfos[i].subpass = (*found).second;
+			else
 			{
-				_log_error("JsonParser failed at file: " + renderPassJson, LogSystem::Category::LogicalDevice);
+				_log_error(StringUtil::Printf("Specified subpass name \"%\" was not found!", name), LogSystem::Category::JsonParser);
 				return false;
 			}
-
-			auto& renderPassInfo = renderPassRoot[_text_mapper(vk_renderpass_info)];
-
-			if (renderPassInfo == Json::nullValue)
-			{
-				_log_error("json file: [renderpass_info] can not be null!", LogSystem::Category::JsonParser);
-				return false;
-			}	
-
-			renderPassCreateInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-			renderPassCreateInfo.flags = JsonParser::GetUInt32(renderPassInfo[_text_mapper(vk_flags)]);
-
-			// Attachment.
-			bIsArray = renderPassInfo[_text_mapper(vk_attachment_descriptions)].isArray();
-			uint32 numAttachDesc = bIsArray ? renderPassInfo[_text_mapper(vk_attachment_descriptions)].size() : _count_1;
-
-			renderPassAttachmentDescs.resize(numAttachDesc);
-
-			renderPassCreateInfo.attachmentCount = numAttachDesc;
-			renderPassCreateInfo.pAttachments    = renderPassAttachmentDescs.data();
-
-			for (uint32 j = 0; j < numAttachDesc; j++)
-			{
-				auto& attachment = bIsArray ? renderPassInfo[_text_mapper(vk_attachment_descriptions)][j] : renderPassInfo[_text_mapper(vk_attachment_descriptions)];				
-
-				attachmentNameIDMap.emplace(JsonParser::GetString(attachment[_text_mapper(vk_name)]), j);
-
-				renderPassAttachmentDescs[j].flags          = JsonParser::GetUInt32(attachment[_text_mapper(vk_flags)]);
-				renderPassAttachmentDescs[j].format         = Util::GetVkFormat(JsonParser::GetString(attachment[_text_mapper(vk_format)]));
-				renderPassAttachmentDescs[j].samples        = (VkSampleCountFlagBits)Util::GetMultisampleCount(JsonParser::GetUInt32(attachment[_text_mapper(vk_sample_count)]));
-				renderPassAttachmentDescs[j].loadOp         = Util::GetVkAttachmentLoadOp(JsonParser::GetString(attachment[_text_mapper(vk_load_op)]));
-				renderPassAttachmentDescs[j].storeOp        = Util::GetVkAttachmentStoreOp(JsonParser::GetString(attachment[_text_mapper(vk_store_op)]));
-				renderPassAttachmentDescs[j].stencilLoadOp  = Util::GetVkAttachmentLoadOp(JsonParser::GetString(attachment[_text_mapper(vk_stencil_load_op)]));
-				renderPassAttachmentDescs[j].stencilStoreOp = Util::GetVkAttachmentStoreOp(JsonParser::GetString(attachment[_text_mapper(vk_stencil_store_op)]));
-				renderPassAttachmentDescs[j].initialLayout  = Util::GetVkImageLayout(JsonParser::GetString(attachment[_text_mapper(vk_in_state)]));
-				renderPassAttachmentDescs[j].finalLayout    = Util::GetVkImageLayout(JsonParser::GetString(attachment[_text_mapper(vk_out_state)]));
-			}
-
-			// Subpass.
-			bIsArray = renderPassInfo[_text_mapper(vk_subpass_descriptions)].isArray();
-			uint32 numSubpassDesc = bIsArray ? renderPassInfo[_text_mapper(vk_subpass_descriptions)].size() : _count_1;
-
-			renderPassSubpassDescs.resize(numSubpassDesc);
-			renderPassSubpassInputAttachments.resize(numSubpassDesc);
-			renderPassSubpassColorAttachments.resize(numSubpassDesc);
-			renderPassSubpassResolveAttachments.resize(numSubpassDesc);
-			renderPassSubpassPreserveAttachments.resize(numSubpassDesc);
-			renderPassSubpassDepthAttachments.resize(numSubpassDesc);
-
-			renderPassCreateInfo.subpassCount = numSubpassDesc;
-			renderPassCreateInfo.pSubpasses   = renderPassSubpassDescs.data();
-
-			for (uint32 j = 0; j < numSubpassDesc; j++)
-			{
-				auto& subpass = bIsArray ? renderPassInfo[_text_mapper(vk_subpass_descriptions)][j] : renderPassInfo[_text_mapper(vk_subpass_descriptions)];				
-
-				subpassNameIDMap.emplace(JsonParser::GetString(subpass[_text_mapper(vk_name)]), j);
-
-				renderPassSubpassDescs[j].flags             = JsonParser::GetUInt32(subpass[_text_mapper(vk_flags)]);
-				renderPassSubpassDescs[j].pipelineBindPoint = Util::GetVkPipelineBindPoint(JsonParser::GetString(subpass[_text_mapper(vk_pipeline_bind_point)]));
-
-				// Input Attachment Reference.
-				if (subpass[_text_mapper(vk_input_attachments)] != Json::nullValue)
-				{
-					bIsArray = subpass[_text_mapper(vk_input_attachments)].isArray();
-					uint32 numInputAttach = bIsArray ? subpass[_text_mapper(vk_input_attachments)].size() : _count_1;
-
-					renderPassSubpassInputAttachments[j].resize(numInputAttach);
-
-					renderPassSubpassDescs[j].inputAttachmentCount = numInputAttach;
-					renderPassSubpassDescs[j].pInputAttachments    = renderPassSubpassInputAttachments[j].data();
-
-					for (uint32 k = 0; k < numInputAttach; k++)
-					{
-						auto& inputAttach = bIsArray ? subpass[_text_mapper(vk_input_attachments)][k] : subpass[_text_mapper(vk_input_attachments)];						
-
-						std::string name = JsonParser::GetString(inputAttach[_text_mapper(vk_attachment_name)]);
-
-						auto found = attachmentNameIDMap.find(name);
-						if (found != attachmentNameIDMap.end())
-						{
-							renderPassSubpassInputAttachments[j][k].attachment = (*found).second;
-							renderPassSubpassInputAttachments[j][k].layout     = Util::GetVkImageLayout(JsonParser::GetString(inputAttach[_text_mapper(vk_state)]));
-						}
-						else
-						{
-							_log_error(StringUtil::Printf("Specified name \"%\" was not found!", name), LogSystem::Category::JsonParser);
-							return false;
-						}
-					}
-				}
-				else
-				{
-					renderPassSubpassDescs[j].inputAttachmentCount = _count_0;
-					renderPassSubpassDescs[j].pInputAttachments    = nullptr;
-
-					_log_warning("Input Attachment Reference is NULL!", LogSystem::Category::RenderPass);
-				}
-
-				// Color Attachment Reference.
-				if (subpass[_text_mapper(vk_color_attachments)] != Json::nullValue)
-				{
-					bIsArray = subpass[_text_mapper(vk_color_attachments)].isArray();
-					uint32 numColorAttach = bIsArray ? subpass[_text_mapper(vk_color_attachments)].size() : _count_1;
-
-					renderPassSubpassColorAttachments[j].resize(numColorAttach);
-
-					renderPassSubpassDescs[j].colorAttachmentCount = numColorAttach;
-					renderPassSubpassDescs[j].pColorAttachments    = renderPassSubpassColorAttachments[j].data();
-
-					for (uint32 k = 0; k < numColorAttach; k++)
-					{
-						auto& colorAttach = bIsArray ? subpass[_text_mapper(vk_color_attachments)][k] : subpass[_text_mapper(vk_color_attachments)];						
-
-						std::string name = JsonParser::GetString(colorAttach[_text_mapper(vk_attachment_name)]);
-
-						auto found = attachmentNameIDMap.find(name);
-						if (found != attachmentNameIDMap.end())
-						{
-							renderPassSubpassColorAttachments[j][k].attachment = (*found).second;
-							renderPassSubpassColorAttachments[j][k].layout     = Util::GetVkImageLayout(JsonParser::GetString(colorAttach[_text_mapper(vk_state)]));
-						}
-						else
-						{
-							_log_error(StringUtil::Printf("Specified name \"%\" was not found!", name), LogSystem::Category::JsonParser);
-							return false;
-						}
-					}
-				}
-				else
-				{
-					renderPassSubpassDescs[j].colorAttachmentCount = _count_0;
-					renderPassSubpassDescs[j].pColorAttachments    = nullptr;
-
-					_log_warning("Color Attachment Reference is NULL!", LogSystem::Category::RenderPass);
-				}
-				
-				// Resolve Attachment Reference.
-				if (subpass[_text_mapper(vk_resolve_attachments)] != Json::nullValue)
-				{
-					bIsArray = subpass[_text_mapper(vk_resolve_attachments)].isArray();
-					uint32 numResolveAttach = bIsArray ? subpass[_text_mapper(vk_resolve_attachments)].size() : _count_1;
-
-					renderPassSubpassResolveAttachments[j].resize(numResolveAttach);
-
-					renderPassSubpassDescs[j].pResolveAttachments = renderPassSubpassResolveAttachments[j].data();
-
-					for (uint32 k = 0; k < numResolveAttach; k++)
-					{
-						auto& resolveAttach = bIsArray ? subpass[_text_mapper(vk_resolve_attachments)][k] : subpass[_text_mapper(vk_resolve_attachments)];					
-
-						std::string name = JsonParser::GetString(resolveAttach[_text_mapper(vk_attachment_name)]);
-
-						auto found = attachmentNameIDMap.find(name);
-						if (found != attachmentNameIDMap.end())
-						{
-							renderPassSubpassResolveAttachments[j][k].attachment = (*found).second;
-							renderPassSubpassResolveAttachments[j][k].layout     = Util::GetVkImageLayout(JsonParser::GetString(resolveAttach[_text_mapper(vk_state)]));
-						}
-						else
-						{
-							_log_error(StringUtil::Printf("Specified name \"%\" was not found!", name), LogSystem::Category::JsonParser);
-							return false;
-						}
-					}
-				}
-				else renderPassSubpassDescs[j].pResolveAttachments = nullptr;
-				
-				// Preserve Attachment ID.
-				if (subpass[_text_mapper(vk_preserve_attachment_names)] != Json::nullValue)
-				{
-					bIsArray = subpass[_text_mapper(vk_preserve_attachment_names)].isArray();
-					uint32 numPreserveAttach = bIsArray ? subpass[_text_mapper(vk_preserve_attachment_names)].size() : _count_1;
-
-					renderPassSubpassPreserveAttachments[j].resize(numPreserveAttach);
-
-					renderPassSubpassDescs[j].pPreserveAttachments = renderPassSubpassPreserveAttachments[j].data();
-
-					for (uint32 k = 0; k < numPreserveAttach; k++)
-					{
-						auto& preserveAttach = bIsArray ? subpass[_text_mapper(vk_preserve_attachment_names)][k] : subpass[_text_mapper(vk_preserve_attachment_names)];						
-
-						std::string name = JsonParser::GetString(preserveAttach);
-
-						auto found = attachmentNameIDMap.find(name);
-						if (found != attachmentNameIDMap.end())
-							renderPassSubpassPreserveAttachments[j][k] = (*found).second;
-						else
-						{
-							_log_error(StringUtil::Printf("Specified name \"%\" was not found!", name), LogSystem::Category::JsonParser);
-							return false;
-						}
-					}
-				}
-				else renderPassSubpassDescs[j].pPreserveAttachments = nullptr;
-				
-				// Depth Attachment Reference.
-				if (subpass[_text_mapper(vk_depth_attachment)] != Json::nullValue)
-				{
-					renderPassSubpassDescs[j].pDepthStencilAttachment = &renderPassSubpassDepthAttachments[j];
-
-					auto& depthAttach = subpass[_text_mapper(vk_depth_attachment)];
-
-					std::string name = JsonParser::GetString(depthAttach[_text_mapper(vk_attachment_name)]);
-
-					auto found = attachmentNameIDMap.find(name);
-					if (found != attachmentNameIDMap.end())
-					{
-						renderPassSubpassDepthAttachments[j].attachment = (*found).second;
-						renderPassSubpassDepthAttachments[j].layout = Util::GetVkImageLayout(JsonParser::GetString(depthAttach[_text_mapper(vk_state)]));
-					}
-					else
-					{
-						_log_error(StringUtil::Printf("Specified name \"%\" was not found!", name), LogSystem::Category::JsonParser);
-						return false;
-					}
-				}
-				else
-				{
-					renderPassSubpassDescs[j].pDepthStencilAttachment = nullptr;
-
-					_log_warning("Depth Attachment Reference is NULL!", LogSystem::Category::RenderPass);
-				}
-			}
-
-			// Dependency.
-			bIsArray = renderPassInfo[_text_mapper(vk_subpass_dependencies)].isArray();
-			uint32 numDependency = bIsArray ? renderPassInfo[_text_mapper(vk_subpass_dependencies)].size() : _count_1;
-
-			renderPassSubpassDependency.resize(numDependency);
-			renderPassCreateInfo.dependencyCount = numDependency;
-			renderPassCreateInfo.pDependencies   = renderPassSubpassDependency.data();
-
-			for (uint32 j = 0; j < numDependency; j++)
-			{
-				auto& dependency = bIsArray ? renderPassInfo[_text_mapper(vk_subpass_dependencies)][j] : renderPassInfo[_text_mapper(vk_subpass_dependencies)];				
-
-				std::string name = JsonParser::GetString(dependency[_text_mapper(vk_src_subpass_name)]);
-
-				auto found_src = subpassNameIDMap.find(name);
-				if (found_src != subpassNameIDMap.end())
-					renderPassSubpassDependency[j].srcSubpass = (*found_src).second;
-				else
-				{
-					_log_error(StringUtil::Printf("Specified name \"%\" was not found!", name), LogSystem::Category::JsonParser);
-					return false;
-				}
-
-				name = JsonParser::GetString(dependency[_text_mapper(vk_dst_subpass_name)]);
-
-				auto found_dst = subpassNameIDMap.find(name);
-				if (found_dst != subpassNameIDMap.end())
-					renderPassSubpassDependency[j].dstSubpass = (*found_dst).second;
-				else
-				{
-					_log_error(StringUtil::Printf("Specified name \"%\" was not found!", name), LogSystem::Category::JsonParser);
-					return false;
-				}
-
-				renderPassSubpassDependency[j].srcStageMask = Util::GetVkPipelineStageFlags(JsonParser::GetString(dependency[_text_mapper(vk_src_stage_mask)]));
-				renderPassSubpassDependency[j].dstStageMask = Util::GetVkPipelineStageFlags(JsonParser::GetString(dependency[_text_mapper(vk_dst_stage_mask)]));
-
-				// Deal with Multi-Access-Flags.
-				{
-					bIsArray = dependency[_text_mapper(vk_src_access_mask)].isArray();
-					uint32 numSrcAccessMask = bIsArray ? dependency[_text_mapper(vk_src_access_mask)].size() : _count_1;
-
-					VkAccessFlags srcAccessMask = 0;
-					for (uint32 k = 0; k < numSrcAccessMask; k++)
-					{
-						auto& mask = bIsArray ? dependency[_text_mapper(vk_src_access_mask)][k] : dependency[_text_mapper(vk_src_access_mask)];						
-						srcAccessMask |= Util::GetVkAccessFlags(JsonParser::GetString(mask));
-					}
-
-					bIsArray = dependency[_text_mapper(vk_dst_access_mask)].isArray();
-					uint32 numDstAccessMask = bIsArray ? dependency[_text_mapper(vk_dst_access_mask)].size() : _count_1;
-
-					VkAccessFlags dstAccessMask = 0;
-					for (uint32 k = 0; k < numDstAccessMask; k++)
-					{
-						auto& mask = bIsArray ? dependency[_text_mapper(vk_dst_access_mask)][k] : dependency[_text_mapper(vk_dst_access_mask)];						
-						dstAccessMask |= Util::GetVkAccessFlags(JsonParser::GetString(mask));;
-					}
-
-					renderPassSubpassDependency[j].srcAccessMask = srcAccessMask;
-					renderPassSubpassDependency[j].dstAccessMask = dstAccessMask;
-				}
-
-				renderPassSubpassDependency[j].dependencyFlags = Util::GetVkDependencyFlags(JsonParser::GetString(dependency[_text_mapper(vk_dependency_flags)]));
-			}
-
-			this->CreateRenderPass(pRenderPass.MakeInstance(), renderPassCreateInfo);
-			pRenderPasses.push_back(pRenderPass);
-
-			graphicInfos[i].renderPass = *pRenderPass;
-
-			LogSystem::Log("End creating renderpass with " + renderPassJson, LogSystem::Category::LogicalDevice);
 		}
+		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+		// Pipeline Derivative.
+		{
+			std::string name = JsonParser::GetString(graphicInfo[_text_mapper(vk_base_pipeline)]);
 
-		graphicInfos[i].subpass;
+			auto found = basePipelineNameIDMap.find(name);
+			if (found != basePipelineNameIDMap.end())
+			{
+				graphicInfos[i].basePipelineHandle = VK_NULL_HANDLE;
+				graphicInfos[i].basePipelineIndex  = (*found).second;
+			}		
+			else
+			{
+				_log_warning(StringUtil::Printf("Specified base_pipeline name \"%\" was not found in previous created pipeline, current pipeline will try to find a such named pipeline as the base pipeline in memory!", name), LogSystem::Category::JsonParser);
 
-
-		// Through name of GInfo or exit pipeline.
-		graphicInfos[i].basePipelineHandle;
-		graphicInfos[i].basePipelineIndex;
-
-		_log_error("test", LogSystem::Category::LogicalDevice);
-
-		
+				graphicInfos[i].basePipelineHandle = this->GetPipeline(name);
+				graphicInfos[i].basePipelineIndex  = -1;
+			}
+		}	
 	}
 
-	// _vk_try(vkCreateGraphicsPipelines(m_device, InPipCache, numGInfo, graphicInfos, GetVkAllocator(), OutPipeline));
+	VkPipeline* pPipelines = new VkPipeline[numGInfo];
+	this->CreateGraphicPipelines(pPipelines, graphicInfos.data(), (uint32)graphicInfos.size(), InPipCache);
 
-	// TODO:
-
+	for (auto& pipeline : basePipelineNameIDMap)
+	{
+		_declare_vk_smart_ptr(VkPipeline, pPipeline);
+		pPipeline = pPipelines + pipeline.second;
+		m_pipelineNamePtrMap.emplace(pipeline.first, pPipeline);
+	}
 
 	LogSystem::Log("End creating graphic pipeline with " + InJsonPath, LogSystem::Category::LogicalDevice);
 

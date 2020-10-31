@@ -157,8 +157,8 @@ namespace GConfig
 			VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,       // sType
 			nullptr,                                                    // pNext
 			_flag_none,                                                 // flags
-			static_cast<uint32>(DefaultVkDynamicState.size()),            // dynamicStateCount
-			DefaultVkDynamicState.data(),                                 // pDynamicStates
+			static_cast<uint32>(DefaultVkDynamicState.size()),          // dynamicStateCount
+			DefaultVkDynamicState.data(),                               // pDynamicStates
 		};
 	}
 }
@@ -185,6 +185,11 @@ protected:
 
 	std::vector<VkPipelineCache>             m_pipelineCaches;
 	std::vector<VkSmartPtr<VkPipelineCache>> m_pipelineCachePtrs;
+
+	std::unordered_map<std::string, uint32>  m_subpassNameIDMap;
+
+	std::unordered_map<std::string, VkSmartPtr<VkRenderPass>> m_renderPassNamePtrMap;
+	std::unordered_map<std::string, VkSmartPtr<VkPipeline>>   m_pipelineNamePtrMap;
 
 	VkAllocationCallbacks* GetVkAllocator() const;
 
@@ -300,10 +305,14 @@ public:
 		}
 	};
 
+	// TODO: Remove Pipeline Cache param from API.
+
 	CommandQueue   GetQueue                      (uint32 InQueueFamilyIndex, uint32 InQueueIndex = _index_0);
 	void           GetSwapchainImagesKHR         (VkSwapchainKHR InSwapchain, uint32* InOutImageCount, VkImage* OutImages);
 	uint32         GetSwapchainNextImageKHR      (VkSwapchainKHR InSwapchain, uint64 InTimeout, VkSemaphore InSemaphore, VkFence InFence);
 
+	VkRenderPass   GetRenderPass                 (const std::string& InName);
+	VkPipeline     GetPipeline                   (const std::string& InName);
 
 	// Simple Stupid API (In fact, for all create funs, we need to gather all create infos first, do creating next!).
 	void           CreateCommandPool             (const VkCommandPoolCreateInfo& InCreateInfo);
@@ -351,6 +360,8 @@ public:
 	void           CopyDescriptorSets            (const VkCopyDescriptorSet* InDescCopies, uint32 InCopySetCount = _count_1);
 	void           CopyDescriptorSet             (VkDescriptorSet InSrcSet, uint32 InSrcBindingIndex, VkDescriptorSet InDstSet, uint32 InDstBindingIndex, uint32 InCopyDescCount, uint32 InSrcSetOffset = _offset_0, uint32 InDstSetOffset = _offset_0);
 
+	// TODO: Replace Sampler API with Sampler Enum.
+
 	void           CreateSampler                 (VkSampler* OutSampler, const VkSamplerCreateInfo& InCreateInfo);
 	void           CreatePointWrapSampler        (VkSampler* OutSampler);
 	void           CreatePointClampSampler       (VkSampler* OutSampler);
@@ -361,6 +372,7 @@ public:
 	void           CreatePCFSampler              (VkSampler* OutSampler);
 
 	void           CreateRenderPass              (VkRenderPass* OutRenderPass, const VkRenderPassCreateInfo& InCreateInfo);
+	bool           CreateRenderPass              (const std::string& InJsonPath);
 	void           CreateSingleRenderPass        (VkRenderPass* OutRenderPass, VkFormat InColorFormat, VkFormat InDepthFormat);
 
 	bool           CreateFrameBuffer             (VkFramebuffer* OutFrameBuffer, const VkFramebufferCreateInfo& InCreateInfo);
@@ -368,7 +380,7 @@ public:
 
 	void           CreateGraphicPipelines        (VkPipeline* OutPipeline, const VkGraphicsPipelineCreateInfo* InCreateInfos, uint32 InCreateInfoCount = _count_1, VkPipelineCache InPipCache = VK_NULL_HANDLE);
 	void           CreateGraphicPipelines        (VkPipeline* OutPipeline, const PipelineGraphicDesc* InDescs, uint32 InDescCount = _count_1, VkPipelineCache InPipCache = VK_NULL_HANDLE);
-	bool           CreateGraphicPipelines        (VkPipeline* OutPipeline, const std::string& InJsonPath, VkPipelineCache InPipCache = VK_NULL_HANDLE);
+	bool           CreateGraphicPipelines        (const std::string& InJsonPath, VkPipelineCache InPipCache = VK_NULL_HANDLE);
 
 	void           FlushAllQueue();
 	void           ResetCmdPool();

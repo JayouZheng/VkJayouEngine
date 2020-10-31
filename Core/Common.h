@@ -14,4 +14,5 @@
 #include "Exception.h"
 #include "LogSystem.h"
 #include "PathParser.h"
+#include "JsonParser.h"
 #include "MemoryLeakCheck.h"

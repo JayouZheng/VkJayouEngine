@@ -129,7 +129,7 @@
                 "flags": 0,
                 "state": [ "scissor", "viewport" ]
             },
-            "renderpass_info": "Json/renderpass_info.json",
+            "renderpass": "renderpass_name",
             "subpass": "subpass_name",
             "base_pipeline": "base_pipeline_name"
         }

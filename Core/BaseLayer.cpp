@@ -420,7 +420,7 @@ bool BaseLayer::Init()
 		}
 
 		// TODO:
-		m_device.CreateGraphicPipelines(nullptr, PathParser::Parse("Json/graphic_pipeline_info.json"));
+		m_device.CreateGraphicPipelines(PathParser::Parse("Json/graphic_pipeline_info.json"));
 		
 		//m_pWindow->Show();
 	}

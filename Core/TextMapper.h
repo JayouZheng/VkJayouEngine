@@ -102,7 +102,7 @@ namespace TextMapper
 
 		vk_dynamic_state,
 		vk_state,
-		vk_renderpass_info,
+		vk_renderpass,
 		vk_subpass,
 		vk_base_pipeline,
 
@@ -110,6 +110,7 @@ namespace TextMapper
 
 		// Begin renderpass_info.
 
+		vk_renderpass_info,
 		vk_attachment_descriptions,
 		vk_format,
 		vk_sample_count,
