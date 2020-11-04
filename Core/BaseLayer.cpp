@@ -356,9 +356,10 @@ bool BaseLayer::Init()
 				m_swapchainCreateInfo.imageFormat = m_surfaceFormats.front().format;
 				m_swapchainCreateInfo.imageColorSpace = m_surfaceFormats.front().colorSpace;
 
-#define _lambda_is_surface_format_equal [&](const VkSurfaceFormatKHR& a, const VkSurfaceFormatKHR& b) { return (a.format == b.format) && (a.colorSpace == b.colorSpace); }
-
-				if (Util::IsVecContain<VkSurfaceFormatKHR>(m_surfaceFormats, BaseLayerConfig::SwapchainCreateInfo.surfaceFormat, _lambda_is_surface_format_equal))
+				if (Util::IsVecContain<VkSurfaceFormatKHR>(
+					m_surfaceFormats, 
+					BaseLayerConfig::SwapchainCreateInfo.surfaceFormat, 
+					[&](const VkSurfaceFormatKHR& a, const VkSurfaceFormatKHR& b) { return (a.format == b.format) && (a.colorSpace == b.colorSpace); }))
 				{
 					m_swapchainCreateInfo.imageFormat = BaseLayerConfig::SwapchainCreateInfo.surfaceFormat.format;
 					m_swapchainCreateInfo.imageColorSpace = BaseLayerConfig::SwapchainCreateInfo.surfaceFormat.colorSpace;

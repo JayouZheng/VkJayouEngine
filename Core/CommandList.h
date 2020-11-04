@@ -122,6 +122,7 @@ public:
 	void DrawVertexIndirect     (VkBuffer InBuffer, VkDeviceSize InOffset, uint32 InDrawCount, uint32 InStride);
 	void DrawIndexedIndirect    (VkBuffer InBuffer, VkDeviceSize InOffset, uint32 InDrawCount, uint32 InStride);
 
+	void SetDepthBias           (float InDepthBiasConstantFactor, float InDepthBiasClamp, float InDepthBiasSlopeFactor);
 
 #pragma region PiplineBarrier
 

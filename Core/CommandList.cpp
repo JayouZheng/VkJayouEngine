@@ -395,6 +395,11 @@ void CommandList::DrawIndexedIndirect(VkBuffer InBuffer, VkDeviceSize InOffset, 
 	vkCmdDrawIndexedIndirect(m_cmdBuffer, InBuffer, InOffset, InDrawCount, InStride);
 }
 
+void CommandList::SetDepthBias(float InDepthBiasConstantFactor, float InDepthBiasClamp, float InDepthBiasSlopeFactor)
+{
+	vkCmdSetDepthBias(m_cmdBuffer, InDepthBiasConstantFactor, InDepthBiasClamp, InDepthBiasSlopeFactor);
+}
+
 void CommandList::ResourceBarriers(
 	VkPipelineStageFlags InSrcStageMask, 
 	VkPipelineStageFlags InDstStageMask,
