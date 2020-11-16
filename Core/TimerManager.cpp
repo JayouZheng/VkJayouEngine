@@ -16,7 +16,7 @@ namespace
 
     std::array<std::string, 7> ChWeekName =
     {
-        _u8_text("ĞÇÆÚÌì"), _u8_text("ĞÇÆÚÒ»"), _u8_text("ĞÇÆÚ¶ş"), _u8_text("ĞÇÆÚÈı"), _u8_text("ĞÇÆÚËÄ"), _u8_text("ĞÇÆÚÎå"), _u8_text("ĞÇÆÚÁù")
+        _u8_text("æ˜ŸæœŸå¤©"), _u8_text("æ˜ŸæœŸä¸€"), _u8_text("æ˜ŸæœŸäºŒ"), _u8_text("æ˜ŸæœŸä¸‰"), _u8_text("æ˜ŸæœŸå››"), _u8_text("æ˜ŸæœŸäº”"), _u8_text("æ˜ŸæœŸå…­")
     };
 
     std::array<std::string, 12> EnMonthName =
@@ -27,8 +27,8 @@ namespace
 
     std::array<std::string, 12> ChMonthName =
     {
-        _u8_text("Ò»ÔÂ"), _u8_text("¶şÔÂ"), _u8_text("ÈıÔÂ"), _u8_text("ËÄÔÂ"), _u8_text("ÎåÔÂ"),   _u8_text("ÁùÔÂ"),
-        _u8_text("ÆßÔÂ"), _u8_text("°ËÔÂ"), _u8_text("¾ÅÔÂ"), _u8_text("Ê®ÔÂ"), _u8_text("Ê®Ò»ÔÂ"), _u8_text("Ê®¶şÔÂ")
+        _u8_text("ä¸€æœˆ"), _u8_text("äºŒæœˆ"), _u8_text("ä¸‰æœˆ"), _u8_text("å››æœˆ"), _u8_text("äº”æœˆ"),   _u8_text("å…­æœˆ"),
+        _u8_text("ä¸ƒæœˆ"), _u8_text("å…«æœˆ"), _u8_text("ä¹æœˆ"), _u8_text("åæœˆ"), _u8_text("åä¸€æœˆ"), _u8_text("åäºŒæœˆ")
     };
 }
 
