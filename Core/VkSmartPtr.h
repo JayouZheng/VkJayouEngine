@@ -69,7 +69,7 @@ public:
 		return *(m_counter->m_object);
 	}
 
-	T* operator->() const throw() // no exception
+	T* operator->() const
 	{
 		return m_counter->m_object;
 	}
@@ -154,14 +154,14 @@ private:
 #ifdef _vk_destroy
 #undef _vk_destroy
 #endif // _vk_destroy
-#define _vk_destroy(object)                                                                        \
-{                                                                                                  \
-	if (m_type == _name_of(Vk##object))                                                            \
-	{                                                                                              \
-		vkDestroy##object(Global::GetVkDevice(), (Vk##object)*m_object, Global::GetVkAllocator()); \
-		LogSystem::Log("_vk_destroy: " + _str_name_of(Vk##object), LogSystem::Category::VkSmartPtr);   \
-	}                                                                                              \
-}                                                                                                  \
+#define _vk_destroy(object)                                                                          \
+{                                                                                                    \
+	if (m_type == _name_of(Vk##object))                                                              \
+	{                                                                                                \
+		vkDestroy##object(Global::GetVkDevice(), (Vk##object)*m_object, Global::GetVkAllocator());   \
+		LogSystem::Log("_vk_destroy: " + _str_name_of(Vk##object), LogSystem::Category::VkSmartPtr); \
+	}                                                                                                \
+}                                                                                                    \
 
 		if (m_object != nullptr && *m_object != NULL)
 		{
