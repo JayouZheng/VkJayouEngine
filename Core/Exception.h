@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "TypeDef.h"
-#include "LogSystem.h"
+#include "Core/TypeDef.h"
+#include "Core/Utility/LogSystem.h"
 
 class vkException
 {

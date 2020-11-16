@@ -9,7 +9,7 @@
 
 #if ENABLE_CUSTOM_ALLOCATOR
 
-#include "Core/BaseAllocator.h"
+#include "Core/Base/BaseAllocator.h"
 
 class app_allocator : public BaseAllocator
 {

@@ -4,15 +4,15 @@
 
 #pragma once
 
-#include "Platform.h"
+#include "Core/Platform/Platform.h"
 
 #include "vulkan/vulkan.hpp"
 #pragma comment(lib, "vulkan-1.lib")
 
-#include "SmartPtr.h"
-#include "TypeDef.h"
-#include "Exception.h"
-#include "LogSystem.h"
-#include "PathParser.h"
-#include "JsonParser.h"
-#include "MemoryLeakCheck.h"
+#include "Core/SmartPtr/SmartPtr.h"
+#include "Core/TypeDef.h"
+#include "Core/Exception.h"
+#include "Core/Utility/LogSystem.h"
+#include "Core/Utility/Parser/PathParser.h"
+#include "Core/Utility/Parser/JsonParser.h"
+#include "Core/Utility/MemoryLeakCheck.h"

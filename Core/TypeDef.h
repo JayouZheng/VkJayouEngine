@@ -81,7 +81,7 @@
 #define _numeric_max(type) std::numeric_limits<type>::max()
 
 
-#include "BaseType.h"
+#include "Core/Base/BaseType.h"
 
 // Function Ptr Table.
 typedef void(__cdecl *PFVOID)    (void);
