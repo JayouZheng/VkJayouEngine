@@ -335,8 +335,8 @@ bool BaseLayer::Init()
 			m_swapchainCreateInfo.imageSharingMode      = VK_SHARING_MODE_EXCLUSIVE;
 			m_swapchainCreateInfo.queueFamilyIndexCount = 0;
 			m_swapchainCreateInfo.pQueueFamilyIndices   = nullptr;
-			m_swapchainCreateInfo.presentMode           = BaseLayerConfig::SwapchainCreateInfo.presentMode;
-			m_swapchainCreateInfo.clipped               = BaseLayerConfig::SwapchainCreateInfo.clipped;
+			m_swapchainCreateInfo.presentMode           = BaseLayerConfig::DefaultSwapchainCreateInfo.presentMode;
+			m_swapchainCreateInfo.clipped               = BaseLayerConfig::DefaultSwapchainCreateInfo.clipped;
 			m_swapchainCreateInfo.oldSwapchain          = VK_NULL_HANDLE;  // First time to Create.
 
 			// Check Support Surface Format For Swapchain.
@@ -358,11 +358,11 @@ bool BaseLayer::Init()
 
 				if (Util::IsVecContain<VkSurfaceFormatKHR>(
 					m_surfaceFormats, 
-					BaseLayerConfig::SwapchainCreateInfo.surfaceFormat, 
+					BaseLayerConfig::DefaultSwapchainCreateInfo.surfaceFormat, 
 					[&](const VkSurfaceFormatKHR& a, const VkSurfaceFormatKHR& b) { return (a.format == b.format) && (a.colorSpace == b.colorSpace); }))
 				{
-					m_swapchainCreateInfo.imageFormat = BaseLayerConfig::SwapchainCreateInfo.surfaceFormat.format;
-					m_swapchainCreateInfo.imageColorSpace = BaseLayerConfig::SwapchainCreateInfo.surfaceFormat.colorSpace;
+					m_swapchainCreateInfo.imageFormat = BaseLayerConfig::DefaultSwapchainCreateInfo.surfaceFormat.format;
+					m_swapchainCreateInfo.imageColorSpace = BaseLayerConfig::DefaultSwapchainCreateInfo.surfaceFormat.colorSpace;
 				}
 			}
 
@@ -372,9 +372,9 @@ bool BaseLayer::Init()
 
 				m_swapchainCreateInfo.imageExtent = m_surfaceCapabilities.currentExtent;
 
-				if ((BaseLayerConfig::SwapchainCreateInfo.frameCount > m_surfaceCapabilities.minImageCount) && 
-					(BaseLayerConfig::SwapchainCreateInfo.frameCount < m_surfaceCapabilities.maxImageCount))
-					m_swapchainCreateInfo.minImageCount = BaseLayerConfig::SwapchainCreateInfo.frameCount;
+				if ((BaseLayerConfig::DefaultSwapchainCreateInfo.frameCount > m_surfaceCapabilities.minImageCount) && 
+					(BaseLayerConfig::DefaultSwapchainCreateInfo.frameCount < m_surfaceCapabilities.maxImageCount))
+					m_swapchainCreateInfo.minImageCount = BaseLayerConfig::DefaultSwapchainCreateInfo.frameCount;
 				else m_swapchainCreateInfo.minImageCount = m_surfaceCapabilities.minImageCount;
 
 				if (!(m_surfaceCapabilities.supportedUsageFlags & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT))
@@ -383,14 +383,14 @@ bool BaseLayer::Init()
 					return false;
 				}
 
-				m_swapchainCreateInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT & BaseLayerConfig::SwapchainCreateInfo.imageUsage;
+				m_swapchainCreateInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT & BaseLayerConfig::DefaultSwapchainCreateInfo.imageUsage;
 
-				if (BaseLayerConfig::SwapchainCreateInfo.surfacePreTransform & m_surfaceCapabilities.supportedTransforms)
-					m_swapchainCreateInfo.preTransform = BaseLayerConfig::SwapchainCreateInfo.surfacePreTransform;
+				if (BaseLayerConfig::DefaultSwapchainCreateInfo.surfacePreTransform & m_surfaceCapabilities.supportedTransforms)
+					m_swapchainCreateInfo.preTransform = BaseLayerConfig::DefaultSwapchainCreateInfo.surfacePreTransform;
 				else m_swapchainCreateInfo.preTransform = m_surfaceCapabilities.currentTransform;
 
-				if (BaseLayerConfig::SwapchainCreateInfo.compositeAlpha & m_surfaceCapabilities.supportedCompositeAlpha)
-					m_swapchainCreateInfo.compositeAlpha = BaseLayerConfig::SwapchainCreateInfo.compositeAlpha;
+				if (BaseLayerConfig::DefaultSwapchainCreateInfo.compositeAlpha & m_surfaceCapabilities.supportedCompositeAlpha)
+					m_swapchainCreateInfo.compositeAlpha = BaseLayerConfig::DefaultSwapchainCreateInfo.compositeAlpha;
 				else m_swapchainCreateInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
 			}
 			

@@ -30,7 +30,7 @@ namespace BaseLayerConfig
 		"VK_LAYER_VALVE_steam_fossilize"
 	};
 
-	struct SSwapchainCreateInfo
+	struct SwapchainCreateInfo
 	{
 		uint32                        frameCount;
 		VkSurfaceFormatKHR            surfaceFormat;
@@ -41,7 +41,7 @@ namespace BaseLayerConfig
 		VkBool32                      clipped;
 	};
 
-	static const SSwapchainCreateInfo SwapchainCreateInfo =
+	static const SwapchainCreateInfo DefaultSwapchainCreateInfo =
 	{
 		3, // 3 FrameResource Required!
 		{ VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR },
