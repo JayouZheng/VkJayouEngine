@@ -94,7 +94,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(VK_SDK_PATH)/include;$(ProjectDir)/ThirdParty/jsoncpp/include;$(ProjectDir)/Layers;$(ProjectDir)/Layers/Fossilize/rapidjson/include;$(ProjectDir)/ThirdParty/jsoncpp/src/lib_json;$(ProjectDir)/ThirdParty;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(VK_SDK_PATH)/include;$(ProjectDir)/ThirdParty/jsoncpp/include;$(ProjectDir)/Layers;$(ProjectDir)/Layers/Fossilize/rapidjson/include;$(ProjectDir)/ThirdParty/jsoncpp/src/lib_json;$(ProjectDir)/ThirdParty;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -112,7 +112,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(VK_SDK_PATH)/include;$(ProjectDir)/ThirdParty/jsoncpp/include;$(ProjectDir)/Layers;$(ProjectDir)/Layers/Fossilize/rapidjson/include;$(ProjectDir)/ThirdParty/jsoncpp/src/lib_json;$(ProjectDir)/ThirdParty;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(VK_SDK_PATH)/include;$(ProjectDir)/ThirdParty/jsoncpp/include;$(ProjectDir)/Layers;$(ProjectDir)/Layers/Fossilize/rapidjson/include;$(ProjectDir)/ThirdParty/jsoncpp/src/lib_json;$(ProjectDir)/ThirdParty;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <OmitFramePointers>
       </OmitFramePointers>
@@ -135,7 +135,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(VK_SDK_PATH)/include;$(ProjectDir)/ThirdParty/jsoncpp/include;$(ProjectDir)/Layers;$(ProjectDir)/Layers/Fossilize/rapidjson/include;$(ProjectDir)/ThirdParty/jsoncpp/src/lib_json;$(ProjectDir)/ThirdParty;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(VK_SDK_PATH)/include;$(ProjectDir)/ThirdParty/jsoncpp/include;$(ProjectDir)/Layers;$(ProjectDir)/Layers/Fossilize/rapidjson/include;$(ProjectDir)/ThirdParty/jsoncpp/src/lib_json;$(ProjectDir)/ThirdParty;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -156,7 +156,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(VK_SDK_PATH)/include;$(ProjectDir)/ThirdParty/jsoncpp/include;$(ProjectDir)/Layers;$(ProjectDir)/Layers/Fossilize/rapidjson/include;$(ProjectDir)/ThirdParty/jsoncpp/src/lib_json;$(ProjectDir)/ThirdParty;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(VK_SDK_PATH)/include;$(ProjectDir)/ThirdParty/jsoncpp/include;$(ProjectDir)/Layers;$(ProjectDir)/Layers/Fossilize/rapidjson/include;$(ProjectDir)/ThirdParty/jsoncpp/src/lib_json;$(ProjectDir)/ThirdParty;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -193,10 +193,13 @@
   <ItemGroup>
     <ClInclude Include="Core\BaseAllocator.h" />
     <ClInclude Include="Core\BaseLayer.h" />
+    <ClInclude Include="Core\BaseType.h" />
     <ClInclude Include="Core\Color.h" />
     <ClInclude Include="Core\CommandList.h" />
     <ClInclude Include="Core\CommandQueue.h" />
     <ClInclude Include="Core\Common.h" />
+    <ClInclude Include="Core\Containers\List.h" />
+    <ClInclude Include="Core\Math\Sequence.h" />
     <ClInclude Include="Core\PathParser.h" />
     <ClInclude Include="Core\Exception.h" />
     <ClInclude Include="Core\FileManager.h" />

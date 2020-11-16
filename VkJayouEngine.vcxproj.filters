@@ -336,6 +336,15 @@
     <ClInclude Include="Core\TextMapper.h">
       <Filter>Core</Filter>
     </ClInclude>
+    <ClInclude Include="Core\Containers\List.h">
+      <Filter>Core\Containers</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Math\Sequence.h">
+      <Filter>Core\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\BaseType.h">
+      <Filter>Core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -376,6 +385,12 @@
     </Filter>
     <Filter Include="ThirdParty\iniparser">
       <UniqueIdentifier>{11d8534b-39ab-4183-ac55-75773f010e30}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Containers">
+      <UniqueIdentifier>{64072beb-13f3-47fd-9338-748f04e6a8f1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Math">
+      <UniqueIdentifier>{bbee79fb-b77c-443a-b02e-aa1500e1246f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
