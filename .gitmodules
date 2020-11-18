@@ -5,5 +5,5 @@
 	path = Layers/Fossilize
 	url = https://github.com/ValveSoftware/Fossilize.git
 [submodule "Tools/GLSLCompiler"]
-	path = ThirdParty/GLSLCompiler
+	path = Tools/GLSLCompiler
 	url = https://github.com/hyzboy/GLSLCompiler.git
