@@ -9,6 +9,8 @@
 
 #pragma region VkSmartPtr
 
+VK_DEFINE_NON_DISPATCHABLE_HANDLE(VkObjectHandler)
+
 template<typename T>
 class VkCounter;
 
@@ -35,13 +37,13 @@ public:
 	VkSmartPtr(const char* type)
 	{
 		m_counter = new VkCounter<T>(nullptr);
-		m_counter->SetType(type);
+		m_counter->m_type = type;
 	}
 
 	VkSmartPtr(const char* type, T* ptr)
 	{
 		m_counter = new VkCounter<T>(ptr);
-		m_counter->SetType(type);
+		m_counter->m_type = type;
 	}
 
 	VkSmartPtr(const VkSmartPtr &other)
@@ -58,6 +60,13 @@ public:
 	}
 
 public:
+
+	operator VkSmartPtr<VkObjectHandler>()
+	{
+		m_counter->m_bReleasedObjectOwnership = true;
+
+		return VkSmartPtr<VkObjectHandler>(m_counter->m_type.data(), (VkObjectHandler*)m_counter->m_object);
+	}
 
 	operator T*()
 	{
@@ -115,7 +124,7 @@ public:
 			delete m_counter;
 
 		m_counter = new VkCounter<T>(other);
-		m_counter->SetType(type);
+		m_counter->m_type = type;
 
 		return *this;
 	}
@@ -129,19 +138,16 @@ private:
 	T*            m_object;
 	uint32        m_count;
 	std::string   m_type;
+	bool          m_bReleasedObjectOwnership;
 
 	template<typename T>
 	friend class VkSmartPtr;
-
-	void SetType(const std::string& type)
-	{
-		m_type = type;
-	}
 
 	VkCounter(T *ptr)
 	{
 		m_object = ptr;
 		m_count = 1;
+		m_bReleasedObjectOwnership = false;
 
 		Global::IncInstanceRef();
 	}
@@ -163,7 +169,7 @@ private:
 	}                                                                                                \
 }                                                                                                    \
 
-		if (m_object != nullptr && *m_object != NULL)
+		if (m_object != nullptr && *m_object != NULL && !m_bReleasedObjectOwnership)
 		{
 			_vk_destroy(Fence);
 			_vk_destroy(Semaphore); // Should Wait for all reference Object freed...
@@ -192,25 +198,34 @@ private:
 			{
 				vkDestroySurfaceKHR(Global::GetVkInstance(), (VkSurfaceKHR)*m_object, Global::GetVkAllocator());
 				LogSystem::Log("_vk_destroy: " + _str_name_of(VkSurfaceKHR), LogSystem::Category::VkSmartPtr);
-			}		
+			}
+
+			Global::DecInstanceRef();
+
+			if (Global::IsInstanceRefZero())
+			{
+				vkDestroyDevice(Global::GetVkDevice(), Global::GetVkAllocator());
+				vkDestroyInstance(Global::GetVkInstance(), Global::GetVkAllocator());
+				Global::SafeFreeAllocator();
+				Global::OnExit();
+			}
+
+			delete m_object;
 		}
 
-		Global::DecInstanceRef();
-
-		if (Global::IsInstanceRefZero())
-		{
-			vkDestroyDevice(Global::GetVkDevice(), Global::GetVkAllocator());
-			vkDestroyInstance(Global::GetVkInstance(), Global::GetVkAllocator());
-			Global::SafeFreeAllocator();
-			Global::OnExit();
-		}
+#else
+		delete m_object;
 
 #endif // VK_MANUAL_DESTROY_OBJECT
-		
-		delete m_object;
 	}
 };
 
 #define _declare_vk_smart_ptr(type, var)  VkSmartPtr<type> var = VkSmartPtr<type>(_name_of(type));
+
+template<typename T>
+inline VkSmartPtr<VkObjectHandler> VkCast(VkSmartPtr<T>& InObject)
+{
+	return (VkSmartPtr<VkObjectHandler>)InObject;
+}
 
 #pragma endregion

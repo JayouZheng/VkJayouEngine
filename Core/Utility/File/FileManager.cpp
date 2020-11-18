@@ -23,7 +23,7 @@ bool FileUtil::Read(const std::string& InPath, std::vector<uint8>& OutData)
 	}
 
 	fseek(pFile, 0, SEEK_END);
-	int64 size = ftell(pFile);
+	usize size = ftell(pFile);
 	rewind(pFile);
 
 	if (ferror(pFile))

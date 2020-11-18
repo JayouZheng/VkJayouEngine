@@ -7,31 +7,6 @@
 #include "Core/Common.h"
 #include "Core/Global.h"
 
-namespace GConfig
-{
-	namespace Subresource
-	{
-		const VkImageSubresourceRange ColorSubResRange =
-		{
-			VK_IMAGE_ASPECT_COLOR_BIT,   // aspectMask
-			0,                           // baseMipLevel
-			VK_REMAINING_MIP_LEVELS,     // levelCount
-			0,                           // baseArrayLayer
-			VK_REMAINING_ARRAY_LAYERS    // layerCount
-		};
-
-		const VkImageSubresourceRange DepthStencilSubResRange =
-		{
-			VK_IMAGE_ASPECT_DEPTH_BIT |
-			VK_IMAGE_ASPECT_STENCIL_BIT, // aspectMask
-			0,                           // baseMipLevel
-			VK_REMAINING_MIP_LEVELS,     // levelCount
-			0,                           // baseArrayLayer
-			VK_REMAINING_ARRAY_LAYERS    // layerCount
-		};
-	}
-}
-
 class BaseLayer;
 
 class CommandList

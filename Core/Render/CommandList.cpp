@@ -4,6 +4,8 @@
 
 #include "CommandList.h"
 #include "Core/Base/BaseLayer.h"
+#include "Core/Utility/File/FileManager.h"
+#include "Core/Render/RenderConfig.h"
 
 CommandList::CommandList(BaseLayer* InBaseLayer)
 	: m_pBaseLayer(InBaseLayer)

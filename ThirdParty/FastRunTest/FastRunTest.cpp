@@ -26,5 +26,7 @@ int main()
 
         // When Exit.
         ResourcePool::Get()->Free();
+
+        B b;
     }
 }

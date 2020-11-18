@@ -28,8 +28,8 @@ VkAllocationCallbacks* BaseAllocator::GetVkAllocator()
 
 void* VKAPI_CALL BaseAllocator::_Allocation(
 	void* pUserData,
-	size_t size,
-	size_t alignment,
+	usize size,
+	usize alignment,
 	VkSystemAllocationScope allocationScope)
 {
 	return static_cast<BaseAllocator*>(pUserData)->Allocation(size, alignment, allocationScope);
@@ -38,8 +38,8 @@ void* VKAPI_CALL BaseAllocator::_Allocation(
 void* VKAPI_CALL BaseAllocator::_Reallocation(
 	void* pUserData,
 	void* pOriginal,
-	size_t size,
-	size_t alignment,
+	usize size,
+	usize alignment,
 	VkSystemAllocationScope allocationScope)
 {
 	return static_cast<BaseAllocator*>(pUserData)->Reallocation(pOriginal, size, alignment, allocationScope);
@@ -52,12 +52,12 @@ void VKAPI_CALL BaseAllocator::_Free(
 	static_cast<BaseAllocator*>(pUserData)->Free(pMemory);
 }
 
-void VKAPI_CALL BaseAllocator::_InternalAllocation(void* pUserData, size_t size, VkInternalAllocationType allocationType, VkSystemAllocationScope allocationScope)
+void VKAPI_CALL BaseAllocator::_InternalAllocation(void* pUserData, usize size, VkInternalAllocationType allocationType, VkSystemAllocationScope allocationScope)
 {
 	static_cast<BaseAllocator*>(pUserData)->InternalAllocation(size, allocationType, allocationScope);
 }
 
-void VKAPI_CALL BaseAllocator::_InternalFree(void* pUserData, size_t size, VkInternalAllocationType allocationType, VkSystemAllocationScope allocationScope)
+void VKAPI_CALL BaseAllocator::_InternalFree(void* pUserData, usize size, VkInternalAllocationType allocationType, VkSystemAllocationScope allocationScope)
 {
 	static_cast<BaseAllocator*>(pUserData)->InternalFree(size, allocationType, allocationScope);
 }

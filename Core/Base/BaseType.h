@@ -23,3 +23,15 @@ using byte = uint8;
 
 using iBool = int32;
 using uBool = uint32;
+
+#ifdef _WIN64
+
+using isize = int64;
+using usize = uint64;
+
+#else
+
+using isize = int32;
+using usize = uint32;
+
+#endif // _WIN64

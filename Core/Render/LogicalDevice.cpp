@@ -9,6 +9,7 @@
 #include "Core/Utility/Utility.h"
 #include "Core/Utility/TextMapper.h"
 #include "Core/Utility/File/FileManager.h"
+#include "Core/Render/RenderConfig.h"
 
 VkAllocationCallbacks* LogicalDevice::GetVkAllocator() const
 {
@@ -136,6 +137,8 @@ VkPipeline LogicalDevice::GetPipeline(const std::string& InName)
 void LogicalDevice::CreateCommandPool(const VkCommandPoolCreateInfo& InCreateInfo)
 {
 	_vk_try(vkCreateCommandPool(m_device, &InCreateInfo, GetVkAllocator(), m_pCmdPool.MakeInstance()));
+
+	this->BindRef(VkCast<VkCommandPool>(m_pCmdPool));
 }
 
 void LogicalDevice::CreateCommandPool(uint32 InQueueFamilyIndex, VkCommandPoolCreateFlags InFlags /*= VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT*/)
@@ -146,6 +149,8 @@ void LogicalDevice::CreateCommandPool(uint32 InQueueFamilyIndex, VkCommandPoolCr
 	cmdPoolCreateInfo.queueFamilyIndex = InQueueFamilyIndex;
 
 	_vk_try(vkCreateCommandPool(m_device, &cmdPoolCreateInfo, GetVkAllocator(), m_pCmdPool.MakeInstance()));
+
+	this->BindRef(VkCast<VkCommandPool>(m_pCmdPool));
 }
 
 void LogicalDevice::CreateSwapchainKHR(VkSwapchainKHR* OutSwapchain, const VkSwapchainCreateInfoKHR& InCreateInfo)
@@ -158,7 +163,7 @@ void LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const Vk
 	_vk_try(vkCreateShaderModule(m_device, &InCreateInfo, GetVkAllocator(), OutShaderModule));
 }
 
-void LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const uint32* InCodes, size_t InCodeSize)
+void LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const uint32* InCodes, usize InCodeSize)
 {
 	VkShaderModuleCreateInfo shaderModuleCreateInfo = {};
 	shaderModuleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -272,7 +277,7 @@ void LogicalDevice::CreatePipelineCache(VkPipelineCache* OutPipCache, const VkPi
 	_vk_try(vkCreatePipelineCache(m_device, &InCreateInfo, GetVkAllocator(), OutPipCache));
 }
 
-void LogicalDevice::CreatePipelineCache(VkPipelineCache* OutPipCache, const void* InData, size_t InSize, VkPipelineCacheCreateFlags InFlags)
+void LogicalDevice::CreatePipelineCache(VkPipelineCache* OutPipCache, const void* InData, usize InSize, VkPipelineCacheCreateFlags InFlags)
 {
 	VkPipelineCacheCreateInfo pipelineCacheInfo = {};
 	pipelineCacheInfo.sType           = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
@@ -408,14 +413,14 @@ bool LogicalDevice::CreatePipelineCacheFromFile(VkPipelineCache* OutPipCache, co
 	return true;
 }
 
-size_t LogicalDevice::GetPipelineCacheDataSize(VkPipelineCache InPipCache)
+usize LogicalDevice::GetPipelineCacheDataSize(VkPipelineCache InPipCache)
 {
-	size_t dataSize = 0;
+	usize dataSize = 0;
 	_vk_try(vkGetPipelineCacheData(m_device, InPipCache, &dataSize, nullptr));
 	return dataSize;
 }
 
-void LogicalDevice::GetPipelineCacheData(VkPipelineCache InPipCache, size_t InDataSize, void* OutData)
+void LogicalDevice::GetPipelineCacheData(VkPipelineCache InPipCache, usize InDataSize, void* OutData)
 {
 	_vk_try(vkGetPipelineCacheData(m_device, InPipCache, &InDataSize, OutData));
 }

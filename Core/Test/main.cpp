@@ -285,7 +285,7 @@ void test5()
 
 int main() {
 	void* ptr;
-	size_t  alignment,
+	usize  alignment,
 		off_set;
 
 	// Note alignment should be 2^N where N is any positive int.  

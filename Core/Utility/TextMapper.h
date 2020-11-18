@@ -5,6 +5,7 @@
 #pragma once
 
 #include <string>
+#include "Core/Base/BaseType.h"
 
 namespace TextMapper
 {
@@ -150,7 +151,7 @@ namespace TextMapper
 		RANGE_SIZE = (END_RANGE - BEGIN_RANGE) + 1
 	};
 
-	extern std::string Map[size_t(ID::RANGE_SIZE)];
+	extern std::string Map[usize(ID::RANGE_SIZE)];
 }
 
-#define _text_mapper(id) TextMapper::Map[(size_t)TextMapper::ID::id]
+#define _text_mapper(id) TextMapper::Map[(usize)TextMapper::ID::id]

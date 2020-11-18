@@ -7,7 +7,7 @@
 
 namespace TextMapper
 {
-	std::string Map[size_t(ID::RANGE_SIZE)] =
+	std::string Map[usize(ID::RANGE_SIZE)] =
 	{
 		"Begin",
 

@@ -21,15 +21,15 @@ public:
 
 private:
 
-	virtual void* Allocation(size_t size, size_t alignment, VkSystemAllocationScope allocationScope) override;
+	virtual void* Allocation(usize size, usize alignment, VkSystemAllocationScope allocationScope) override;
 
-	virtual void* Reallocation(void* pOriginal, size_t size, size_t alignment, VkSystemAllocationScope allocationScope) override;
+	virtual void* Reallocation(void* pOriginal, usize size, usize alignment, VkSystemAllocationScope allocationScope) override;
 
 	virtual void  Free(void* pMemory) override;
 
-	virtual void  InternalAllocation(size_t size, VkInternalAllocationType allocationType, VkSystemAllocationScope allocationScope) override;
+	virtual void  InternalAllocation(usize size, VkInternalAllocationType allocationType, VkSystemAllocationScope allocationScope) override;
 
-	virtual void  InternalFree(size_t size, VkInternalAllocationType allocationType, VkSystemAllocationScope allocationScope) override;
+	virtual void  InternalFree(usize size, VkInternalAllocationType allocationType, VkSystemAllocationScope allocationScope) override;
 
 private:
 

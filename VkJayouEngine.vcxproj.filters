@@ -63,6 +63,9 @@
     <ClCompile Include="Core\Platform\Windows\Window.cpp">
       <Filter>Core\Platform\Windows</Filter>
     </ClCompile>
+    <ClCompile Include="Core\Base\ResourcePool.cpp">
+      <Filter>Core\Base</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="vk_app.h" />
@@ -345,6 +348,15 @@
     <ClInclude Include="Core\Platform\Windows\Window.h">
       <Filter>Core\Platform\Windows</Filter>
     </ClInclude>
+    <ClInclude Include="Core\Base\Interface\IResourceHandler.h">
+      <Filter>Core\Base\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Base\ResourcePool.h">
+      <Filter>Core\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Render\RenderConfig.h">
+      <Filter>Core\Render</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -427,6 +439,9 @@
     </Filter>
     <Filter Include="Core\Render">
       <UniqueIdentifier>{f3e602b4-0c5a-4e9e-81e5-287134538f4d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Base\Interface">
+      <UniqueIdentifier>{bceab2b6-59c2-4687-8049-b40e640c98d2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

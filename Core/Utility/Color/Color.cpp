@@ -22,7 +22,7 @@ namespace ColorUtil
                                                         _u16_text(ch_name) \
                                                     },
 
-    ColorInfo Palette[size_t(Color::RANGE_SIZE)] =
+    ColorInfo Palette[usize(Color::RANGE_SIZE)] =
     {
         DEF_COLOR(None,                     0,  0,  0,"")
 

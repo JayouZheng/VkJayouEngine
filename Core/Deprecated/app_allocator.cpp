@@ -13,7 +13,7 @@
 
 namespace
 {
-	size_t GetAlignedSize(size_t InSize, size_t InAlignment)
+	usize GetAlignedSize(usize InSize, usize InAlignment)
 	{
 		return 0;
 	}
@@ -30,8 +30,8 @@ app_allocator::~app_allocator()
 }
 
 void* app_allocator::Allocation(
-	size_t size,
-	size_t alignment,
+	usize size,
+	usize alignment,
 	VkSystemAllocationScope allocationScope)
 {
 	m_allocCount++;
@@ -40,8 +40,8 @@ void* app_allocator::Allocation(
 
 void* app_allocator::Reallocation(
 	void* pOriginal,
-	size_t size,
-	size_t alignment,
+	usize size,
+	usize alignment,
 	VkSystemAllocationScope allocationScope)
 {
 	m_reallocCount++;
@@ -55,7 +55,7 @@ void app_allocator::Free(void* pMemory)
 }
 
 void app_allocator::InternalAllocation(
-	size_t size, 
+	usize size, 
 	VkInternalAllocationType allocationType, 
 	VkSystemAllocationScope allocationScope)
 {
@@ -63,7 +63,7 @@ void app_allocator::InternalAllocation(
 }
 
 void app_allocator::InternalFree(
-	size_t size, 
+	usize size, 
 	VkInternalAllocationType allocationType, 
 	VkSystemAllocationScope allocationScope)
 {

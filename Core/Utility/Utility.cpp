@@ -750,7 +750,7 @@ uint32 Util::GetVertexAttributeSize(const std::string& InKey)
 VkColorComponentFlags Util::GetColorComponentMask(const std::string& InKey)
 {
 	VkColorComponentFlags result = 0;
-	for (size_t i = 0; i < InKey.length(); i++)
+	for (usize i = 0; i < InKey.length(); i++)
 	{
 		auto found = VkColorComponentMaskMap.find(InKey.substr(i, _count_1));
 		if (found != VkColorComponentMaskMap.end())

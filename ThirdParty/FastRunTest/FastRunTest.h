@@ -128,6 +128,21 @@ public:
     ~Test() { std::cout << "Exit Test name " << GetName() << "!\n"; }
 };
 
+class A : public IResHandler
+{
+public:
+    A() {}
+    A(int a) {}
+    virtual ~A() {}
+};
+
+class B
+{
+public:
+    A a;
+    virtual ~B() {}
+};
+
 #include <thread>
 
 void access(int id)

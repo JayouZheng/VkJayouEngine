@@ -264,5 +264,5 @@ namespace ColorUtil
         RANGE_SIZE  =(END_RANGE-BEGIN_RANGE)+1
     };
 
-    extern ColorInfo Palette[size_t(Color::RANGE_SIZE)];
+    extern ColorInfo Palette[usize(Color::RANGE_SIZE)];
 }

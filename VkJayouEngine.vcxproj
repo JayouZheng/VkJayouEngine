@@ -170,6 +170,7 @@
   <ItemGroup>
     <ClCompile Include="Core\Base\BaseAllocator.cpp" />
     <ClCompile Include="Core\Base\BaseLayer.cpp" />
+    <ClCompile Include="Core\Base\ResourcePool.cpp" />
     <ClCompile Include="Core\Global.cpp" />
     <ClCompile Include="Core\Platform\Windows\Window.cpp" />
     <ClCompile Include="Core\Render\CommandList.cpp" />
@@ -194,6 +195,8 @@
     <ClInclude Include="Core\Base\BaseAllocator.h" />
     <ClInclude Include="Core\Base\BaseLayer.h" />
     <ClInclude Include="Core\Base\BaseType.h" />
+    <ClInclude Include="Core\Base\Interface\IResourceHandler.h" />
+    <ClInclude Include="Core\Base\ResourcePool.h" />
     <ClInclude Include="Core\Common.h" />
     <ClInclude Include="Core\Containers\List.h" />
     <ClInclude Include="Core\Containers\Tuple.h" />
@@ -206,6 +209,7 @@
     <ClInclude Include="Core\Render\CommandQueue.h" />
     <ClInclude Include="Core\Render\GLSLCompiler.h" />
     <ClInclude Include="Core\Render\LogicalDevice.h" />
+    <ClInclude Include="Core\Render\RenderConfig.h" />
     <ClInclude Include="Core\SmartPtr\SmartPtr.h" />
     <ClInclude Include="Core\SmartPtr\VkSmartPtr.h" />
     <ClInclude Include="Core\TypeDef.h" />
