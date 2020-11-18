@@ -276,7 +276,7 @@ public:
 
     GLSLCompiler()
     {
-        m_module.Load("../../.GLSLCompiler/out/Windows_64_" + std::string(SlnConfig) + "/GLSLCompiler.dll");
+        m_module.Load("../CMBuild/.GLSLCompiler/out/Windows_64_" + std::string(SlnConfig) + "/GLSLCompiler.dll");
         m_pInterface = m_module.GetInterface<PFGetGLSLCompilerInterface>("GetInterface");
 
         if (m_pInterface != nullptr)

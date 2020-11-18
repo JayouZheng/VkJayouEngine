@@ -209,17 +209,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	return DefWindowProc(hWnd, message, wParam, lParam);
 }
 
+_impl_create_interface(Window)
+
 // Class Window.
-Window::Window()
+Window::Window() : 
+	m_defaultDesc( {1280, 720} ),
+	m_pHinstance(nullptr),
+	m_pHwnd(nullptr)
 {
-	m_defaultDesc.Width  = 1280;
-	m_defaultDesc.Height = 720;
-}
-
-Window::Window(const WindowDesc& InWindoWDesc)
-	: m_defaultDesc(InWindoWDesc)
-{
-
+	_internal_init(Window);
 }
 
 Window::~Window()

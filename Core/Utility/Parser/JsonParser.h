@@ -7,14 +7,12 @@
 #include "json/json.h"
 #include "Core/TypeDef.h"
 
-#include "Core/Utility/String/StringManager.h"
-
 class JsonParser
 {
 
 public:
 
-	static bool Parse (const std::string& InPath, Json::Value& OutRoot);
+	static bool Parse(const std::string& InPath, Json::Value& OutRoot);
 
 	static inline int32 GetInt32(const Json::Value& InValue)
 	{

@@ -139,7 +139,12 @@ public:
 class B
 {
 public:
+    int x = 0;
     A a;
+    B() { std::cout << "default B\n"; }
+    B(const B& b) { std::cout << "Copy B\n"; }
+    B& operator=(const B& b) { std::cout << "Equal B\n"; return *this; }
+
     virtual ~B() {}
 };
 

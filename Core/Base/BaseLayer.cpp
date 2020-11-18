@@ -3,25 +3,34 @@
 //
 
 #include "BaseLayer.h"
+#include "BaseConfig.h"
 #include "BaseAllocator.h"
 #include "Core/Global.h"
 #include "Core/Utility/Utility.h"
+#include "Core/Platform/Windows/Window.h"
+#include "Core/Render/LogicalDevice.h"
+
+_impl_create_interface(BaseLayer)
 
 VkAllocationCallbacks* BaseLayer::GetVkAllocator() const
 {
 	return m_pAllocator != nullptr ? m_pAllocator->GetVkAllocator() : nullptr;
 }
 
-BaseLayer::BaseLayer()
-	: m_pAllocator(nullptr)
+BaseLayer::BaseLayer() : 
+	m_pAllocator(nullptr),
+	m_mainPDIndex(-1),
+	m_mainQFIndex(-1)
 {
-	
-}
+	_internal_init(BaseLayer);
 
-BaseLayer::BaseLayer(BaseAllocator* InAllocator)
-	: m_pAllocator(InAllocator)
-{
+	_zero_memory_struct(m_requiredPDFeatures);
+	_zero_memory_struct(m_requiredPDVk12Features);
+	_zero_memory_struct(m_surfaceCapabilities);
+	_zero_memory_struct(m_swapchainCreateInfo);
 
+	m_pDevice = LogicalDevice::Create(this);
+	m_pWindow = Window::Create(this);
 }
 
 BaseLayer::~BaseLayer()
@@ -39,8 +48,8 @@ bool BaseLayer::Init()
 	CachedModulePath();
 
 	// Global Variable.
-	uint32 numEnableExts   = _array_size(BaseLayerConfig::EnableExtensions);
-	uint32 numEnableLayers = _array_size(BaseLayerConfig::EnableLayers);
+	uint32 numEnableExts   = _array_size(BaseConfig::EnableExtensions);
+	uint32 numEnableLayers = _array_size(BaseConfig::EnableLayers);
 
 	// Create VK Instance & Physical Devices & Query Infos.
 	{
@@ -72,9 +81,9 @@ bool BaseLayer::Init()
 			{				
 				for (uint32 i = 0; i < numEnableExts; ++i)
 				{
-					if (_is_cstr_equal(prop.extensionName, BaseLayerConfig::EnableExtensions[i]))
+					if (_is_cstr_equal(prop.extensionName, BaseConfig::EnableExtensions[i]))
 					{
-						m_supportInsExts.push_back(BaseLayerConfig::EnableExtensions[i]);
+						m_supportInsExts.push_back(BaseConfig::EnableExtensions[i]);
 					}
 				}
 			}
@@ -86,9 +95,9 @@ bool BaseLayer::Init()
 			{
 				for (uint32 i = 0; i < numEnableLayers; ++i)
 				{
-					if (_is_cstr_equal(prop.layerName, BaseLayerConfig::EnableLayers[i]))
+					if (_is_cstr_equal(prop.layerName, BaseConfig::EnableLayers[i]))
 					{
-						m_supportInsLayers.push_back(BaseLayerConfig::EnableLayers[i]);
+						m_supportInsLayers.push_back(BaseConfig::EnableLayers[i]);
 					}
 				}
 			}
@@ -252,9 +261,9 @@ bool BaseLayer::Init()
 			{
 				for (uint32 i = 0; i < numEnableExts; ++i)
 				{
-					if (_is_cstr_equal(prop.extensionName, BaseLayerConfig::EnableExtensions[i]))
+					if (_is_cstr_equal(prop.extensionName, BaseConfig::EnableExtensions[i]))
 					{
-						m_supportPDExts.push_back(BaseLayerConfig::EnableExtensions[i]);
+						m_supportPDExts.push_back(BaseConfig::EnableExtensions[i]);
 					}
 				}
 			}
@@ -266,9 +275,9 @@ bool BaseLayer::Init()
 			{
 				for (uint32 i = 0; i < numEnableLayers; ++i)
 				{
-					if (_is_cstr_equal(prop.layerName, BaseLayerConfig::EnableLayers[i]))
+					if (_is_cstr_equal(prop.layerName, BaseConfig::EnableLayers[i]))
 					{
-						m_supportPDLayers.push_back(BaseLayerConfig::EnableLayers[i]);
+						m_supportPDLayers.push_back(BaseConfig::EnableLayers[i]);
 					}
 				}
 			}
@@ -291,14 +300,12 @@ bool BaseLayer::Init()
 			deviceCreateInfo.ppEnabledExtensionNames = numPDSupportExts > 0 ? m_supportPDExts.data() : nullptr;
 		}
 
-		_vk_try(vkCreateDevice(m_physicalDevices[m_mainPDIndex], &deviceCreateInfo, GetVkAllocator(), m_device.GetAddressOfVkDevice()));
-		m_device.SetBaseLayer(this);
-		m_device.SetAllocator(m_pAllocator);
-		Global::SetVkDevice(m_device.GetVkDevice());
-		
-		m_queue = m_device.GetQueue(m_mainQFIndex);
+		_vk_try(vkCreateDevice(m_physicalDevices[m_mainPDIndex], &deviceCreateInfo, GetVkAllocator(), m_pDevice->GetAddressOfVkDevice()));
+		m_pDevice->SetBaseLayer(this);
+		m_pDevice->SetAllocator(m_pAllocator);
+		Global::SetVkDevice(m_pDevice->GetVkDevice());
 
-		m_device.CreateCommandPool(m_mainQFIndex);
+		m_pDevice->CreateCommandPool(m_mainQFIndex);
 
 #if PLATFORM_WINDOW
 
@@ -312,10 +319,9 @@ bool BaseLayer::Init()
 				_log_error("The Default Queue Do Not Support Presentation (Win32)!", LogSystem::Category::BaseLayer);
 				return false;
 			}
-
-			m_pWindow = new Window;
+			
 			if (!m_pWindow->Init()) return false;
-			m_device.SetWindow(m_pWindow);
+			m_pDevice->SetWindow(m_pWindow);
 			VkWin32SurfaceCreateInfoKHR win32SurfaceCreateInfo = {};
 			win32SurfaceCreateInfo.sType = VK_STRUCTURE_TYPE_DISPLAY_SURFACE_CREATE_INFO_KHR;
 			win32SurfaceCreateInfo.hinstance = (HINSTANCE)m_pWindow->GetHinstance();
@@ -335,8 +341,8 @@ bool BaseLayer::Init()
 			m_swapchainCreateInfo.imageSharingMode      = VK_SHARING_MODE_EXCLUSIVE;
 			m_swapchainCreateInfo.queueFamilyIndexCount = 0;
 			m_swapchainCreateInfo.pQueueFamilyIndices   = nullptr;
-			m_swapchainCreateInfo.presentMode           = BaseLayerConfig::DefaultSwapchainCreateInfo.presentMode;
-			m_swapchainCreateInfo.clipped               = BaseLayerConfig::DefaultSwapchainCreateInfo.clipped;
+			m_swapchainCreateInfo.presentMode           = BaseConfig::DefaultSwapchainCreateInfo.presentMode;
+			m_swapchainCreateInfo.clipped               = BaseConfig::DefaultSwapchainCreateInfo.clipped;
 			m_swapchainCreateInfo.oldSwapchain          = VK_NULL_HANDLE;  // First time to Create.
 
 			// Check Support Surface Format For Swapchain.
@@ -358,11 +364,11 @@ bool BaseLayer::Init()
 
 				if (Util::IsVecContain<VkSurfaceFormatKHR>(
 					m_surfaceFormats, 
-					BaseLayerConfig::DefaultSwapchainCreateInfo.surfaceFormat, 
+					BaseConfig::DefaultSwapchainCreateInfo.surfaceFormat, 
 					[&](const VkSurfaceFormatKHR& a, const VkSurfaceFormatKHR& b) { return (a.format == b.format) && (a.colorSpace == b.colorSpace); }))
 				{
-					m_swapchainCreateInfo.imageFormat = BaseLayerConfig::DefaultSwapchainCreateInfo.surfaceFormat.format;
-					m_swapchainCreateInfo.imageColorSpace = BaseLayerConfig::DefaultSwapchainCreateInfo.surfaceFormat.colorSpace;
+					m_swapchainCreateInfo.imageFormat = BaseConfig::DefaultSwapchainCreateInfo.surfaceFormat.format;
+					m_swapchainCreateInfo.imageColorSpace = BaseConfig::DefaultSwapchainCreateInfo.surfaceFormat.colorSpace;
 				}
 			}
 
@@ -372,9 +378,9 @@ bool BaseLayer::Init()
 
 				m_swapchainCreateInfo.imageExtent = m_surfaceCapabilities.currentExtent;
 
-				if ((BaseLayerConfig::DefaultSwapchainCreateInfo.frameCount > m_surfaceCapabilities.minImageCount) && 
-					(BaseLayerConfig::DefaultSwapchainCreateInfo.frameCount < m_surfaceCapabilities.maxImageCount))
-					m_swapchainCreateInfo.minImageCount = BaseLayerConfig::DefaultSwapchainCreateInfo.frameCount;
+				if ((BaseConfig::DefaultSwapchainCreateInfo.frameCount > m_surfaceCapabilities.minImageCount) && 
+					(BaseConfig::DefaultSwapchainCreateInfo.frameCount < m_surfaceCapabilities.maxImageCount))
+					m_swapchainCreateInfo.minImageCount = BaseConfig::DefaultSwapchainCreateInfo.frameCount;
 				else m_swapchainCreateInfo.minImageCount = m_surfaceCapabilities.minImageCount;
 
 				if (!(m_surfaceCapabilities.supportedUsageFlags & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT))
@@ -383,23 +389,23 @@ bool BaseLayer::Init()
 					return false;
 				}
 
-				m_swapchainCreateInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT & BaseLayerConfig::DefaultSwapchainCreateInfo.imageUsage;
+				m_swapchainCreateInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT & BaseConfig::DefaultSwapchainCreateInfo.imageUsage;
 
-				if (BaseLayerConfig::DefaultSwapchainCreateInfo.surfacePreTransform & m_surfaceCapabilities.supportedTransforms)
-					m_swapchainCreateInfo.preTransform = BaseLayerConfig::DefaultSwapchainCreateInfo.surfacePreTransform;
+				if (BaseConfig::DefaultSwapchainCreateInfo.surfacePreTransform & m_surfaceCapabilities.supportedTransforms)
+					m_swapchainCreateInfo.preTransform = BaseConfig::DefaultSwapchainCreateInfo.surfacePreTransform;
 				else m_swapchainCreateInfo.preTransform = m_surfaceCapabilities.currentTransform;
 
-				if (BaseLayerConfig::DefaultSwapchainCreateInfo.compositeAlpha & m_surfaceCapabilities.supportedCompositeAlpha)
-					m_swapchainCreateInfo.compositeAlpha = BaseLayerConfig::DefaultSwapchainCreateInfo.compositeAlpha;
+				if (BaseConfig::DefaultSwapchainCreateInfo.compositeAlpha & m_surfaceCapabilities.supportedCompositeAlpha)
+					m_swapchainCreateInfo.compositeAlpha = BaseConfig::DefaultSwapchainCreateInfo.compositeAlpha;
 				else m_swapchainCreateInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
 			}
 			
-			m_device.CreateSwapchainKHR(m_pSwapchainKHR.MakeInstance(), m_swapchainCreateInfo);
+			m_pDevice->CreateSwapchainKHR(m_pSwapchainKHR.MakeInstance(), m_swapchainCreateInfo);
 
 			uint32 swapchainImageCount = _count_0;
-			m_device.GetSwapchainImagesKHR(*m_pSwapchainKHR, &swapchainImageCount, nullptr);
+			m_pDevice->GetSwapchainImagesKHR(*m_pSwapchainKHR, &swapchainImageCount, nullptr);
 			m_swapchainImages.resize(swapchainImageCount);
-			m_device.GetSwapchainImagesKHR(*m_pSwapchainKHR, &swapchainImageCount, m_swapchainImages.data());
+			m_pDevice->GetSwapchainImagesKHR(*m_pSwapchainKHR, &swapchainImageCount, m_swapchainImages.data());
 
 			// This Code May Be Redundant... Win32 Surface Presentation Support Has Been Queried.
 			{
@@ -421,7 +427,7 @@ bool BaseLayer::Init()
 		}
 
 		// TODO:
-		m_device.CreateGraphicPipelines(PathParser::Parse("Json/graphic_pipeline_info.json"));
+		m_pDevice->CreateGraphicPipelines(PathParser::Parse("Json/graphic_pipeline_info.json"));
 		
 		//m_pWindow->Show();
 	}
@@ -472,9 +478,13 @@ void BaseLayer::CachedModulePath()
 #endif
 }
 
+void BaseLayer::SetBaseAllocator(BaseAllocator* InAllocator)
+{
+	m_pAllocator = InAllocator;
+}
+
 void BaseLayer::Free()
 {
-
 #if 0
 	if (Global::IsDestroyManually())
 	{
@@ -526,9 +536,9 @@ uint32 BaseLayer::GetHeapIndexFromMemPropFlags(
 	return selectedIndex;
 }
 
-LogicalDevice BaseLayer::GetLogicalDevice() const
+LogicalDevice* BaseLayer::GetLogicalDevice() const
 {
-	return m_device;
+	return m_pDevice;
 }
 
 const VkPhysicalDeviceLimits& BaseLayer::GetMainPDLimits() const

@@ -6,65 +6,17 @@
 
 #include "Core/Common.h"
 #include "Core/SmartPtr/VkSmartPtr.h"
-#include "Core/Platform/Windows/Window.h"
-#include "Core/Render/LogicalDevice.h"
-#include "Core/Render/CommandQueue.h"
-#include "Core/Render/CommandList.h"
-
-namespace BaseLayerConfig
-{
-	static const char* EnableExtensions[] = 
-	{ 
-		VK_KHR_SURFACE_EXTENSION_NAME, 
-		VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
-		VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-		VK_EXT_DEBUG_REPORT_EXTENSION_NAME,
-		VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
-		VK_KHR_DISPLAY_EXTENSION_NAME,
-		VK_KHR_DISPLAY_SWAPCHAIN_EXTENSION_NAME
-	};
-
-	static const char* EnableLayers[] =
-	{
-		"VK_LAYER_RENDERDOC_Capture",
-		"VK_LAYER_VALVE_steam_fossilize"
-	};
-
-	struct SwapchainCreateInfo
-	{
-		uint32                        frameCount;
-		VkSurfaceFormatKHR            surfaceFormat;
-		VkImageUsageFlags             imageUsage;
-		VkSurfaceTransformFlagBitsKHR surfacePreTransform;
-		VkCompositeAlphaFlagBitsKHR   compositeAlpha;
-		VkPresentModeKHR              presentMode;
-		VkBool32                      clipped;
-	};
-
-	static const SwapchainCreateInfo DefaultSwapchainCreateInfo =
-	{
-		3, // 3 FrameResource Required!
-		{ VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR },
-		VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
-		VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR,
-		VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
-		VK_PRESENT_MODE_FIFO_KHR,              // Vertical Sync.
-		VK_TRUE
-	};
-}
+#include "Interface/IResourceHandler.h"
 
 class BaseAllocator;
+class LogicalDevice;
+class Window;
 
-class BaseLayer
+class BaseLayer : public IResourceHandler
 {
 	// PD means Physical Device.
 	// QF means Queue Family.
-
-private:
-
-	BaseAllocator* m_pAllocator = nullptr;
-
-	VkAllocationCallbacks* GetVkAllocator() const;
+	_declare_create_interface(BaseLayer)
 
 protected:
 
@@ -84,10 +36,6 @@ protected:
 	std::vector<VkExtensionProperties>                m_instanceExtProps;
 	std::vector<std::vector<VkExtensionProperties>>   m_PDExtProps;
 
-	// Required PD Features.
-	VkPhysicalDeviceFeatures2                         m_requiredPDFeatures     = {};
-	VkPhysicalDeviceVulkan12Features                  m_requiredPDVk12Features = {};
-
 	// Support Extensions.
 	std::vector<const char*>                          m_supportInsExts;
 	std::vector<const char*>                          m_supportPDExts;
@@ -99,59 +47,57 @@ protected:
 	// Surface Support Format KHR.
 	std::vector<VkSurfaceFormatKHR>                   m_surfaceFormats;
 
+	// Required PD Features.
+	VkPhysicalDeviceFeatures2                         m_requiredPDFeatures;
+	VkPhysicalDeviceVulkan12Features                  m_requiredPDVk12Features;
+
 	// Surface Capabilities KHR.
 	VkSurfaceCapabilitiesKHR                          m_surfaceCapabilities;
 
 	// Swapchain Create Info KHR.
-	VkSwapchainCreateInfoKHR                          m_swapchainCreateInfo = {}; // Cached for using when window resize.
+	VkSwapchainCreateInfoKHR                          m_swapchainCreateInfo; // Cached for using when window resize.
 
 	// std::vector<VkDisplayPropertiesKHR>            m_displayProps;  // No Display...
 
 protected:
 
-	LogicalDevice  m_device;
-	CommandQueue   m_queue;
+	BaseAllocator*                                    m_pAllocator;
+	LogicalDevice*                                    m_pDevice;
+	Window*                                           m_pWindow;
 
-	int32                                             m_mainPDIndex = -1;
-	int32                                             m_mainQFIndex = -1;
-	
-	SmartPtr<Window>                                  m_pWindow = nullptr;
-
-protected:
-
-	_declare_vk_smart_ptr(VkSurfaceKHR,   m_pSurface);
-	_declare_vk_smart_ptr(VkSwapchainKHR, m_pSwapchainKHR);
+	int32                                             m_mainPDIndex;
+	int32                                             m_mainQFIndex;
 
 	// Swapchain Image.
 	std::vector<VkImage>                              m_swapchainImages;
 
-public:
+	_declare_vk_smart_ptr(VkSurfaceKHR,   m_pSurface);
+	_declare_vk_smart_ptr(VkSwapchainKHR, m_pSwapchainKHR);
+
+protected:
 
 	BaseLayer();
-	BaseLayer(BaseAllocator* InAllocator);
-	virtual ~BaseLayer();
+
+	VkAllocationCallbacks* GetVkAllocator() const;
+	void Free();
 
 public:
+
+	virtual ~BaseLayer();
 
 	bool Init();
 	void CachedModulePath();
 
-private:
-
-	void Free();
-
-public:
+	void SetBaseAllocator(BaseAllocator* InAllocator);
 
 	uint32 GetHeapIndexFromMemPropFlags(
 		const VkMemoryRequirements& InMemRequirements,
 		VkMemoryPropertyFlags InPreferredFlags,
 		VkMemoryPropertyFlags InRequiredFlags);
 
-	LogicalDevice                      GetLogicalDevice() const;
+	LogicalDevice*                     GetLogicalDevice() const;
 	const VkPhysicalDeviceLimits&      GetMainPDLimits () const;
 	const VkPhysicalDeviceProperties&  GetMainPDProps  () const;
-
-public:
 
 	// Query physical device supported buffer/image formats.
 	void CheckFormatSupport(const std::vector<VkFormat>& InCheckFormats, std::vector<VkFormatProperties>& OutFormatProps);

@@ -4,33 +4,35 @@
 
 #pragma once
 
-#include "Core/Platform/Platform.h"
 #include "Core/TypeDef.h"
+#include "Core/Platform/Platform.h"
+#include "Core/Base/Interface/IResourceHandler.h"
 
 #if PLATFORM_WINDOW
 
-class Window
+class Window : public IResourceHandler
 {
+	_declare_create_interface(Window)
 
-public:
+protected:
+
+	void* m_pHinstance;
+	void* m_pHwnd;
 
 	struct WindowDesc
-	{		
+	{
 		uint32 Width;
 		uint32 Height;
-	};
 
-public:
+	}m_defaultDesc;
 
 	Window();
-	Window(const WindowDesc& InWindoWDesc);
-	~Window();
 
 public:
+
+	virtual ~Window();
 
 	bool Init();
-
-public:
 
 	void* GetHinstance() const;
 	void* GetHwnd() const;
@@ -40,16 +42,6 @@ public:
 
 	void Show();
 
-protected:
-
-	void* m_pHinstance = nullptr;
-	void* m_pHwnd = nullptr;
-
-	WindowDesc m_defaultDesc = 
-	{
-		1280,
-		720
-	};
 };
 
 #endif

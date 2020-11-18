@@ -4,7 +4,9 @@
 
 #pragma once
 
-#include "Core/Base/Interface/IResourceHandler.h"
+#include "Core/SmartPtr/VkSmartPtr.h"
+
+class IResourceHandler;
 
 class ResourcePool
 {
@@ -14,10 +16,11 @@ private:
 
 public:
 
+    ~ResourcePool();
+
     static ResourcePool*& Get();
 
-    void Push(std::shared_ptr<IResourceHandler> InRef);
-    void Push(SmartPtr<IResourceHandler> InRef);
+    void Push(IResourceHandler* InRef);
     void Push(VkSmartPtr<VkObjectHandler> InRef);
 
     void Free();

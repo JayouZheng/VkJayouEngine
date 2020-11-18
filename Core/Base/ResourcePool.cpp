@@ -3,6 +3,7 @@
 //
 
 #include "ResourcePool.h"
+#include "Core/Base/Interface/IResourceHandler.h"
 #include <mutex>
 
 namespace
@@ -14,11 +15,26 @@ namespace
 
     struct InternalResource
     {
-        std::vector<std::shared_ptr<IResourceHandler>> SharedRef;
-        std::vector<SmartPtr<IResourceHandler>>        SmartRef;
-        std::vector<VkSmartPtr<VkObjectHandler>>       VkSmartRef;
+        std::vector<IResourceHandler*>           CommonRefs;
+        std::vector<VkSmartPtr<VkObjectHandler>> VkSmartRefs;
 
     }g_resource;
+
+    static class ResourcePoolHandler
+    {
+    public:
+        ~ResourcePoolHandler()
+        {
+            if (g_resourcePool != nullptr)
+                ResourcePool::Get()->Free();
+        }
+    }RespHandler;
+}
+
+ResourcePool::~ResourcePool()
+{
+    for (auto& ref : g_resource.CommonRefs)
+        if (ref != nullptr) delete ref;
 }
 
 ResourcePool*& ResourcePool::Get()
@@ -31,20 +47,12 @@ ResourcePool*& ResourcePool::Get()
     return g_resourcePool;
 }
 
-void ResourcePool::Push(std::shared_ptr<IResourceHandler> InRef)
+void ResourcePool::Push(IResourceHandler* InRef)
 {
     std::unique_lock<std::mutex> lock_r(g_respRead);
     std::unique_lock<std::mutex> lock_w(g_respWrite);
 
-    g_resource.SharedRef.push_back(InRef);
-}
-
-void ResourcePool::Push(SmartPtr<IResourceHandler> InRef)
-{
-    std::unique_lock<std::mutex> lock_r(g_respRead);
-    std::unique_lock<std::mutex> lock_w(g_respWrite);
-
-    g_resource.SmartRef.push_back(InRef);
+    g_resource.CommonRefs.push_back(InRef);
 }
 
 void ResourcePool::Push(VkSmartPtr<VkObjectHandler> InRef)
@@ -52,7 +60,7 @@ void ResourcePool::Push(VkSmartPtr<VkObjectHandler> InRef)
     std::unique_lock<std::mutex> lock_r(g_respRead);
     std::unique_lock<std::mutex> lock_w(g_respWrite);
 
-    g_resource.VkSmartRef.push_back(InRef);
+    g_resource.VkSmartRefs.push_back(InRef);
 }
 
 void ResourcePool::Free()
@@ -60,7 +68,8 @@ void ResourcePool::Free()
     std::unique_lock<std::mutex> lock_r(g_respRead);
     std::unique_lock<std::mutex> lock_w(g_respWrite);
 
-    delete this;
+    delete g_resourcePool;
+    g_resourcePool = nullptr;
 
     // Exit...
 }

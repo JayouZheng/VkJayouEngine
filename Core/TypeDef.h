@@ -80,6 +80,11 @@
 
 #define _numeric_max(type) std::numeric_limits<type>::max()
 
+#define _zero_memory_struct(obj) std::memset(&obj, 0, sizeof(obj))
+#define _zero_memory(ptr, size) std::memset(ptr, 0, size)
+
+#define _is_valid(ptr) (ptr != nullptr)
+
 
 #include "Core/Base/BaseType.h"
 

@@ -5,13 +5,14 @@
 #include "CommandList.h"
 #include "Core/Base/BaseLayer.h"
 #include "Core/Utility/File/FileManager.h"
-#include "Core/Render/RenderConfig.h"
+#include "RenderConfig.h"
+#include "LogicalDevice.h"
 
 CommandList::CommandList(BaseLayer* InBaseLayer)
 	: m_pBaseLayer(InBaseLayer)
 {
-	m_device = InBaseLayer->GetLogicalDevice().GetVkDevice();
-	m_cmdPool = InBaseLayer->GetLogicalDevice().GetCmdPool();
+	m_device = InBaseLayer->GetLogicalDevice()->GetVkDevice();
+	m_cmdPool = InBaseLayer->GetLogicalDevice()->GetCmdPool();
 
 	// Single Primary Command Buffer.
 	VkCommandBufferAllocateInfo cmdBufferAllocInfo = {};

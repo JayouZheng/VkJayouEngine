@@ -27,6 +27,12 @@ int main()
         // When Exit.
         ResourcePool::Get()->Free();
 
-        B b;
+        B b1;
+        B b2 = b1;
+        b2.x = 3;
+        B b3;
+        b3 = b2;
+        b2.x = 4;
+        std::cout << b3.x << std::endl;
     }
 }

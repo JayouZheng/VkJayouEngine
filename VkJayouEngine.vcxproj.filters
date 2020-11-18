@@ -357,6 +357,9 @@
     <ClInclude Include="Core\Render\RenderConfig.h">
       <Filter>Core\Render</Filter>
     </ClInclude>
+    <ClInclude Include="Core\Base\BaseConfig.h">
+      <Filter>Core\Base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />

@@ -6,26 +6,26 @@
 
 #include "Core/Common.h"
 #include "Core/SmartPtr/VkSmartPtr.h"
-#include "Core/Render/GLSLCompiler.h"
+#include "Core/Base/Interface/IResourceHandler.h"
 
 class BaseLayer;
 class BaseAllocator;
 class CommandQueue;
 class Window;
-
-#include "Core/Base/Interface/IResourceHandler.h"
+class GLSLCompiler;
 
 class LogicalDevice : public IResourceHandler
 {
+	_declare_create_interface(LogicalDevice)
 
 protected:
 
-	VkDevice        m_device     = VK_NULL_HANDLE;
-	BaseLayer*      m_pBaseLayer = nullptr;
-	BaseAllocator*  m_pAllocator = nullptr;
-	Window*         m_pWindow    = nullptr;
-
-	GLSLCompiler    m_compiler;
+	VkDevice        m_device;
+	BaseLayer*      m_pBaseLayer;
+	BaseAllocator*  m_pAllocator;
+	Window*         m_pWindow;
+	GLSLCompiler*   m_pCompiler;
+	CommandQueue*   m_pQueue;
 
 	_declare_vk_smart_ptr(VkCommandPool,     m_pCmdPool);
 	_declare_vk_smart_ptr(VkDescriptorPool,  m_pDescPool);
@@ -40,15 +40,12 @@ protected:
 
 	VkAllocationCallbacks* GetVkAllocator() const;
 
-public:
-
-	LogicalDevice() {}
-	LogicalDevice(const VkDevice& InDevice);
+	LogicalDevice();
 	LogicalDevice& operator=(const VkDevice& InDevice);
 
-	virtual ~LogicalDevice() {}
-
 public:
+
+	virtual ~LogicalDevice();
 
 	operator VkDevice() const;
 
@@ -179,7 +176,7 @@ public:
 	void           CreatePipelineCache           (VkPipelineCache* OutPipCache, const void* InData, usize InSize, VkPipelineCacheCreateFlags InFlags = _flag_none);
 	bool           CreateEmptyPipelineCache      (VkPipelineCache* OutPipCache);
 	bool           CreatePipelineCacheFromFile   (VkPipelineCache* OutPipCache, const char* InPath);
-	usize         GetPipelineCacheDataSize      (VkPipelineCache  InPipCache);
+	usize          GetPipelineCacheDataSize      (VkPipelineCache  InPipCache);
 	void           GetPipelineCacheData          (VkPipelineCache  InPipCache, usize InDataSize, void* OutData);
 	void           GetPipelineCacheData          (VkPipelineCache  InPipCache, std::vector<uint8>& OutData);
 	bool           SavePipelineCacheToFile       (const char*      InPath);

@@ -2,30 +2,47 @@
 // LogicalDevice.cpp
 //
 
+#include "Core/Utility/Parser/JsonParser.h"
+
+#include "LogicalDevice.h"
 #include "Core/Base/BaseLayer.h"
 #include "Core/Base/BaseAllocator.h"
-#include "LogicalDevice.h"
 #include "Core/Utility/String/StringManager.h"
 #include "Core/Utility/Utility.h"
 #include "Core/Utility/TextMapper.h"
 #include "Core/Utility/File/FileManager.h"
-#include "Core/Render/RenderConfig.h"
+#include "Core/Base/ResourcePool.h"
+#include "Core/Platform/Windows/Window.h"
+#include "RenderConfig.h"
+#include "GLSLCompiler.h"
+#include "CommandQueue.h"
+
+_impl_create_interface(LogicalDevice)
 
 VkAllocationCallbacks* LogicalDevice::GetVkAllocator() const
 {
 	return m_pAllocator != nullptr ? m_pAllocator->GetVkAllocator() : nullptr;
 }
 
-LogicalDevice::LogicalDevice(const VkDevice& InDevice)
-	: m_device(InDevice)
+LogicalDevice::LogicalDevice() : 
+	m_device(VK_NULL_HANDLE),
+	m_pBaseLayer(nullptr),
+	m_pAllocator(nullptr),
+	m_pWindow(nullptr)
 {
-
+	_internal_init(LogicalDevice);
+	m_pCompiler = new GLSLCompiler;
 }
 
 LogicalDevice& LogicalDevice::operator=(const VkDevice& InDevice)
 {
 	m_device = InDevice;
 	return *this;
+}
+
+LogicalDevice::~LogicalDevice()
+{
+	delete m_pCompiler;
 }
 
 LogicalDevice::operator VkDevice() const
@@ -196,8 +213,8 @@ bool LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const ch
 		compileInfo.entrypoint = InEntrypoint;
 		compileInfo.includes_count = _count_1;
 		compileInfo.includes = include_dirs;
-		m_compiler.CompileShader(shaderStage, InShaderPath, &compileInfo);
-		GLSLCompiler::SPVData* spvData = m_compiler.GetLastSPVData();
+		m_pCompiler->CompileShader(shaderStage, InShaderPath, &compileInfo);
+		GLSLCompiler::SPVData* spvData = m_pCompiler->GetLastSPVData();
 
 		if (spvData->result)
 		{
@@ -1605,10 +1622,10 @@ bool LogicalDevice::CreateGraphicPipelines(const std::string& InJsonPath, VkPipe
 		VkPushConstantRange pushConstantRange;
 		std::vector<std::vector<VkDescriptorSetLayoutBinding>> descSets;
 
-		if (!m_compiler.CheckAndParseSPVData(m_pBaseLayer->GetMainPDLimits().maxBoundDescriptorSets, pushConstantRange, descSets))
+		if (!m_pCompiler->CheckAndParseSPVData(m_pBaseLayer->GetMainPDLimits().maxBoundDescriptorSets, pushConstantRange, descSets))
 			return false;
 
-		m_compiler.FlushSPVData();
+		m_pCompiler->FlushSPVData();
 
 		// Vertex Input State.
 		graphicInfos[i].pVertexInputState = &vertexInputStateInfos[i];
