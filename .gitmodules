@@ -7,3 +7,6 @@
 [submodule "Tools/GLSLCompiler"]
 	path = Tools/GLSLCompiler
 	url = https://github.com/hyzboy/GLSLCompiler.git
+[submodule "ThirdParty/MathGeoLib"]
+	path = ThirdParty/MathGeoLib
+	url = https://github.com/juj/MathGeoLib.git
