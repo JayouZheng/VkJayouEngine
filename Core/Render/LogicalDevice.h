@@ -5,8 +5,6 @@
 #pragma once
 
 #include "Core/Common.h"
-#include "Core/SmartPtr/VkSmartPtr.h"
-#include "Core/Base/Interface/IResourceHandler.h"
 
 class BaseLayer;
 class BaseAllocator;

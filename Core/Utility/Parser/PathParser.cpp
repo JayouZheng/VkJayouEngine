@@ -3,7 +3,7 @@
 //
 
 #include "PathParser.h"
-#include "Core/Global.h"
+#include "Core/Common.h"
 
 const std::string PathParser::Parse(const std::string& InPath)
 {

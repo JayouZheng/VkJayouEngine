@@ -4,7 +4,8 @@
 
 #pragma once
 
-#include "Core/Common.h"
+#include <string>
+#include "vulkan/vulkan.hpp"
 
 class BaseAllocator;
 
