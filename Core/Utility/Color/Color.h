@@ -4,10 +4,13 @@
 
 #pragma once
 
-#include "Core/TypeDef.h"
+#include "Core/Base/BaseType.h"
 
-namespace ColorUtil
+class ColorUtil
 {
+
+public:
+
     /**
     * 颜色数据定义
     */
@@ -264,5 +267,5 @@ namespace ColorUtil
         RANGE_SIZE  =(END_RANGE-BEGIN_RANGE)+1
     };
 
-    extern ColorInfo Palette[usize(Color::RANGE_SIZE)];
-}
+    static ColorInfo Palette[usize(Color::RANGE_SIZE)];
+};

@@ -8,8 +8,6 @@
 #include "Core/Utility/Timer/TimerManager.h"
 #include "Core/Utility/String/StringManager.h"
 
-using namespace ColorUtil;
-
 class LogSystem
 {
 
@@ -74,8 +72,8 @@ public:
 
 public:
 
-	static void Log        (const std::string& InLog, const Category& InCategory = Category::Unknown, const Level& InLevel = Level::Common, const Color& InColor = Color::Snow);
-	static void Log        (const std::string& InLog, const std::string& InCategory, const Level& InLevel = Level::Common, const Color& InColor = Color::Snow);
+	static void Log        (const std::string& InLog, const Category& InCategory = Category::Unknown, const Level& InLevel = Level::Common, const ColorUtil::Color& InColor = ColorUtil::Color::Snow);
+	static void Log        (const std::string& InLog, const std::string& InCategory, const Level& InLevel = Level::Common, const ColorUtil::Color& InColor = ColorUtil::Color::Snow);
 	static void LogError   (const std::string& InLog, const Category& InCategory = Category::Unknown);
 	static void LogError   (const std::string& InLog, const std::string& InCategory);
 	static void LogWarning (const std::string& InLog, const Category& InCategory = Category::Unknown);

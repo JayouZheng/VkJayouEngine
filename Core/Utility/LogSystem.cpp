@@ -38,12 +38,12 @@ namespace
 	}
 }
 
-void LogSystem::Log(const std::string& InLog, const Category& InCategory, const Level& InLevel, const Color& InColor)
+void LogSystem::Log(const std::string& InLog, const Category& InCategory, const Level& InLevel, const ColorUtil::Color& InColor)
 {
 	InternalLog(InLog, InCategory, _str_null, InLevel, InColor);
 }
 
-void LogSystem::Log(const std::string& InLog, const std::string& InCategory, const Level& InLevel, const Color& InColor)
+void LogSystem::Log(const std::string& InLog, const std::string& InCategory, const Level& InLevel, const ColorUtil::Color& InColor)
 {
 	InternalLog(InLog, Category::Custom, InCategory, InLevel, InColor);
 }
