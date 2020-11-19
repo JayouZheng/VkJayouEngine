@@ -301,8 +301,7 @@ bool BaseLayer::Init()
 		}
 
 		_vk_try(vkCreateDevice(m_physicalDevices[m_mainPDIndex], &deviceCreateInfo, GetVkAllocator(), m_pDevice->GetAddressOfVkDevice()));
-		m_pDevice->SetBaseLayer(this);
-		m_pDevice->SetAllocator(m_pAllocator);
+		m_pDevice->Init(this);
 		Global::SetVkDevice(m_pDevice->GetVkDevice());
 
 		m_pDevice->CreateCommandPool(m_mainQFIndex);
@@ -321,7 +320,6 @@ bool BaseLayer::Init()
 			}
 			
 			if (!m_pWindow->Init()) return false;
-			m_pDevice->SetWindow(m_pWindow);
 			VkWin32SurfaceCreateInfoKHR win32SurfaceCreateInfo = {};
 			win32SurfaceCreateInfo.sType = VK_STRUCTURE_TYPE_DISPLAY_SURFACE_CREATE_INFO_KHR;
 			win32SurfaceCreateInfo.hinstance = (HINSTANCE)m_pWindow->GetHinstance();
@@ -481,6 +479,16 @@ void BaseLayer::CachedModulePath()
 void BaseLayer::SetBaseAllocator(BaseAllocator* InAllocator)
 {
 	m_pAllocator = InAllocator;
+}
+
+BaseAllocator* BaseLayer::GetBaseAllocator()
+{
+	return m_pAllocator;
+}
+
+Window* BaseLayer::GetWindow()
+{
+	return m_pWindow;
 }
 
 void BaseLayer::Free()

@@ -8,11 +8,15 @@
 #include "RenderConfig.h"
 #include "LogicalDevice.h"
 
-CommandList::CommandList(BaseLayer* InBaseLayer)
-	: m_pBaseLayer(InBaseLayer)
+_impl_create_interface(CommandList)
+
+CommandList::CommandList() :
+	m_cmdBuffer(VK_NULL_HANDLE),
+	m_device(VK_NULL_HANDLE),
+	m_cmdPool(VK_NULL_HANDLE),
+	m_pBaseLayer(nullptr)
 {
-	m_device = InBaseLayer->GetLogicalDevice()->GetVkDevice();
-	m_cmdPool = InBaseLayer->GetLogicalDevice()->GetCmdPool();
+	_internal_init(CommandList);
 
 	// Single Primary Command Buffer.
 	VkCommandBufferAllocateInfo cmdBufferAllocInfo = {};
@@ -30,6 +34,13 @@ CommandList::CommandList(BaseLayer* InBaseLayer)
 CommandList::~CommandList()
 {
 	Free();
+}
+
+void CommandList::Init(BaseLayer* InBaseLayer)
+{
+	m_pBaseLayer = InBaseLayer;
+	m_device = InBaseLayer->GetLogicalDevice()->GetVkDevice();
+	m_cmdPool = InBaseLayer->GetLogicalDevice()->GetCmdPool();
 }
 
 VkCommandBuffer CommandList::GetCmdBuffer() const

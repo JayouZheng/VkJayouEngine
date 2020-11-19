@@ -19,11 +19,6 @@
 
 _impl_create_interface(LogicalDevice)
 
-VkAllocationCallbacks* LogicalDevice::GetVkAllocator() const
-{
-	return m_pAllocator != nullptr ? m_pAllocator->GetVkAllocator() : nullptr;
-}
-
 LogicalDevice::LogicalDevice() : 
 	m_device(VK_NULL_HANDLE),
 	m_pBaseLayer(nullptr),
@@ -31,7 +26,13 @@ LogicalDevice::LogicalDevice() :
 	m_pWindow(nullptr)
 {
 	_internal_init(LogicalDevice);
-	m_pCompiler = new GLSLCompiler;
+	m_pCompiler = GLSLCompiler::Create(this);
+	m_pCmdQueue = CommandQueue::Create(this);
+}
+
+VkAllocationCallbacks* LogicalDevice::GetVkAllocator() const
+{
+	return m_pAllocator != nullptr ? m_pAllocator->GetVkAllocator() : nullptr;
 }
 
 LogicalDevice& LogicalDevice::operator=(const VkDevice& InDevice)
@@ -42,7 +43,7 @@ LogicalDevice& LogicalDevice::operator=(const VkDevice& InDevice)
 
 LogicalDevice::~LogicalDevice()
 {
-	delete m_pCompiler;
+
 }
 
 LogicalDevice::operator VkDevice() const
@@ -65,24 +66,11 @@ bool LogicalDevice::operator==(const VkDevice& InDevice) const
 	return m_device == InDevice;
 }
 
-void LogicalDevice::SetVkDevice(const VkDevice& InDevice)
-{
-	m_device = InDevice;
-}
-
-void LogicalDevice::SetBaseLayer(BaseLayer* InBaseLayer)
+void LogicalDevice::Init(BaseLayer* InBaseLayer)
 {
 	m_pBaseLayer = InBaseLayer;
-}
-
-void LogicalDevice::SetAllocator(BaseAllocator* InAllocator)
-{
-	m_pAllocator = InAllocator;
-}
-
-void LogicalDevice::SetWindow(Window* InWindow)
-{
-	m_pWindow = InWindow;
+	m_pAllocator = InBaseLayer->GetBaseAllocator();
+	m_pWindow    = InBaseLayer->GetWindow();
 }
 
 bool LogicalDevice::IsNoneAllocator() const
@@ -93,6 +81,11 @@ bool LogicalDevice::IsNoneAllocator() const
 VkCommandPool LogicalDevice::GetCmdPool()
 {
 	return *m_pCmdPool;
+}
+
+CommandQueue* LogicalDevice::GetCommandQueue()
+{
+	return m_pCmdQueue;
 }
 
 void LogicalDevice::SetViewport(VkViewport& OutViewport, VkRect2D& OutScissor, uint32 InWidth, uint32 InHeight)
@@ -108,7 +101,7 @@ void LogicalDevice::SetViewport(VkViewport& OutViewport, VkRect2D& OutScissor, u
 	OutScissor.extent = { InWidth, InHeight };
 }
 
-CommandQueue LogicalDevice::GetQueue(uint32 InQueueFamilyIndex, uint32 InQueueIndex /*= 0*/)
+VkQueue LogicalDevice::GetVkQueue(uint32 InQueueFamilyIndex, uint32 InQueueIndex /*= 0*/)
 {
 	VkQueue vkQueue = VK_NULL_HANDLE;
 	vkGetDeviceQueue(m_device, InQueueFamilyIndex, InQueueIndex, &vkQueue);

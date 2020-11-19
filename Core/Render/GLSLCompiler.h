@@ -8,8 +8,9 @@
 
 class ModuleLoader;
 
-class GLSLCompiler
+class GLSLCompiler : public IResourceHandler
 {
+    _declare_create_interface(GLSLCompiler)
 
 public:
 
@@ -107,8 +108,6 @@ public:
 
     typedef GLSLCompilerInterface* (*PFGetGLSLCompilerInterface)();
 
-
-    GLSLCompiler();
     ~GLSLCompiler();
 
     void CompileShader(VkShaderStageFlags InStageType, const std::string& InShaderPath, const CompileInfo* InCompileInfo);
@@ -120,6 +119,8 @@ public:
     std::vector<SPVData*>& GetAllSPVData();
 
 private:
+
+    GLSLCompiler();
 
     ModuleLoader*                                     m_pModule;
 

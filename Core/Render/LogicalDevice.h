@@ -23,7 +23,7 @@ protected:
 	BaseAllocator*  m_pAllocator;
 	Window*         m_pWindow;
 	GLSLCompiler*   m_pCompiler;
-	CommandQueue*   m_pQueue;
+	CommandQueue*   m_pCmdQueue;
 
 	_declare_vk_smart_ptr(VkCommandPool,     m_pCmdPool);
 	_declare_vk_smart_ptr(VkDescriptorPool,  m_pDescPool);
@@ -36,14 +36,15 @@ protected:
 	std::unordered_map<std::string, VkSmartPtr<VkRenderPass>> m_renderPassNamePtrMap;
 	std::unordered_map<std::string, VkSmartPtr<VkPipeline>>   m_pipelineNamePtrMap;
 
-	VkAllocationCallbacks* GetVkAllocator() const;
-
 	LogicalDevice();
-	LogicalDevice& operator=(const VkDevice& InDevice);
+
+	VkAllocationCallbacks* GetVkAllocator() const;
 
 public:
 
 	virtual ~LogicalDevice();
+
+	LogicalDevice& operator=(const VkDevice& InDevice);
 
 	operator VkDevice() const;
 
@@ -54,14 +55,12 @@ public:
 
 public:
 
-	void SetVkDevice  (const VkDevice& InDevice   );
-	void SetBaseLayer (BaseLayer*      InBaseLayer);
-	void SetAllocator (BaseAllocator*  InAllocator);
-	void SetWindow    (Window*         InWindow   );
+	void Init(BaseLayer* InBaseLayer);
 
 	bool IsNoneAllocator() const;
 
 	VkCommandPool GetCmdPool();
+	CommandQueue* GetCommandQueue();
 
 	void SetViewport(VkViewport& OutViewport, VkRect2D& OutScissor, uint32 InWidth, uint32 InHeight);
 
@@ -149,7 +148,7 @@ public:
 
 	// TODO: Remove Pipeline Cache param from API.
 
-	CommandQueue   GetQueue                      (uint32 InQueueFamilyIndex, uint32 InQueueIndex = _index_0);
+	VkQueue        GetVkQueue                    (uint32 InQueueFamilyIndex, uint32 InQueueIndex = _index_0);
 	void           GetSwapchainImagesKHR         (VkSwapchainKHR InSwapchain, uint32* InOutImageCount, VkImage* OutImages);
 	uint32         GetSwapchainNextImageKHR      (VkSwapchainKHR InSwapchain, uint64 InTimeout, VkSemaphore InSemaphore, VkFence InFence);
 

@@ -3,11 +3,18 @@
 //
 
 #include "CommandQueue.h"
+#include "CommandList.h"
 
-CommandQueue::CommandQueue(const VkQueue& InQueue)
-	: m_queue(InQueue)
+_impl_create_interface(CommandQueue)
+
+CommandQueue::CommandQueue() : 
+	m_queue(VK_NULL_HANDLE)
 {
-	
+	_internal_init(CommandQueue);
+}
+
+CommandQueue::~CommandQueue()
+{
 }
 
 CommandQueue& CommandQueue::operator=(const VkQueue& InQueue)
@@ -31,9 +38,9 @@ bool CommandQueue::operator==(const VkQueue& InQueue) const
 	return m_queue == InQueue;
 }
 
-void CommandQueue::Execute(const CommandList& InCmdList)
+void CommandQueue::Execute(const CommandList* InCmdList)
 {
-	VkCommandBuffer cmdBuffer = InCmdList.GetCmdBuffer();
+	VkCommandBuffer cmdBuffer = InCmdList->GetCmdBuffer();
 
 	VkSubmitInfo submitInfo = {};
 	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;

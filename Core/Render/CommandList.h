@@ -5,31 +5,29 @@
 #pragma once
 
 #include "Core/Common.h"
-#include "Core/Global.h"
 
 class BaseLayer;
 
-class CommandList
+class CommandList : public IResourceHandler
 {
+	_declare_create_interface(CommandList)
 
 protected:
 
-	VkCommandBuffer m_cmdBuffer  = VK_NULL_HANDLE;
-	VkDevice        m_device     = VK_NULL_HANDLE;
-	VkCommandPool   m_cmdPool    = VK_NULL_HANDLE;
-	BaseLayer*      m_pBaseLayer = nullptr;
+	VkCommandBuffer m_cmdBuffer;
+	VkDevice        m_device;
+	VkCommandPool   m_cmdPool;
+	BaseLayer*      m_pBaseLayer;
+
+	CommandList();
 
 public:
 
-	CommandList() {}
-	CommandList(BaseLayer* InBaseLayer);
 	virtual ~CommandList();
 
-public:
+	void Init(BaseLayer* InBaseLayer);
 
 	VkCommandBuffer GetCmdBuffer() const;
-
-public:
 
 	void Reset();
 	void Reset(VkCommandBufferResetFlags InFlags);

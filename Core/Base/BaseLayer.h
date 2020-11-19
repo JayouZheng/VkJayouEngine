@@ -88,6 +88,9 @@ public:
 
 	void SetBaseAllocator(BaseAllocator* InAllocator);
 
+	BaseAllocator* GetBaseAllocator();
+	Window*        GetWindow();
+
 	uint32 GetHeapIndexFromMemPropFlags(
 		const VkMemoryRequirements& InMemRequirements,
 		VkMemoryPropertyFlags InPreferredFlags,

@@ -4,21 +4,24 @@
 
 #pragma once
 
-#include "Core/Render/CommandList.h"
+#include "Core/Common.h"
 
-class CommandQueue
+class CommandList;
+
+class CommandQueue : public IResourceHandler
 {
+	_declare_create_interface(CommandQueue)
 
 protected:
 
-	VkQueue m_queue = VK_NULL_HANDLE;
+	VkQueue m_queue;
+
+	CommandQueue();
 
 public:
-
-	CommandQueue() {}
-	CommandQueue(const VkQueue& InQueue);
+	
+	virtual ~CommandQueue();
 	CommandQueue& operator=(const VkQueue& InQueue);
-	virtual ~CommandQueue() {};
 
 public:
 
@@ -29,7 +32,7 @@ public:
 
 public:
 
-	void Execute(const CommandList& InCmdList);
+	void Execute(const CommandList* InCmdList);
 	void Flush();
 
 	// It needs to be supplemented...

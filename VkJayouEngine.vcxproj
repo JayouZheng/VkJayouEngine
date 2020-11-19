@@ -180,6 +180,7 @@
     <ClCompile Include="Core\Utility\Color\Color.cpp" />
     <ClCompile Include="Core\Utility\File\FileManager.cpp" />
     <ClCompile Include="Core\Utility\LogSystem.cpp" />
+    <ClCompile Include="Core\Utility\ModuleLoader.cpp" />
     <ClCompile Include="Core\Utility\Parser\JsonParser.cpp" />
     <ClCompile Include="Core\Utility\Parser\PathParser.cpp" />
     <ClCompile Include="Core\Utility\String\StringManager.cpp" />

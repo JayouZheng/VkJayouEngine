@@ -66,6 +66,9 @@
     <ClCompile Include="Core\Base\ResourcePool.cpp">
       <Filter>Core\Base</Filter>
     </ClCompile>
+    <ClCompile Include="Core\Utility\ModuleLoader.cpp">
+      <Filter>Core\Utility</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="vk_app.h" />

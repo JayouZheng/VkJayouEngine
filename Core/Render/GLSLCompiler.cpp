@@ -7,9 +7,13 @@
 #include "Core/Utility/ModuleLoader.h"
 #include "Core/Utility/Utility.h"
 
+_impl_create_interface(GLSLCompiler)
+
 GLSLCompiler::GLSLCompiler()
 {
-    m_pModule = new ModuleLoader;
+	_internal_init(GLSLCompiler);
+
+    m_pModule = ModuleLoader::Create(this);
 
     if (m_pModule->Load(PathParser::Parse(StringUtil::Printf("Tools/CMBuild/GLSLCompiler/%/GLSLCompiler.dll", _platform))))
     {
@@ -35,10 +39,6 @@ GLSLCompiler::~GLSLCompiler()
 
         m_pCompiler->Close();
     }
-
-    m_pModule->Free();
-
-    delete m_pModule;
 }
 
 void GLSLCompiler::CompileShader(VkShaderStageFlags InStageType, const std::string& InShaderPath, const CompileInfo* InCompileInfo)
