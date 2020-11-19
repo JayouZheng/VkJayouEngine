@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "Core/TypeDef.h"
+#include "Core/Base/BaseType.h"
 #include "Core/Math/Sequence.h"
 
 template<typename T>

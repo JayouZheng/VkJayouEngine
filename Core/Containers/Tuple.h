@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "Core/Base/BaseType.h"
+
 // helpers
 template <typename T>
 struct id { using type = T; };
@@ -71,7 +73,7 @@ public:
 template <typename... T>
 struct Tuple : TupleImpl <range <sizeof...(T)>, T...>
 {
-	static constexpr std::usize size() { return sizeof...(T); }
+	static constexpr usize size() { return sizeof...(T); }
 };
 
 #pragma region Understand Tuple

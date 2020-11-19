@@ -5,8 +5,6 @@
 #pragma once
 
 #include "Core/Common.h"
-#include "Core/SmartPtr/VkSmartPtr.h"
-#include "Interface/IResourceHandler.h"
 
 class BaseAllocator;
 class LogicalDevice;

@@ -3,7 +3,7 @@
 //
 
 #include "ResourcePool.h"
-#include "Core/Base/Interface/IResourceHandler.h"
+#include "Interface/IResourceHandler.h"
 #include <mutex>
 
 namespace
