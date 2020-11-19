@@ -7,8 +7,11 @@
 #include <string>
 #include "Core/Base/BaseType.h"
 
-namespace TextMapper
+class TextMapper
 {
+
+public:
+
 	enum class ID
 	{
 		Begin = 0,
@@ -151,7 +154,7 @@ namespace TextMapper
 		RANGE_SIZE = (END_RANGE - BEGIN_RANGE) + 1
 	};
 
-	extern std::string Map[usize(ID::RANGE_SIZE)];
-}
+	static std::string Map[usize(ID::RANGE_SIZE)];
+};
 
 #define _text_mapper(id) TextMapper::Map[(usize)TextMapper::ID::id]
