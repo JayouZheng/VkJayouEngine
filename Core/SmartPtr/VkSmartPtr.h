@@ -207,7 +207,6 @@ private:
 				vkDestroyDevice(Global::GetVkDevice(), Global::GetVkAllocator());
 				vkDestroyInstance(Global::GetVkInstance(), Global::GetVkAllocator());
 				Global::SafeFreeAllocator();
-				Global::OnExit();
 			}
 
 			delete m_object;

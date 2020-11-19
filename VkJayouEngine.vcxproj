@@ -171,6 +171,7 @@
     <ClCompile Include="Core\Base\BaseAllocator.cpp" />
     <ClCompile Include="Core\Base\BaseLayer.cpp" />
     <ClCompile Include="Core\Base\ResourcePool.cpp" />
+    <ClCompile Include="Core\Engine\Engine.cpp" />
     <ClCompile Include="Core\Global.cpp" />
     <ClCompile Include="Core\Platform\Windows\Window.cpp" />
     <ClCompile Include="Core\Render\CommandList.cpp" />
@@ -202,6 +203,7 @@
     <ClInclude Include="Core\Common.h" />
     <ClInclude Include="Core\Containers\List.h" />
     <ClInclude Include="Core\Containers\Tuple.h" />
+    <ClInclude Include="Core\Engine\Engine.h" />
     <ClInclude Include="Core\Math\Sequence.h" />
     <ClInclude Include="Core\Exception.h" />
     <ClInclude Include="Core\Global.h" />

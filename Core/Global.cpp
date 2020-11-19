@@ -14,29 +14,42 @@ namespace
 	static uint32                   g_instanceRefs     = 0u;
 }
 
+//---------------------------------------------------------------------
+
+void Global::SafeFreeAllocator()
+{
+	if (g_allocator != nullptr)
+	{
+		delete g_allocator;
+		g_allocator = nullptr;
+	}
+}
+
+void Global::IncInstanceRef()
+{
+	g_instanceRefs++;
+}
+
+void Global::DecInstanceRef()
+{
+	g_instanceRefs--;
+}
+
+bool Global::IsInstanceRefZero()
+{
+	return g_instanceRefs == 0;
+}
+
+//---------------------------------------------------------------------
+
 VkInstance Global::GetVkInstance()
 {
 	return g_instance;
 }
 
-void Global::SetVkInstance(const VkInstance& InInstance)
-{
-	g_instance = InInstance;
-}
-
 VkDevice Global::GetVkDevice()
 {
 	return g_device;
-}
-
-void Global::SetVkDevice(const VkDevice& InDevice)
-{
-	g_device = InDevice;
-}
-
-void Global::CacheModuleInfo(const ModuleInfo& InModuleInfo)
-{
-	g_moduleInfo = InModuleInfo;
 }
 
 std::string Global::GetModulePath()
@@ -59,35 +72,24 @@ VkAllocationCallbacks* Global::GetVkAllocator()
 	return g_allocator != nullptr ? g_allocator->GetVkAllocator() : nullptr;
 }
 
+//---------------------------------------------------------------------
+
+void Global::SetVkInstance(const VkInstance& InInstance)
+{
+	g_instance = InInstance;
+}
+
+void Global::SetVkDevice(const VkDevice& InDevice)
+{
+	g_device = InDevice;
+}
+
 void Global::SetAllocator(BaseAllocator* InAllocator)
 {
 	g_allocator = InAllocator;
 }
 
-void Global::SafeFreeAllocator()
+void Global::CacheModuleInfo(const ModuleInfo& InModuleInfo)
 {
-	if (g_allocator != nullptr)
-	{
-		delete g_allocator;
-		g_allocator = nullptr;
-	}
-}
-
-void Global::OnExit()
-{
-}
-
-void Global::IncInstanceRef()
-{
-	g_instanceRefs++;
-}
-
-void Global::DecInstanceRef()
-{
-	g_instanceRefs--;
-}
-
-bool Global::IsInstanceRefZero()
-{
-	return g_instanceRefs == 0;
+	g_moduleInfo = InModuleInfo;
 }

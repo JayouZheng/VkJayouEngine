@@ -17,23 +17,20 @@ namespace Global
 		std::string Name;
 	};
 
-	VkInstance              GetVkInstance();
-	void                    SetVkInstance(const VkInstance& InInstance);
-	VkDevice                GetVkDevice();
-	void                    SetVkDevice(const VkDevice& InDevice);
-
-	void                    CacheModuleInfo(const ModuleInfo& InModuleInfo);
-	std::string             GetModulePath();
-	std::string             GetModuleName();
-
-	BaseAllocator*          GetAllocator();
-	VkAllocationCallbacks*  GetVkAllocator();
-	void                    SetAllocator(BaseAllocator* InAllocator);
 	void                    SafeFreeAllocator();
-
-	void                    OnExit();
-
 	void                    IncInstanceRef();
 	void                    DecInstanceRef();
 	bool                    IsInstanceRefZero();
+
+	void                    SetVkInstance   (const VkInstance& InInstance);
+	void                    SetVkDevice     (const VkDevice&   InDevice);
+	void                    SetAllocator    (BaseAllocator*    nAllocator);
+	void                    CacheModuleInfo (const ModuleInfo& InModuleInfo);
+
+	VkInstance              GetVkInstance();
+	VkDevice                GetVkDevice();
+	std::string             GetModulePath();
+	std::string             GetModuleName();
+	BaseAllocator*          GetAllocator();
+	VkAllocationCallbacks*  GetVkAllocator();
 }

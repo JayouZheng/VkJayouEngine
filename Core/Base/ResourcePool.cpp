@@ -34,7 +34,11 @@ namespace
 ResourcePool::~ResourcePool()
 {
     for (auto& ref : g_resource.CommonRefs)
-        if (ref != nullptr) delete ref;
+        if (ref != nullptr)
+        {
+            delete ref;
+            ref = nullptr;
+        }
 }
 
 ResourcePool*& ResourcePool::Get()

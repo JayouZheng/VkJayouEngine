@@ -69,6 +69,9 @@
     <ClCompile Include="Core\Utility\Color\ColorManager.cpp">
       <Filter>Core\Utility\Color</Filter>
     </ClCompile>
+    <ClCompile Include="Core\Engine\Engine.cpp">
+      <Filter>Core\Engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="vk_app.h" />
@@ -363,6 +366,9 @@
     <ClInclude Include="Core\Utility\Color\ColorManager.h">
       <Filter>Core\Utility\Color</Filter>
     </ClInclude>
+    <ClInclude Include="Core\Engine\Engine.h">
+      <Filter>Core\Engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -448,6 +454,9 @@
     </Filter>
     <Filter Include="Core\Base\Interface">
       <UniqueIdentifier>{bceab2b6-59c2-4687-8049-b40e640c98d2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Engine">
+      <UniqueIdentifier>{95ee44a1-f92d-4b72-a3e9-c118dbbc5eb8}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

@@ -77,15 +77,16 @@ protected:
 	BaseLayer();
 
 	VkAllocationCallbacks* GetVkAllocator() const;
+
 	void Free();
+	void CachedModulePath();
 
 public:
 
 	virtual ~BaseLayer();
 
 	bool Init();
-	void CachedModulePath();
-
+	
 	void SetBaseAllocator(BaseAllocator* InAllocator);
 
 	BaseAllocator* GetBaseAllocator();
