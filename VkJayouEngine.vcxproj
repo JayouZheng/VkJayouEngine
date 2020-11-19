@@ -177,7 +177,7 @@
     <ClCompile Include="Core\Render\CommandQueue.cpp" />
     <ClCompile Include="Core\Render\GLSLCompiler.cpp" />
     <ClCompile Include="Core\Render\LogicalDevice.cpp" />
-    <ClCompile Include="Core\Utility\Color\Color.cpp" />
+    <ClCompile Include="Core\Utility\Color\ColorManager.cpp" />
     <ClCompile Include="Core\Utility\File\FileManager.cpp" />
     <ClCompile Include="Core\Utility\LogSystem.cpp" />
     <ClCompile Include="Core\Utility\ModuleLoader.cpp" />
@@ -215,7 +215,7 @@
     <ClInclude Include="Core\SmartPtr\SmartPtr.h" />
     <ClInclude Include="Core\SmartPtr\VkSmartPtr.h" />
     <ClInclude Include="Core\TypeDef.h" />
-    <ClInclude Include="Core\Utility\Color\Color.h" />
+    <ClInclude Include="Core\Utility\Color\ColorManager.h" />
     <ClInclude Include="Core\Utility\File\FileManager.h" />
     <ClInclude Include="Core\Utility\LogSystem.h" />
     <ClInclude Include="Core\Utility\MemoryLeakCheck.h" />

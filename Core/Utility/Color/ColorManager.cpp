@@ -2,7 +2,7 @@
 // Color.cpp
 //
 
-#include "Color.h"
+#include "ColorManager.h"
 #include "Core/TypeDef.h"
 
 #undef     DEF_COLOR

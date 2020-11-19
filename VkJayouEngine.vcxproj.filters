@@ -24,9 +24,6 @@
     <ClCompile Include="Core\Utility\Utility.cpp">
       <Filter>Core\Utility</Filter>
     </ClCompile>
-    <ClCompile Include="Core\Utility\Color\Color.cpp">
-      <Filter>Core\Utility\Color</Filter>
-    </ClCompile>
     <ClCompile Include="Core\Utility\File\FileManager.cpp">
       <Filter>Core\Utility\File</Filter>
     </ClCompile>
@@ -68,6 +65,9 @@
     </ClCompile>
     <ClCompile Include="Core\Utility\ModuleLoader.cpp">
       <Filter>Core\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Utility\Color\ColorManager.cpp">
+      <Filter>Core\Utility\Color</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -300,9 +300,6 @@
     <ClInclude Include="Core\Utility\Utility.h">
       <Filter>Core\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="Core\Utility\Color\Color.h">
-      <Filter>Core\Utility\Color</Filter>
-    </ClInclude>
     <ClInclude Include="Core\Utility\File\FileManager.h">
       <Filter>Core\Utility\File</Filter>
     </ClInclude>
@@ -362,6 +359,9 @@
     </ClInclude>
     <ClInclude Include="Core\Base\BaseConfig.h">
       <Filter>Core\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Utility\Color\ColorManager.h">
+      <Filter>Core\Utility\Color</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
