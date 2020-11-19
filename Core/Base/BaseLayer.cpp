@@ -18,9 +18,9 @@ VkAllocationCallbacks* BaseLayer::GetVkAllocator() const
 }
 
 BaseLayer::BaseLayer() : 
-	m_pAllocator(nullptr),
-	m_mainPDIndex(-1),
-	m_mainQFIndex(-1)
+	m_pAllocator  (nullptr),
+	m_mainPDIndex (-1),
+	m_mainQFIndex (-1)
 {
 	_internal_init(BaseLayer);
 
@@ -503,9 +503,24 @@ void BaseLayer::Free()
 #endif
 }
 
+LogicalDevice* BaseLayer::GetLogicalDevice() const
+{
+	return m_pDevice;
+}
+
+const VkPhysicalDeviceLimits& BaseLayer::GetMainPDLimits() const
+{
+	return m_physicalDevicesProps[m_mainPDIndex].limits;
+}
+
+const VkPhysicalDeviceProperties& BaseLayer::GetMainPDProps() const
+{
+	return m_physicalDevicesProps[m_mainPDIndex];
+}
+
 uint32 BaseLayer::GetHeapIndexFromMemPropFlags(
-	const VkMemoryRequirements& InMemRequirements, 
-	VkMemoryPropertyFlags InPreferredFlags, 
+	const VkMemoryRequirements& InMemRequirements,
+	VkMemoryPropertyFlags InPreferredFlags,
 	VkMemoryPropertyFlags InRequiredFlags)
 {
 	uint32 selectedIndex = ~0u;
@@ -544,21 +559,6 @@ uint32 BaseLayer::GetHeapIndexFromMemPropFlags(
 	return selectedIndex;
 }
 
-LogicalDevice* BaseLayer::GetLogicalDevice() const
-{
-	return m_pDevice;
-}
-
-const VkPhysicalDeviceLimits& BaseLayer::GetMainPDLimits() const
-{
-	return m_physicalDevicesProps[m_mainPDIndex].limits;
-}
-
-const VkPhysicalDeviceProperties& BaseLayer::GetMainPDProps() const
-{
-	return m_physicalDevicesProps[m_mainPDIndex];
-}
-
 void BaseLayer::CheckFormatSupport(const std::vector<VkFormat>& InCheckFormats, std::vector<VkFormatProperties>& OutFormatProps)
 {
 	OutFormatProps.clear();
@@ -570,7 +570,7 @@ void BaseLayer::CheckFormatSupport(const std::vector<VkFormat>& InCheckFormats, 
 	}
 }
 
-void BaseLayer::CheckImageFormatSupport(const std::vector<SCheckImage>& InCheckImages, std::vector<VkImageFormatProperties>& OutImageFormatProps)
+void BaseLayer::CheckImageFormatSupport(const std::vector<CheckImageSupportInfo>& InCheckImages, std::vector<VkImageFormatProperties>& OutImageFormatProps)
 {
 	OutImageFormatProps.clear();
 	for (auto& image : InCheckImages)

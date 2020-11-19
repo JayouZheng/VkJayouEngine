@@ -4,7 +4,14 @@
 
 #pragma once
 
+#ifdef new
+#undef new
 #include "json/json.h"
+#include "Core/Utility/MemoryLeakCheck.h"
+#else
+#include "json/json.h"
+#endif // new
+
 #include "Core/TypeDef.h"
 
 class JsonParser

@@ -2,17 +2,16 @@
 // LogicalDevice.cpp
 //
 
-#include "Core/Utility/Parser/JsonParser.h"
-
 #include "LogicalDevice.h"
 #include "Core/Base/BaseLayer.h"
-#include "Core/Base/BaseAllocator.h"
-#include "Core/Utility/String/StringManager.h"
 #include "Core/Utility/Utility.h"
-#include "Core/Utility/TextMapper.h"
-#include "Core/Utility/File/FileManager.h"
 #include "Core/Base/ResourcePool.h"
+#include "Core/Base/BaseAllocator.h"
+#include "Core/Utility/TextMapper.h"
 #include "Core/Platform/Windows/Window.h"
+#include "Core/Utility/File/FileManager.h"
+#include "Core/Utility/Parser/JsonParser.h"
+#include "Core/Utility/String/StringManager.h"
 #include "RenderConfig.h"
 #include "GLSLCompiler.h"
 #include "CommandQueue.h"
@@ -20,10 +19,10 @@
 _impl_create_interface(LogicalDevice)
 
 LogicalDevice::LogicalDevice() : 
-	m_device(VK_NULL_HANDLE),
-	m_pBaseLayer(nullptr),
-	m_pAllocator(nullptr),
-	m_pWindow(nullptr)
+	m_device     (VK_NULL_HANDLE),
+	m_pBaseLayer (nullptr),
+	m_pAllocator (nullptr),
+	m_pWindow    (nullptr)
 {
 	_internal_init(LogicalDevice);
 	m_pCompiler = GLSLCompiler::Create(this);

@@ -11,10 +11,10 @@
 _impl_create_interface(CommandList)
 
 CommandList::CommandList() :
-	m_cmdBuffer(VK_NULL_HANDLE),
-	m_device(VK_NULL_HANDLE),
-	m_cmdPool(VK_NULL_HANDLE),
-	m_pBaseLayer(nullptr)
+	m_cmdBuffer  (VK_NULL_HANDLE),
+	m_device     (VK_NULL_HANDLE),
+	m_cmdPool    (VK_NULL_HANDLE),
+	m_pBaseLayer (nullptr)
 {
 	_internal_init(CommandList);
 

@@ -91,19 +91,18 @@ public:
 	BaseAllocator* GetBaseAllocator();
 	Window*        GetWindow();
 
-	uint32 GetHeapIndexFromMemPropFlags(
-		const VkMemoryRequirements& InMemRequirements,
-		VkMemoryPropertyFlags InPreferredFlags,
-		VkMemoryPropertyFlags InRequiredFlags);
-
 	LogicalDevice*                     GetLogicalDevice() const;
 	const VkPhysicalDeviceLimits&      GetMainPDLimits () const;
 	const VkPhysicalDeviceProperties&  GetMainPDProps  () const;
 
-	// Query physical device supported buffer/image formats.
-	void CheckFormatSupport(const std::vector<VkFormat>& InCheckFormats, std::vector<VkFormatProperties>& OutFormatProps);
+	uint32 GetHeapIndexFromMemPropFlags(
+		const VkMemoryRequirements& InMemRequirements,
+		VkMemoryPropertyFlags       InPreferredFlags,
+		VkMemoryPropertyFlags       InRequiredFlags);
 
-	struct SCheckImage
+public:
+
+	struct CheckImageSupportInfo
 	{
 		VkFormat           format;
 		VkImageType        type;
@@ -112,5 +111,12 @@ public:
 		VkImageCreateFlags flags;
 	};
 
-	void CheckImageFormatSupport(const std::vector<SCheckImage>& InCheckImages, std::vector<VkImageFormatProperties>& OutImageFormatProps);
+	// Query physical device supported buffer/image formats.
+	void CheckFormatSupport(
+		const std::vector<VkFormat>&     InCheckFormats, 
+		std::vector<VkFormatProperties>& OutFormatProps);
+
+	void CheckImageFormatSupport(
+		const std::vector<CheckImageSupportInfo>& InCheckImages, 
+		std::vector<VkImageFormatProperties>&     OutImageFormatProps);
 };

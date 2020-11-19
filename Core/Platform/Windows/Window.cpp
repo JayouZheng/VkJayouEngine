@@ -213,9 +213,9 @@ _impl_create_interface(Window)
 
 // Class Window.
 Window::Window() : 
-	m_defaultDesc( {1280, 720} ),
-	m_pHinstance(nullptr),
-	m_pHwnd(nullptr)
+	m_defaultDesc ( {1280, 720} ),
+	m_pHinstance  (nullptr),
+	m_pHwnd       (nullptr)
 {
 	_internal_init(Window);
 }

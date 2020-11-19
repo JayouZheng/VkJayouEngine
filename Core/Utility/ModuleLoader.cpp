@@ -7,9 +7,9 @@
 _impl_create_interface(ModuleLoader)
 
 ModuleLoader::ModuleLoader() :
-	m_pModule(nullptr),
-	m_bResult(_false),
-	m_moduleName(_str_null)
+	m_pModule    (nullptr),
+	m_bResult    (_false),
+	m_moduleName (_str_null)
 {
 	_internal_init(ModuleLoader);
 }
