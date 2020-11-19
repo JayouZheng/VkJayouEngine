@@ -111,5 +111,5 @@ TimerUtil::PerformanceScope::~PerformanceScope()
 {
     htime_point endPoint = hclock::now();
     double result = std::chrono::duration_cast<std::chrono::duration<double>>(endPoint - m_beginPoint).count();
-    LogSystem::Log(StringUtil::Printf("Scope Name: %, Elapsed Time: %s", m_scopeName, result), LogSystem::Category::PerformanceScope);
+    _log_common(StringUtil::Printf("Scope Name: %, Elapsed Time: %s", m_scopeName, result), LogSystem::Category::PerformanceScope);
 }

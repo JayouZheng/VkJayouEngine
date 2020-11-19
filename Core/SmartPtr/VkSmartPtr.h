@@ -165,7 +165,7 @@ private:
 	if (m_type == _name_of(Vk##object))                                                              \
 	{                                                                                                \
 		vkDestroy##object(Global::GetVkDevice(), (Vk##object)*m_object, Global::GetVkAllocator());   \
-		LogSystem::Log("_vk_destroy: " + _str_name_of(Vk##object), LogSystem::Category::VkSmartPtr); \
+		_log_common("_vk_destroy: " + _str_name_of(Vk##object), LogSystem::Category::VkSmartPtr); \
 	}                                                                                                \
 }                                                                                                    \
 
@@ -197,7 +197,7 @@ private:
 			if (m_type == _name_of(VkSurfaceKHR))
 			{
 				vkDestroySurfaceKHR(Global::GetVkInstance(), (VkSurfaceKHR)*m_object, Global::GetVkAllocator());
-				LogSystem::Log("_vk_destroy: " + _str_name_of(VkSurfaceKHR), LogSystem::Category::VkSmartPtr);
+				_log_common("_vk_destroy: " + _str_name_of(VkSurfaceKHR), LogSystem::Category::VkSmartPtr);
 			}
 
 			Global::DecInstanceRef();

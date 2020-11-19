@@ -80,5 +80,11 @@ public:
 	static void LogWarning (const std::string& InLog, const std::string& InCategory);
 };
 
+#define ENABLE_LOG_SYSTEM
+#ifdef  ENABLE_LOG_SYSTEM
+
+#define _log_common(log, category)  LogSystem::Log(log, category);
 #define _log_warning(log, category) LogSystem::LogWarning(StringUtil::Printf("% (Detail at file: %, line %)", log, __FILE__, __LINE__), category);
 #define _log_error(log, category)   LogSystem::LogError(StringUtil::Printf("% (Detail at file: %, line %)", log, __FILE__, __LINE__), category);
+
+#endif // ENABLE_LOG_SYSTEM

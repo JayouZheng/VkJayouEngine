@@ -862,7 +862,7 @@ void LogicalDevice::CreateRenderPass(VkRenderPass* OutRenderPass, const VkRender
 
 bool LogicalDevice::CreateRenderPass(const std::string& InJsonPath)
 {
-	LogSystem::Log("Begin creating renderpass with " + InJsonPath, LogSystem::Category::RenderPass);
+	_log_common("Begin creating renderpass with " + InJsonPath, LogSystem::Category::RenderPass);
 
 	// RenderPass.
 	{
@@ -1185,7 +1185,7 @@ bool LogicalDevice::CreateRenderPass(const std::string& InJsonPath)
 		m_renderPassNamePtrMap.emplace(name, pRenderPass);
 	}
 
-	LogSystem::Log("End creating renderpass with " + InJsonPath, LogSystem::Category::RenderPass);
+	_log_common("End creating renderpass with " + InJsonPath, LogSystem::Category::RenderPass);
 
 	return true;
 }
@@ -1428,7 +1428,7 @@ void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const Pipeli
 
 bool LogicalDevice::CreateGraphicPipelines(const std::string& InJsonPath, VkPipelineCache InPipCache)
 {
-	LogSystem::Log("Begin creating graphic pipeline with " + InJsonPath, LogSystem::Category::LogicalDevice);
+	_log_common("Begin creating graphic pipeline with " + InJsonPath, LogSystem::Category::LogicalDevice);
 
 	TimerUtil::PerformanceScope scope(_name_of(CreateGraphicPipelines));
 
@@ -1980,7 +1980,7 @@ bool LogicalDevice::CreateGraphicPipelines(const std::string& InJsonPath, VkPipe
 		m_pipelineNamePtrMap.emplace(pipeline.first, pPipeline);
 	}
 
-	LogSystem::Log("End creating graphic pipeline with " + InJsonPath, LogSystem::Category::LogicalDevice);
+	_log_common("End creating graphic pipeline with " + InJsonPath, LogSystem::Category::LogicalDevice);
 
 	return true;
 }

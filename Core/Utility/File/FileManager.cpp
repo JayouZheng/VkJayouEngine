@@ -10,7 +10,7 @@
 
 bool FileUtil::Read(const std::string& InPath, std::vector<uint8>& OutData)
 {
-	LogSystem::Log(StringUtil::Printf("Begin read file: %", InPath), LogSystem::Category::IO);
+	_log_common(StringUtil::Printf("Begin read file: %", InPath), LogSystem::Category::IO);
 
 #ifndef ENABLE_TRY_CATCH
 
@@ -79,13 +79,13 @@ bool FileUtil::Read(const std::string& InPath, std::vector<uint8>& OutData)
 
 #endif
 
-	LogSystem::Log(StringUtil::Printf("End read file: %", InPath), LogSystem::Category::IO);
+	_log_common(StringUtil::Printf("End read file: %", InPath), LogSystem::Category::IO);
 	return true;
 }
 
 bool FileUtil::Write(const std::string& InPath, const std::vector<uint8>& InData)
 {
-	LogSystem::Log(StringUtil::Printf("Begin write file: %", InPath), LogSystem::Category::IO);
+	_log_common(StringUtil::Printf("Begin write file: %", InPath), LogSystem::Category::IO);
 
 #ifndef ENABLE_TRY_CATCH
 
@@ -126,6 +126,6 @@ bool FileUtil::Write(const std::string& InPath, const std::vector<uint8>& InData
 
 #endif
 
-	LogSystem::Log(StringUtil::Printf("End write file: %", InPath), LogSystem::Category::IO);
+	_log_common(StringUtil::Printf("End write file: %", InPath), LogSystem::Category::IO);
 	return true;
 }
