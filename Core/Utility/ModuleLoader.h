@@ -13,11 +13,11 @@ class ModuleLoader : public IResourceHandler
 public:
 
 	~ModuleLoader();
-	bool Load(const std::string& InModuleName);
+	bool Load(const string& InModuleName);
 	void Free();
 
 	template<typename T>
-	T GetInterface(const std::string& InInterfaceName);
+	T GetInterface(const string& InInterfaceName);
 
 private:
 
@@ -25,13 +25,13 @@ private:
 
 	void*       m_pModule;
 	iBool       m_bResult;
-	std::string m_moduleName;	
+	string m_moduleName;	
 };
 
 // #include "ModuleLoader.inl"
 
 template<typename T>
-T ModuleLoader::GetInterface(const std::string& InInterfaceName)
+T ModuleLoader::GetInterface(const string& InInterfaceName)
 {
 	if (m_pModule != nullptr)
 	{

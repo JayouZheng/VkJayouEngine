@@ -4,12 +4,12 @@
 
 #pragma once
 
-#include <string>
+#include "Core/Base/BaseType.h"
 
 class PathParser
 {
 
 public:
 
-	static const std::string Parse(const std::string& InPath);
+	static const string Parse(const string& InPath);
 };

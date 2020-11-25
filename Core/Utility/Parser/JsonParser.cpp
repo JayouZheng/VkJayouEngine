@@ -5,7 +5,7 @@
 #include "JsonParser.h"
 #include "Core/Utility/LogSystem.h"
 
-bool JsonParser::Parse(const std::string& InPath, Json::Value& OutRoot)
+bool JsonParser::Parse(const string& InPath, Json::Value& OutRoot)
 {
 	std::ifstream ifs(InPath, std::ifstream::in);
 

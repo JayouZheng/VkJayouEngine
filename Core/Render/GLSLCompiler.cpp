@@ -41,7 +41,7 @@ GLSLCompiler::~GLSLCompiler()
     }
 }
 
-void GLSLCompiler::CompileShader(VkShaderStageFlags InStageType, const std::string& InShaderPath, const CompileInfo* InCompileInfo)
+void GLSLCompiler::CompileShader(VkShaderStageFlags InStageType, const string& InShaderPath, const CompileInfo* InCompileInfo)
 {
     if (m_pCompiler != nullptr)
     {

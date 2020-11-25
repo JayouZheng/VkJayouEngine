@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <string>
+#include "Core/Base/BaseType.h"
 #include "vulkan/vulkan.hpp"
 
 class BaseAllocator;
@@ -13,8 +13,8 @@ namespace Global
 {
 	struct ModuleInfo
 	{
-		std::string Path;
-		std::string Name;
+		string Path;
+		string Name;
 	};
 
 	void                    SafeFreeAllocator();
@@ -29,8 +29,8 @@ namespace Global
 
 	VkInstance              GetVkInstance();
 	VkDevice                GetVkDevice();
-	std::string             GetModulePath();
-	std::string             GetModuleName();
+	string             GetModulePath();
+	string             GetModuleName();
 	BaseAllocator*          GetAllocator();
 	VkAllocationCallbacks*  GetVkAllocator();
 }

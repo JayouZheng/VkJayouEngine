@@ -52,12 +52,12 @@ VkDevice Global::GetVkDevice()
 	return g_device;
 }
 
-std::string Global::GetModulePath()
+string Global::GetModulePath()
 {
 	return g_moduleInfo.Path;
 }
 
-std::string Global::GetModuleName()
+string Global::GetModuleName()
 {
 	return g_moduleInfo.Name;
 }

@@ -61,23 +61,23 @@ public:
 		LogSystem::Category  Category;
 		LogSystem::Level     Level;
 		ColorUtil::Color     Color;
-		std::string          Content;
-		std::string          CustomCategory;
+		string          Content;
+		string          CustomCategory;
 
-		std::string LevelToString() const;
-		std::string CategoryToString() const;
+		string LevelToString() const;
+		string CategoryToString() const;
 
-		std::string ToString() const;
+		string ToString() const;
 	};
 
 public:
 
-	static void Log        (const std::string& InLog, const Category& InCategory = Category::Unknown, const Level& InLevel = Level::Common, const ColorUtil::Color& InColor = ColorUtil::Color::Snow);
-	static void Log        (const std::string& InLog, const std::string& InCategory, const Level& InLevel = Level::Common, const ColorUtil::Color& InColor = ColorUtil::Color::Snow);
-	static void LogError   (const std::string& InLog, const Category& InCategory = Category::Unknown);
-	static void LogError   (const std::string& InLog, const std::string& InCategory);
-	static void LogWarning (const std::string& InLog, const Category& InCategory = Category::Unknown);
-	static void LogWarning (const std::string& InLog, const std::string& InCategory);
+	static void Log        (const string& InLog, const Category& InCategory = Category::Unknown, const Level& InLevel = Level::Common, const ColorUtil::Color& InColor = ColorUtil::Color::Snow);
+	static void Log        (const string& InLog, const string& InCategory, const Level& InLevel = Level::Common, const ColorUtil::Color& InColor = ColorUtil::Color::Snow);
+	static void LogError   (const string& InLog, const Category& InCategory = Category::Unknown);
+	static void LogError   (const string& InLog, const string& InCategory);
+	static void LogWarning (const string& InLog, const Category& InCategory = Category::Unknown);
+	static void LogWarning (const string& InLog, const string& InCategory);
 };
 
 #define ENABLE_LOG_SYSTEM

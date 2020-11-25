@@ -4,7 +4,7 @@
 
 #include "TextMapper.h"
 
-std::string TextMapper::Map[usize(TextMapper::ID::RANGE_SIZE)] =
+string TextMapper::Map[usize(TextMapper::ID::RANGE_SIZE)] =
 {
 	"Begin",
 

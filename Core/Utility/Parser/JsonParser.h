@@ -19,7 +19,7 @@ class JsonParser
 
 public:
 
-	static bool Parse(const std::string& InPath, Json::Value& OutRoot);
+	static bool Parse(const string& InPath, Json::Value& OutRoot);
 
 	static inline int32 GetInt32(const Json::Value& InValue)
 	{
@@ -36,7 +36,7 @@ public:
 		return (InValue != Json::nullValue) ? InValue.asFloat() : .0f;
 	}
 
-	static inline std::string GetString(const Json::Value& InValue, const std::string& InDefault = _str_null)
+	static inline string GetString(const Json::Value& InValue, const string& InDefault = _str_null)
 	{
 		return (InValue != Json::nullValue) ? (InValue.isString() ? InValue.asString() : InDefault) : InDefault;
 	}

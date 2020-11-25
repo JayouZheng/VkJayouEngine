@@ -22,7 +22,7 @@ public:
 		m_lineNumber(InLineNumber)
 	{}
 
-    static std::string VkResultToString(VkResult InResult)
+    static string VkResultToString(VkResult InResult)
     {
 #define VK_RESULT_TO_STRING(name)   if (InResult==name) return _name_of(name);
 
@@ -69,14 +69,14 @@ public:
         return _str_unknown;
     }
 
-	std::string ToString() const
+	string ToString() const
 	{
 		return m_funcName + " failed in " + m_fileName + "; line " + std::to_string(m_lineNumber) + "; result: " + vkException::VkResultToString(m_result);
 	}
 
 	VkResult    m_result;
-	std::string m_funcName;
-	std::string m_fileName;
+	string m_funcName;
+	string m_fileName;
 	uint32      m_lineNumber;
 };
 

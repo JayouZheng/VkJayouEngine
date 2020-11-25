@@ -22,7 +22,7 @@ ModuleLoader::~ModuleLoader()
 	}
 }
 
-bool ModuleLoader::Load(const std::string& InModuleName)
+bool ModuleLoader::Load(const string& InModuleName)
 {
 	m_moduleName = InModuleName;
 #if PLATFORM_WINDOW

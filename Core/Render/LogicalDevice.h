@@ -31,10 +31,10 @@ protected:
 	std::vector<VkPipelineCache>             m_pipelineCaches;
 	std::vector<VkSmartPtr<VkPipelineCache>> m_pipelineCachePtrs;
 
-	std::unordered_map<std::string, uint32>  m_subpassNameIDMap;
+	std::unordered_map<string, uint32>  m_subpassNameIDMap;
 
-	std::unordered_map<std::string, VkSmartPtr<VkRenderPass>> m_renderPassNamePtrMap;
-	std::unordered_map<std::string, VkSmartPtr<VkPipeline>>   m_pipelineNamePtrMap;
+	std::unordered_map<string, VkSmartPtr<VkRenderPass>> m_renderPassNamePtrMap;
+	std::unordered_map<string, VkSmartPtr<VkPipeline>>   m_pipelineNamePtrMap;
 
 	LogicalDevice();
 
@@ -68,7 +68,7 @@ public:
 
 	struct PipelineComputeDesc
 	{
-		std::string           EntryPoint;
+		string           EntryPoint;
 		VkShaderModule        ShaderModule;
 		VkPipelineLayout      PipLayout;	
 		VkSpecializationInfo* pSpecialConstInfo;
@@ -93,7 +93,7 @@ public:
 	{
 		VkRenderPass          RenderPass;
 
-		std::string           EntryPoint;
+		string           EntryPoint;
 		VkShaderModule        ShaderModule;
 		VkPipelineLayout      PipLayout;
 		VkSpecializationInfo* pSpecialConstInfo;
@@ -152,8 +152,8 @@ public:
 	void           GetSwapchainImagesKHR         (VkSwapchainKHR InSwapchain, uint32* InOutImageCount, VkImage* OutImages);
 	uint32         GetSwapchainNextImageKHR      (VkSwapchainKHR InSwapchain, uint64 InTimeout, VkSemaphore InSemaphore, VkFence InFence);
 
-	VkRenderPass   GetRenderPass                 (const std::string& InName);
-	VkPipeline     GetPipeline                   (const std::string& InName);
+	VkRenderPass   GetRenderPass                 (const string& InName);
+	VkPipeline     GetPipeline                   (const string& InName);
 
 	// Simple Stupid API (In fact, for all create funs, we need to gather all create infos first, do creating next!).
 	void           CreateCommandPool             (const VkCommandPoolCreateInfo& InCreateInfo);
@@ -213,7 +213,7 @@ public:
 	void           CreatePCFSampler              (VkSampler* OutSampler);
 
 	void           CreateRenderPass              (VkRenderPass* OutRenderPass, const VkRenderPassCreateInfo& InCreateInfo);
-	bool           CreateRenderPass              (const std::string& InJsonPath);
+	bool           CreateRenderPass              (const string& InJsonPath);
 	void           CreateSingleRenderPass        (VkRenderPass* OutRenderPass, VkFormat InColorFormat, VkFormat InDepthFormat);
 
 	bool           CreateFrameBuffer             (VkFramebuffer* OutFrameBuffer, const VkFramebufferCreateInfo& InCreateInfo);
@@ -221,7 +221,7 @@ public:
 
 	void           CreateGraphicPipelines        (VkPipeline* OutPipeline, const VkGraphicsPipelineCreateInfo* InCreateInfos, uint32 InCreateInfoCount = _count_1, VkPipelineCache InPipCache = VK_NULL_HANDLE);
 	void           CreateGraphicPipelines        (VkPipeline* OutPipeline, const PipelineGraphicDesc* InDescs, uint32 InDescCount = _count_1, VkPipelineCache InPipCache = VK_NULL_HANDLE);
-	bool           CreateGraphicPipelines        (const std::string& InJsonPath, VkPipelineCache InPipCache = VK_NULL_HANDLE);
+	bool           CreateGraphicPipelines        (const string& InJsonPath, VkPipelineCache InPipCache = VK_NULL_HANDLE);
 
 	void           FlushAllQueue();
 	void           ResetCmdPool();

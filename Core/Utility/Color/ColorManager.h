@@ -1,6 +1,6 @@
 ﻿//
 // Color.h
-//
+// Note: This Color Lib is copy and modify from my teacher Hu, https://github.com/hyzboy.
 
 #pragma once
 

@@ -55,7 +55,7 @@
 #define _name_of(x)   #x
 #define _wname_of(x)  _w_text(x)
 
-#define _str_name_of(x) std::string(_name_of(x))
+#define _str_name_of(x) string(_name_of(x))
 
 #define _nullptr (void*)0
 

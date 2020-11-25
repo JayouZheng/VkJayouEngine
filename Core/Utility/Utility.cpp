@@ -10,7 +10,7 @@ namespace
 	/// <summary>
 	/// Utility String Map Object Tables.
 	/// </summary>
-	const std::unordered_map<std::string, VkShaderStageFlags> VkShaderStageMap =
+	const std::unordered_map<string, VkShaderStageFlags> VkShaderStageMap =
 	{
 		{ "vertex",                  VK_SHADER_STAGE_VERTEX_BIT                  },
 		{ "pixel",                   VK_SHADER_STAGE_FRAGMENT_BIT                },
@@ -41,7 +41,7 @@ namespace
 	};
 
 	// Key, VkFormat, Size.
-	const std::unordered_map<std::string, VkFormatInfo> VkVertexAttributeMap =
+	const std::unordered_map<string, VkFormatInfo> VkVertexAttributeMap =
 	{
 		{ "position",  { VK_FORMAT_R32G32B32_SFLOAT,  12u } },
 		{ "color",     { VK_FORMAT_R8G8B8A8_UNORM,     4u } },
@@ -52,7 +52,7 @@ namespace
 		{ "uv",        { VK_FORMAT_R32G32_SFLOAT,      8u } }
 	};
 
-	const std::unordered_map<std::string, VkPrimitiveTopology> VkPrimitiveTopologyMap =
+	const std::unordered_map<string, VkPrimitiveTopology> VkPrimitiveTopologyMap =
 	{
 		{ "point_list",          VK_PRIMITIVE_TOPOLOGY_POINT_LIST                    },
 		{ "line_list",           VK_PRIMITIVE_TOPOLOGY_LINE_LIST                     },
@@ -67,14 +67,14 @@ namespace
 		{ "patch_list",          VK_PRIMITIVE_TOPOLOGY_PATCH_LIST                    }
 	};
 
-	const std::unordered_map<std::string, VkPolygonMode> VkPolygonModeMap =
+	const std::unordered_map<string, VkPolygonMode> VkPolygonModeMap =
 	{
 		{ "fill",   VK_POLYGON_MODE_FILL  },
 		{ "line",   VK_POLYGON_MODE_LINE  },
 		{ "point",  VK_POLYGON_MODE_POINT }
 	};
 
-	const std::unordered_map<std::string, VkCullModeFlags> VkCullModeFlagsMap =
+	const std::unordered_map<string, VkCullModeFlags> VkCullModeFlagsMap =
 	{
 		{ "cull_none",   VK_CULL_MODE_NONE           },
 		{ "cull_front",  VK_CULL_MODE_FRONT_BIT      },
@@ -82,13 +82,13 @@ namespace
 		{ "cull_both",   VK_CULL_MODE_FRONT_AND_BACK }
 	};
 
-	const std::unordered_map<std::string, VkFrontFace> VkFrontFaceMap =
+	const std::unordered_map<string, VkFrontFace> VkFrontFaceMap =
 	{
 		{ "counter_clockwise",  VK_FRONT_FACE_COUNTER_CLOCKWISE },
 		{ "clockwise",          VK_FRONT_FACE_CLOCKWISE         }
 	};
 
-	const std::unordered_map<std::string, VkCompareOp> VkCompareOpMap =
+	const std::unordered_map<string, VkCompareOp> VkCompareOpMap =
 	{
 		{ "never",			   VK_COMPARE_OP_NEVER            },
 		{ "less",			   VK_COMPARE_OP_LESS			  },
@@ -106,7 +106,7 @@ namespace
 		{ "always",			   VK_COMPARE_OP_ALWAYS			  }
 	};
 
-	const std::unordered_map<std::string, VkStencilOp> VkStencilOpMap =
+	const std::unordered_map<string, VkStencilOp> VkStencilOpMap =
 	{
 		{"keep",             VK_STENCIL_OP_KEEP                },
 		{"zero",             VK_STENCIL_OP_ZERO                },
@@ -123,7 +123,7 @@ namespace
 		{"--wrap",           VK_STENCIL_OP_DECREMENT_AND_WRAP  }
 	};
 
-	const std::unordered_map<std::string, VkLogicOp> VkLogicOpMap =
+	const std::unordered_map<string, VkLogicOp> VkLogicOpMap =
 	{
 		{"clear",         VK_LOGIC_OP_CLEAR         },
 		{"and",           VK_LOGIC_OP_AND           },
@@ -148,7 +148,7 @@ namespace
 		{"set",           VK_LOGIC_OP_SET           }
 	};
 
-	const std::unordered_map<std::string, VkBlendFactor> VkBlendFactorMap =
+	const std::unordered_map<string, VkBlendFactor> VkBlendFactorMap =
 	{
 		{ "zero",                      VK_BLEND_FACTOR_ZERO                     },
 		{ "0",                         VK_BLEND_FACTOR_ZERO                     },
@@ -173,7 +173,7 @@ namespace
 		{ "one_minus_src1_alpha",      VK_BLEND_FACTOR_ONE_MINUS_SRC1_ALPHA     }
 	};
 
-	const std::unordered_map<std::string, VkBlendOp> VkBlendOpMap =
+	const std::unordered_map<string, VkBlendOp> VkBlendOpMap =
 	{
 		{ "add",                VK_BLEND_OP_ADD                    },
 		{ "+",                  VK_BLEND_OP_ADD                    },
@@ -230,7 +230,7 @@ namespace
 		{ "blue",               VK_BLEND_OP_BLUE_EXT               }
 	};
 
-	const std::unordered_map<std::string, VkColorComponentFlags> VkColorComponentMaskMap =
+	const std::unordered_map<string, VkColorComponentFlags> VkColorComponentMaskMap =
 	{
 		{ "r", VK_COLOR_COMPONENT_R_BIT },
 		{ "g", VK_COLOR_COMPONENT_G_BIT },
@@ -238,7 +238,7 @@ namespace
 		{ "a", VK_COLOR_COMPONENT_A_BIT }
 	};
 
-	const std::unordered_map<std::string, VkDynamicState> VkDynamicStateMap =
+	const std::unordered_map<string, VkDynamicState> VkDynamicStateMap =
 	{
 		{ "viewport",                         VK_DYNAMIC_STATE_VIEWPORT                         },
 		{ "scissor",                          VK_DYNAMIC_STATE_SCISSOR                          },
@@ -270,7 +270,7 @@ namespace
 		{ "state_stencil_op_ext",             VK_DYNAMIC_STATE_STENCIL_OP_EXT                   }
 	};
 
-	const std::unordered_map<std::string, VkFormat> VkFormatMap =
+	const std::unordered_map<string, VkFormat> VkFormatMap =
 	{
 		{ "UNDEFINED",                                       VK_FORMAT_UNDEFINED                                      },
 		{ "R4G4_UNORM_PACK8",                                VK_FORMAT_R4G4_UNORM_PACK8                               },
@@ -549,20 +549,20 @@ namespace
 		{ "G16_B16_R16_3PLANE_444_UNORM_KHR",                VK_FORMAT_G16_B16_R16_3PLANE_444_UNORM_KHR               }
 	};
 
-	const std::unordered_map<std::string, VkAttachmentLoadOp> VkAttachmentLoadOpMap =
+	const std::unordered_map<string, VkAttachmentLoadOp> VkAttachmentLoadOpMap =
 	{
 		{ "load",       VK_ATTACHMENT_LOAD_OP_LOAD      },
 		{ "clear",      VK_ATTACHMENT_LOAD_OP_CLEAR     },
 		{ "dont_care",  VK_ATTACHMENT_LOAD_OP_DONT_CARE }
 	};
 
-	const std::unordered_map<std::string, VkAttachmentStoreOp> VkAttachmentStoreOpMap =
+	const std::unordered_map<string, VkAttachmentStoreOp> VkAttachmentStoreOpMap =
 	{
 		{ "store",      VK_ATTACHMENT_STORE_OP_STORE     },
 		{ "dont_care",  VK_ATTACHMENT_STORE_OP_DONT_CARE }
 	};
 
-	const std::unordered_map<std::string, VkImageLayout> VkImageLayoutMap =
+	const std::unordered_map<string, VkImageLayout> VkImageLayoutMap =
 	{
 		{ "UNDEFINED",                                       VK_IMAGE_LAYOUT_UNDEFINED                                      },
 		{ "GENERAL",                                         VK_IMAGE_LAYOUT_GENERAL                                        },
@@ -608,14 +608,14 @@ namespace
 		{ "present",                                         VK_IMAGE_LAYOUT_PRESENT_SRC_KHR                                }
 	};
 
-	const std::unordered_map<std::string, VkPipelineBindPoint> VkPipelineBindPointMap =
+	const std::unordered_map<string, VkPipelineBindPoint> VkPipelineBindPointMap =
 	{
 		{ "graphics",     VK_PIPELINE_BIND_POINT_GRAPHICS        },
 		{ "compute",      VK_PIPELINE_BIND_POINT_COMPUTE         },
 		{ "ray_tracing",  VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR }
 	};
 
-	const std::unordered_map<std::string, VkPipelineStageFlags> VkPipelineStageFlagsMap =
+	const std::unordered_map<string, VkPipelineStageFlags> VkPipelineStageFlagsMap =
 	{
 		{ "top",                           VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT                      },
 		{ "draw_indirect",                 VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT                    },
@@ -645,7 +645,7 @@ namespace
 		{ "command_preprocess",            VK_PIPELINE_STAGE_COMMAND_PREPROCESS_BIT_NV            }
 	};
 
-	const std::unordered_map<std::string, VkAccessFlags> VkAccessFlagsMap =
+	const std::unordered_map<string, VkAccessFlags> VkAccessFlagsMap =
 	{
 		{ "indirect_command_read",              VK_ACCESS_INDIRECT_COMMAND_READ_BIT                 },
 		{ "index_read",                         VK_ACCESS_INDEX_READ_BIT                            },
@@ -677,38 +677,38 @@ namespace
 		{ "command_preprocess_write",           VK_ACCESS_COMMAND_PREPROCESS_WRITE_BIT_NV           }
 	};
 
-	const std::unordered_map<std::string, VkDependencyFlags> VkDependencyFlagsMap =
+	const std::unordered_map<string, VkDependencyFlags> VkDependencyFlagsMap =
 	{
 		{ "region",        VK_DEPENDENCY_BY_REGION_BIT        },
 		{ "device_group",  VK_DEPENDENCY_DEVICE_GROUP_BIT     },
 		{ "view_local",    VK_DEPENDENCY_VIEW_LOCAL_BIT       }
 	};
 
-	const std::string DefaultShaderEntryPoint     = "main";
-	const std::string DefaultVkPrimitiveTopology  = "triangle_list";
-	const std::string DefaultVkPolygonMode        = "fill";
-	const std::string DefaultVkCullModeFlags      = "cull_none";
-	const std::string DefaultVkFrontFace          = "counter_clockwise";
-	const std::string DefaultVkCompareOp          = "less_equal";
-	const std::string DefaultVkStencilOp          = "keep";
-	const std::string DefaultVkLogicOp            = "clear";
-	const std::string DefaultVkBlendFactor        = "zero";
-	const std::string DefaultVkBlendOp            = "add";
-	const std::string DefaultColorComponentMask   = "rgba";
-	const std::string DefaultVkDynamicState       = "viewport";
-	const std::string DefaultVkFormat             = "UNDEFINED";
-	const std::string DefaultVkAttachmentLoadOp   = "dont_care";
-	const std::string DefaultVkAttachmentStoreOp  = "dont_care";
-	const std::string DefaultVkImageLayout        = "undefined";
-	const std::string DefaultVkPipelineBindPoint  = "graphics";
-	const std::string DefaultVkPipelineStageFlags = "all_commands";
-	const std::string DefaultVkAccessFlags        = "memory_read";
-	const std::string DefaultVkDependencyFlags    = "region";
+	const string DefaultShaderEntryPoint     = "main";
+	const string DefaultVkPrimitiveTopology  = "triangle_list";
+	const string DefaultVkPolygonMode        = "fill";
+	const string DefaultVkCullModeFlags      = "cull_none";
+	const string DefaultVkFrontFace          = "counter_clockwise";
+	const string DefaultVkCompareOp          = "less_equal";
+	const string DefaultVkStencilOp          = "keep";
+	const string DefaultVkLogicOp            = "clear";
+	const string DefaultVkBlendFactor        = "zero";
+	const string DefaultVkBlendOp            = "add";
+	const string DefaultColorComponentMask   = "rgba";
+	const string DefaultVkDynamicState       = "viewport";
+	const string DefaultVkFormat             = "UNDEFINED";
+	const string DefaultVkAttachmentLoadOp   = "dont_care";
+	const string DefaultVkAttachmentStoreOp  = "dont_care";
+	const string DefaultVkImageLayout        = "undefined";
+	const string DefaultVkPipelineBindPoint  = "graphics";
+	const string DefaultVkPipelineStageFlags = "all_commands";
+	const string DefaultVkAccessFlags        = "memory_read";
+	const string DefaultVkDependencyFlags    = "region";
 }
 
 /// Implementation...
 
-bool Util::GetShaderStage(const std::string& InKey, VkShaderStageFlags& OutShaderStage)
+bool Util::GetShaderStage(const string& InKey, VkShaderStageFlags& OutShaderStage)
 {
 	auto result = VkShaderStageMap.find(StringUtil::ToLowerCase(InKey));
 	if (result != VkShaderStageMap.end())
@@ -723,7 +723,7 @@ bool Util::GetShaderStage(const std::string& InKey, VkShaderStageFlags& OutShade
 	}
 }
 
-VkFormat Util::GetVertexAttributeVkFormat(const std::string& InKey)
+VkFormat Util::GetVertexAttributeVkFormat(const string& InKey)
 {
 	auto result = VkVertexAttributeMap.find(InKey);
 	if (result != VkVertexAttributeMap.end())
@@ -735,7 +735,7 @@ VkFormat Util::GetVertexAttributeVkFormat(const std::string& InKey)
 	}
 }
 
-uint32 Util::GetVertexAttributeSize(const std::string& InKey)
+uint32 Util::GetVertexAttributeSize(const string& InKey)
 {
 	auto result = VkVertexAttributeMap.find(InKey);
 	if (result != VkVertexAttributeMap.end())
@@ -747,7 +747,7 @@ uint32 Util::GetVertexAttributeSize(const std::string& InKey)
 	}
 }
 
-VkColorComponentFlags Util::GetColorComponentMask(const std::string& InKey)
+VkColorComponentFlags Util::GetColorComponentMask(const string& InKey)
 {
 	VkColorComponentFlags result = 0;
 	for (usize i = 0; i < InKey.length(); i++)
@@ -765,7 +765,7 @@ VkColorComponentFlags Util::GetColorComponentMask(const std::string& InKey)
 	if (result == 0)
 	{
 		result = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-		_log_warning("pipeline color blend state, component mask invalid! default set to \"" + std::string(DefaultColorComponentMask) + "\"!", _name_of(GetColorComponentMask));
+		_log_warning("pipeline color blend state, component mask invalid! default set to \"" + string(DefaultColorComponentMask) + "\"!", _name_of(GetColorComponentMask));
 		return result;
 	}
 
@@ -798,7 +798,7 @@ VkSampleCountFlags Util::GetMultisampleCount(uint32 InCount)
 ---------------------------------------------------------------------*/
 
 #define GET_VK_TYPE_IMPL(type)                                        \
-type Util::Get##type(const std::string& InKey)                        \
+type Util::Get##type(const string& InKey)                        \
 {                                                                     \
 	auto result = type##Map.find(InKey);                              \
 	if (result != type##Map.end())                                    \
@@ -836,7 +836,7 @@ GET_VK_TYPE_IMPL(VkDependencyFlags)
 							  boundary
 ---------------------------------------------------------------------*/
 
-std::string Util::VkShaderStageToString(VkShaderStageFlags InStage)
+string Util::VkShaderStageToString(VkShaderStageFlags InStage)
 {
 #define VK_SHADER_STAGE_TO_STRING(stage) if (InStage == stage) return _name_of(stage);
 
@@ -860,7 +860,7 @@ std::string Util::VkShaderStageToString(VkShaderStageFlags InStage)
 	return _str_null;
 }
 
-std::string Util::VkDescriptorTypeToString(VkDescriptorType InDescType)
+string Util::VkDescriptorTypeToString(VkDescriptorType InDescType)
 {
 #define VK_DESCRIPTOR_TYPE_TO_STRING(type) if (InDescType == type) return _name_of(type);
 

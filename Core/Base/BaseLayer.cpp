@@ -437,23 +437,23 @@ void BaseLayer::CachedModulePath()
 {
 #if PLATFORM_WINDOW
 
-	std::string modulePath = ""; // It needs to be left empty here.
-	std::string moduleName = "null";
+	string modulePath = ""; // It needs to be left empty here.
+	string moduleName = "null";
 
 	char exePath[_max_path];
 
 	GetModuleFileNameA(NULL, exePath, _max_path);
 
-	modulePath = std::string(exePath);
-	std::string::size_type found = modulePath.find_last_of("\\/");
-	if (found != std::string::npos)
+	modulePath = string(exePath);
+	string::size_type found = modulePath.find_last_of("\\/");
+	if (found != string::npos)
 	{
 		moduleName = modulePath.substr(found + 1);
 		modulePath = modulePath.substr(0, found + 1);
 	}
 
 	// Add path that will remove form modulePath.
-	std::vector<std::string> deleteDirs =
+	std::vector<string> deleteDirs =
 	{
 		"x64\\",
 		"Debug\\",
@@ -462,9 +462,9 @@ void BaseLayer::CachedModulePath()
 
 	for (auto& dir : deleteDirs)
 	{
-		found = std::string::npos;
+		found = string::npos;
 		found = modulePath.rfind(dir);
-		if (found != std::string::npos)
+		if (found != string::npos)
 			modulePath.erase(found, dir.size());
 	}
 

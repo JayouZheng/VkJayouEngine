@@ -110,7 +110,7 @@ public:
 
     ~GLSLCompiler();
 
-    void CompileShader(VkShaderStageFlags InStageType, const std::string& InShaderPath, const CompileInfo* InCompileInfo);
+    void CompileShader(VkShaderStageFlags InStageType, const string& InShaderPath, const CompileInfo* InCompileInfo);
     bool CheckAndParseSPVData(uint32 InMaxDescSets, VkPushConstantRange& OutPushConstantRange, std::vector<std::vector<VkDescriptorSetLayoutBinding>>& OutDescSets);
 
     void                   FlushSPVData();

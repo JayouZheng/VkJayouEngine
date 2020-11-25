@@ -154,7 +154,7 @@ public:
 		RANGE_SIZE = (END_RANGE - BEGIN_RANGE) + 1
 	};
 
-	static std::string Map[usize(ID::RANGE_SIZE)];
+	static string Map[usize(ID::RANGE_SIZE)];
 };
 
 #define _text_mapper(id) TextMapper::Map[(usize)TextMapper::ID::id]

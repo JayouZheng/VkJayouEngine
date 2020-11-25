@@ -118,7 +118,7 @@ public:
 		if (this->m_counter->m_object == other)
 			return *this;
 
-		std::string type = m_counter->m_type;
+		string type = m_counter->m_type;
 		m_counter->m_count--;
 		if (m_counter->m_count == 0)
 			delete m_counter;
@@ -137,7 +137,7 @@ private:
 
 	T*            m_object;
 	uint32        m_count;
-	std::string   m_type;
+	string   m_type;
 	bool          m_bReleasedObjectOwnership;
 
 	template<typename T>

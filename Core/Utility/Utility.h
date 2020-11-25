@@ -8,33 +8,33 @@
 
 namespace Util
 {
-	bool                     GetShaderStage(const std::string& InKey, VkShaderStageFlags& OutShaderStage);
-	VkFormat                 GetVertexAttributeVkFormat(const std::string& InKey);
-	uint32                   GetVertexAttributeSize(const std::string& InKey);
+	bool                     GetShaderStage(const string& InKey, VkShaderStageFlags& OutShaderStage);
+	VkFormat                 GetVertexAttributeVkFormat(const string& InKey);
+	uint32                   GetVertexAttributeSize(const string& InKey);
 	VkSampleCountFlags       GetMultisampleCount(uint32 InCount);
-	VkColorComponentFlags    GetColorComponentMask(const std::string& InKey);
+	VkColorComponentFlags    GetColorComponentMask(const string& InKey);
 
-	VkPrimitiveTopology      GetVkPrimitiveTopology(const std::string& InKey);
-	VkPolygonMode            GetVkPolygonMode(const std::string& InKey);
-	VkCullModeFlags          GetVkCullModeFlags(const std::string& InKey);
-	VkFrontFace              GetVkFrontFace(const std::string& InKey);
-	VkCompareOp              GetVkCompareOp(const std::string& InKey);
-	VkStencilOp              GetVkStencilOp(const std::string& InKey);
-	VkLogicOp                GetVkLogicOp(const std::string& InKey);
-	VkBlendFactor            GetVkBlendFactor(const std::string& InKey);
-	VkBlendOp                GetVkBlendOp(const std::string& InKey);	
-	VkDynamicState           GetVkDynamicState(const std::string& InKey);
-	VkFormat                 GetVkFormat(const std::string& InKey);
-	VkAttachmentLoadOp       GetVkAttachmentLoadOp(const std::string& InKey);
-	VkAttachmentStoreOp      GetVkAttachmentStoreOp(const std::string& InKey);
-	VkImageLayout            GetVkImageLayout(const std::string& InKey);
-	VkPipelineBindPoint      GetVkPipelineBindPoint(const std::string& InKey);
-	VkPipelineStageFlags     GetVkPipelineStageFlags(const std::string& InKey);
-	VkAccessFlags            GetVkAccessFlags(const std::string& InKey);
-	VkDependencyFlags        GetVkDependencyFlags(const std::string& InKey);
+	VkPrimitiveTopology      GetVkPrimitiveTopology(const string& InKey);
+	VkPolygonMode            GetVkPolygonMode(const string& InKey);
+	VkCullModeFlags          GetVkCullModeFlags(const string& InKey);
+	VkFrontFace              GetVkFrontFace(const string& InKey);
+	VkCompareOp              GetVkCompareOp(const string& InKey);
+	VkStencilOp              GetVkStencilOp(const string& InKey);
+	VkLogicOp                GetVkLogicOp(const string& InKey);
+	VkBlendFactor            GetVkBlendFactor(const string& InKey);
+	VkBlendOp                GetVkBlendOp(const string& InKey);	
+	VkDynamicState           GetVkDynamicState(const string& InKey);
+	VkFormat                 GetVkFormat(const string& InKey);
+	VkAttachmentLoadOp       GetVkAttachmentLoadOp(const string& InKey);
+	VkAttachmentStoreOp      GetVkAttachmentStoreOp(const string& InKey);
+	VkImageLayout            GetVkImageLayout(const string& InKey);
+	VkPipelineBindPoint      GetVkPipelineBindPoint(const string& InKey);
+	VkPipelineStageFlags     GetVkPipelineStageFlags(const string& InKey);
+	VkAccessFlags            GetVkAccessFlags(const string& InKey);
+	VkDependencyFlags        GetVkDependencyFlags(const string& InKey);
 
-	std::string              VkShaderStageToString(VkShaderStageFlags InStage);
-	std::string              VkDescriptorTypeToString(VkDescriptorType InDescType);
+	string              VkShaderStageToString(VkShaderStageFlags InStage);
+	string              VkDescriptorTypeToString(VkDescriptorType InDescType);
 
 	template<typename TType, typename TLambda>
 	bool IsVecContain(const std::vector<TType>& InVecContain, const TType& InMember, const TLambda& InCompare)

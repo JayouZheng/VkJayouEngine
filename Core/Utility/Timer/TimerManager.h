@@ -29,13 +29,13 @@ public:
 
 		uint8  Week;
 
-		std::string ToString() const;
+		string ToString() const;
 
-		std::string GetWeek() const;
-		std::string GetWeek_Ch() const;
+		string GetWeek() const;
+		string GetWeek_Ch() const;
 
-		std::string GetMonth() const;
-		std::string GetMonth_Ch() const;
+		string GetMonth() const;
+		string GetMonth_Ch() const;
 	};
 
 	static TimeStamp GetCurrentTimeStamp();
@@ -44,14 +44,14 @@ public:
 	{
 	public:
 
-		void   BeginCounter      (const std::string& InName);
-		void   EndCounter        (const std::string& InName);
-		double GetCounterResult  (const std::string& InName);
+		void   BeginCounter      (const string& InName);
+		void   EndCounter        (const string& InName);
+		double GetCounterResult  (const string& InName);
 
 	private:
 
-		std::unordered_map<std::string, htime_point> m_counterBeginPoint;
-		std::unordered_map<std::string, double> m_counterResults;
+		std::unordered_map<string, htime_point> m_counterBeginPoint;
+		std::unordered_map<string, double> m_counterResults;
 	};
 
 	class PerformanceScope
@@ -59,12 +59,12 @@ public:
 
 	public:
 
-		PerformanceScope(const std::string& InScopeName);
+		PerformanceScope(const string& InScopeName);
 		~PerformanceScope();
 
 	private:
 
-		std::string m_scopeName;
+		string m_scopeName;
 		htime_point m_beginPoint;
 	};
 };

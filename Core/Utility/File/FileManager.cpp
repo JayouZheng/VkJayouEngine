@@ -8,7 +8,7 @@
 #include "Core/Utility/LogSystem.h"
 #include "Core/Utility/String/StringManager.h"
 
-bool FileUtil::Read(const std::string& InPath, std::vector<uint8>& OutData)
+bool FileUtil::Read(const string& InPath, std::vector<uint8>& OutData)
 {
 	_log_common(StringUtil::Printf("Begin read file: %", InPath), LogSystem::Category::IO);
 
@@ -83,7 +83,7 @@ bool FileUtil::Read(const std::string& InPath, std::vector<uint8>& OutData)
 	return true;
 }
 
-bool FileUtil::Write(const std::string& InPath, const std::vector<uint8>& InData)
+bool FileUtil::Write(const string& InPath, const std::vector<uint8>& InData)
 {
 	_log_common(StringUtil::Printf("Begin write file: %", InPath), LogSystem::Category::IO);
 

@@ -23,14 +23,14 @@ public:
     void BindRef(IResourceHandler* InRef) { m_resource.CommonRefs.push_back(InRef); }
     void BindRef(VkSmartPtr<VkObjectHandler> InRef) { m_resource.VkSmartRefs.push_back(InRef); }
 
-    std::string GetName() { return m_name; }
-    void SetName(const std::string& InName) { m_name = InName; }
+    string GetName() { return m_name; }
+    void SetName(const string& InName) { m_name = InName; }
 
 private:
 
     friend class ResourcePool;
 
-    std::string m_name;
+    string m_name;
 
     struct InternalResource
     {

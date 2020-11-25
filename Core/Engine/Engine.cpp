@@ -23,13 +23,6 @@ namespace
     {
     public:
 
-        /*
-        EngineHandler()
-        {
-            Engine::Get()->Init();
-        }
-        */
-
         ~EngineHandler()
         {
             if (g_engine != nullptr)

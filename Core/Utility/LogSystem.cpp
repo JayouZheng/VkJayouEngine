@@ -9,9 +9,9 @@ namespace
 	static std::vector<LogSystem::LogInfo> g_logs;
 
 	void InternalLog(
-		const std::string&         InLog,
+		const string&         InLog,
 		const LogSystem::Category& InCategory,
-		const std::string&         InCustomCategory,
+		const string&         InCustomCategory,
 		const LogSystem::Level&    InLevel, 
 		const ColorUtil::Color&    InColor)
 	{
@@ -38,37 +38,37 @@ namespace
 	}
 }
 
-void LogSystem::Log(const std::string& InLog, const Category& InCategory, const Level& InLevel, const ColorUtil::Color& InColor)
+void LogSystem::Log(const string& InLog, const Category& InCategory, const Level& InLevel, const ColorUtil::Color& InColor)
 {
 	InternalLog(InLog, InCategory, _str_null, InLevel, InColor);
 }
 
-void LogSystem::Log(const std::string& InLog, const std::string& InCategory, const Level& InLevel, const ColorUtil::Color& InColor)
+void LogSystem::Log(const string& InLog, const string& InCategory, const Level& InLevel, const ColorUtil::Color& InColor)
 {
 	InternalLog(InLog, Category::Custom, InCategory, InLevel, InColor);
 }
 
-void LogSystem::LogError(const std::string& InLog, const Category& InCategory)
+void LogSystem::LogError(const string& InLog, const Category& InCategory)
 {
 	Log(InLog, InCategory, Level::Error);
 }
 
-void LogSystem::LogError(const std::string& InLog, const std::string& InCategory)
+void LogSystem::LogError(const string& InLog, const string& InCategory)
 {
 	Log(InLog, InCategory, Level::Error);
 }
 
-void LogSystem::LogWarning(const std::string& InLog, const Category& InCategory)
+void LogSystem::LogWarning(const string& InLog, const Category& InCategory)
 {
 	Log(InLog, InCategory, Level::Warning);
 }
 
-void LogSystem::LogWarning(const std::string& InLog, const std::string& InCategory)
+void LogSystem::LogWarning(const string& InLog, const string& InCategory)
 {
 	Log(InLog, InCategory, Level::Warning);
 }
 
-std::string LogSystem::LogInfo::LevelToString() const
+string LogSystem::LogInfo::LevelToString() const
 {
 #define LOG_LEVEL_TO_STRING(level) if (Level == LogSystem::Level::level) return _name_of(level);
 
@@ -81,7 +81,7 @@ std::string LogSystem::LogInfo::LevelToString() const
 	return _name_of(Common);
 }
 
-std::string LogSystem::LogInfo::CategoryToString() const
+string LogSystem::LogInfo::CategoryToString() const
 {
 #define LOG_CATEGORY_TO_STRING(category) if (Category == LogSystem::Category::category) return _name_of(category);
 
@@ -116,7 +116,7 @@ std::string LogSystem::LogInfo::CategoryToString() const
 	return _str_unknown;
 }
 
-std::string LogSystem::LogInfo::ToString() const
+string LogSystem::LogInfo::ToString() const
 {
 	return Level != LogSystem::Level::Common ? StringUtil::Printf("[%][%] !!!%: %", TimeStamp.ToString(), CategoryToString(), LevelToString(), Content) : StringUtil::Printf("[%][%]>%", TimeStamp.ToString(), CategoryToString(), Content);
 }

@@ -119,7 +119,7 @@ uint32 LogicalDevice::GetSwapchainNextImageKHR(VkSwapchainKHR InSwapchain, uint6
 	return nextImageIndex;
 }
 
-VkRenderPass LogicalDevice::GetRenderPass(const std::string& InName)
+VkRenderPass LogicalDevice::GetRenderPass(const string& InName)
 {
 	auto found = m_renderPassNamePtrMap.find(InName);
 	if (found != m_renderPassNamePtrMap.end())
@@ -131,7 +131,7 @@ VkRenderPass LogicalDevice::GetRenderPass(const std::string& InName)
 	}
 }
 
-VkPipeline LogicalDevice::GetPipeline(const std::string& InName)
+VkPipeline LogicalDevice::GetPipeline(const string& InName)
 {
 	auto found = m_pipelineNamePtrMap.find(InName);
 	if (found != m_pipelineNamePtrMap.end())
@@ -184,8 +184,8 @@ void LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const ui
 
 bool LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const char* InShaderPath, const char* InEntrypoint /*= "main"*/, VkShaderStageFlags* OutShaderStage /*= nullptr*/)
 {
-	std::string name, ext, dir;
-	StringUtil::ExtractFilePath(std::string(InShaderPath), &name, &ext, &dir);
+	string name, ext, dir;
+	StringUtil::ExtractFilePath(string(InShaderPath), &name, &ext, &dir);
 
 	VkShaderStageFlags shaderStage;
 	if (!Util::GetShaderStage(ext, shaderStage))
@@ -860,7 +860,7 @@ void LogicalDevice::CreateRenderPass(VkRenderPass* OutRenderPass, const VkRender
 	_vk_try(vkCreateRenderPass(m_device, &InCreateInfo, GetVkAllocator(), OutRenderPass));
 }
 
-bool LogicalDevice::CreateRenderPass(const std::string& InJsonPath)
+bool LogicalDevice::CreateRenderPass(const string& InJsonPath)
 {
 	_log_common("Begin creating renderpass with " + InJsonPath, LogSystem::Category::RenderPass);
 
@@ -875,7 +875,7 @@ bool LogicalDevice::CreateRenderPass(const std::string& InJsonPath)
 		std::vector<VkAttachmentReference>               renderPassSubpassDepthAttachments;
 		std::vector<VkSubpassDependency>                 renderPassSubpassDependency;
 
-		std::unordered_map<std::string, uint32>          attachmentNameIDMap;
+		std::unordered_map<string, uint32>          attachmentNameIDMap;
 
 		VkRenderPassCreateInfo renderPassCreateInfo = {};
 
@@ -963,7 +963,7 @@ bool LogicalDevice::CreateRenderPass(const std::string& InJsonPath)
 				{
 					auto& inputAttach = bIsArray ? subpass[_text_mapper(vk_input_attachments)][k] : subpass[_text_mapper(vk_input_attachments)];
 
-					std::string name = JsonParser::GetString(inputAttach[_text_mapper(vk_attachment_name)]);
+					string name = JsonParser::GetString(inputAttach[_text_mapper(vk_attachment_name)]);
 
 					auto found = attachmentNameIDMap.find(name);
 					if (found != attachmentNameIDMap.end())
@@ -1001,7 +1001,7 @@ bool LogicalDevice::CreateRenderPass(const std::string& InJsonPath)
 				{
 					auto& colorAttach = bIsArray ? subpass[_text_mapper(vk_color_attachments)][k] : subpass[_text_mapper(vk_color_attachments)];
 
-					std::string name = JsonParser::GetString(colorAttach[_text_mapper(vk_attachment_name)]);
+					string name = JsonParser::GetString(colorAttach[_text_mapper(vk_attachment_name)]);
 
 					auto found = attachmentNameIDMap.find(name);
 					if (found != attachmentNameIDMap.end())
@@ -1038,7 +1038,7 @@ bool LogicalDevice::CreateRenderPass(const std::string& InJsonPath)
 				{
 					auto& resolveAttach = bIsArray ? subpass[_text_mapper(vk_resolve_attachments)][k] : subpass[_text_mapper(vk_resolve_attachments)];
 
-					std::string name = JsonParser::GetString(resolveAttach[_text_mapper(vk_attachment_name)]);
+					string name = JsonParser::GetString(resolveAttach[_text_mapper(vk_attachment_name)]);
 
 					auto found = attachmentNameIDMap.find(name);
 					if (found != attachmentNameIDMap.end())
@@ -1069,7 +1069,7 @@ bool LogicalDevice::CreateRenderPass(const std::string& InJsonPath)
 				{
 					auto& preserveAttach = bIsArray ? subpass[_text_mapper(vk_preserve_attachment_names)][k] : subpass[_text_mapper(vk_preserve_attachment_names)];
 
-					std::string name = JsonParser::GetString(preserveAttach);
+					string name = JsonParser::GetString(preserveAttach);
 
 					auto found = attachmentNameIDMap.find(name);
 					if (found != attachmentNameIDMap.end())
@@ -1090,7 +1090,7 @@ bool LogicalDevice::CreateRenderPass(const std::string& InJsonPath)
 
 				auto& depthAttach = subpass[_text_mapper(vk_depth_attachment)];
 
-				std::string name = JsonParser::GetString(depthAttach[_text_mapper(vk_attachment_name)]);
+				string name = JsonParser::GetString(depthAttach[_text_mapper(vk_attachment_name)]);
 
 				auto found = attachmentNameIDMap.find(name);
 				if (found != attachmentNameIDMap.end())
@@ -1124,7 +1124,7 @@ bool LogicalDevice::CreateRenderPass(const std::string& InJsonPath)
 		{
 			auto& dependency = bIsArray ? renderPassInfo[_text_mapper(vk_subpass_dependencies)][j] : renderPassInfo[_text_mapper(vk_subpass_dependencies)];
 
-			std::string name = JsonParser::GetString(dependency[_text_mapper(vk_src_subpass_name)]);
+			string name = JsonParser::GetString(dependency[_text_mapper(vk_src_subpass_name)]);
 
 			auto found_src = m_subpassNameIDMap.find(name);
 			if (found_src != m_subpassNameIDMap.end())
@@ -1181,7 +1181,7 @@ bool LogicalDevice::CreateRenderPass(const std::string& InJsonPath)
 		_declare_vk_smart_ptr(VkRenderPass, pRenderPass);
 		this->CreateRenderPass(pRenderPass.MakeInstance(), renderPassCreateInfo);
 
-		std::string name = JsonParser::GetString(renderPassInfo[_text_mapper(vk_name)]);
+		string name = JsonParser::GetString(renderPassInfo[_text_mapper(vk_name)]);
 		m_renderPassNamePtrMap.emplace(name, pRenderPass);
 	}
 
@@ -1426,7 +1426,7 @@ void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const Pipeli
 	_vk_try(vkCreateGraphicsPipelines(m_device, InPipCache, _count_1, &graphicsPipelineCreateInfo, GetVkAllocator(), OutPipeline));
 }
 
-bool LogicalDevice::CreateGraphicPipelines(const std::string& InJsonPath, VkPipelineCache InPipCache)
+bool LogicalDevice::CreateGraphicPipelines(const string& InJsonPath, VkPipelineCache InPipCache)
 {
 	_log_common("Begin creating graphic pipeline with " + InJsonPath, LogSystem::Category::LogicalDevice);
 
@@ -1461,7 +1461,7 @@ bool LogicalDevice::CreateGraphicPipelines(const std::string& InJsonPath, VkPipe
 
 	std::vector<VkGraphicsPipelineCreateInfo>                     graphicInfos;
 	std::vector<std::vector<VkPipelineShaderStageCreateInfo>>     shaderInfos;
-	std::vector<std::string>                                      shaderEntrypoints;
+	std::vector<string>                                      shaderEntrypoints;
 	std::vector<VkSmartPtr<VkShaderModule>>                       shaderModules;
 	std::vector<std::vector<VkSpecializationMapEntry>>            specMaps;
 	std::vector<std::vector<uint32>>                              specData;
@@ -1481,7 +1481,7 @@ bool LogicalDevice::CreateGraphicPipelines(const std::string& InJsonPath, VkPipe
 	std::vector<std::vector<VkPipelineColorBlendAttachmentState>> colorBlendAttachmentStates;
 	std::vector<std::vector<VkDynamicState>>                      dynamicStates;
 	std::vector<VkSmartPtr<VkPipelineLayout>>                     pPipelineLayouts;
-	std::unordered_map<std::string, int32>                        basePipelineNameIDMap;
+	std::unordered_map<string, int32>                        basePipelineNameIDMap;
 
 	graphicInfos.resize(numGInfo);
 	shaderInfos.resize(numGInfo);
@@ -1542,7 +1542,7 @@ bool LogicalDevice::CreateGraphicPipelines(const std::string& InJsonPath, VkPipe
 		{
 			auto& shaderInfo = bIsArray ? graphicInfo[_text_mapper(vk_pipeline_stages_infos)][j] : graphicInfo[_text_mapper(vk_pipeline_stages_infos)];		
 
-			std::string shaderPath = JsonParser::GetString(shaderInfo[_text_mapper(vk_stage_code_path)]);
+			string shaderPath = JsonParser::GetString(shaderInfo[_text_mapper(vk_stage_code_path)]);
 			if (shaderPath == _str_null)
 			{
 				_log_error("json file: [stage_code_path] can not be null!", LogSystem::Category::JsonParser);
@@ -1661,7 +1661,7 @@ bool LogicalDevice::CreateGraphicPipelines(const std::string& InJsonPath, VkPipe
 			uint32& allAttributeSize = attributeOffset;
 			for (uint32 k = 0; k < numAttribute; k++)
 			{
-				std::string attribute = bIsArray ? binding[_text_mapper(vk_attributes)][k].asString() : binding[_text_mapper(vk_attributes)].asString();
+				string attribute = bIsArray ? binding[_text_mapper(vk_attributes)][k].asString() : binding[_text_mapper(vk_attributes)].asString();
 
 				vertexInputAttributes[i][k].binding  = _index_0;
 				vertexInputAttributes[i][k].location = k;
@@ -1931,13 +1931,13 @@ bool LogicalDevice::CreateGraphicPipelines(const std::string& InJsonPath, VkPipe
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// RenderPass.
 		{
-			std::string renderPassJson = PathParser::Parse("Json/renderpass_info.json");
+			string renderPassJson = PathParser::Parse("Json/renderpass_info.json");
 			this->CreateRenderPass(renderPassJson);
 
 			graphicInfos[i].renderPass = this->GetRenderPass(JsonParser::GetString(graphicInfo[_text_mapper(vk_renderpass)]));
 
 			// Subpass ID.
-			std::string name = JsonParser::GetString(graphicInfo[_text_mapper(vk_subpass)]);
+			string name = JsonParser::GetString(graphicInfo[_text_mapper(vk_subpass)]);
 
 			auto found = m_subpassNameIDMap.find(name);
 			if (found != m_subpassNameIDMap.end())
@@ -1952,7 +1952,7 @@ bool LogicalDevice::CreateGraphicPipelines(const std::string& InJsonPath, VkPipe
 
 		// Pipeline Derivative.
 		{
-			std::string name = JsonParser::GetString(graphicInfo[_text_mapper(vk_base_pipeline)]);
+			string name = JsonParser::GetString(graphicInfo[_text_mapper(vk_base_pipeline)]);
 
 			auto found = basePipelineNameIDMap.find(name);
 			if (found != basePipelineNameIDMap.end())
