@@ -1,6 +1,7 @@
-﻿//
-// FileManager.cpp
-//
+﻿/*********************************************************************
+ *  FileManager.cpp
+ *  Copyright (C) 2020 Jayou. All Rights Reserved.
+ *********************************************************************/
 
 #define _CRT_SECURE_NO_WARNINGS
 
@@ -8,17 +9,17 @@
 #include "Core/Utility/LogSystem.h"
 #include "Core/Utility/String/StringManager.h"
 
-bool FileUtil::Read(const string& InPath, std::vector<uint8>& OutData)
+bool FileUtil::Read(const Path& InPath, std::vector<uint8>& OutData)
 {
-	_log_common(StringUtil::Printf("Begin read file: %", InPath), LogSystem::Category::IO);
+	_log_common(StringUtil::Printf("Begin read file: %", InPath.ToString()), LogSystem::Category::IO);
 
 #ifndef ENABLE_TRY_CATCH
 
 	FILE* pFile;
-	pFile = fopen(InPath.c_str(), "rb");
+	pFile = fopen(InPath.ToCString(), "rb");
 	if (pFile == NULL)
 	{
-		_log_error(StringUtil::Printf("Open file(%) for reading failed!", InPath), LogSystem::Category::IO);
+		_log_error(StringUtil::Printf("Open file(%) for reading failed!", InPath.ToString()), LogSystem::Category::IO);
 		return false;
 	}
 
@@ -28,7 +29,7 @@ bool FileUtil::Read(const string& InPath, std::vector<uint8>& OutData)
 
 	if (ferror(pFile))
 	{
-		_log_error(StringUtil::Printf("Get size of file(%) failed!", InPath), LogSystem::Category::IO);
+		_log_error(StringUtil::Printf("Get size of file(%) failed!", InPath.ToString()), LogSystem::Category::IO);
 		return false;
 	}
 
@@ -36,7 +37,7 @@ bool FileUtil::Read(const string& InPath, std::vector<uint8>& OutData)
 	fread(OutData.data(), sizeof(uint8), OutData.size(), pFile);
 	if (ferror(pFile))
 	{
-		_log_error(StringUtil::Printf("Reading file(%) failed!", InPath), LogSystem::Category::IO);
+		_log_error(StringUtil::Printf("Reading file(%) failed!", InPath.ToString()), LogSystem::Category::IO);
 		return false;
 	}
 
@@ -44,7 +45,7 @@ bool FileUtil::Read(const string& InPath, std::vector<uint8>& OutData)
 
 #else
 
-	std::ifstream ifs(InPath, std::ios::binary | std::ios::ate);
+	std::ifstream ifs(InPath.ToString(), std::ios::binary | std::ios::ate);
 
 	if (ifs.is_open())
 	{
@@ -56,7 +57,7 @@ bool FileUtil::Read(const string& InPath, std::vector<uint8>& OutData)
 			ifs.seekg(0, ifs.beg);
 			if (size == -1)
 			{
-				_log_error(StringUtil::Printf("Reading error at %", InPath), LogSystem::Category::IO);
+				_log_error(StringUtil::Printf("Reading error at %", InPath.ToString()), LogSystem::Category::IO);
 				return false;
 			}
 			
@@ -73,34 +74,34 @@ bool FileUtil::Read(const string& InPath, std::vector<uint8>& OutData)
 	}
 	else
 	{
-		_log_error(StringUtil::Printf("Can't open file: %", InPath), LogSystem::Category::IO);
+		_log_error(StringUtil::Printf("Can't open file: %", InPath.ToString()), LogSystem::Category::IO);
 		return false;
 	}
 
 #endif
 
-	_log_common(StringUtil::Printf("End read file: %", InPath), LogSystem::Category::IO);
+	_log_common(StringUtil::Printf("End read file: %", InPath.ToString()), LogSystem::Category::IO);
 	return true;
 }
 
-bool FileUtil::Write(const string& InPath, const std::vector<uint8>& InData)
+bool FileUtil::Write(const Path& InPath, const std::vector<uint8>& InData)
 {
-	_log_common(StringUtil::Printf("Begin write file: %", InPath), LogSystem::Category::IO);
+	_log_common(StringUtil::Printf("Begin write file: %", InPath.ToString()), LogSystem::Category::IO);
 
 #ifndef ENABLE_TRY_CATCH
 
 	FILE* pFile;
-	pFile = fopen(InPath.c_str(), "wb");
+	pFile = fopen(InPath.ToCString(), "wb");
 	if (pFile == NULL)
 	{
-		_log_error(StringUtil::Printf("Open file(%) for writing failed!", InPath), LogSystem::Category::IO);
+		_log_error(StringUtil::Printf("Open file(%) for writing failed!", InPath.ToString()), LogSystem::Category::IO);
 		return false;
 	}
 
 	fwrite(InData.data(), sizeof(uint8), InData.size(), pFile);
 	if (ferror(pFile))
 	{
-		_log_error(StringUtil::Printf("writing to file(%) failed!", InPath), LogSystem::Category::IO);
+		_log_error(StringUtil::Printf("writing to file(%) failed!", InPath.ToString()), LogSystem::Category::IO);
 		return false;
 	}
 
@@ -108,7 +109,7 @@ bool FileUtil::Write(const string& InPath, const std::vector<uint8>& InData)
 
 #else
 
-	std::ofstream ofs(InPath, std::ofstream::binary);
+	std::ofstream ofs(InPath.ToString(), std::ofstream::binary);
 
 	if (ofs.is_open())
 	{
@@ -126,6 +127,6 @@ bool FileUtil::Write(const string& InPath, const std::vector<uint8>& InData)
 
 #endif
 
-	_log_common(StringUtil::Printf("End write file: %", InPath), LogSystem::Category::IO);
+	_log_common(StringUtil::Printf("End write file: %", InPath.ToString()), LogSystem::Category::IO);
 	return true;
 }

@@ -466,5 +466,8 @@
     <None Include="Core\Utility\String\StringManager.inl">
       <Filter>Core\Utility\String</Filter>
     </None>
+    <None Include="Core\Utility\ModuleLoader.inl">
+      <Filter>Core\Utility</Filter>
+    </None>
   </ItemGroup>
 </Project>

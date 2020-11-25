@@ -182,10 +182,10 @@ void LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const ui
 	_vk_try(vkCreateShaderModule(m_device, &shaderModuleCreateInfo, GetVkAllocator(), OutShaderModule));
 }
 
-bool LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const char* InShaderPath, const char* InEntrypoint /*= "main"*/, VkShaderStageFlags* OutShaderStage /*= nullptr*/)
+bool LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const Path& InShaderPath, const char* InEntrypoint /*= "main"*/, VkShaderStageFlags* OutShaderStage /*= nullptr*/)
 {
 	string name, ext, dir;
-	StringUtil::ExtractFilePath(string(InShaderPath), &name, &ext, &dir);
+	StringUtil::ExtractFilePath(InShaderPath.ToString(), &name, &ext, &dir);
 
 	VkShaderStageFlags shaderStage;
 	if (!Util::GetShaderStage(ext, shaderStage))
@@ -218,7 +218,7 @@ bool LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const ch
 			_log_error(spvData->log, LogSystem::Category::GLSLCompiler);
 			_log_error(spvData->debug_log, LogSystem::Category::GLSLCompiler);
 
-			_log_error(StringUtil::Printf("Compiling shader file \"%\" failed!", InShaderPath), LogSystem::Category::GLSLCompiler);
+			_log_error(StringUtil::Printf("Compiling shader file \"%\" failed!", InShaderPath.ToString()), LogSystem::Category::GLSLCompiler);
 			return false;
 		}
 	}
@@ -319,7 +319,7 @@ bool LogicalDevice::CreateEmptyPipelineCache(VkPipelineCache* OutPipCache)
 	return true;
 }
 
-bool LogicalDevice::CreatePipelineCacheFromFile(VkPipelineCache* OutPipCache, const char* InPath)
+bool LogicalDevice::CreatePipelineCacheFromFile(VkPipelineCache* OutPipCache, const Path& InPath)
 {
 	if (m_pBaseLayer == nullptr)
 	{
@@ -381,37 +381,37 @@ bool LogicalDevice::CreatePipelineCacheFromFile(VkPipelineCache* OutPipCache, co
 		if (pipCacheHearder.Length <= 0)
 		{
 			badCache = true;
-			_log_error(StringUtil::Printf("Bad header length in %, value is %", InPath, pipCacheHearder.Length), LogSystem::Category::LogicalDevice);
+			_log_error(StringUtil::Printf("Bad header length in %, value is %", InPath.ToString(), pipCacheHearder.Length), LogSystem::Category::LogicalDevice);
 		}
 
 		if (pipCacheHearder.Version != VK_PIPELINE_CACHE_HEADER_VERSION_ONE)
 		{
 			badCache = true;
-			_log_error(StringUtil::Printf("Unsupported cache header version in %, value is %", InPath, pipCacheHearder.Version), LogSystem::Category::LogicalDevice);
+			_log_error(StringUtil::Printf("Unsupported cache header version in %, value is %", InPath.ToString(), pipCacheHearder.Version), LogSystem::Category::LogicalDevice);
 		}
 
 		if (pipCacheHearder.VendorID != m_pBaseLayer->GetMainPDProps().vendorID)
 		{
 			badCache = true;
-			_log_error(StringUtil::Printf("Vendor ID mismatch in %, value is %, Driver expects: %", InPath, pipCacheHearder.VendorID, m_pBaseLayer->GetMainPDProps().vendorID), LogSystem::Category::LogicalDevice);
+			_log_error(StringUtil::Printf("Vendor ID mismatch in %, value is %, Driver expects: %", InPath.ToString(), pipCacheHearder.VendorID, m_pBaseLayer->GetMainPDProps().vendorID), LogSystem::Category::LogicalDevice);
 		}
 
 		if (pipCacheHearder.DeviceID != m_pBaseLayer->GetMainPDProps().deviceID)
 		{
 			badCache = true;
-			_log_error(StringUtil::Printf("Device ID mismatch in %, value is %, Driver expects: %", InPath, pipCacheHearder.DeviceID, m_pBaseLayer->GetMainPDProps().deviceID), LogSystem::Category::LogicalDevice);
+			_log_error(StringUtil::Printf("Device ID mismatch in %, value is %, Driver expects: %", InPath.ToString(), pipCacheHearder.DeviceID, m_pBaseLayer->GetMainPDProps().deviceID), LogSystem::Category::LogicalDevice);
 		}
 
 		if (memcmp(pipCacheHearder.UUID, m_pBaseLayer->GetMainPDProps().pipelineCacheUUID, sizeof(pipCacheHearder.UUID)) != 0)
 		{
 			badCache = true;
-			_log_error(StringUtil::Printf("UUID ID mismatch in %, value is %, Driver expects: %", InPath, StringUtil::UUIDToString(pipCacheHearder.UUID), StringUtil::UUIDToString(m_pBaseLayer->GetMainPDProps().pipelineCacheUUID)), LogSystem::Category::LogicalDevice);
+			_log_error(StringUtil::Printf("UUID ID mismatch in %, value is %, Driver expects: %", InPath.ToString(), StringUtil::UUIDToString(pipCacheHearder.UUID), StringUtil::UUIDToString(m_pBaseLayer->GetMainPDProps().pipelineCacheUUID)), LogSystem::Category::LogicalDevice);
 		}
 
 		if (badCache)
 		{
-			_log_error(StringUtil::Printf("Deleting cache entry % to repopulate.", InPath), LogSystem::Category::LogicalDevice);
-			if (remove(InPath) != 0)
+			_log_error(StringUtil::Printf("Deleting cache entry % to repopulate.", InPath.ToString()), LogSystem::Category::LogicalDevice);
+			if (remove(InPath.ToCString()) != 0)
 				_log_error("Deleting error", LogSystem::Category::IO);
 			return false;
 		}
@@ -440,7 +440,7 @@ void LogicalDevice::GetPipelineCacheData(VkPipelineCache InPipCache, std::vector
 	this->GetPipelineCacheData(InPipCache, OutData.size(), OutData.data());
 }
 
-bool LogicalDevice::SavePipelineCacheToFile(const char* InPath)
+bool LogicalDevice::SavePipelineCacheToFile(const Path& InPath)
 {
 	_declare_vk_smart_ptr(VkPipelineCache, pMergedPipCache);
 	if (!this->CreateEmptyPipelineCache(pMergedPipCache.MakeInstance()))
@@ -1553,7 +1553,7 @@ bool LogicalDevice::CreateGraphicPipelines(const string& InJsonPath, VkPipelineC
 
 			_declare_vk_smart_ptr(VkShaderModule, pShaderModule);
 			VkShaderStageFlags currentShaderStage, userDefinedShaderStage;
-			this->CreateShaderModule(pShaderModule.MakeInstance(), PathParser::Parse(shaderPath).data(), shaderEntrypoints[i * numStageInfo + j].c_str(), &currentShaderStage);
+			this->CreateShaderModule(pShaderModule.MakeInstance(), Path(shaderPath), shaderEntrypoints[i * numStageInfo + j].c_str(), &currentShaderStage);
 
 			shaderModules.push_back(pShaderModule);
 

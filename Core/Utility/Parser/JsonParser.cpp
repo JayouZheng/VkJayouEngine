@@ -1,6 +1,7 @@
-﻿//
-// JsonParser.cpp
-//
+﻿/*********************************************************************
+ *  JsonParser.cpp
+ *  Copyright (C) 2020 Jayou. All Rights Reserved.
+ *********************************************************************/
 
 #include "JsonParser.h"
 #include "Core/Utility/LogSystem.h"

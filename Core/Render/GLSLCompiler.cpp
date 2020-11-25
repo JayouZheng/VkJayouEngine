@@ -15,7 +15,7 @@ GLSLCompiler::GLSLCompiler()
 
     m_pModule = ModuleLoader::Create(this);
 
-    if (m_pModule->Load(PathParser::Parse(StringUtil::Printf("Tools/CMBuild/GLSLCompiler/%/GLSLCompiler.dll", _platform))))
+    if (m_pModule->Load(Path(StringUtil::Printf("Tools/CMBuild/GLSLCompiler/%/GLSLCompiler.dll", _platform))))
     {
         m_pInterface = m_pModule->GetInterface<PFGetGLSLCompilerInterface>("GetInterface");
 
@@ -41,11 +41,11 @@ GLSLCompiler::~GLSLCompiler()
     }
 }
 
-void GLSLCompiler::CompileShader(VkShaderStageFlags InStageType, const string& InShaderPath, const CompileInfo* InCompileInfo)
+void GLSLCompiler::CompileShader(VkShaderStageFlags InStageType, const Path& InShaderPath, const CompileInfo* InCompileInfo)
 {
     if (m_pCompiler != nullptr)
     {
-        m_pSPVData.push_back(m_pCompiler->CompileFromPath(InStageType, InShaderPath.data(), InCompileInfo));
+        m_pSPVData.push_back(m_pCompiler->CompileFromPath(InStageType, InShaderPath.ToCString(), InCompileInfo));
     }
     else
     {

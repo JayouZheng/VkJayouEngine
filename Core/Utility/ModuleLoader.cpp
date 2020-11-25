@@ -9,7 +9,7 @@ _impl_create_interface(ModuleLoader)
 ModuleLoader::ModuleLoader() :
 	m_pModule    (nullptr),
 	m_bResult    (_false),
-	m_moduleName (_str_null)
+	m_modulePath (Path(IF_Init))
 {
 	_internal_init(ModuleLoader);
 }
@@ -22,16 +22,16 @@ ModuleLoader::~ModuleLoader()
 	}
 }
 
-bool ModuleLoader::Load(const string& InModuleName)
+bool ModuleLoader::Load(const Path& InModulePath)
 {
-	m_moduleName = InModuleName;
+	m_modulePath = InModulePath;
 #if PLATFORM_WINDOW
-	m_pModule = LoadLibraryA(InModuleName.c_str());
+	m_pModule = LoadLibraryA(InModulePath.ToCString());
 #endif
 
 	if (m_pModule == nullptr)
 	{
-		_log_error("Fail to load module [" + InModuleName + "]!", LogSystem::Category::ModuleLoader);
+		_log_error("Fail to load module [" + InModulePath.ToString() + "]!", LogSystem::Category::ModuleLoader);
 		return false;
 	}
 	return true;
@@ -46,13 +46,13 @@ void ModuleLoader::Free()
 #endif
 		if (m_bResult == _false)
 		{
-			_log_error("Fail to free module [" + m_moduleName + "]!", LogSystem::Category::ModuleLoader);
+			_log_error("Fail to free module [" + m_modulePath.ToString() + "]!", LogSystem::Category::ModuleLoader);
 			return;
 		}
 	}
 	else
 	{
-		_log_error("Fail to free module [" + m_moduleName + "], the module was not load!", LogSystem::Category::ModuleLoader);
+		_log_error("Fail to free module [" + m_modulePath.ToString() + "], the module was not load!", LogSystem::Category::ModuleLoader);
 		return;
 	}
 }

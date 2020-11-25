@@ -163,7 +163,7 @@ public:
 
 	void           CreateShaderModule            (VkShaderModule* OutShaderModule, const VkShaderModuleCreateInfo& InCreateInfo);
 	void           CreateShaderModule            (VkShaderModule* OutShaderModule, const uint32* InCodes, usize InCodeSize);
-	bool           CreateShaderModule            (VkShaderModule* OutShaderModule, const char* InShaderPath, const char* InEntrypoint = "main", VkShaderStageFlags* OutShaderStage = nullptr);
+	bool           CreateShaderModule            (VkShaderModule* OutShaderModule, const Path& InShaderPath, const char* InEntrypoint = "main", VkShaderStageFlags* OutShaderStage = nullptr);
 
 	void           CreateComputePipelines        (VkPipeline* OutPipeline, const VkComputePipelineCreateInfo* InCreateInfos, uint32 InCreateInfoCount = _count_1, VkPipelineCache InPipCache = VK_NULL_HANDLE);
 	void           CreateComputePipeline         (VkPipeline* OutPipeline, VkPipelineLayout InPipLayout, VkShaderModule InShaderModule, const char* InShaderEntryName = "main", const VkSpecializationInfo* InSpecialConstInfo = nullptr, VkPipelineCache InPipCache = VK_NULL_HANDLE);
@@ -172,11 +172,11 @@ public:
 	void           CreatePipelineCache           (VkPipelineCache* OutPipCache, const VkPipelineCacheCreateInfo& InCreateInfo);
 	void           CreatePipelineCache           (VkPipelineCache* OutPipCache, const void* InData, usize InSize, VkPipelineCacheCreateFlags InFlags = _flag_none);
 	bool           CreateEmptyPipelineCache      (VkPipelineCache* OutPipCache);
-	bool           CreatePipelineCacheFromFile   (VkPipelineCache* OutPipCache, const char* InPath);
+	bool           CreatePipelineCacheFromFile   (VkPipelineCache* OutPipCache, const Path& InPath);
 	usize          GetPipelineCacheDataSize      (VkPipelineCache  InPipCache);
 	void           GetPipelineCacheData          (VkPipelineCache  InPipCache, usize InDataSize, void* OutData);
 	void           GetPipelineCacheData          (VkPipelineCache  InPipCache, std::vector<uint8>& OutData);
-	bool           SavePipelineCacheToFile       (const char*      InPath);
+	bool           SavePipelineCacheToFile       (const Path&      InPath);
 	void           MergePipelineCaches           (VkPipelineCache  OutMergedPipCache, const VkPipelineCache* InPipCaches, uint32 InSrcPipCacheCount);
 
 	void           CreateDescriptorSetLayout     (VkDescriptorSetLayout* OutLayout, const VkDescriptorSetLayoutCreateInfo& InCreateInfo);

@@ -1,6 +1,9 @@
-﻿//
-// Color.h
-// Note: This Color Lib is copy and modify from my teacher Hu, https://github.com/hyzboy.
+﻿/*********************************************************************
+ *  ColorManager.h
+ *  Copyright (C) 2020 Jayou. All Rights Reserved.
+ * 
+ *  The library is copy and modify from Mr. Hu, https://github.com/hyzboy.
+ *********************************************************************/
 
 #pragma once
 
@@ -14,7 +17,7 @@ public:
     /**
     * 颜色数据定义
     */
-    struct ColorInfo                  ///颜色数据定义
+    struct ColorInfo
     {
         union
         {

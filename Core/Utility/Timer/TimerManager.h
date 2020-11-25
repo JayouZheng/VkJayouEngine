@@ -51,7 +51,7 @@ public:
 	private:
 
 		std::unordered_map<string, htime_point> m_counterBeginPoint;
-		std::unordered_map<string, double> m_counterResults;
+		std::unordered_map<string, double>      m_counterResults;
 	};
 
 	class PerformanceScope
@@ -64,7 +64,7 @@ public:
 
 	private:
 
-		string m_scopeName;
+		string      m_scopeName;
 		htime_point m_beginPoint;
 	};
 };

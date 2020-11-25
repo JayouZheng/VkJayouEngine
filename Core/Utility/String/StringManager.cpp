@@ -1,6 +1,7 @@
-//
-// StringManager.cpp
-//
+/*********************************************************************
+ *  StringManager.cpp
+ *  Copyright (C) 2020 Jayou. All Rights Reserved.
+ *********************************************************************/
 
 #include "StringManager.h"
 #include "Core/Platform/Platform.h"

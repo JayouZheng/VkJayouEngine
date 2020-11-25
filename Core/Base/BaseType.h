@@ -1,9 +1,8 @@
 ﻿/*********************************************************************
- *  @file   BaseType.h
- *  @brief  Define base type used by engine.
+ *  BaseType.h
+ *  Copyright (C) 2020 Jayou. All Rights Reserved.
  * 
- *  @author Jayou
- *  @date   2020-11-24
+ *  Define base type used by engine.
  *********************************************************************/
 
 #pragma once

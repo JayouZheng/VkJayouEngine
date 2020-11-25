@@ -1,6 +1,9 @@
-﻿//
-// Color.cpp
-//
+﻿/*********************************************************************
+ *  ColorManager.cpp
+ *  Copyright (C) 2020 Jayou. All Rights Reserved.
+ * 
+ *  The library is copy and modify from Mr. Hu, https://github.com/hyzboy.
+ *********************************************************************/
 
 #include "ColorManager.h"
 #include "Core/TypeDef.h"

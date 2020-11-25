@@ -301,6 +301,7 @@
     <ResourceCompile Include="resource.rc" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Core\Utility\ModuleLoader.inl" />
     <None Include="Core\Utility\String\StringManager.inl" />
     <None Include="ThirdParty\jsoncpp\src\lib_json\json_valueiterator.inl" />
   </ItemGroup>
