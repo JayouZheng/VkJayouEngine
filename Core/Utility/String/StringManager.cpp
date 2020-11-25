@@ -15,41 +15,41 @@ wchar_t const* const WCharDigitTables[] =
 
 #if PLATFORM_WINDOW
 
-wstring StringUtil::StringToWString(const string& InStringToConvert)
+wstring StringUtil::StringToWString(const string& InString)
 {
-	int bufferlen = MultiByteToWideChar(CP_UTF8, 0, InStringToConvert.c_str(), -1, NULL, 0);
+	int bufferlen = MultiByteToWideChar(CP_UTF8, 0, InString.c_str(), -1, NULL, 0);
 	wchar_t* buffer = new wchar_t[bufferlen];
-	MultiByteToWideChar(CP_UTF8, 0, InStringToConvert.c_str(), -1, buffer, bufferlen);
+	MultiByteToWideChar(CP_UTF8, 0, InString.c_str(), -1, buffer, bufferlen);
 	wstring wstr(buffer);
 	delete[] buffer;
 	return wstr;
 }
 
-string StringUtil::WStringToString(const wstring& InStringToConvert)
+string StringUtil::WStringToString(const wstring& InString)
 {
-	int bufferlen = WideCharToMultiByte(CP_UTF8, 0, InStringToConvert.c_str(), -1, NULL, 0, NULL, NULL);
+	int bufferlen = WideCharToMultiByte(CP_UTF8, 0, InString.c_str(), -1, NULL, 0, NULL, NULL);
 	char* buffer = new char[bufferlen];
-	WideCharToMultiByte(CP_UTF8, 0, InStringToConvert.c_str(), -1, buffer, bufferlen, NULL, NULL);
+	WideCharToMultiByte(CP_UTF8, 0, InString.c_str(), -1, buffer, bufferlen, NULL, NULL);
 	string str(buffer);
 	delete[] buffer;
 	return str;
 }
 
-wstring StringUtil::AnsiToWString(const string& InStringToConvert)
+wstring StringUtil::AnsiToWString(const string& InString)
 {
-	int bufferlen = MultiByteToWideChar(CP_ACP, 0, InStringToConvert.c_str(), -1, NULL, 0);
+	int bufferlen = MultiByteToWideChar(CP_ACP, 0, InString.c_str(), -1, NULL, 0);
 	wchar_t* buffer = new wchar_t[bufferlen];
-	MultiByteToWideChar(CP_ACP, 0, InStringToConvert.c_str(), -1, buffer, bufferlen);
+	MultiByteToWideChar(CP_ACP, 0, InString.c_str(), -1, buffer, bufferlen);
 	wstring wstr(buffer);
 	delete[] buffer;
 	return wstr;
 }
 
-string StringUtil::WStringToAnsi(const wstring& InStringToConvert)
+string StringUtil::WStringToAnsi(const wstring& InString)
 {
-	int bufferlen = WideCharToMultiByte(CP_ACP, 0, InStringToConvert.c_str(), -1, NULL, 0, NULL, NULL);
+	int bufferlen = WideCharToMultiByte(CP_ACP, 0, InString.c_str(), -1, NULL, 0, NULL, NULL);
 	char* buffer = new char[bufferlen];
-	WideCharToMultiByte(CP_ACP, 0, InStringToConvert.c_str(), -1, buffer, bufferlen, NULL, NULL);
+	WideCharToMultiByte(CP_ACP, 0, InString.c_str(), -1, buffer, bufferlen, NULL, NULL);
 	string str(buffer);
 	delete[] buffer;
 	return str;
@@ -57,42 +57,42 @@ string StringUtil::WStringToAnsi(const wstring& InStringToConvert)
 
 #else
 
-wstring StringUtil::StringToWString(const string& str)
+wstring StringUtil::StringToWString(const string& InString)
 {
 	return _wstr_null;
 }
 
-string StringUtil::WStringToString(const wstring& wstr)
+string StringUtil::WStringToString(const wstring& InString)
 {
 	return _str_null;
 }
 
-wstring StringUtil::AnsiToWString(const string& str)
+wstring StringUtil::AnsiToWString(const string& InString)
 {
 	return _wstr_null;
 }
 
-string StringUtil::WStringToAnsi(const wstring& wstr)
+string StringUtil::WStringToAnsi(const wstring& InString)
 {
 	return _str_null;
 }
 
 #endif
 
-std::vector<string> StringUtil::GetBetween(const string& str, const string& boundary)
+vec_string StringUtil::GetBetween(const string& InString, const string& InSpecifier)
 {
-	std::vector<string> temp;
+	vec_string temp;
 	string::size_type found1 = 0, found2;
 
 	while (true)
 	{
-		found1 = str.find(boundary, found1);
+		found1 = InString.find(InSpecifier, found1);
 		if (found1 != string::npos)
 		{
-			found2 = str.find(boundary, found1 + boundary.size());
+			found2 = InString.find(InSpecifier, found1 + InSpecifier.size());
 			if (found2 != string::npos)
 			{
-				temp.push_back(str.substr(found1 + boundary.size(), found2 - found1 - boundary.size()));
+				temp.push_back(InString.substr(found1 + InSpecifier.size(), found2 - found1 - InSpecifier.size()));
 				found1 = found2 + 1;
 			}
 			else break;
@@ -103,20 +103,20 @@ std::vector<string> StringUtil::GetBetween(const string& str, const string& boun
 	return temp;
 }
 
-std::vector<string> StringUtil::GetBetween(const string& str, const string& bound1, const string& bound2)
+vec_string StringUtil::GetBetween(const string& InString, const string& InSpecLeft, const string& InSpecRight)
 {
-	std::vector<string> temp;
+	vec_string temp;
 	string::size_type found1 = 0, found2;
 
 	while (true)
 	{
-		found1 = str.find(bound1, found1);
+		found1 = InString.find(InSpecLeft, found1);
 		if (found1 != string::npos)
 		{
-			found2 = str.find(bound2, found1 + bound1.size());
+			found2 = InString.find(InSpecRight, found1 + InSpecLeft.size());
 			if (found2 != string::npos)
 			{
-				temp.push_back(str.substr(found1 + bound1.size(), found2 - found1 - bound1.size()));
+				temp.push_back(InString.substr(found1 + InSpecLeft.size(), found2 - found1 - InSpecLeft.size()));
 				found1 = found2 + 1;
 			}
 			else break;
@@ -127,20 +127,20 @@ std::vector<string> StringUtil::GetBetween(const string& str, const string& boun
 	return temp;
 }
 
-std::vector<wstring> StringUtil::WGetBetween(const wstring& wstr, const wstring& boundary)
+vec_wstring StringUtil::WGetBetween(const wstring& InString, const wstring& InSpecifier)
 {
-	std::vector<wstring> temp;
+	vec_wstring temp;
 	wstring::size_type found1 = 0, found2;
 
 	while (true)
 	{
-		found1 = wstr.find(boundary, found1);
+		found1 = InString.find(InSpecifier, found1);
 		if (found1 != wstring::npos)
 		{
-			found2 = wstr.find(boundary, found1 + boundary.size());
+			found2 = InString.find(InSpecifier, found1 + InSpecifier.size());
 			if (found2 != wstring::npos)
 			{
-				temp.push_back(wstr.substr(found1 + boundary.size(), found2 - found1 - boundary.size()));
+				temp.push_back(InString.substr(found1 + InSpecifier.size(), found2 - found1 - InSpecifier.size()));
 				found1 = found2 + 1;
 			}
 			else break;
@@ -151,20 +151,20 @@ std::vector<wstring> StringUtil::WGetBetween(const wstring& wstr, const wstring&
 	return temp;
 }
 
-std::vector<wstring> StringUtil::WGetBetween(const wstring& wstr, const wstring& bound1, const wstring& bound2)
+vec_wstring StringUtil::WGetBetween(const wstring& InString, const wstring& InSpecLeft, const wstring& InSpecRight)
 {
-	std::vector<wstring> temp;
+	vec_wstring temp;
 	wstring::size_type found1 = 0, found2;
 
 	while (true)
 	{
-		found1 = wstr.find(bound1, found1);
+		found1 = InString.find(InSpecLeft, found1);
 		if (found1 != wstring::npos)
 		{
-			found2 = wstr.find(bound2, found1 + bound1.size());
+			found2 = InString.find(InSpecRight, found1 + InSpecLeft.size());
 			if (found2 != wstring::npos)
 			{
-				temp.push_back(wstr.substr(found1 + bound1.size(), found2 - found1 - bound1.size()));
+				temp.push_back(InString.substr(found1 + InSpecLeft.size(), found2 - found1 - InSpecLeft.size()));
 				found1 = found2 + 1;
 			}
 			else break;
@@ -175,55 +175,55 @@ std::vector<wstring> StringUtil::WGetBetween(const wstring& wstr, const wstring&
 	return temp;
 }
 
-string StringUtil::GetFirstBetween(const string& str, const string& boundary)
+string StringUtil::GetFirstBetween(const string& InString, const string& InSpecifier)
 {
 	string::size_type found1, found2;
 
-	found1 = str.find(boundary, _offset_0);
+	found1 = InString.find(InSpecifier, _offset_0);
 	if (found1 != string::npos)
 	{
-		found2 = str.find(boundary, found1 + boundary.size());
+		found2 = InString.find(InSpecifier, found1 + InSpecifier.size());
 		if (found2 != string::npos)
 		{
-			return str.substr(found1 + boundary.size(), found2 - found1 - boundary.size());
+			return InString.substr(found1 + InSpecifier.size(), found2 - found1 - InSpecifier.size());
 		}
 	}
 
 	return _str_null;
 }
 
-wstring StringUtil::WGetFirstBetween(const wstring& wstr, const wstring& boundary)
+wstring StringUtil::WGetFirstBetween(const wstring& InString, const wstring& InSpecifier)
 {
 	wstring::size_type found1, found2;
 
-	found1 = wstr.find(boundary, _offset_0);
+	found1 = InString.find(InSpecifier, _offset_0);
 	if (found1 != wstring::npos)
 	{
-		found2 = wstr.find(boundary, found1 + boundary.size());
+		found2 = InString.find(InSpecifier, found1 + InSpecifier.size());
 		if (found2 != wstring::npos)
 		{
-			return wstr.substr(found1 + boundary.size(), found2 - found1 - boundary.size());
+			return InString.substr(found1 + InSpecifier.size(), found2 - found1 - InSpecifier.size());
 		}
 	}
 
 	return _wstr_null;
 }
 
-std::vector<string> StringUtil::RemoveBetween(string& str, const string& boundary)
+vec_string StringUtil::RemoveBetween(string& InString, const string& InSpecifier)
 {
-	std::vector<string> temp;
+	vec_string temp;
 	string::size_type found1 = 0, found2;
 
 	while (true)
 	{
-		found1 = str.find(boundary);
+		found1 = InString.find(InSpecifier);
 		if (found1 != string::npos)
 		{
-			found2 = str.find(boundary, found1 + boundary.size());
+			found2 = InString.find(InSpecifier, found1 + InSpecifier.size());
 			if (found2 != string::npos)
 			{
-				temp.push_back(str.substr(found1 + boundary.size(), found2 - found1 - boundary.size()));
-				str.erase(found1, found2 - found1 + boundary.size());
+				temp.push_back(InString.substr(found1 + InSpecifier.size(), found2 - found1 - InSpecifier.size()));
+				InString.erase(found1, found2 - found1 + InSpecifier.size());
 			}
 			else break;
 		}
@@ -233,21 +233,21 @@ std::vector<string> StringUtil::RemoveBetween(string& str, const string& boundar
 	return temp;
 }
 
-std::vector<wstring> StringUtil::WRemoveBetween(wstring& wstr, const wstring& boundary)
+vec_wstring StringUtil::WRemoveBetween(wstring& InString, const wstring& InSpecifier)
 {
-	std::vector<wstring> temp;
+	vec_wstring temp;
 	wstring::size_type found1 = 0, found2;
 
 	while (true)
 	{
-		found1 = wstr.find(boundary);
+		found1 = InString.find(InSpecifier);
 		if (found1 != wstring::npos)
 		{
-			found2 = wstr.find(boundary, found1 + boundary.size());
+			found2 = InString.find(InSpecifier, found1 + InSpecifier.size());
 			if (found2 != wstring::npos)
 			{
-				temp.push_back(wstr.substr(found1 + boundary.size(), found2 - found1 - boundary.size()));
-				wstr.erase(found1, found2 - found1 + boundary.size());
+				temp.push_back(InString.substr(found1 + InSpecifier.size(), found2 - found1 - InSpecifier.size()));
+				InString.erase(found1, found2 - found1 + InSpecifier.size());
 			}
 			else break;
 		}
@@ -257,22 +257,22 @@ std::vector<wstring> StringUtil::WRemoveBetween(wstring& wstr, const wstring& bo
 	return temp;
 }
 
-std::vector<string> StringUtil::ReplaceBetween(string& str, const string& boundary, const string& str_replace)
+vec_string StringUtil::ReplaceBetween(string& InString, const string& InSpecifier, const string& InReplace)
 {
-	std::vector<string> temp;
+	vec_string temp;
 	string::size_type found1 = 0, found2;
 
 	while (true)
 	{
-		found1 = str.find(boundary, found1);
+		found1 = InString.find(InSpecifier, found1);
 		if (found1 != string::npos)
 		{
-			found2 = str.find(boundary, found1 + boundary.size());
+			found2 = InString.find(InSpecifier, found1 + InSpecifier.size());
 			if (found2 != string::npos)
 			{
-				temp.push_back(str.substr(found1 + boundary.size(), found2 - found1 - boundary.size()));
-				str.replace(found1, found2 - found1 + boundary.size(), str_replace);
-				found1 += str_replace.size();
+				temp.push_back(InString.substr(found1 + InSpecifier.size(), found2 - found1 - InSpecifier.size()));
+				InString.replace(found1, found2 - found1 + InSpecifier.size(), InReplace);
+				found1 += InReplace.size();
 			}
 			else break;
 		}
@@ -282,22 +282,22 @@ std::vector<string> StringUtil::ReplaceBetween(string& str, const string& bounda
 	return temp;
 }
 
-std::vector<wstring> StringUtil::WReplaceBetween(wstring& wstr, const wstring& boundary, const wstring& wstr_replace)
+vec_wstring StringUtil::WReplaceBetween(wstring& InString, const wstring& InSpecifier, const wstring& InReplace)
 {
-	std::vector<wstring> temp;
+	vec_wstring temp;
 	wstring::size_type found1 = 0, found2;
 
 	while (true)
 	{
-		found1 = wstr.find(boundary, found1);
+		found1 = InString.find(InSpecifier, found1);
 		if (found1 != wstring::npos)
 		{
-			found2 = wstr.find(boundary, found1 + boundary.size());
+			found2 = InString.find(InSpecifier, found1 + InSpecifier.size());
 			if (found2 != wstring::npos)
 			{
-				temp.push_back(wstr.substr(found1 + boundary.size(), found2 - found1 - boundary.size()));
-				wstr.replace(found1, found2 - found1 + boundary.size(), wstr_replace);
-				found1 += wstr_replace.size();
+				temp.push_back(InString.substr(found1 + InSpecifier.size(), found2 - found1 - InSpecifier.size()));
+				InString.replace(found1, found2 - found1 + InSpecifier.size(), InReplace);
+				found1 += InReplace.size();
 			}
 			else break;
 		}
@@ -307,31 +307,31 @@ std::vector<wstring> StringUtil::WReplaceBetween(wstring& wstr, const wstring& b
 	return temp;
 }
 
-void StringUtil::EraseAll(string& str, const string& str_erase)
+void StringUtil::EraseAll(string& InString, const string& InErase)
 {
 	string::size_type found;
-	found = str.find(str_erase);
+	found = InString.find(InErase);
 	while (found != string::npos)
 	{
-		str.erase(found, str_erase.size());
-		found = str.find(str_erase, found);
+		InString.erase(found, InErase.size());
+		found = InString.find(InErase, found);
 	}
 }
 
-void StringUtil::WEraseAll(wstring& wstr, const wstring& wstr_erase)
+void StringUtil::WEraseAll(wstring& InString, const wstring& InErase)
 {
 	wstring::size_type found;
-	found = wstr.find(wstr_erase);
+	found = InString.find(InErase);
 	while (found != wstring::npos)
 	{
-		wstr.erase(found, wstr_erase.size());
-		found = wstr.find(wstr_erase, found);
+		InString.erase(found, InErase.size());
+		found = InString.find(InErase, found);
 	}
 }
 
-string StringUtil::ToLowerCase(const string& str)
+string StringUtil::ToLowerCase(const string& InString)
 {
-	string lower = str;
+	string lower = InString;
 	std::transform(lower.begin(), lower.end(), lower.begin(),
 		[](unsigned char c) { return std::tolower(c); });
 	return lower;
@@ -360,23 +360,23 @@ string StringUtil::UUIDToString(const uint8* InUUID)
 	return strs.str();
 }
 
-string StringUtil::WStringToStringV2(const wstring& wstr)
+string StringUtil::WStringToStringV2(const wstring& InString)
 {
 	std::setlocale(LC_ALL, "");
 	const std::locale locale("");
 	typedef std::codecvt<wchar_t, char, std::mbstate_t> converter_type;
 	const converter_type& converter = std::use_facet<converter_type>(locale);
-	std::vector<char> to(wstr.length() * converter.max_length());
+	std::vector<char> to(InString.length() * converter.max_length());
 	std::mbstate_t state;
 	const wchar_t* from_next;
 	char* to_next;
-	const converter_type::result result = converter.out(state, wstr.data(), wstr.data() + wstr.length(), from_next, &to[0], &to[0] + to.size(), to_next);
+	const converter_type::result result = converter.out(state, InString.data(), InString.data() + InString.length(), from_next, &to[0], &to[0] + to.size(), to_next);
 	if (result == converter_type::ok || result == converter_type::noconv)
 		return string(&to[0], to_next);
 	else return _str_null;
 }
 
-int32 StringUtil::WCharToInt32(wchar_t wch)
+int32 StringUtil::WCharToInt32(wchar_t InChar)
 {
 	int32 result = -1;
 
@@ -384,7 +384,7 @@ int32 StringUtil::WCharToInt32(wchar_t wch)
 		p != std::end(WCharDigitTables) && result == -1;
 		++p)
 	{
-		wchar_t const* q = std::find(*p, *p + 10, wch);
+		wchar_t const* q = std::find(*p, *p + 10, InChar);
 		if (q != *p + 10)
 		{
 			result = int32(q - *p);

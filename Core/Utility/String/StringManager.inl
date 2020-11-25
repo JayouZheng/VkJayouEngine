@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <sstream>
+
 namespace StringManager
 {
 	// Base function.
@@ -28,9 +30,9 @@ namespace StringManager
 }
 
 template<typename T>
-T StringUtil::StringToNumeric(const string& str)
+T StringUtil::StringToNumeric(const string& InString)
 {
-	std::istringstream str_stream(str);
+	std::istringstream str_stream(InString);
 	T temp;
 	str_stream >> temp; // uint8/bool Not Supported.
 	if (str_stream.fail())
@@ -41,9 +43,9 @@ T StringUtil::StringToNumeric(const string& str)
 }
 
 template<typename T>
-T StringUtil::WStringToNumeric(const wstring& wstr)
+T StringUtil::WStringToNumeric(const wstring& InString)
 {
-	std::wistringstream wstr_stream(wstr);
+	std::wistringstream wstr_stream(InString);
 	T temp;
 	wstr_stream >> temp; // uint8/bool Not Supported.
 	if (wstr_stream.fail())
@@ -54,15 +56,15 @@ T StringUtil::WStringToNumeric(const wstring& wstr)
 }
 
 template<typename T>
-std::vector<T> StringUtil::StringToArray(const string& str, const char& separator)
+std::vector<T> StringUtil::StringToArray(const string& InString, const char& InSeparator)
 {
-	std::istringstream str_stream(str);
+	std::istringstream str_stream(InString);
 	std::vector<T> temp_array;
 	string temp_str;
 	T temp;
 	while (true)
 	{
-		std::getline(str_stream, temp_str, separator);
+		std::getline(str_stream, temp_str, InSeparator);
 		if (str_stream.fail())
 			break;
 		temp = StringUtil::StringToNumeric<T>(temp_str);
@@ -74,15 +76,15 @@ std::vector<T> StringUtil::StringToArray(const string& str, const char& separato
 }
 
 template<typename T>
-std::vector<T> StringUtil::WStringToArray(const wstring& wstr, const wchar_t& separator)
+std::vector<T> StringUtil::WStringToArray(const wstring& InString, const wchar_t& InSeparator)
 {
-	std::wistringstream wstr_stream(wstr);
+	std::wistringstream wstr_stream(InString);
 	std::vector<T> temp_array;
 	wstring temp_wstr;
 	T temp;
 	while (true)
 	{
-		std::getline(wstr_stream, temp_wstr, separator);
+		std::getline(wstr_stream, temp_wstr, InSeparator);
 		if (wstr_stream.fail())
 			break;
 		temp = StringUtil::WStringToNumeric<T>(temp_wstr);
