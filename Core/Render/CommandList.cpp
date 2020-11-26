@@ -16,8 +16,6 @@ CommandList::CommandList() :
 	m_cmdPool    (VK_NULL_HANDLE),
 	m_pBaseLayer (nullptr)
 {
-	_internal_init(CommandList);
-
 	// Single Primary Command Buffer.
 	VkCommandBufferAllocateInfo cmdBufferAllocInfo = {};
 	cmdBufferAllocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;

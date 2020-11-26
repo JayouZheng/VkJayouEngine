@@ -10,7 +10,7 @@ _impl_create_interface(CommandQueue)
 CommandQueue::CommandQueue() : 
 	m_queue (VK_NULL_HANDLE)
 {
-	_internal_init(CommandQueue);
+
 }
 
 CommandQueue::~CommandQueue()

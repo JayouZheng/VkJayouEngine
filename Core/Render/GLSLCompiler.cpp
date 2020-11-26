@@ -11,9 +11,7 @@ _impl_create_interface(GLSLCompiler)
 
 GLSLCompiler::GLSLCompiler()
 {
-	_internal_init(GLSLCompiler);
-
-    m_pModule = ModuleLoader::Create(this);
+	m_pModule = ModuleLoader::Create(this);
 
     if (m_pModule->Load(Path(StringUtil::Printf("Tools/CMBuild/GLSLCompiler/%/GLSLCompiler.dll", _platform))))
     {

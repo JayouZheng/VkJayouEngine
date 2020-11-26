@@ -2,7 +2,7 @@
  *  TimerManager.h
  *  Copyright (C) 2020 Jayou. All Rights Reserved.
  * 
- *  A set of timing utility API..
+ *  A set of timing utility API.
  *********************************************************************/
 
 #pragma once

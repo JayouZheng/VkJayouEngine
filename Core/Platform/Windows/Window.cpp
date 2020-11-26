@@ -217,7 +217,7 @@ Window::Window() :
 	m_pHinstance  (nullptr),
 	m_pHwnd       (nullptr)
 {
-	_internal_init(Window);
+
 }
 
 Window::~Window()

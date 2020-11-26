@@ -1,7 +1,7 @@
-﻿//
-// ModuleLoader.cpp
-//
-
+﻿/*********************************************************************
+ *  ModuleLoader.cpp
+ *  Copyright (C) 2020 Jayou. All Rights Reserved.
+ *********************************************************************/
 #include "ModuleLoader.h"
 
 _impl_create_interface(ModuleLoader)
@@ -11,7 +11,7 @@ ModuleLoader::ModuleLoader() :
 	m_bResult    (_false),
 	m_modulePath (Path(IF_Init))
 {
-	_internal_init(ModuleLoader);
+
 }
 
 ModuleLoader::~ModuleLoader()

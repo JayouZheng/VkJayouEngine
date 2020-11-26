@@ -1,6 +1,9 @@
-﻿//
-// ModuleLoader.h
-//
+﻿/*********************************************************************
+ *  ModuleLoader.h
+ *  Copyright (C) 2020 Jayou. All Rights Reserved.
+ * 
+ *  This library provide some functions to load .dll dynamically.
+ *********************************************************************/
 
 #pragma once
 

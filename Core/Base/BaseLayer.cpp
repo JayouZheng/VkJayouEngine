@@ -22,8 +22,6 @@ BaseLayer::BaseLayer() :
 	m_mainPDIndex (-1),
 	m_mainQFIndex (-1)
 {
-	_internal_init(BaseLayer);
-
 	_zero_memory_struct(m_requiredPDFeatures);
 	_zero_memory_struct(m_requiredPDVk12Features);
 	_zero_memory_struct(m_surfaceCapabilities);

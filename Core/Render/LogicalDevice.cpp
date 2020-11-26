@@ -24,7 +24,6 @@ LogicalDevice::LogicalDevice() :
 	m_pAllocator (nullptr),
 	m_pWindow    (nullptr)
 {
-	_internal_init(LogicalDevice);
 	m_pCompiler = GLSLCompiler::Create(this);
 	m_pCmdQueue = CommandQueue::Create(this);
 }

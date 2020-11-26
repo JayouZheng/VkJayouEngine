@@ -1,6 +1,7 @@
-﻿//
-// LogSystem.cpp
-//
+﻿/*********************************************************************
+ *  LogSystem.cpp
+ *  Copyright (C) 2020 Jayou. All Rights Reserved.
+ *********************************************************************/
 
 #include "LogSystem.h"
 
@@ -29,7 +30,7 @@ namespace
 			break;
 		}
 
-		LogSystem::LogInfo logInfo = { TimerUtil::GetCurrentTimeStamp(), InCategory, InLevel, color, InLog, InCustomCategory };
+		LogSystem::LogInfo logInfo(TimerUtil::GetCurrentTimeStamp(), InCategory, InLevel, color, InLog, InCustomCategory);
 
 		// TODO: Output log.
 		_cmd_print_line(logInfo.ToString());
@@ -48,6 +49,16 @@ void LogSystem::Log(const string& InLog, const string& InCategory, const Level& 
 	InternalLog(InLog, Category::Custom, InCategory, InLevel, InColor);
 }
 
+void LogSystem::LogWarning(const string& InLog, const Category& InCategory)
+{
+	Log(InLog, InCategory, Level::Warning);
+}
+
+void LogSystem::LogWarning(const string& InLog, const string& InCategory)
+{
+	Log(InLog, InCategory, Level::Warning);
+}
+
 void LogSystem::LogError(const string& InLog, const Category& InCategory)
 {
 	Log(InLog, InCategory, Level::Error);
@@ -58,14 +69,20 @@ void LogSystem::LogError(const string& InLog, const string& InCategory)
 	Log(InLog, InCategory, Level::Error);
 }
 
-void LogSystem::LogWarning(const string& InLog, const Category& InCategory)
+LogSystem::LogInfo::LogInfo(
+	const TimerUtil::TimeStamp& InTimeStamp, 
+	const LogSystem::Category& InCategory, 
+	const LogSystem::Level& InLevel, 
+	const ColorUtil::Color& InColor, 
+	const string& InContent, 
+	const string& InCustomCategory) :
+	TimeStamp(InTimeStamp),
+	Category(InCategory),
+	Level(InLevel),
+	Color(InColor),
+	Content(InContent),
+	CustomCategory(InCustomCategory)
 {
-	Log(InLog, InCategory, Level::Warning);
-}
-
-void LogSystem::LogWarning(const string& InLog, const string& InCategory)
-{
-	Log(InLog, InCategory, Level::Warning);
 }
 
 string LogSystem::LogInfo::LevelToString() const
