@@ -1,6 +1,7 @@
-//
-// TimerManager.cpp
-//
+/*********************************************************************
+ *  TimerManager.cpp
+ *  Copyright (C) 2020 Jayou. All Rights Reserved.
+ *********************************************************************/
 
 #include "TimerManager.h"
 #include "Core/Utility/String/StringManager.h"

@@ -24,34 +24,38 @@ public:
 	static const string Parse(const string& InPath);
 };
 
+//---------------------------------------------------------------------------
+// Define a file path helper structure.
+//---------------------------------------------------------------------------
+
 struct Path
 {
 	Path() = delete;
-	Path(const string& InPath) :
-		InternalPath(PathParser::Parse(InPath))
-	{}
+	Path(const string& InPath);
+	Path(const Path& InPath);
 
-	Path(const Path& InPath)
-	{
-		InternalPath = InPath.InternalPath;
-	}
+	/**
+	 *  Force init Path object instance.
+	 * 
+	 *  @param  InFlag  Any enum value in EInitFlag.
+	 */
+	Path(const EInitFlag& InFlag);
 
-	Path(const EInitFlag& InFlag)
-	{
-		InternalPath = _str_null;
-	}
+	/**
+	 *  Convert Path object instance to string.
+	 * 
+	 *  @return 
+	 */
+	string ToString() const;
 
-	string ToString() const
-	{
-		return InternalPath;
-	}
-
-	const char* ToCString() const
-	{
-		return InternalPath.c_str();
-	}
+	/**
+	 *  Convert Path object instance to cstring.
+	 * 
+	 *  @return 
+	 */
+	const char* ToCString() const;
 
 private:
 
-	string InternalPath;
+	string InternalPath;           ///< Internal store the path, no access directly.
 };

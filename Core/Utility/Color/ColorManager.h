@@ -49,7 +49,7 @@ public:
     /**
     * 颜色枚举
     */
-    enum class Color          ///颜色枚举
+    enum class Color
     {
         AliceBlue=0,          ///<艾利斯兰
         AndroidGreen,         ///<安卓绿
