@@ -1,6 +1,7 @@
-﻿//
-// CommandQueue.cpp
-//
+﻿/*********************************************************************
+ *  CommandQueue.cpp
+ *  Copyright (C) 2020 Jayou. All Rights Reserved.
+ *********************************************************************/
 
 #include "CommandQueue.h"
 #include "CommandList.h"

@@ -1,6 +1,9 @@
-﻿//
-// List.h
-//
+﻿/*********************************************************************
+ *  List.h
+ *  Copyright (C) 2020 Jayou. All Rights Reserved.
+ * 
+ *  A simple linear, memory continuous list that support foreach.
+ *********************************************************************/
 
 #pragma once
 

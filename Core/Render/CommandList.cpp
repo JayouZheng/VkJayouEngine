@@ -1,6 +1,7 @@
-﻿//
-// CommandList.cpp
-//
+﻿/*********************************************************************
+ *  CommandList.cpp
+ *  Copyright (C) 2020 Jayou. All Rights Reserved.
+ *********************************************************************/
 
 #include "CommandList.h"
 #include "Core/Base/BaseLayer.h"

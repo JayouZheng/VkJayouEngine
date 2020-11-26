@@ -1,6 +1,7 @@
-﻿//
-// BaseAllocator.cpp
-//
+﻿/*********************************************************************
+ *  BaseAllocator.cpp
+ *  Copyright (C) 2020 Jayou. All Rights Reserved.
+ *********************************************************************/
 
 #include "BaseAllocator.h"
 

@@ -1,6 +1,7 @@
-﻿//
-// LogicalDevice.cpp
-//
+﻿/*********************************************************************
+ *  LogicalDevice.cpp
+ *  Copyright (C) 2020 Jayou. All Rights Reserved.
+ *********************************************************************/
 
 #include "LogicalDevice.h"
 #include "Core/Base/BaseLayer.h"

@@ -1,7 +1,7 @@
-﻿//
-// GLSLCompiler.cpp
-//
-
+﻿/*********************************************************************
+ *  GLSLCompiler.cpp
+ *  Copyright (C) 2020 Jayou. All Rights Reserved.
+ *********************************************************************/
 #include "GLSLCompiler.h"
 #include "Core/Utility/String/StringManager.h"
 #include "Core/Utility/ModuleLoader.h"

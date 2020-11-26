@@ -1,6 +1,7 @@
-﻿//
-// Global.cpp
-//
+﻿/*********************************************************************
+ *  Global.cpp
+ *  Copyright (C) 2020 Jayou. All Rights Reserved.
+ *********************************************************************/
 
 #include "Global.h"
 #include "Core/Base/BaseAllocator.h"

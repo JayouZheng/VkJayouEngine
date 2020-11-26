@@ -1,6 +1,7 @@
-﻿//
-// Window.cpp
-//
+﻿/*********************************************************************
+ *  Window.cpp
+ *  Copyright (C) 2020 Jayou. All Rights Reserved.
+ *********************************************************************/
 
 #include "Window.h"
 #include "Core/Global.h"

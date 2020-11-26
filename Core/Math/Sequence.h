@@ -1,6 +1,9 @@
-﻿//
-// Sequence.h
-//
+﻿/*********************************************************************
+ *  Sequence.h
+ *  Copyright (C) 2020 Jayou. All Rights Reserved.
+ * 
+ *  A set of common used sequence.
+ *********************************************************************/
 
 #pragma once
 

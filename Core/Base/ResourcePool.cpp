@@ -1,6 +1,7 @@
-﻿//
-// ResourcePool.cpp
-//
+﻿/*********************************************************************
+ *  ResourcePool.cpp
+ *  Copyright (C) 2020 Jayou. All Rights Reserved.
+ *********************************************************************/
 
 #include "ResourcePool.h"
 #include "Interface/IResourceHandler.h"

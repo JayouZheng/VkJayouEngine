@@ -1,10 +1,12 @@
-﻿//
-// TextMapper.h
-//
+﻿/*********************************************************************
+ *  TextMapper.h
+ *  Copyright (C) 2020 Jayou. All Rights Reserved.
+ * 
+ *  Using specific id to index the string we need.
+ *********************************************************************/
 
 #pragma once
 
-#include <string>
 #include "Core/Base/BaseType.h"
 
 class TextMapper

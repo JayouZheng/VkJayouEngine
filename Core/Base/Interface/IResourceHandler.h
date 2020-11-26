@@ -1,6 +1,9 @@
-﻿//
-// IResourceHandler.h
-//
+﻿/*********************************************************************
+ *  IResourceHandler.h
+ *  Copyright (C) 2020 Jayou. All Rights Reserved.
+ * 
+ *  A resource base class to handle the lifetime of some child resource.
+ *********************************************************************/
 
 #pragma once
 

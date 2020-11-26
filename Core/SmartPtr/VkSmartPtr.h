@@ -1,6 +1,10 @@
-﻿//
-// VkSmartPtr.h
-// Note: Use #define VK_MANUAL_DESTROY_OBJECT to manage vulkan object manually.
+﻿/*********************************************************************
+ *  VkSmartPtr.h
+ *  Copyright (C) 2020 Jayou. All Rights Reserved.
+ * 
+ *  Use #define VK_MANUAL_DESTROY_OBJECT to manage vulkan object manually.
+ *  .
+ *********************************************************************/
 
 #pragma once
 

@@ -1,6 +1,9 @@
-﻿//
-// Utility.h
-//
+﻿/*********************************************************************
+ *  Utility.h
+ *  Copyright (C) 2020 Jayou. All Rights Reserved.
+ * 
+ *  .
+ *********************************************************************/
 
 #pragma once
 
@@ -33,8 +36,8 @@ namespace Util
 	VkAccessFlags            GetVkAccessFlags(const string& InKey);
 	VkDependencyFlags        GetVkDependencyFlags(const string& InKey);
 
-	string              VkShaderStageToString(VkShaderStageFlags InStage);
-	string              VkDescriptorTypeToString(VkDescriptorType InDescType);
+	string                   VkShaderStageToString(VkShaderStageFlags InStage);
+	string                   VkDescriptorTypeToString(VkDescriptorType InDescType);
 
 	template<typename TType, typename TLambda>
 	bool IsVecContain(const std::vector<TType>& InVecContain, const TType& InMember, const TLambda& InCompare)

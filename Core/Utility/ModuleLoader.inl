@@ -6,13 +6,13 @@
 #pragma once
 
 template<typename T>
-T ModuleLoader::GetInterface(const string& InInterfaceName)
+T ModuleLoader::GetInterface(const string& InName)
 {
 	if (m_pModule != nullptr)
 	{
 #if PLATFORM_WINDOW	
 		T api = nullptr;
-		api = (T)GetProcAddress((HMODULE)m_pModule, InInterfaceName.c_str());
+		api = (T)GetProcAddress((HMODULE)m_pModule, InName.c_str());
 
 		if (api == nullptr)
 		{

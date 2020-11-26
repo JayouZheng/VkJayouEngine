@@ -1,6 +1,7 @@
-﻿//
-// BaseLayer.cpp
-//
+﻿/*********************************************************************
+ *  BaseLayer.cpp
+ *  Copyright (C) 2020 Jayou. All Rights Reserved.
+ *********************************************************************/
 
 #include "BaseLayer.h"
 #include "BaseConfig.h"

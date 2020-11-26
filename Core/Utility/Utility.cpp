@@ -1,6 +1,7 @@
-﻿//
-// Utility.cpp
-//
+﻿/*********************************************************************
+ *  Utility.cpp
+ *  Copyright (C) 2020 Jayou. All Rights Reserved.
+ *********************************************************************/
 
 #include "Utility.h"
 #include "Core/Utility/String/StringManager.h"

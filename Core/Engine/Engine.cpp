@@ -1,6 +1,7 @@
-﻿//
-// Engine.cpp
-//
+﻿/*********************************************************************
+ *  Engine.cpp
+ *  Copyright (C) 2020 Jayou. All Rights Reserved.
+ *********************************************************************/
 
 #include "Engine.h"
 #include "Core/Base/BaseLayer.h"
