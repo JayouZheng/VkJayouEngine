@@ -799,7 +799,7 @@ VkSampleCountFlags Util::GetMultisampleCount(uint32 InCount)
 ---------------------------------------------------------------------*/
 
 #define GET_VK_TYPE_IMPL(type)                                        \
-type Util::Get##type(const string& InKey)                        \
+type Util::Get##type(const string& InKey)                             \
 {                                                                     \
 	auto result = type##Map.find(InKey);                              \
 	if (result != type##Map.end())                                    \

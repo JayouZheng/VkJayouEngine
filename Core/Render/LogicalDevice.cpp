@@ -8,7 +8,7 @@
 #include "Core/Utility/Utility.h"
 #include "Core/Base/ResourcePool.h"
 #include "Core/Base/BaseAllocator.h"
-#include "Core/Utility/TextMapper.h"
+#include "Core/Utility/Mapper/TextMapper.h"
 #include "Core/Platform/Windows/Window.h"
 #include "Core/Utility/File/FileManager.h"
 #include "Core/Utility/Parser/JsonParser.h"

@@ -180,12 +180,12 @@
     <ClCompile Include="Core\Render\LogicalDevice.cpp" />
     <ClCompile Include="Core\Utility\Color\ColorManager.cpp" />
     <ClCompile Include="Core\Utility\File\FileManager.cpp" />
-    <ClCompile Include="Core\Utility\LogSystem.cpp" />
-    <ClCompile Include="Core\Utility\ModuleLoader.cpp" />
+    <ClCompile Include="Core\Utility\Loader\ModuleLoader.cpp" />
+    <ClCompile Include="Core\Utility\Log\LogSystem.cpp" />
+    <ClCompile Include="Core\Utility\Mapper\TextMapper.cpp" />
     <ClCompile Include="Core\Utility\Parser\JsonParser.cpp" />
     <ClCompile Include="Core\Utility\Parser\PathParser.cpp" />
     <ClCompile Include="Core\Utility\String\StringManager.cpp" />
-    <ClCompile Include="Core\Utility\TextMapper.cpp" />
     <ClCompile Include="Core\Utility\Timer\TimerManager.cpp" />
     <ClCompile Include="Core\Utility\Utility.cpp" />
     <ClCompile Include="ThirdParty\jsoncpp\src\lib_json\json_reader.cpp" />
@@ -219,13 +219,13 @@
     <ClInclude Include="Core\TypeDef.h" />
     <ClInclude Include="Core\Utility\Color\ColorManager.h" />
     <ClInclude Include="Core\Utility\File\FileManager.h" />
-    <ClInclude Include="Core\Utility\LogSystem.h" />
+    <ClInclude Include="Core\Utility\Loader\ModuleLoader.h" />
+    <ClInclude Include="Core\Utility\Log\LogSystem.h" />
+    <ClInclude Include="Core\Utility\Mapper\TextMapper.h" />
     <ClInclude Include="Core\Utility\MemoryLeakCheck.h" />
-    <ClInclude Include="Core\Utility\ModuleLoader.h" />
     <ClInclude Include="Core\Utility\Parser\JsonParser.h" />
     <ClInclude Include="Core\Utility\Parser\PathParser.h" />
     <ClInclude Include="Core\Utility\String\StringManager.h" />
-    <ClInclude Include="Core\Utility\TextMapper.h" />
     <ClInclude Include="Core\Utility\Timer\TimerManager.h" />
     <ClInclude Include="Core\Utility\Utility.h" />
     <ClInclude Include="Layers\Fossilize\fossilize.hpp" />
@@ -301,7 +301,7 @@
     <ResourceCompile Include="resource.rc" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Core\Utility\ModuleLoader.inl" />
+    <None Include="Core\Utility\Loader\ModuleLoader.inl" />
     <None Include="Core\Utility\String\StringManager.inl" />
     <None Include="ThirdParty\jsoncpp\src\lib_json\json_valueiterator.inl" />
   </ItemGroup>

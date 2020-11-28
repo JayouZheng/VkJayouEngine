@@ -4,7 +4,7 @@
  *********************************************************************/
 #include "GLSLCompiler.h"
 #include "Core/Utility/String/StringManager.h"
-#include "Core/Utility/ModuleLoader.h"
+#include "Core/Utility/Loader/ModuleLoader.h"
 #include "Core/Utility/Utility.h"
 
 _impl_create_interface(GLSLCompiler)

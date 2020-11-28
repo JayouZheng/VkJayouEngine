@@ -4,7 +4,7 @@
  *********************************************************************/
 
 #include "JsonParser.h"
-#include "Core/Utility/LogSystem.h"
+#include "Core/Utility/Log/LogSystem.h"
 
 bool JsonParser::Parse(const string& InPath, Json::Value& OutRoot)
 {

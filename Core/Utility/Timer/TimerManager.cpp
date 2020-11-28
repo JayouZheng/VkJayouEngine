@@ -5,7 +5,7 @@
 
 #include "TimerManager.h"
 #include "Core/Utility/String/StringManager.h"
-#include "Core/Utility/LogSystem.h"
+#include "Core/Utility/Log/LogSystem.h"
 #include <ctime>
 
 namespace

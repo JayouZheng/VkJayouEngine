@@ -14,7 +14,7 @@
 
 #include "Core/TypeDef.h"
 #include "Core/Exception.h"
-#include "Core/Utility/LogSystem.h"
+#include "Core/Utility/Log/LogSystem.h"
 #include "Core/SmartPtr/SmartPtr.h"
 #include "Core/SmartPtr/VkSmartPtr.h"
 #include "Core/Utility/Parser/PathParser.h"

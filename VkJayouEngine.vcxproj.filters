@@ -39,12 +39,6 @@
     <ClCompile Include="Core\Utility\Parser\PathParser.cpp">
       <Filter>Core\Utility\Parser</Filter>
     </ClCompile>
-    <ClCompile Include="Core\Utility\TextMapper.cpp">
-      <Filter>Core\Utility</Filter>
-    </ClCompile>
-    <ClCompile Include="Core\Utility\LogSystem.cpp">
-      <Filter>Core\Utility</Filter>
-    </ClCompile>
     <ClCompile Include="Core\Render\CommandQueue.cpp">
       <Filter>Core\Render</Filter>
     </ClCompile>
@@ -63,14 +57,20 @@
     <ClCompile Include="Core\Base\ResourcePool.cpp">
       <Filter>Core\Base</Filter>
     </ClCompile>
-    <ClCompile Include="Core\Utility\ModuleLoader.cpp">
-      <Filter>Core\Utility</Filter>
-    </ClCompile>
     <ClCompile Include="Core\Utility\Color\ColorManager.cpp">
       <Filter>Core\Utility\Color</Filter>
     </ClCompile>
     <ClCompile Include="Core\Engine\Engine.cpp">
       <Filter>Core\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Utility\Log\LogSystem.cpp">
+      <Filter>Core\Utility\Log</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Utility\Loader\ModuleLoader.cpp">
+      <Filter>Core\Utility\Loader</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Utility\Mapper\TextMapper.cpp">
+      <Filter>Core\Utility\Mapper</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -327,15 +327,6 @@
     <ClInclude Include="Core\Utility\MemoryLeakCheck.h">
       <Filter>Core\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="Core\Utility\ModuleLoader.h">
-      <Filter>Core\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="Core\Utility\TextMapper.h">
-      <Filter>Core\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="Core\Utility\LogSystem.h">
-      <Filter>Core\Utility</Filter>
-    </ClInclude>
     <ClInclude Include="Core\Render\CommandList.h">
       <Filter>Core\Render</Filter>
     </ClInclude>
@@ -368,6 +359,15 @@
     </ClInclude>
     <ClInclude Include="Core\Engine\Engine.h">
       <Filter>Core\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Utility\Log\LogSystem.h">
+      <Filter>Core\Utility\Log</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Utility\Loader\ModuleLoader.h">
+      <Filter>Core\Utility\Loader</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Utility\Mapper\TextMapper.h">
+      <Filter>Core\Utility\Mapper</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -458,6 +458,15 @@
     <Filter Include="Core\Engine">
       <UniqueIdentifier>{95ee44a1-f92d-4b72-a3e9-c118dbbc5eb8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\Utility\Log">
+      <UniqueIdentifier>{4d7a043b-b721-4082-a0c9-7b2d63fd42fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Utility\Loader">
+      <UniqueIdentifier>{d6b71f78-026f-4779-8772-a6eacc5d56b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Utility\Mapper">
+      <UniqueIdentifier>{009db284-2a89-4506-9572-63f3e7a56eb4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ThirdParty\jsoncpp\src\lib_json\json_valueiterator.inl">
@@ -466,8 +475,8 @@
     <None Include="Core\Utility\String\StringManager.inl">
       <Filter>Core\Utility\String</Filter>
     </None>
-    <None Include="Core\Utility\ModuleLoader.inl">
-      <Filter>Core\Utility</Filter>
+    <None Include="Core\Utility\Loader\ModuleLoader.inl">
+      <Filter>Core\Utility\Loader</Filter>
     </None>
   </ItemGroup>
 </Project>

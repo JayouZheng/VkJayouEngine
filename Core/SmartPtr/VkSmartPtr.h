@@ -9,7 +9,7 @@
 #pragma once
 
 #include "Core/Global.h"
-#include "Core/Utility/LogSystem.h"
+#include "Core/Utility/Log/LogSystem.h"
 
 #pragma region VkSmartPtr
 

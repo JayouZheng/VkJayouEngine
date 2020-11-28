@@ -16,7 +16,7 @@ T ModuleLoader::GetInterface(const string& InName)
 
 		if (api == nullptr)
 		{
-			_log_error("Fail to find API [" + InInterfaceName + "]!", LogSystem::Category::ModuleLoader);
+			_log_error("Fail to find API [" + InName + "]!", LogSystem::Category::ModuleLoader);
 			return nullptr;
 		}
 		return api;
@@ -24,7 +24,7 @@ T ModuleLoader::GetInterface(const string& InName)
 	}
 	else
 	{
-		_log_error("Fail to find API [" + InInterfaceName + "], the module [" + m_modulePath.ToString() + "] was not load!", LogSystem::Category::ModuleLoader);
+		_log_error("Fail to find API [" + InName + "], the module [" + m_modulePath.ToString() + "] was not load!", LogSystem::Category::ModuleLoader);
 		return nullptr;
 	}
 }

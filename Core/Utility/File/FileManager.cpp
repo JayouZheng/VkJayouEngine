@@ -6,7 +6,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 
 #include "FileManager.h"
-#include "Core/Utility/LogSystem.h"
+#include "Core/Utility/Log/LogSystem.h"
 #include "Core/Utility/String/StringManager.h"
 
 bool FileUtil::Read(const Path& InPath, std::vector<uint8>& OutData)
