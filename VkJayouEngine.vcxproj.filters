@@ -327,9 +327,6 @@
     <ClInclude Include="Core\Utility\Parser\PathParser.h">
       <Filter>Core\Utility\Parser</Filter>
     </ClInclude>
-    <ClInclude Include="Core\Utility\MemoryLeakCheck.h">
-      <Filter>Core\Utility</Filter>
-    </ClInclude>
     <ClInclude Include="Core\Render\GLSLCompiler.h">
       <Filter>Core\Render</Filter>
     </ClInclude>
@@ -374,6 +371,9 @@
     </ClInclude>
     <ClInclude Include="Core\Utility\EnumToString.h">
       <Filter>Core\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Base\MemoryLeakCheck.h">
+      <Filter>Core\Base</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

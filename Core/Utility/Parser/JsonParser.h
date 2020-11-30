@@ -10,7 +10,7 @@
 #ifdef new
 #undef new
 #include "json/json.h"
-#include "Core/Utility/MemoryLeakCheck.h"
+#include "Core/Base/MemoryLeakCheck.h"
 #else
 #include "json/json.h"
 #endif // new

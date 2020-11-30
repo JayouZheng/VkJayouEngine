@@ -2,7 +2,7 @@
  *  Exception.h
  *  Copyright (C) 2020 Jayou. All Rights Reserved.
  * 
- *  .
+ *  No try-catch.
  *********************************************************************/
 
 #pragma once

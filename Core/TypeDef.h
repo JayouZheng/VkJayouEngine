@@ -2,7 +2,7 @@
  *  TypeDef.h
  *  Copyright (C) 2020 Jayou. All Rights Reserved.
  * 
- *  .
+ *  A set of custom define macros and types.
  *********************************************************************/
 
 #pragma once

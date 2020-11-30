@@ -200,6 +200,7 @@
     <ClInclude Include="Core\Base\BaseLayer.h" />
     <ClInclude Include="Core\Base\BaseType.h" />
     <ClInclude Include="Core\Base\Interface\IResourceHandler.h" />
+    <ClInclude Include="Core\Base\MemoryLeakCheck.h" />
     <ClInclude Include="Core\Base\ResourcePool.h" />
     <ClInclude Include="Core\Common.h" />
     <ClInclude Include="Core\Containers\List.h" />
@@ -224,7 +225,6 @@
     <ClInclude Include="Core\Utility\Loader\ModuleLoader.h" />
     <ClInclude Include="Core\Utility\Log\LogSystem.h" />
     <ClInclude Include="Core\Utility\Mapper\TextMapper.h" />
-    <ClInclude Include="Core\Utility\MemoryLeakCheck.h" />
     <ClInclude Include="Core\Utility\Parser\JsonParser.h" />
     <ClInclude Include="Core\Utility\Parser\PathParser.h" />
     <ClInclude Include="Core\Utility\String\StringManager.h" />

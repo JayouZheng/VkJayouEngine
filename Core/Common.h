@@ -2,7 +2,7 @@
  *  Common.h
  *  Copyright (C) 2020 Jayou. All Rights Reserved.
  * 
- *  .
+ *  Include most commonly used files.
  *********************************************************************/
 
 #pragma once
@@ -19,4 +19,4 @@
 #include "Core/SmartPtr/VkSmartPtr.h"
 #include "Core/Utility/Parser/PathParser.h"
 #include "Core/Base/Interface/IResourceHandler.h"
-#include "Core/Utility/MemoryLeakCheck.h"
+#include "Core/Base/MemoryLeakCheck.h"

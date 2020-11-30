@@ -9,7 +9,7 @@
 
 #include "Core/Global.h"
 
-#include "Core/Utility/MemoryLeakCheck.h"
+#include "Core/Base/MemoryLeakCheck.h"
 
 namespace
 {
