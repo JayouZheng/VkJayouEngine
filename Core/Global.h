@@ -32,8 +32,8 @@ namespace Global
 
 	VkInstance              GetVkInstance();
 	VkDevice                GetVkDevice();
-	string             GetModulePath();
-	string             GetModuleName();
+	string                  GetModulePath();
+	string                  GetModuleName();
 	BaseAllocator*          GetAllocator();
 	VkAllocationCallbacks*  GetVkAllocator();
 }

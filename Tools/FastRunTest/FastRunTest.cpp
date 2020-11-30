@@ -7,6 +7,35 @@
 
 #include "FastRunTest.h"
 
+struct BaseInt
+{
+    int bint;
+};
+
+struct INT : public BaseInt
+{
+    INT(int in)
+    { 
+        std::cout << "Begin INT.\n";
+        bint = in;
+    }
+
+    ~INT()
+    {
+        std::cout << "End INT.\n";
+    }
+
+    static inline INT Get() 
+    {
+        return INT(10);
+    }
+};
+
+void func(const BaseInt* in)
+{
+    std::cout << in->bint << std::endl;
+}
+
 int main()
 {
     std::cout << std::setfill('-') << std::setiosflags(std::ios::right) << std::setw(20) << "FastRunTest";
@@ -34,5 +63,8 @@ int main()
         b3 = b2;
         b2.x = 4;
         std::cout << b3.x << std::endl;
+
+        // L-Value Ref.
+        func(&INT(10));
     }
 }

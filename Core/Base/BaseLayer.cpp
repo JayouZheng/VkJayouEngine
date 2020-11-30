@@ -9,7 +9,7 @@
 #include "Core/Global.h"
 #include "Core/Utility/Utility.h"
 #include "Core/Platform/Windows/Window.h"
-#include "Core/Render/LogicalDevice.h"
+#include "Core/Render/RenderBase/LogicalDevice.h"
 
 _impl_create_interface(BaseLayer)
 
@@ -39,10 +39,7 @@ BaseLayer::~BaseLayer()
 
 bool BaseLayer::Init()
 {
-	// Enable run-time memory check for debug builds.
-#if defined(DEBUG) | defined(_DEBUG)
-	_CrtSetDbgFlag(_CRTDBG_LEAK_CHECK_DF | _CRTDBG_ALLOC_MEM_DF);
-#endif
+	_enable_runtime_memory_leak_check();
 
 	CachedModulePath();
 
@@ -308,7 +305,7 @@ bool BaseLayer::Init()
 #if PLATFORM_WINDOW
 
 		// Create Win32 Surface.
-		if (Util::IsVecContain<const char*>(m_supportInsExts, VK_KHR_WIN32_SURFACE_EXTENSION_NAME, _lambda_is_cstr_equal))
+		if (Utility::IsVecContain<const char*>(m_supportInsExts, VK_KHR_WIN32_SURFACE_EXTENSION_NAME, _lambda_is_cstr_equal))
 		{
 			VkBool32 bIsDefaultQueueSupportPresentation = vkGetPhysicalDeviceWin32PresentationSupportKHR(m_physicalDevices[m_mainPDIndex], m_mainQFIndex);
 
@@ -330,7 +327,7 @@ bool BaseLayer::Init()
 #endif
 
 		// Create Swapchain. // OnResize Recreate Needed!!!
-		if (Util::IsVecContain<const char*>(m_supportPDExts, VK_KHR_SWAPCHAIN_EXTENSION_NAME, _lambda_is_cstr_equal))
+		if (Utility::IsVecContain<const char*>(m_supportPDExts, VK_KHR_SWAPCHAIN_EXTENSION_NAME, _lambda_is_cstr_equal))
 		{
 			m_swapchainCreateInfo.sType                 = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
 			m_swapchainCreateInfo.surface               = *m_pSurface;
@@ -359,7 +356,7 @@ bool BaseLayer::Init()
 				m_swapchainCreateInfo.imageFormat = m_surfaceFormats.front().format;
 				m_swapchainCreateInfo.imageColorSpace = m_surfaceFormats.front().colorSpace;
 
-				if (Util::IsVecContain<VkSurfaceFormatKHR>(
+				if (Utility::IsVecContain<VkSurfaceFormatKHR>(
 					m_surfaceFormats, 
 					BaseConfig::DefaultSwapchainCreateInfo.surfaceFormat, 
 					[&](const VkSurfaceFormatKHR& a, const VkSurfaceFormatKHR& b) { return (a.format == b.format) && (a.colorSpace == b.colorSpace); }))

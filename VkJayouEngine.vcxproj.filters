@@ -39,16 +39,7 @@
     <ClCompile Include="Core\Utility\Parser\PathParser.cpp">
       <Filter>Core\Utility\Parser</Filter>
     </ClCompile>
-    <ClCompile Include="Core\Render\CommandQueue.cpp">
-      <Filter>Core\Render</Filter>
-    </ClCompile>
     <ClCompile Include="Core\Render\GLSLCompiler.cpp">
-      <Filter>Core\Render</Filter>
-    </ClCompile>
-    <ClCompile Include="Core\Render\LogicalDevice.cpp">
-      <Filter>Core\Render</Filter>
-    </ClCompile>
-    <ClCompile Include="Core\Render\CommandList.cpp">
       <Filter>Core\Render</Filter>
     </ClCompile>
     <ClCompile Include="Core\Platform\Windows\Window.cpp">
@@ -71,6 +62,18 @@
     </ClCompile>
     <ClCompile Include="Core\Utility\Mapper\TextMapper.cpp">
       <Filter>Core\Utility\Mapper</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Render\RenderBase\CommandList.cpp">
+      <Filter>Core\Render\RenderBase</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Render\RenderBase\CommandQueue.cpp">
+      <Filter>Core\Render\RenderBase</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Render\RenderBase\LogicalDevice.cpp">
+      <Filter>Core\Render\RenderBase</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Utility\EnumToString.cpp">
+      <Filter>Core\Utility</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -327,16 +330,7 @@
     <ClInclude Include="Core\Utility\MemoryLeakCheck.h">
       <Filter>Core\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="Core\Render\CommandList.h">
-      <Filter>Core\Render</Filter>
-    </ClInclude>
-    <ClInclude Include="Core\Render\CommandQueue.h">
-      <Filter>Core\Render</Filter>
-    </ClInclude>
     <ClInclude Include="Core\Render\GLSLCompiler.h">
-      <Filter>Core\Render</Filter>
-    </ClInclude>
-    <ClInclude Include="Core\Render\LogicalDevice.h">
       <Filter>Core\Render</Filter>
     </ClInclude>
     <ClInclude Include="Core\Platform\Windows\Window.h">
@@ -347,9 +341,6 @@
     </ClInclude>
     <ClInclude Include="Core\Base\ResourcePool.h">
       <Filter>Core\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="Core\Render\RenderConfig.h">
-      <Filter>Core\Render</Filter>
     </ClInclude>
     <ClInclude Include="Core\Base\BaseConfig.h">
       <Filter>Core\Base</Filter>
@@ -368,6 +359,21 @@
     </ClInclude>
     <ClInclude Include="Core\Utility\Mapper\TextMapper.h">
       <Filter>Core\Utility\Mapper</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Render\RenderBase\CommandList.h">
+      <Filter>Core\Render\RenderBase</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Render\RenderBase\CommandQueue.h">
+      <Filter>Core\Render\RenderBase</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Render\RenderBase\LogicalDevice.h">
+      <Filter>Core\Render\RenderBase</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Render\RenderBase\RenderBaseConfig.h">
+      <Filter>Core\Render\RenderBase</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Utility\EnumToString.h">
+      <Filter>Core\Utility</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -467,6 +473,9 @@
     <Filter Include="Core\Utility\Mapper">
       <UniqueIdentifier>{009db284-2a89-4506-9572-63f3e7a56eb4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\Render\RenderBase">
+      <UniqueIdentifier>{ccc55751-f5cb-4bcb-84eb-1a5fba0e5605}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ThirdParty\jsoncpp\src\lib_json\json_valueiterator.inl">
@@ -477,6 +486,12 @@
     </None>
     <None Include="Core\Utility\Loader\ModuleLoader.inl">
       <Filter>Core\Utility\Loader</Filter>
+    </None>
+    <None Include="Core\Render\RenderBase\LogicalDevice.inl">
+      <Filter>Core\Render\RenderBase</Filter>
+    </None>
+    <None Include="Core\Utility\Utility.inl">
+      <Filter>Core\Utility</Filter>
     </None>
   </ItemGroup>
 </Project>

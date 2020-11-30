@@ -1,5 +1,5 @@
 ﻿/*********************************************************************
- *  RenderConfig.h
+ *  RenderBaseConfig.h
  *  Copyright (C) 2020 Jayou. All Rights Reserved.
  * 
  *  .
@@ -9,7 +9,7 @@
 
 #include "Core/Common.h"
 
-namespace GConfig
+namespace RenderBaseConfig
 {
 	namespace Sampler
 	{

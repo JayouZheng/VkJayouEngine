@@ -5,6 +5,7 @@
 #include "GLSLCompiler.h"
 #include "Core/Utility/String/StringManager.h"
 #include "Core/Utility/Loader/ModuleLoader.h"
+#include "Core/Utility/EnumToString.h"
 #include "Core/Utility/Utility.h"
 
 _impl_create_interface(GLSLCompiler)
@@ -69,7 +70,7 @@ bool GLSLCompiler::CheckAndParseSPVData(uint32 InMaxDescSets, VkPushConstantRang
 
 				maxSetID = std::max<uint8>(maxSetID, currentSet);
 
-				if (!Util::IsVecContain<uint8>(setIDArray, currentSet, _lambda_is_equal(uint8)))
+				if (!Utility::IsVecContain<uint8>(setIDArray, currentSet, _lambda_is_equal(uint8)))
 					setIDArray.push_back(currentSet);
 			}
 		}
@@ -122,10 +123,10 @@ bool GLSLCompiler::CheckAndParseSPVData(uint32 InMaxDescSets, VkPushConstantRang
 				uint8& bindingID = spvData->resource[descType].items[i].binding;
 				auto& currentSetBindingID = descSetsBindingID[spvData->resource[descType].items[i].set];
 
-				if (Util::IsVecContain<uint8>(currentSetBindingID, bindingID, _lambda_is_equal(uint8)))
+				if (Utility::IsVecContain<uint8>(currentSetBindingID, bindingID, _lambda_is_equal(uint8)))
 				{
 					_log_error(StringUtil::Printf("The creating pipeline has repeated binding ID in its shader, the stage is %, the variable name is %!",
-						Util::VkShaderStageToString(descSetBinding.stageFlags), spvData->resource[descType].items[i].name), LogSystem::Category::GLSLCompiler);
+						EnumToString::VkShaderStageToString(descSetBinding.stageFlags), spvData->resource[descType].items[i].name), LogSystem::Category::GLSLCompiler);
 					return false;
 				}
 
@@ -148,7 +149,7 @@ bool GLSLCompiler::CheckAndParseSPVData(uint32 InMaxDescSets, VkPushConstantRang
 			if (bindingIDArray[j] != j)
 			{
 				_log_warning(StringUtil::Printf("The creating pipeline has discontinuous binding ID in its shader, the stage is %, the descriptor type is %, %",
-					Util::VkShaderStageToString(OutDescSets[i][j].stageFlags), Util::VkDescriptorTypeToString(OutDescSets[i][j].descriptorType), 
+					EnumToString::VkShaderStageToString(OutDescSets[i][j].stageFlags), EnumToString::VkDescriptorTypeToString(OutDescSets[i][j].descriptorType),
 					"it's recommended that you don't create sparsely populated sets because this can waste resources in the device!"), 
 					LogSystem::Category::GLSLCompiler);
 			}

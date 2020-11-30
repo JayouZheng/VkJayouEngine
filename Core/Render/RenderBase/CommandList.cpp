@@ -3,10 +3,10 @@
  *  Copyright (C) 2020 Jayou. All Rights Reserved.
  *********************************************************************/
 
-#include "CommandList.h"
 #include "Core/Base/BaseLayer.h"
 #include "Core/Utility/File/FileManager.h"
-#include "RenderConfig.h"
+#include "CommandList.h"
+#include "RenderBaseConfig.h"
 #include "LogicalDevice.h"
 
 _impl_create_interface(CommandList)
@@ -291,12 +291,12 @@ void CommandList::NonUniformImageCopy(VkImage InSrcImage, VkImage InDstImage, ui
 
 void CommandList::ClearColorImage(VkImage InImage, const float* InClearColor)
 {
-	vkCmdClearColorImage(m_cmdBuffer, InImage, VK_IMAGE_LAYOUT_GENERAL, (VkClearColorValue*)InClearColor, _count_1, &GConfig::Subresource::ColorSubResRange);
+	vkCmdClearColorImage(m_cmdBuffer, InImage, VK_IMAGE_LAYOUT_GENERAL, (VkClearColorValue*)InClearColor, _count_1, &RenderBaseConfig::Subresource::ColorSubResRange);
 }
 
 void CommandList::ClearColorImage(VkImage InImage, const VkClearColorValue* InClearColor)
 {
-	vkCmdClearColorImage(m_cmdBuffer, InImage, VK_IMAGE_LAYOUT_GENERAL, InClearColor, _count_1, &GConfig::Subresource::ColorSubResRange);
+	vkCmdClearColorImage(m_cmdBuffer, InImage, VK_IMAGE_LAYOUT_GENERAL, InClearColor, _count_1, &RenderBaseConfig::Subresource::ColorSubResRange);
 }
 
 void CommandList::ClearColorImage(VkImage InImage, const VkClearColorValue* InClearColor, const VkImageSubresourceRange& InSubresRange)
@@ -315,12 +315,12 @@ void CommandList::ClearDepthStencilImage(VkImage InImage, float InClearDepthValu
 	clearValue.depth = InClearDepthValue;
 	clearValue.stencil = InClearStencilValue;
 
-	vkCmdClearDepthStencilImage(m_cmdBuffer, InImage, VK_IMAGE_LAYOUT_GENERAL, &clearValue, _count_1, &GConfig::Subresource::DepthStencilSubResRange);
+	vkCmdClearDepthStencilImage(m_cmdBuffer, InImage, VK_IMAGE_LAYOUT_GENERAL, &clearValue, _count_1, &RenderBaseConfig::Subresource::DepthStencilSubResRange);
 }
 
 void CommandList::ClearDepthStencilImage(VkImage InImage, const VkClearDepthStencilValue* InClearValue)
 {
-	vkCmdClearDepthStencilImage(m_cmdBuffer, InImage, VK_IMAGE_LAYOUT_GENERAL, InClearValue, _count_1, &GConfig::Subresource::DepthStencilSubResRange);
+	vkCmdClearDepthStencilImage(m_cmdBuffer, InImage, VK_IMAGE_LAYOUT_GENERAL, InClearValue, _count_1, &RenderBaseConfig::Subresource::DepthStencilSubResRange);
 }
 
 void CommandList::BindPipeline(VkPipeline InPipeline, VkPipelineBindPoint InPipBindPoint)

@@ -3,7 +3,6 @@
  *  Copyright (C) 2020 Jayou. All Rights Reserved.
  *********************************************************************/
 
-#include "LogicalDevice.h"
 #include "Core/Base/BaseLayer.h"
 #include "Core/Utility/Utility.h"
 #include "Core/Base/ResourcePool.h"
@@ -13,9 +12,12 @@
 #include "Core/Utility/File/FileManager.h"
 #include "Core/Utility/Parser/JsonParser.h"
 #include "Core/Utility/String/StringManager.h"
-#include "RenderConfig.h"
-#include "GLSLCompiler.h"
+#include "Core/Render/GLSLCompiler.h"
+#include "LogicalDevice.h"
+#include "RenderBaseConfig.h"
 #include "CommandQueue.h"
+
+#include "LogicalDevice.inl"
 
 _impl_create_interface(LogicalDevice)
 
@@ -188,7 +190,7 @@ bool LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const Pa
 	StringUtil::ExtractFilePath(InShaderPath.ToString(), &name, &ext, &dir);
 
 	VkShaderStageFlags shaderStage;
-	if (!Util::GetShaderStage(ext, shaderStage))
+	if (!GetShaderStage(ext, shaderStage))
 		return false;
 
 	if (OutShaderStage != nullptr)
@@ -686,7 +688,7 @@ void LogicalDevice::CreatePointWrapSampler(VkSampler* OutSampler)
 	samplerCreateInfo.compareEnable           = VK_FALSE;
 	samplerCreateInfo.compareOp               = VK_COMPARE_OP_NEVER;                     // It does not matter.
 	samplerCreateInfo.minLod                  = 0.0f;
-	samplerCreateInfo.maxLod                  = GConfig::Sampler::SamplerMaxLod;
+	samplerCreateInfo.maxLod                  = RenderBaseConfig::Sampler::SamplerMaxLod;
 	samplerCreateInfo.borderColor             = VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK; // It does not matter.
 	samplerCreateInfo.unnormalizedCoordinates = VK_FALSE;
 
@@ -709,7 +711,7 @@ void LogicalDevice::CreatePointClampSampler(VkSampler* OutSampler)
 	samplerCreateInfo.compareEnable           = VK_FALSE;
 	samplerCreateInfo.compareOp               = VK_COMPARE_OP_NEVER;                     // It does not matter.
 	samplerCreateInfo.minLod                  = 0.0f;
-	samplerCreateInfo.maxLod                  = GConfig::Sampler::SamplerMaxLod;
+	samplerCreateInfo.maxLod                  = RenderBaseConfig::Sampler::SamplerMaxLod;
 	samplerCreateInfo.borderColor             = VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK; // It does not matter.
 	samplerCreateInfo.unnormalizedCoordinates = VK_FALSE;
 
@@ -732,7 +734,7 @@ void LogicalDevice::CreateLinearWrapSampler(VkSampler* OutSampler)
 	samplerCreateInfo.compareEnable           = VK_FALSE;
 	samplerCreateInfo.compareOp               = VK_COMPARE_OP_NEVER;                     // It does not matter.
 	samplerCreateInfo.minLod                  = 0.0f;
-	samplerCreateInfo.maxLod                  = GConfig::Sampler::SamplerMaxLod;
+	samplerCreateInfo.maxLod                  = RenderBaseConfig::Sampler::SamplerMaxLod;
 	samplerCreateInfo.borderColor             = VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK; // It does not matter.
 	samplerCreateInfo.unnormalizedCoordinates = VK_FALSE;
 
@@ -755,7 +757,7 @@ void LogicalDevice::CreateLinearClampSampler(VkSampler* OutSampler)
 	samplerCreateInfo.compareEnable           = VK_FALSE;
 	samplerCreateInfo.compareOp               = VK_COMPARE_OP_NEVER;                     // It does not matter.
 	samplerCreateInfo.minLod                  = 0.0f;
-	samplerCreateInfo.maxLod                  = GConfig::Sampler::SamplerMaxLod;
+	samplerCreateInfo.maxLod                  = RenderBaseConfig::Sampler::SamplerMaxLod;
 	samplerCreateInfo.borderColor             = VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK; // It does not matter.
 	samplerCreateInfo.unnormalizedCoordinates = VK_FALSE;
 
@@ -772,7 +774,7 @@ bool LogicalDevice::CreateAnisotropicWrapSampler(VkSampler* OutSampler)
 		return false;
 	}
 
-	float maxAnisotropy = std::min(GConfig::Sampler::MaxAnisotropy, m_pBaseLayer->GetMainPDLimits().maxSamplerAnisotropy);
+	float maxAnisotropy = std::min(RenderBaseConfig::Sampler::MaxAnisotropy, m_pBaseLayer->GetMainPDLimits().maxSamplerAnisotropy);
 
 	VkSamplerCreateInfo samplerCreateInfo     = {};
 	samplerCreateInfo.sType                   = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -788,7 +790,7 @@ bool LogicalDevice::CreateAnisotropicWrapSampler(VkSampler* OutSampler)
 	samplerCreateInfo.compareEnable           = VK_FALSE;
 	samplerCreateInfo.compareOp               = VK_COMPARE_OP_NEVER;                     // It does not matter.
 	samplerCreateInfo.minLod                  = 0.0f;
-	samplerCreateInfo.maxLod                  = GConfig::Sampler::SamplerMaxLod;
+	samplerCreateInfo.maxLod                  = RenderBaseConfig::Sampler::SamplerMaxLod;
 	samplerCreateInfo.borderColor             = VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK; // It does not matter.
 	samplerCreateInfo.unnormalizedCoordinates = VK_FALSE;
 
@@ -807,7 +809,7 @@ bool LogicalDevice::CreateAnisotropicClampSampler(VkSampler* OutSampler)
 		return false;
 	}	
 
-	float maxAnisotropy = std::min(GConfig::Sampler::MaxAnisotropy, m_pBaseLayer->GetMainPDLimits().maxSamplerAnisotropy);
+	float maxAnisotropy = std::min(RenderBaseConfig::Sampler::MaxAnisotropy, m_pBaseLayer->GetMainPDLimits().maxSamplerAnisotropy);
 
 	VkSamplerCreateInfo samplerCreateInfo     = {};
 	samplerCreateInfo.sType                   = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -823,7 +825,7 @@ bool LogicalDevice::CreateAnisotropicClampSampler(VkSampler* OutSampler)
 	samplerCreateInfo.compareEnable           = VK_FALSE;
 	samplerCreateInfo.compareOp               = VK_COMPARE_OP_NEVER;                     // It does not matter.
 	samplerCreateInfo.minLod                  = 0.0f;
-	samplerCreateInfo.maxLod                  = GConfig::Sampler::SamplerMaxLod;
+	samplerCreateInfo.maxLod                  = RenderBaseConfig::Sampler::SamplerMaxLod;
 	samplerCreateInfo.borderColor             = VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK; // It does not matter.
 	samplerCreateInfo.unnormalizedCoordinates = VK_FALSE;
 
@@ -848,7 +850,7 @@ void LogicalDevice::CreatePCFSampler(VkSampler* OutSampler)
 	samplerCreateInfo.compareEnable           = VK_FALSE;
 	samplerCreateInfo.compareOp               = VK_COMPARE_OP_LESS_OR_EQUAL;
 	samplerCreateInfo.minLod                  = 0.0f;
-	samplerCreateInfo.maxLod                  = GConfig::Sampler::SamplerMaxLod;
+	samplerCreateInfo.maxLod                  = RenderBaseConfig::Sampler::SamplerMaxLod;
 	samplerCreateInfo.borderColor             = VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK;
 	samplerCreateInfo.unnormalizedCoordinates = VK_FALSE;
 
@@ -915,14 +917,14 @@ bool LogicalDevice::CreateRenderPass(const string& InJsonPath)
 			attachmentNameIDMap.emplace(JsonParser::GetString(attachment[_text_mapper(vk_name)]), j);
 
 			renderPassAttachmentDescs[j].flags          = JsonParser::GetUInt32(attachment[_text_mapper(vk_flags)]);
-			renderPassAttachmentDescs[j].format         = Util::GetVkFormat(JsonParser::GetString(attachment[_text_mapper(vk_format)]));
-			renderPassAttachmentDescs[j].samples        = (VkSampleCountFlagBits)Util::GetMultisampleCount(JsonParser::GetUInt32(attachment[_text_mapper(vk_sample_count)]));
-			renderPassAttachmentDescs[j].loadOp         = Util::GetVkAttachmentLoadOp(JsonParser::GetString(attachment[_text_mapper(vk_load_op)]));
-			renderPassAttachmentDescs[j].storeOp        = Util::GetVkAttachmentStoreOp(JsonParser::GetString(attachment[_text_mapper(vk_store_op)]));
-			renderPassAttachmentDescs[j].stencilLoadOp  = Util::GetVkAttachmentLoadOp(JsonParser::GetString(attachment[_text_mapper(vk_stencil_load_op)]));
-			renderPassAttachmentDescs[j].stencilStoreOp = Util::GetVkAttachmentStoreOp(JsonParser::GetString(attachment[_text_mapper(vk_stencil_store_op)]));
-			renderPassAttachmentDescs[j].initialLayout  = Util::GetVkImageLayout(JsonParser::GetString(attachment[_text_mapper(vk_in_state)]));
-			renderPassAttachmentDescs[j].finalLayout    = Util::GetVkImageLayout(JsonParser::GetString(attachment[_text_mapper(vk_out_state)]));
+			renderPassAttachmentDescs[j].format         = GetVkFormat(JsonParser::GetString(attachment[_text_mapper(vk_format)]));
+			renderPassAttachmentDescs[j].samples        = (VkSampleCountFlagBits)GetMultisampleCount(JsonParser::GetUInt32(attachment[_text_mapper(vk_sample_count)]));
+			renderPassAttachmentDescs[j].loadOp         = GetVkAttachmentLoadOp(JsonParser::GetString(attachment[_text_mapper(vk_load_op)]));
+			renderPassAttachmentDescs[j].storeOp        = GetVkAttachmentStoreOp(JsonParser::GetString(attachment[_text_mapper(vk_store_op)]));
+			renderPassAttachmentDescs[j].stencilLoadOp  = GetVkAttachmentLoadOp(JsonParser::GetString(attachment[_text_mapper(vk_stencil_load_op)]));
+			renderPassAttachmentDescs[j].stencilStoreOp = GetVkAttachmentStoreOp(JsonParser::GetString(attachment[_text_mapper(vk_stencil_store_op)]));
+			renderPassAttachmentDescs[j].initialLayout  = GetVkImageLayout(JsonParser::GetString(attachment[_text_mapper(vk_in_state)]));
+			renderPassAttachmentDescs[j].finalLayout    = GetVkImageLayout(JsonParser::GetString(attachment[_text_mapper(vk_out_state)]));
 		}
 
 		// Subpass.
@@ -946,7 +948,7 @@ bool LogicalDevice::CreateRenderPass(const string& InJsonPath)
 			m_subpassNameIDMap.emplace(JsonParser::GetString(subpass[_text_mapper(vk_name)]), j);
 
 			renderPassSubpassDescs[j].flags = JsonParser::GetUInt32(subpass[_text_mapper(vk_flags)]);
-			renderPassSubpassDescs[j].pipelineBindPoint = Util::GetVkPipelineBindPoint(JsonParser::GetString(subpass[_text_mapper(vk_pipeline_bind_point)]));
+			renderPassSubpassDescs[j].pipelineBindPoint = GetVkPipelineBindPoint(JsonParser::GetString(subpass[_text_mapper(vk_pipeline_bind_point)]));
 
 			// Input Attachment Reference.
 			if (subpass[_text_mapper(vk_input_attachments)] != Json::nullValue)
@@ -969,7 +971,7 @@ bool LogicalDevice::CreateRenderPass(const string& InJsonPath)
 					if (found != attachmentNameIDMap.end())
 					{
 						renderPassSubpassInputAttachments[j][k].attachment = (*found).second;
-						renderPassSubpassInputAttachments[j][k].layout     = Util::GetVkImageLayout(JsonParser::GetString(inputAttach[_text_mapper(vk_state)]));
+						renderPassSubpassInputAttachments[j][k].layout     = GetVkImageLayout(JsonParser::GetString(inputAttach[_text_mapper(vk_state)]));
 					}
 					else
 					{
@@ -1007,7 +1009,7 @@ bool LogicalDevice::CreateRenderPass(const string& InJsonPath)
 					if (found != attachmentNameIDMap.end())
 					{
 						renderPassSubpassColorAttachments[j][k].attachment = (*found).second;
-						renderPassSubpassColorAttachments[j][k].layout     = Util::GetVkImageLayout(JsonParser::GetString(colorAttach[_text_mapper(vk_state)]));
+						renderPassSubpassColorAttachments[j][k].layout     = GetVkImageLayout(JsonParser::GetString(colorAttach[_text_mapper(vk_state)]));
 					}
 					else
 					{
@@ -1044,7 +1046,7 @@ bool LogicalDevice::CreateRenderPass(const string& InJsonPath)
 					if (found != attachmentNameIDMap.end())
 					{
 						renderPassSubpassResolveAttachments[j][k].attachment = (*found).second;
-						renderPassSubpassResolveAttachments[j][k].layout     = Util::GetVkImageLayout(JsonParser::GetString(resolveAttach[_text_mapper(vk_state)]));
+						renderPassSubpassResolveAttachments[j][k].layout     = GetVkImageLayout(JsonParser::GetString(resolveAttach[_text_mapper(vk_state)]));
 					}
 					else
 					{
@@ -1096,7 +1098,7 @@ bool LogicalDevice::CreateRenderPass(const string& InJsonPath)
 				if (found != attachmentNameIDMap.end())
 				{
 					renderPassSubpassDepthAttachments[j].attachment = (*found).second;
-					renderPassSubpassDepthAttachments[j].layout     = Util::GetVkImageLayout(JsonParser::GetString(depthAttach[_text_mapper(vk_state)]));
+					renderPassSubpassDepthAttachments[j].layout     = GetVkImageLayout(JsonParser::GetString(depthAttach[_text_mapper(vk_state)]));
 				}
 				else
 				{
@@ -1146,8 +1148,8 @@ bool LogicalDevice::CreateRenderPass(const string& InJsonPath)
 				return false;
 			}
 
-			renderPassSubpassDependency[j].srcStageMask = Util::GetVkPipelineStageFlags(JsonParser::GetString(dependency[_text_mapper(vk_src_stage_mask)]));
-			renderPassSubpassDependency[j].dstStageMask = Util::GetVkPipelineStageFlags(JsonParser::GetString(dependency[_text_mapper(vk_dst_stage_mask)]));
+			renderPassSubpassDependency[j].srcStageMask = GetVkPipelineStageFlags(JsonParser::GetString(dependency[_text_mapper(vk_src_stage_mask)]));
+			renderPassSubpassDependency[j].dstStageMask = GetVkPipelineStageFlags(JsonParser::GetString(dependency[_text_mapper(vk_dst_stage_mask)]));
 
 			// Deal with Multi-Access-Flags.
 			{
@@ -1158,7 +1160,7 @@ bool LogicalDevice::CreateRenderPass(const string& InJsonPath)
 				for (uint32 k = 0; k < numSrcAccessMask; k++)
 				{
 					auto& mask = bIsArray ? dependency[_text_mapper(vk_src_access_mask)][k] : dependency[_text_mapper(vk_src_access_mask)];
-					srcAccessMask |= Util::GetVkAccessFlags(JsonParser::GetString(mask));
+					srcAccessMask |= GetVkAccessFlags(JsonParser::GetString(mask));
 				}
 
 				bIsArray = dependency[_text_mapper(vk_dst_access_mask)].isArray();
@@ -1168,14 +1170,14 @@ bool LogicalDevice::CreateRenderPass(const string& InJsonPath)
 				for (uint32 k = 0; k < numDstAccessMask; k++)
 				{
 					auto& mask = bIsArray ? dependency[_text_mapper(vk_dst_access_mask)][k] : dependency[_text_mapper(vk_dst_access_mask)];
-					dstAccessMask |= Util::GetVkAccessFlags(JsonParser::GetString(mask));;
+					dstAccessMask |= GetVkAccessFlags(JsonParser::GetString(mask));;
 				}
 
 				renderPassSubpassDependency[j].srcAccessMask = srcAccessMask;
 				renderPassSubpassDependency[j].dstAccessMask = dstAccessMask;
 			}
 
-			renderPassSubpassDependency[j].dependencyFlags = Util::GetVkDependencyFlags(JsonParser::GetString(dependency[_text_mapper(vk_dependency_flags)]));
+			renderPassSubpassDependency[j].dependencyFlags = GetVkDependencyFlags(JsonParser::GetString(dependency[_text_mapper(vk_dependency_flags)]));
 		}
 
 		_declare_vk_smart_ptr(VkRenderPass, pRenderPass);
@@ -1505,14 +1507,14 @@ bool LogicalDevice::CreateGraphicPipelines(const string& InJsonPath, VkPipelineC
 	
 	for (uint32 i = 0; i < numGInfo; i++)
 	{
-		pipelineIAStateInfos[i]           = GConfig::Pipeline::DefaultInputAssemblyStateInfo;
-		pipelineTessStateInfos[i]         = GConfig::Pipeline::DefaultTessellationStateInfo;
-		pipelineViewportStateInfos[i]     = GConfig::Pipeline::DefaultViewportStateInfo;
-		pipelineRSStateInfos[i]           = GConfig::Pipeline::DefaultRasterizationStateInfo;
-		pipelineMultisampleStateInfos[i]  = GConfig::Pipeline::DefaultMultisampleStateInfo;	
-		pipelineDepthStencilStateInfos[i] = GConfig::Pipeline::DefaultDepthStencilStateInfo;
-		pipelineColorBlendStateInfos[i]   = GConfig::Pipeline::DefaultColorBlendStateInfo;		
-		pipelineDynamicStateInfos[i]      = GConfig::Pipeline::DefaultDynamicStateInfo;
+		pipelineIAStateInfos[i]           = RenderBaseConfig::Pipeline::DefaultInputAssemblyStateInfo;
+		pipelineTessStateInfos[i]         = RenderBaseConfig::Pipeline::DefaultTessellationStateInfo;
+		pipelineViewportStateInfos[i]     = RenderBaseConfig::Pipeline::DefaultViewportStateInfo;
+		pipelineRSStateInfos[i]           = RenderBaseConfig::Pipeline::DefaultRasterizationStateInfo;
+		pipelineMultisampleStateInfos[i]  = RenderBaseConfig::Pipeline::DefaultMultisampleStateInfo;	
+		pipelineDepthStencilStateInfos[i] = RenderBaseConfig::Pipeline::DefaultDepthStencilStateInfo;
+		pipelineColorBlendStateInfos[i]   = RenderBaseConfig::Pipeline::DefaultColorBlendStateInfo;		
+		pipelineDynamicStateInfos[i]      = RenderBaseConfig::Pipeline::DefaultDynamicStateInfo;
 
 		auto& graphicInfo = bIsArray ? root[_text_mapper(vk_graphic_pipeline_infos)][i] : root[_text_mapper(vk_graphic_pipeline_infos)];
 
@@ -1560,7 +1562,7 @@ bool LogicalDevice::CreateGraphicPipelines(const string& InJsonPath, VkPipelineC
 			shaderInfos[i][j].sType  = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 			shaderInfos[i][j].pNext  = nullptr;
 			shaderInfos[i][j].flags  = JsonParser::GetUInt32(shaderInfo[_text_mapper(vk_flags)]);
-			shaderInfos[i][j].stage  = (VkShaderStageFlagBits)((shaderInfo[_text_mapper(vk_stage_type)] != Json::nullValue) ? (Util::GetShaderStage(JsonParser::GetString(shaderInfo[_text_mapper(vk_stage_type)]), userDefinedShaderStage) ? userDefinedShaderStage : currentShaderStage) : currentShaderStage);
+			shaderInfos[i][j].stage  = (VkShaderStageFlagBits)((shaderInfo[_text_mapper(vk_stage_type)] != Json::nullValue) ? (GetShaderStage(JsonParser::GetString(shaderInfo[_text_mapper(vk_stage_type)]), userDefinedShaderStage) ? userDefinedShaderStage : currentShaderStage) : currentShaderStage);
 			shaderInfos[i][j].module = *pShaderModule;	
 			shaderInfos[i][j].pName  = shaderEntrypoints[i * numStageInfo + j].c_str();
 			shaderInfos[i][j].pSpecializationInfo = &specInfos[i];
@@ -1665,10 +1667,10 @@ bool LogicalDevice::CreateGraphicPipelines(const string& InJsonPath, VkPipelineC
 
 				vertexInputAttributes[i][k].binding  = _index_0;
 				vertexInputAttributes[i][k].location = k;
-				vertexInputAttributes[i][k].format   = Util::GetVertexAttributeVkFormat(attribute);
+				vertexInputAttributes[i][k].format   = GetVertexAttributeVkFormat(attribute);
 				vertexInputAttributes[i][k].offset   = attributeOffset;
 
-				attributeOffset += Util::GetVertexAttributeSize(attribute);
+				attributeOffset += GetVertexAttributeSize(attribute);
 			}
 				
 			vertexInputBindings[i][j].binding   = bindingID;
@@ -1688,7 +1690,7 @@ bool LogicalDevice::CreateGraphicPipelines(const string& InJsonPath, VkPipelineC
 		if (inputAssemblyInfo != Json::nullValue)
 		{
 			pipelineIAStateInfos[i].flags                  = JsonParser::GetUInt32(inputAssemblyInfo[_text_mapper(vk_flags)]);
-			pipelineIAStateInfos[i].topology               = Util::GetVkPrimitiveTopology(JsonParser::GetString(inputAssemblyInfo[_text_mapper(vk_primitive_topology)]));
+			pipelineIAStateInfos[i].topology               = GetVkPrimitiveTopology(JsonParser::GetString(inputAssemblyInfo[_text_mapper(vk_primitive_topology)]));
 			pipelineIAStateInfos[i].primitiveRestartEnable = JsonParser::GetUInt32(inputAssemblyInfo[_text_mapper(vk_primitive_restart_enable)]);
 		}
 
@@ -1773,9 +1775,9 @@ bool LogicalDevice::CreateGraphicPipelines(const string& InJsonPath, VkPipelineC
 			pipelineRSStateInfos[i].flags                   = JsonParser::GetUInt32(rasterizationInfo[_text_mapper(vk_flags)]);
 			pipelineRSStateInfos[i].depthClampEnable        = JsonParser::GetUInt32(rasterizationInfo[_text_mapper(vk_depth_clamp_enable)]);
 			pipelineRSStateInfos[i].rasterizerDiscardEnable = JsonParser::GetUInt32(rasterizationInfo[_text_mapper(vk_rasterizer_discard_enable)]);
-			pipelineRSStateInfos[i].polygonMode             = Util::GetVkPolygonMode(JsonParser::GetString(rasterizationInfo[_text_mapper(vk_polygon_mode)]));
-			pipelineRSStateInfos[i].cullMode                = Util::GetVkCullModeFlags(JsonParser::GetString(rasterizationInfo[_text_mapper(vk_cull_mode)]));
-			pipelineRSStateInfos[i].frontFace               = Util::GetVkFrontFace(JsonParser::GetString(rasterizationInfo[_text_mapper(vk_front_face)]));
+			pipelineRSStateInfos[i].polygonMode             = GetVkPolygonMode(JsonParser::GetString(rasterizationInfo[_text_mapper(vk_polygon_mode)]));
+			pipelineRSStateInfos[i].cullMode                = GetVkCullModeFlags(JsonParser::GetString(rasterizationInfo[_text_mapper(vk_cull_mode)]));
+			pipelineRSStateInfos[i].frontFace               = GetVkFrontFace(JsonParser::GetString(rasterizationInfo[_text_mapper(vk_front_face)]));
 			pipelineRSStateInfos[i].depthBiasEnable         = JsonParser::GetUInt32(rasterizationInfo[_text_mapper(vk_depth_bias_enable)]);
 			pipelineRSStateInfos[i].depthBiasConstantFactor = JsonParser::GetFloat(rasterizationInfo[_text_mapper(vk_depth_bias_constant_factor)]);
 			pipelineRSStateInfos[i].depthBiasClamp          = JsonParser::GetFloat(rasterizationInfo[_text_mapper(vk_depth_bias_clamp)]);
@@ -1797,7 +1799,7 @@ bool LogicalDevice::CreateGraphicPipelines(const string& InJsonPath, VkPipelineC
 				sampleMasks[i][j] = bIsArray ? multisampleInfo[_text_mapper(vk_sample_masks)][j].asUInt() : multisampleInfo[_text_mapper(vk_sample_masks)].asUInt();
 
 			pipelineMultisampleStateInfos[i].flags                 = JsonParser::GetUInt32(multisampleInfo[_text_mapper(vk_flags)]);
-			pipelineMultisampleStateInfos[i].rasterizationSamples  = (VkSampleCountFlagBits)Util::GetMultisampleCount(JsonParser::GetUInt32(multisampleInfo[_text_mapper(vk_multisample_count)]));
+			pipelineMultisampleStateInfos[i].rasterizationSamples  = (VkSampleCountFlagBits)GetMultisampleCount(JsonParser::GetUInt32(multisampleInfo[_text_mapper(vk_multisample_count)]));
 			pipelineMultisampleStateInfos[i].sampleShadingEnable   = JsonParser::GetUInt32(multisampleInfo[_text_mapper(vk_sample_shading_enable)]);
 			pipelineMultisampleStateInfos[i].minSampleShading      = JsonParser::GetFloat(multisampleInfo[_text_mapper(vk_min_sample_shading_factor)]);
 			pipelineMultisampleStateInfos[i].pSampleMask           = sampleMasks[i].data();
@@ -1813,7 +1815,7 @@ bool LogicalDevice::CreateGraphicPipelines(const string& InJsonPath, VkPipelineC
 			pipelineDepthStencilStateInfos[i].flags                 = JsonParser::GetUInt32(depthStencilInfo[_text_mapper(vk_flags)]);
 			pipelineDepthStencilStateInfos[i].depthTestEnable       = JsonParser::GetUInt32(depthStencilInfo[_text_mapper(vk_depth_test_enable)]);
 			pipelineDepthStencilStateInfos[i].depthWriteEnable      = JsonParser::GetUInt32(depthStencilInfo[_text_mapper(vk_depth_write_enable)]);
-			pipelineDepthStencilStateInfos[i].depthCompareOp        = Util::GetVkCompareOp(JsonParser::GetString(depthStencilInfo[_text_mapper(vk_depth_compare_op)]));
+			pipelineDepthStencilStateInfos[i].depthCompareOp        = GetVkCompareOp(JsonParser::GetString(depthStencilInfo[_text_mapper(vk_depth_compare_op)]));
 			pipelineDepthStencilStateInfos[i].depthBoundsTestEnable = JsonParser::GetUInt32(depthStencilInfo[_text_mapper(vk_depth_bounds_test_enable)]);
 			pipelineDepthStencilStateInfos[i].stencilTestEnable     = JsonParser::GetUInt32(depthStencilInfo[_text_mapper(vk_stencil_test_enable)]);
 			pipelineDepthStencilStateInfos[i].minDepthBounds        = JsonParser::GetFloat(depthStencilInfo[_text_mapper(vk_min_depth_bounds)]);
@@ -1824,10 +1826,10 @@ bool LogicalDevice::CreateGraphicPipelines(const string& InJsonPath, VkPipelineC
 			{
 				if (JsonParser::GetString(stencilInfo[_text_mapper(vk_front)]) != "auto")
 				{
-					pipelineDepthStencilStateInfos[i].front.failOp      = Util::GetVkStencilOp(JsonParser::GetString(stencilInfo[_text_mapper(vk_front)][_text_mapper(vk_fail_op)]));
-					pipelineDepthStencilStateInfos[i].front.passOp      = Util::GetVkStencilOp(JsonParser::GetString(stencilInfo[_text_mapper(vk_front)][_text_mapper(vk_pass_op)]));
-					pipelineDepthStencilStateInfos[i].front.depthFailOp = Util::GetVkStencilOp(JsonParser::GetString(stencilInfo[_text_mapper(vk_front)][_text_mapper(vk_depth_fail_op)]));
-					pipelineDepthStencilStateInfos[i].front.compareOp   = Util::GetVkCompareOp(JsonParser::GetString(stencilInfo[_text_mapper(vk_front)][_text_mapper(vk_compare_op)]));
+					pipelineDepthStencilStateInfos[i].front.failOp      = GetVkStencilOp(JsonParser::GetString(stencilInfo[_text_mapper(vk_front)][_text_mapper(vk_fail_op)]));
+					pipelineDepthStencilStateInfos[i].front.passOp      = GetVkStencilOp(JsonParser::GetString(stencilInfo[_text_mapper(vk_front)][_text_mapper(vk_pass_op)]));
+					pipelineDepthStencilStateInfos[i].front.depthFailOp = GetVkStencilOp(JsonParser::GetString(stencilInfo[_text_mapper(vk_front)][_text_mapper(vk_depth_fail_op)]));
+					pipelineDepthStencilStateInfos[i].front.compareOp   = GetVkCompareOp(JsonParser::GetString(stencilInfo[_text_mapper(vk_front)][_text_mapper(vk_compare_op)]));
 					pipelineDepthStencilStateInfos[i].front.compareMask = StringUtil::StrHexToNumeric(JsonParser::GetString(stencilInfo[_text_mapper(vk_front)][_text_mapper(vk_compare_mask)], "0x00"));
 					pipelineDepthStencilStateInfos[i].front.writeMask   = StringUtil::StrHexToNumeric(JsonParser::GetString(stencilInfo[_text_mapper(vk_front)][_text_mapper(vk_write_mask)],   "0x00"));
 					pipelineDepthStencilStateInfos[i].front.reference   = JsonParser::GetUInt32(stencilInfo[_text_mapper(vk_front)][_text_mapper(vk_reference)]);
@@ -1835,10 +1837,10 @@ bool LogicalDevice::CreateGraphicPipelines(const string& InJsonPath, VkPipelineC
 
 				if (JsonParser::GetString(stencilInfo[_text_mapper(vk_back)]) != "auto")
 				{
-					pipelineDepthStencilStateInfos[i].back.failOp      = Util::GetVkStencilOp(JsonParser::GetString(stencilInfo[_text_mapper(vk_back)][_text_mapper(vk_fail_op)]));
-					pipelineDepthStencilStateInfos[i].back.passOp      = Util::GetVkStencilOp(JsonParser::GetString(stencilInfo[_text_mapper(vk_back)][_text_mapper(vk_pass_op)]));
-					pipelineDepthStencilStateInfos[i].back.depthFailOp = Util::GetVkStencilOp(JsonParser::GetString(stencilInfo[_text_mapper(vk_back)][_text_mapper(vk_depth_fail_op)]));
-					pipelineDepthStencilStateInfos[i].back.compareOp   = Util::GetVkCompareOp(JsonParser::GetString(stencilInfo[_text_mapper(vk_back)][_text_mapper(vk_compare_op)]));
+					pipelineDepthStencilStateInfos[i].back.failOp      = GetVkStencilOp(JsonParser::GetString(stencilInfo[_text_mapper(vk_back)][_text_mapper(vk_fail_op)]));
+					pipelineDepthStencilStateInfos[i].back.passOp      = GetVkStencilOp(JsonParser::GetString(stencilInfo[_text_mapper(vk_back)][_text_mapper(vk_pass_op)]));
+					pipelineDepthStencilStateInfos[i].back.depthFailOp = GetVkStencilOp(JsonParser::GetString(stencilInfo[_text_mapper(vk_back)][_text_mapper(vk_depth_fail_op)]));
+					pipelineDepthStencilStateInfos[i].back.compareOp   = GetVkCompareOp(JsonParser::GetString(stencilInfo[_text_mapper(vk_back)][_text_mapper(vk_compare_op)]));
 					pipelineDepthStencilStateInfos[i].back.compareMask = StringUtil::StrHexToNumeric(JsonParser::GetString(stencilInfo[_text_mapper(vk_back)][_text_mapper(vk_compare_mask)], "0x00"));
 					pipelineDepthStencilStateInfos[i].back.writeMask   = StringUtil::StrHexToNumeric(JsonParser::GetString(stencilInfo[_text_mapper(vk_back)][_text_mapper(vk_write_mask)],   "0x00"));
 					pipelineDepthStencilStateInfos[i].back.reference   = JsonParser::GetUInt32(stencilInfo[_text_mapper(vk_back)][_text_mapper(vk_reference)]);
@@ -1866,18 +1868,18 @@ bool LogicalDevice::CreateGraphicPipelines(const string& InJsonPath, VkPipelineC
 				auto& attachment = bIsArray ? colorBlendInfo[_text_mapper(vk_attachments)][j] : colorBlendInfo[_text_mapper(vk_attachments)];				
 
 				colorBlendAttachmentStates[i][j].blendEnable         = JsonParser::GetUInt32(attachment[_text_mapper(vk_blend_enable)]);
-				colorBlendAttachmentStates[i][j].srcColorBlendFactor = attachment[_text_mapper(vk_src_color_factor)].isUInt() ? static_cast<VkBlendFactor>(JsonParser::GetUInt32(attachment[_text_mapper(vk_src_color_factor)])) : Util::GetVkBlendFactor(JsonParser::GetString(attachment[_text_mapper(vk_src_color_factor)]));
-				colorBlendAttachmentStates[i][j].dstColorBlendFactor = attachment[_text_mapper(vk_dst_color_factor)].isUInt() ? static_cast<VkBlendFactor>(JsonParser::GetUInt32(attachment[_text_mapper(vk_dst_color_factor)])) : Util::GetVkBlendFactor(JsonParser::GetString(attachment[_text_mapper(vk_dst_color_factor)]));
-				colorBlendAttachmentStates[i][j].colorBlendOp        = Util::GetVkBlendOp(JsonParser::GetString(attachment[_text_mapper(vk_color_blend_op)]));
-				colorBlendAttachmentStates[i][j].srcAlphaBlendFactor = attachment[_text_mapper(vk_src_alpha_factor)].isUInt() ? static_cast<VkBlendFactor>(JsonParser::GetUInt32(attachment[_text_mapper(vk_src_alpha_factor)])) : Util::GetVkBlendFactor(JsonParser::GetString(attachment[_text_mapper(vk_src_alpha_factor)]));
-				colorBlendAttachmentStates[i][j].dstAlphaBlendFactor = attachment[_text_mapper(vk_dst_alpha_factor)].isUInt() ? static_cast<VkBlendFactor>(JsonParser::GetUInt32(attachment[_text_mapper(vk_dst_alpha_factor)])) : Util::GetVkBlendFactor(JsonParser::GetString(attachment[_text_mapper(vk_dst_alpha_factor)]));
-				colorBlendAttachmentStates[i][j].alphaBlendOp        = Util::GetVkBlendOp(JsonParser::GetString(attachment[_text_mapper(vk_alpha_blend_op)]));
-				colorBlendAttachmentStates[i][j].colorWriteMask      = Util::GetColorComponentMask(JsonParser::GetString(attachment[_text_mapper(vk_component_mask)]));
+				colorBlendAttachmentStates[i][j].srcColorBlendFactor = attachment[_text_mapper(vk_src_color_factor)].isUInt() ? static_cast<VkBlendFactor>(JsonParser::GetUInt32(attachment[_text_mapper(vk_src_color_factor)])) : GetVkBlendFactor(JsonParser::GetString(attachment[_text_mapper(vk_src_color_factor)]));
+				colorBlendAttachmentStates[i][j].dstColorBlendFactor = attachment[_text_mapper(vk_dst_color_factor)].isUInt() ? static_cast<VkBlendFactor>(JsonParser::GetUInt32(attachment[_text_mapper(vk_dst_color_factor)])) : GetVkBlendFactor(JsonParser::GetString(attachment[_text_mapper(vk_dst_color_factor)]));
+				colorBlendAttachmentStates[i][j].colorBlendOp        = GetVkBlendOp(JsonParser::GetString(attachment[_text_mapper(vk_color_blend_op)]));
+				colorBlendAttachmentStates[i][j].srcAlphaBlendFactor = attachment[_text_mapper(vk_src_alpha_factor)].isUInt() ? static_cast<VkBlendFactor>(JsonParser::GetUInt32(attachment[_text_mapper(vk_src_alpha_factor)])) : GetVkBlendFactor(JsonParser::GetString(attachment[_text_mapper(vk_src_alpha_factor)]));
+				colorBlendAttachmentStates[i][j].dstAlphaBlendFactor = attachment[_text_mapper(vk_dst_alpha_factor)].isUInt() ? static_cast<VkBlendFactor>(JsonParser::GetUInt32(attachment[_text_mapper(vk_dst_alpha_factor)])) : GetVkBlendFactor(JsonParser::GetString(attachment[_text_mapper(vk_dst_alpha_factor)]));
+				colorBlendAttachmentStates[i][j].alphaBlendOp        = GetVkBlendOp(JsonParser::GetString(attachment[_text_mapper(vk_alpha_blend_op)]));
+				colorBlendAttachmentStates[i][j].colorWriteMask      = GetColorComponentMask(JsonParser::GetString(attachment[_text_mapper(vk_component_mask)]));
 			}
 
 			pipelineColorBlendStateInfos[i].flags           = JsonParser::GetUInt32(colorBlendInfo[_text_mapper(vk_flags)]);
 			pipelineColorBlendStateInfos[i].logicOpEnable   = JsonParser::GetUInt32(colorBlendInfo[_text_mapper(vk_logic_op_enable)]);
-			pipelineColorBlendStateInfos[i].logicOp         = Util::GetVkLogicOp(JsonParser::GetString(colorBlendInfo[_text_mapper(vk_logic_op)]));
+			pipelineColorBlendStateInfos[i].logicOp         = GetVkLogicOp(JsonParser::GetString(colorBlendInfo[_text_mapper(vk_logic_op)]));
 			pipelineColorBlendStateInfos[i].attachmentCount = numAttachment;
 			pipelineColorBlendStateInfos[i].pAttachments    = colorBlendAttachmentStates[i].data();
 
@@ -1901,7 +1903,7 @@ bool LogicalDevice::CreateGraphicPipelines(const string& InJsonPath, VkPipelineC
 			dynamicStates[i].resize(numDynamicState);
 
 			for (uint32 j = 0; j < numDynamicState; j++)
-				dynamicStates[i][j] = Util::GetVkDynamicState(JsonParser::GetString(bIsArray ? dynamicStateInfo[_text_mapper(vk_state)][j] : dynamicStateInfo[_text_mapper(vk_state)]));
+				dynamicStates[i][j] = GetVkDynamicState(JsonParser::GetString(bIsArray ? dynamicStateInfo[_text_mapper(vk_state)][j] : dynamicStateInfo[_text_mapper(vk_state)]));
 
 			pipelineDynamicStateInfos[i].flags             = JsonParser::GetUInt32(dynamicStateInfo[_text_mapper(vk_flags)]);
 			pipelineDynamicStateInfos[i].dynamicStateCount = numDynamicState;

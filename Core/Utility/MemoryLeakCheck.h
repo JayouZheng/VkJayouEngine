@@ -84,6 +84,9 @@
 
 #endif // _INC_CRTDBG
 
+#define _enable_runtime_memory_leak_check() _CrtSetDbgFlag(_CRTDBG_LEAK_CHECK_DF | _CRTDBG_ALLOC_MEM_DF)
+#else
+#define _enable_runtime_memory_leak_check()
 #endif // DEBUG
 
 #endif // PLATFORM_WINDOW
