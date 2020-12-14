@@ -1,2 +1,2 @@
-# vk_app
- vulkan study
+# Jayou Engine with Vulkan, under development.
+ Full JSON driven pipeline.
