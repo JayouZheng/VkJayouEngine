@@ -1,5 +1,5 @@
 ﻿/*********************************************************************
- *  Utility.h
+ *  Misc.h
  *  Copyright (C) 2020 Jayou. All Rights Reserved.
  * 
  *  A set of utility api may be uesd through out the engine.
@@ -9,7 +9,7 @@
 
 #include "Core/Common.h"
 
-class Utility
+class Misc
 {
 
 public:
@@ -27,4 +27,4 @@ public:
 	static bool IsVecContain(const std::vector<T>& InVector, const T& InElement, const TLambda& InCompare);
 };
 
-#include "Utility.inl"
+#include "Misc.inl"

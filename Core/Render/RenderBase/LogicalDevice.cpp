@@ -4,7 +4,7 @@
  *********************************************************************/
 
 #include "Core/Base/BaseLayer.h"
-#include "Core/Utility/Utility.h"
+#include "Core/Utility/Misc/Misc.h"
 #include "Core/Base/ResourcePool.h"
 #include "Core/Base/BaseAllocator.h"
 #include "Core/Utility/Mapper/TextMapper.h"

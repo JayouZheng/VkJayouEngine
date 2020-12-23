@@ -21,9 +21,6 @@
     <ClCompile Include="Core\Base\BaseLayer.cpp">
       <Filter>Core\Base</Filter>
     </ClCompile>
-    <ClCompile Include="Core\Utility\Utility.cpp">
-      <Filter>Core\Utility</Filter>
-    </ClCompile>
     <ClCompile Include="Core\Utility\File\FileManager.cpp">
       <Filter>Core\Utility\File</Filter>
     </ClCompile>
@@ -72,8 +69,11 @@
     <ClCompile Include="Core\Render\RenderBase\LogicalDevice.cpp">
       <Filter>Core\Render\RenderBase</Filter>
     </ClCompile>
-    <ClCompile Include="Core\Utility\EnumToString.cpp">
-      <Filter>Core\Utility</Filter>
+    <ClCompile Include="Core\Utility\Misc\EnumToString.cpp">
+      <Filter>Core\Utility\Misc</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Utility\Misc\Misc.cpp">
+      <Filter>Core\Utility\Misc</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -303,9 +303,6 @@
     <ClInclude Include="Core\Platform\Platform.h">
       <Filter>Core\Platform</Filter>
     </ClInclude>
-    <ClInclude Include="Core\Utility\Utility.h">
-      <Filter>Core\Utility</Filter>
-    </ClInclude>
     <ClInclude Include="Core\Utility\File\FileManager.h">
       <Filter>Core\Utility\File</Filter>
     </ClInclude>
@@ -369,11 +366,14 @@
     <ClInclude Include="Core\Render\RenderBase\RenderBaseConfig.h">
       <Filter>Core\Render\RenderBase</Filter>
     </ClInclude>
-    <ClInclude Include="Core\Utility\EnumToString.h">
-      <Filter>Core\Utility</Filter>
-    </ClInclude>
     <ClInclude Include="Core\Base\MemoryLeakCheck.h">
       <Filter>Core\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Utility\Misc\EnumToString.h">
+      <Filter>Core\Utility\Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Utility\Misc\Misc.h">
+      <Filter>Core\Utility\Misc</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -476,6 +476,9 @@
     <Filter Include="Core\Render\RenderBase">
       <UniqueIdentifier>{ccc55751-f5cb-4bcb-84eb-1a5fba0e5605}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\Utility\Misc">
+      <UniqueIdentifier>{ece0b864-aee5-4209-be72-e3c0911045da}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ThirdParty\jsoncpp\src\lib_json\json_valueiterator.inl">
@@ -490,8 +493,8 @@
     <None Include="Core\Render\RenderBase\LogicalDevice.inl">
       <Filter>Core\Render\RenderBase</Filter>
     </None>
-    <None Include="Core\Utility\Utility.inl">
-      <Filter>Core\Utility</Filter>
+    <None Include="Core\Utility\Misc\Misc.inl">
+      <Filter>Core\Utility\Misc</Filter>
     </None>
   </ItemGroup>
 </Project>

@@ -2,11 +2,12 @@
  *  GLSLCompiler.cpp
  *  Copyright (C) 2020 Jayou. All Rights Reserved.
  *********************************************************************/
+
 #include "GLSLCompiler.h"
 #include "Core/Utility/String/StringManager.h"
 #include "Core/Utility/Loader/ModuleLoader.h"
-#include "Core/Utility/EnumToString.h"
-#include "Core/Utility/Utility.h"
+#include "Core/Utility/Misc/EnumToString.h"
+#include "Core/Utility/Misc/Misc.h"
 
 _impl_create_interface(GLSLCompiler)
 
@@ -70,7 +71,7 @@ bool GLSLCompiler::CheckAndParseSPVData(uint32 InMaxDescSets, VkPushConstantRang
 
 				maxSetID = std::max<uint8>(maxSetID, currentSet);
 
-				if (!Utility::IsVecContain<uint8>(setIDArray, currentSet, _lambda_is_equal(uint8)))
+				if (!Misc::IsVecContain<uint8>(setIDArray, currentSet, _lambda_is_equal(uint8)))
 					setIDArray.push_back(currentSet);
 			}
 		}
@@ -123,7 +124,7 @@ bool GLSLCompiler::CheckAndParseSPVData(uint32 InMaxDescSets, VkPushConstantRang
 				uint8& bindingID = spvData->resource[descType].items[i].binding;
 				auto& currentSetBindingID = descSetsBindingID[spvData->resource[descType].items[i].set];
 
-				if (Utility::IsVecContain<uint8>(currentSetBindingID, bindingID, _lambda_is_equal(uint8)))
+				if (Misc::IsVecContain<uint8>(currentSetBindingID, bindingID, _lambda_is_equal(uint8)))
 				{
 					_log_error(StringUtil::Printf("The creating pipeline has repeated binding ID in its shader, the stage is %, the variable name is %!",
 						EnumToString::VkShaderStageToString(descSetBinding.stageFlags), spvData->resource[descType].items[i].name), LogSystem::Category::GLSLCompiler);

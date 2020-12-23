@@ -7,7 +7,7 @@
 #include "BaseConfig.h"
 #include "BaseAllocator.h"
 #include "Core/Global.h"
-#include "Core/Utility/Utility.h"
+#include "Core/Utility/Misc/Misc.h"
 #include "Core/Platform/Windows/Window.h"
 #include "Core/Render/RenderBase/LogicalDevice.h"
 
@@ -305,7 +305,7 @@ bool BaseLayer::Init()
 #if PLATFORM_WINDOW
 
 		// Create Win32 Surface.
-		if (Utility::IsVecContain<const char*>(m_supportInsExts, VK_KHR_WIN32_SURFACE_EXTENSION_NAME, _lambda_is_cstr_equal))
+		if (Misc::IsVecContain<const char*>(m_supportInsExts, VK_KHR_WIN32_SURFACE_EXTENSION_NAME, _lambda_is_cstr_equal))
 		{
 			VkBool32 bIsDefaultQueueSupportPresentation = vkGetPhysicalDeviceWin32PresentationSupportKHR(m_physicalDevices[m_mainPDIndex], m_mainQFIndex);
 
@@ -327,7 +327,7 @@ bool BaseLayer::Init()
 #endif
 
 		// Create Swapchain. // OnResize Recreate Needed!!!
-		if (Utility::IsVecContain<const char*>(m_supportPDExts, VK_KHR_SWAPCHAIN_EXTENSION_NAME, _lambda_is_cstr_equal))
+		if (Misc::IsVecContain<const char*>(m_supportPDExts, VK_KHR_SWAPCHAIN_EXTENSION_NAME, _lambda_is_cstr_equal))
 		{
 			m_swapchainCreateInfo.sType                 = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
 			m_swapchainCreateInfo.surface               = *m_pSurface;
@@ -356,7 +356,7 @@ bool BaseLayer::Init()
 				m_swapchainCreateInfo.imageFormat = m_surfaceFormats.front().format;
 				m_swapchainCreateInfo.imageColorSpace = m_surfaceFormats.front().colorSpace;
 
-				if (Utility::IsVecContain<VkSurfaceFormatKHR>(
+				if (Misc::IsVecContain<VkSurfaceFormatKHR>(
 					m_surfaceFormats, 
 					BaseConfig::DefaultSwapchainCreateInfo.surfaceFormat, 
 					[&](const VkSurfaceFormatKHR& a, const VkSurfaceFormatKHR& b) { return (a.format == b.format) && (a.colorSpace == b.colorSpace); }))
