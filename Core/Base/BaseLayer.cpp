@@ -6,7 +6,7 @@
 #include "BaseLayer.h"
 #include "BaseConfig.h"
 #include "BaseAllocator.h"
-#include "Core/Global.h"
+#include "Core/Base/Global.h"
 #include "Core/Utility/Misc/Misc.h"
 #include "Core/Platform/Windows/Window.h"
 #include "Core/Render/RenderBase/LogicalDevice.h"

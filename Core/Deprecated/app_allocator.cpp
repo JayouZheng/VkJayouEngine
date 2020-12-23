@@ -7,7 +7,7 @@
 
 #if ENABLE_CUSTOM_ALLOCATOR
 
-#include "Core/Global.h"
+#include "Core/Base/Global.h"
 
 #include "Core/Base/MemoryLeakCheck.h"
 

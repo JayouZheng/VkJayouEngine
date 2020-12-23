@@ -4,7 +4,7 @@
  *********************************************************************/
 
 #include "Global.h"
-#include "Core/Base/BaseAllocator.h"
+#include "BaseAllocator.h"
 
 namespace
 {

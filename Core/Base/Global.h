@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "Core/Base/BaseType.h"
+#include "BaseType.h"
 #include "vulkan/vulkan.hpp"
 
 class BaseAllocator;

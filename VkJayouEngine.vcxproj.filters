@@ -2,9 +2,6 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="vk_app.cpp" />
-    <ClCompile Include="Core\Global.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
     <ClCompile Include="ThirdParty\jsoncpp\src\lib_json\json_reader.cpp">
       <Filter>ThirdParty\jsoncpp\src</Filter>
     </ClCompile>
@@ -75,13 +72,13 @@
     <ClCompile Include="Core\Utility\Misc\Misc.cpp">
       <Filter>Core\Utility\Misc</Filter>
     </ClCompile>
+    <ClCompile Include="Core\Base\Global.cpp">
+      <Filter>Core\Base</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="vk_app.h" />
     <ClInclude Include="Core\Common.h">
-      <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Core\Global.h">
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="Core\TypeDef.h">
@@ -279,9 +276,6 @@
     <ClInclude Include="ThirdParty\iniparser\ini.hpp">
       <Filter>ThirdParty\iniparser</Filter>
     </ClInclude>
-    <ClInclude Include="Core\Exception.h">
-      <Filter>Core</Filter>
-    </ClInclude>
     <ClInclude Include="Core\Containers\List.h">
       <Filter>Core\Containers</Filter>
     </ClInclude>
@@ -374,6 +368,12 @@
     </ClInclude>
     <ClInclude Include="Core\Utility\Misc\Misc.h">
       <Filter>Core\Utility\Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Base\Exception.h">
+      <Filter>Core\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Base\Global.h">
+      <Filter>Core\Base</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

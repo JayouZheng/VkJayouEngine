@@ -13,7 +13,7 @@
 #pragma comment(lib, "vulkan-1.lib")
 
 #include "Core/TypeDef.h"
-#include "Core/Exception.h"
+#include "Core/Base/Exception.h"
 #include "Core/Utility/Log/LogSystem.h"
 #include "Core/SmartPtr/SmartPtr.h"
 #include "Core/SmartPtr/VkSmartPtr.h"
