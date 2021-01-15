@@ -169,7 +169,7 @@ private:
 	if (m_type == _name_of(Vk##object))                                                              \
 	{                                                                                                \
 		vkDestroy##object(Global::GetVkDevice(), (Vk##object)*m_object, Global::GetVkAllocator());   \
-		_log_common("_vk_destroy: " + _str_name_of(Vk##object), LogSystem::Category::VkSmartPtr); \
+		_log_common("_vk_destroy: " + _str_name_of(Vk##object), LogSystem::Category::VkSmartPtr);    \
 	}                                                                                                \
 }                                                                                                    \
 

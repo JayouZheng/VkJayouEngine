@@ -6,7 +6,7 @@
 #include "BaseLayer.h"
 #include "BaseConfig.h"
 #include "BaseAllocator.h"
-#include "Core/Base/Global.h"
+#include "Core/Engine/Engine.h"
 #include "Core/Utility/Misc/Misc.h"
 #include "Core/Platform/Windows/Window.h"
 #include "Core/Render/RenderBase/LogicalDevice.h"
@@ -464,10 +464,10 @@ void BaseLayer::CachedModulePath()
 			modulePath.erase(found, dir.size());
 	}
 
-	Global::ModuleInfo moduleInfo;
+	Engine::ModuleInfo moduleInfo;
 	moduleInfo.Path = modulePath;
 	moduleInfo.Name = moduleName;
-	Global::CacheModuleInfo(moduleInfo);
+	Engine::Get()->CacheModuleInfo(moduleInfo);
 
 #endif
 }

@@ -14,12 +14,6 @@ class BaseAllocator;
 
 namespace Global
 {
-	struct ModuleInfo
-	{
-		string Path;
-		string Name;
-	};
-
 	void                    SafeFreeAllocator();
 	void                    IncInstanceRef();
 	void                    DecInstanceRef();
@@ -28,12 +22,9 @@ namespace Global
 	void                    SetVkInstance   (const VkInstance& InInstance);
 	void                    SetVkDevice     (const VkDevice&   InDevice);
 	void                    SetAllocator    (BaseAllocator*    nAllocator);
-	void                    CacheModuleInfo (const ModuleInfo& InModuleInfo);
 
 	VkInstance              GetVkInstance();
 	VkDevice                GetVkDevice();
-	string                  GetModulePath();
-	string                  GetModuleName();
 	BaseAllocator*          GetAllocator();
 	VkAllocationCallbacks*  GetVkAllocator();
 }

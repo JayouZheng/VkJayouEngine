@@ -5,12 +5,13 @@
 
 #include "PathParser.h"
 #include "Core/Common.h"
+#include "Core/Engine/Engine.h"
 
 const string PathParser::Parse(const string& InPath)
 {
 	_log_common("Parse: " + InPath, LogSystem::Category::PathParser);
 
-	return Global::GetModulePath() + InPath;
+	return Engine::Get()->GetModulePath() + InPath;
 }
 
 Path::Path(const string& InPath) :

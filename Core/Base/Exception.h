@@ -78,8 +78,8 @@ public:
 	}
 
 	VkResult    m_result;
-	string m_funcName;
-	string m_fileName;
+	string      m_funcName;
+	string      m_fileName;
 	uint32      m_lineNumber;
 };
 

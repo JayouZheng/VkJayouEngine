@@ -51,6 +51,7 @@ void Engine::Init()
     g_data.BaseLayerRef = BaseLayer::Create(nullptr);
     ResourcePool::Get()->Push(g_data.BaseLayerRef);
     g_data.BaseLayerRef->Init();
+    m_moduleInfo = { _str_null, _str_null };
 }
 
 void Engine::Exit()
@@ -62,4 +63,24 @@ void Engine::Exit()
     g_engine = nullptr;
 
     ResourcePool::Get()->Free();
+}
+
+void Engine::CacheModuleInfo(const ModuleInfo& InModuleInfo)
+{
+    static bool bDoOnce = false;
+    if (!bDoOnce)
+    {
+        m_moduleInfo = InModuleInfo;
+        bDoOnce = true;
+    }
+}
+
+string Engine::GetModulePath() const
+{
+    return m_moduleInfo.Path;
+}
+
+string Engine::GetModuleName() const
+{
+    return m_moduleInfo.Name;
 }

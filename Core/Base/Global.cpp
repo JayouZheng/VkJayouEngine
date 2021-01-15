@@ -11,7 +11,6 @@ namespace
 	static VkInstance               g_instance         = VK_NULL_HANDLE;
 	static VkDevice                 g_device           = VK_NULL_HANDLE;
 	static BaseAllocator*           g_allocator        = nullptr;
-	static Global::ModuleInfo       g_moduleInfo       = { "", _str_null };
 	static uint32                   g_instanceRefs     = 0u;
 }
 
@@ -53,16 +52,6 @@ VkDevice Global::GetVkDevice()
 	return g_device;
 }
 
-string Global::GetModulePath()
-{
-	return g_moduleInfo.Path;
-}
-
-string Global::GetModuleName()
-{
-	return g_moduleInfo.Name;
-}
-
 BaseAllocator* Global::GetAllocator()
 {
 	return g_allocator;
@@ -88,9 +77,4 @@ void Global::SetVkDevice(const VkDevice& InDevice)
 void Global::SetAllocator(BaseAllocator* InAllocator)
 {
 	g_allocator = InAllocator;
-}
-
-void Global::CacheModuleInfo(const ModuleInfo& InModuleInfo)
-{
-	g_moduleInfo = InModuleInfo;
 }
