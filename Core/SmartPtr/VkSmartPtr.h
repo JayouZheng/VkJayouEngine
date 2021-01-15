@@ -134,12 +134,19 @@ public:
 	}
 };
 
-namespace VkSmartPtr_Private
+class VkSmartPtr_Private
 {
-	void IncInstanceRef();
-	void DecInstanceRef();
-	bool IsInstanceRefZero();
-}
+
+private:
+
+	template<typename T> friend class VkCounter;
+
+	static int32 m_instanceRefs;
+
+	static void IncInstanceRef();
+	static void DecInstanceRef();
+	static bool IsInstanceRefZero();
+};
 
 template<typename T>
 class VkCounter

@@ -7,22 +7,19 @@
 
 #include "VkSmartPtr.h"
 
-namespace
-{
-	static int32 g_instanceRefs = 0;
-}
+int32 VkSmartPtr_Private::m_instanceRefs = 0;
 
 void VkSmartPtr_Private::IncInstanceRef()
 {
-	g_instanceRefs++;
+	m_instanceRefs++;
 }
 
 void VkSmartPtr_Private::DecInstanceRef()
 {
-	g_instanceRefs--;
+	m_instanceRefs--;
 }
 
 bool VkSmartPtr_Private::IsInstanceRefZero()
 {
-	return g_instanceRefs == 0;
+	return m_instanceRefs == 0;
 }
