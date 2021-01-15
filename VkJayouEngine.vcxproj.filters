@@ -75,6 +75,9 @@
     <ClCompile Include="Core\Base\Global.cpp">
       <Filter>Core\Base</Filter>
     </ClCompile>
+    <ClCompile Include="Core\SmartPtr\VkSmartPtr.cpp">
+      <Filter>Core\SmartPtr</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="vk_app.h" />

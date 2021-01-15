@@ -134,6 +134,13 @@ public:
 	}
 };
 
+namespace VkSmartPtr_Private
+{
+	void IncInstanceRef();
+	void DecInstanceRef();
+	bool IsInstanceRefZero();
+}
+
 template<typename T>
 class VkCounter
 {
@@ -141,7 +148,7 @@ private:
 
 	T*            m_object;
 	uint32        m_count;
-	string   m_type;
+	string        m_type;
 	bool          m_bReleasedObjectOwnership;
 
 	template<typename T>
@@ -150,10 +157,10 @@ private:
 	VkCounter(T *ptr)
 	{
 		m_object = ptr;
-		m_count = 1;
+		m_count  = 1;
 		m_bReleasedObjectOwnership = false;
 
-		Global::IncInstanceRef();
+		VkSmartPtr_Private::IncInstanceRef();
 	}
 
 	~VkCounter()
@@ -204,9 +211,9 @@ private:
 				_log_common("_vk_destroy: " + _str_name_of(VkSurfaceKHR), LogSystem::Category::VkSmartPtr);
 			}
 
-			Global::DecInstanceRef();
+			VkSmartPtr_Private::DecInstanceRef();
 
-			if (Global::IsInstanceRefZero())
+			if (VkSmartPtr_Private::IsInstanceRefZero())
 			{
 				vkDestroyDevice(Global::GetVkDevice(), Global::GetVkAllocator());
 				vkDestroyInstance(Global::GetVkInstance(), Global::GetVkAllocator());

@@ -11,7 +11,6 @@ namespace
 	static VkInstance               g_instance         = VK_NULL_HANDLE;
 	static VkDevice                 g_device           = VK_NULL_HANDLE;
 	static BaseAllocator*           g_allocator        = nullptr;
-	static uint32                   g_instanceRefs     = 0u;
 }
 
 //---------------------------------------------------------------------
@@ -23,21 +22,6 @@ void Global::SafeFreeAllocator()
 		delete g_allocator;
 		g_allocator = nullptr;
 	}
-}
-
-void Global::IncInstanceRef()
-{
-	g_instanceRefs++;
-}
-
-void Global::DecInstanceRef()
-{
-	g_instanceRefs--;
-}
-
-bool Global::IsInstanceRefZero()
-{
-	return g_instanceRefs == 0;
 }
 
 //---------------------------------------------------------------------

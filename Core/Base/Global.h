@@ -15,9 +15,6 @@ class BaseAllocator;
 namespace Global
 {
 	void                    SafeFreeAllocator();
-	void                    IncInstanceRef();
-	void                    DecInstanceRef();
-	bool                    IsInstanceRefZero();
 
 	void                    SetVkInstance   (const VkInstance& InInstance);
 	void                    SetVkDevice     (const VkDevice&   InDevice);

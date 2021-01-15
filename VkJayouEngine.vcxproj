@@ -178,6 +178,7 @@
     <ClCompile Include="Core\Render\RenderBase\CommandList.cpp" />
     <ClCompile Include="Core\Render\RenderBase\CommandQueue.cpp" />
     <ClCompile Include="Core\Render\RenderBase\LogicalDevice.cpp" />
+    <ClCompile Include="Core\SmartPtr\VkSmartPtr.cpp" />
     <ClCompile Include="Core\Utility\Color\ColorManager.cpp" />
     <ClCompile Include="Core\Utility\File\FileManager.cpp" />
     <ClCompile Include="Core\Utility\Loader\ModuleLoader.cpp" />
