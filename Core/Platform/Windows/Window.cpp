@@ -4,7 +4,6 @@
  *********************************************************************/
 
 #include "Window.h"
-#include "Core/Base/Global.h"
 
 #if PLATFORM_WINDOW
 

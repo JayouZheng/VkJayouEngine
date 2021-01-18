@@ -18,6 +18,7 @@ namespace
     struct InternalData
     {
         BaseLayer* BaseLayerRef;
+        Engine::ModuleInfo ModuleInfo;
     }g_data;
 
     static class EngineHandler
@@ -51,7 +52,7 @@ void Engine::Init()
     g_data.BaseLayerRef = BaseLayer::Create(nullptr);
     ResourcePool::Get()->Push(g_data.BaseLayerRef);
     g_data.BaseLayerRef->Init();
-    m_moduleInfo = { _str_null, _str_null };
+    g_data.ModuleInfo = { _str_null, _str_null };
 }
 
 void Engine::Exit()
@@ -65,22 +66,27 @@ void Engine::Exit()
     ResourcePool::Get()->Free();
 }
 
+BaseLayer* Engine::GetBaseLayer()
+{
+    return g_data.BaseLayerRef;
+}
+
 void Engine::CacheModuleInfo(const ModuleInfo& InModuleInfo)
 {
     static bool bDoOnce = false;
     if (!bDoOnce)
     {
-        m_moduleInfo = InModuleInfo;
+        g_data.ModuleInfo = InModuleInfo;
         bDoOnce = true;
     }
 }
 
 string Engine::GetModulePath() const
 {
-    return m_moduleInfo.Path;
+    return g_data.ModuleInfo.Path;
 }
 
 string Engine::GetModuleName() const
 {
-    return m_moduleInfo.Name;
+    return g_data.ModuleInfo.Name;
 }

@@ -72,9 +72,6 @@
     <ClCompile Include="Core\Utility\Misc\Misc.cpp">
       <Filter>Core\Utility\Misc</Filter>
     </ClCompile>
-    <ClCompile Include="Core\Base\Global.cpp">
-      <Filter>Core\Base</Filter>
-    </ClCompile>
     <ClCompile Include="Core\SmartPtr\VkSmartPtr.cpp">
       <Filter>Core\SmartPtr</Filter>
     </ClCompile>
@@ -373,9 +370,6 @@
       <Filter>Core\Utility\Misc</Filter>
     </ClInclude>
     <ClInclude Include="Core\Base\Exception.h">
-      <Filter>Core\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="Core\Base\Global.h">
       <Filter>Core\Base</Filter>
     </ClInclude>
   </ItemGroup>

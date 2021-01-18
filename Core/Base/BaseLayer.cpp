@@ -13,11 +13,6 @@
 
 _impl_create_interface(BaseLayer)
 
-VkAllocationCallbacks* BaseLayer::GetVkAllocator() const
-{
-	return m_pAllocator != nullptr ? m_pAllocator->GetVkAllocator() : nullptr;
-}
-
 BaseLayer::BaseLayer() : 
 	m_pAllocator  (nullptr),
 	m_mainPDIndex (-1),
@@ -120,11 +115,11 @@ bool BaseLayer::Init()
 
 		VkInstance vkInstance = VK_NULL_HANDLE;
 		_vk_try(vkCreateInstance(&instanceCreateInfo, GetVkAllocator(), &vkInstance));
-		Global::SetVkInstance(vkInstance);
+		SetVkInstance(vkInstance);
 
 		// Enum physical devices.
 		uint32 physicalDeviceCount = _count_0;
-		_vk_try(vkEnumeratePhysicalDevices(Global::GetVkInstance(), &physicalDeviceCount, nullptr));
+		_vk_try(vkEnumeratePhysicalDevices(GetVkInstance(), &physicalDeviceCount, nullptr));
 
 		if (physicalDeviceCount == 0)
 		{
@@ -133,7 +128,7 @@ bool BaseLayer::Init()
 		}
 
 		m_physicalDevices.resize(physicalDeviceCount);
-		_vk_try(vkEnumeratePhysicalDevices(Global::GetVkInstance(), &physicalDeviceCount, m_physicalDevices.data()));
+		_vk_try(vkEnumeratePhysicalDevices(GetVkInstance(), &physicalDeviceCount, m_physicalDevices.data()));
 
 		// Resize std::vector. 
 		m_PDExtProps.resize(physicalDeviceCount);
@@ -298,7 +293,7 @@ bool BaseLayer::Init()
 
 		_vk_try(vkCreateDevice(m_physicalDevices[m_mainPDIndex], &deviceCreateInfo, GetVkAllocator(), m_pDevice->GetAddressOfVkDevice()));
 		m_pDevice->Init(this);
-		Global::SetVkDevice(m_pDevice->GetVkDevice());
+		SetVkDevice(m_pDevice->GetVkDevice());
 
 		m_pDevice->CreateCommandPool(m_mainQFIndex);
 
@@ -321,7 +316,7 @@ bool BaseLayer::Init()
 			win32SurfaceCreateInfo.hinstance = (HINSTANCE)m_pWindow->GetHinstance();
 			win32SurfaceCreateInfo.hwnd = (HWND)m_pWindow->GetHwnd();
 
-			_vk_try(vkCreateWin32SurfaceKHR(Global::GetVkInstance(), &win32SurfaceCreateInfo, GetVkAllocator(), m_pSurface.MakeInstance()));
+			_vk_try(vkCreateWin32SurfaceKHR(GetVkInstance(), &win32SurfaceCreateInfo, GetVkAllocator(), m_pSurface.MakeInstance()));
 		}
 		
 #endif
@@ -475,28 +470,57 @@ void BaseLayer::CachedModulePath()
 void BaseLayer::SetBaseAllocator(BaseAllocator* InAllocator)
 {
 	m_pAllocator = InAllocator;
+	VkSmartPtr_Private::SetBaseAllocator(InAllocator);
 }
 
-BaseAllocator* BaseLayer::GetBaseAllocator()
+void BaseLayer::SafeFreeAllocator()
 {
-	return m_pAllocator;
+	if (m_pAllocator != nullptr)
+	{
+		delete m_pAllocator;
+		m_pAllocator = nullptr;
+	}
 }
 
-Window* BaseLayer::GetWindow()
+void BaseLayer::SetVkInstance(const VkInstance& InInstance)
 {
-	return m_pWindow;
+	m_instance = InInstance;
+	VkSmartPtr_Private::SetVkInstance(InInstance);
+}
+
+void BaseLayer::SetVkDevice(const VkDevice& InDevice)
+{
+	m_device = InDevice;
+	VkSmartPtr_Private::SetVkDevice(InDevice);
 }
 
 void BaseLayer::Free()
 {
-#if 0
-	if (Global::IsDestroyManually())
-	{
-		// If app has none vk_ptr, this codes should be activated!
-		vkDestroyDevice(Global::GetVkDevice(), Global::GetVkAllocator());
-		vkDestroyInstance(Global::GetVkInstance(), Global::GetVkAllocator());
-	}
-#endif
+}
+
+VkInstance BaseLayer::GetVkInstance() const
+{
+	return m_instance;
+}
+
+VkDevice BaseLayer::GetVkDevice() const
+{
+	return m_device;
+}
+
+BaseAllocator* BaseLayer::GetBaseAllocator() const
+{
+	return m_pAllocator;
+}
+
+VkAllocationCallbacks* BaseLayer::GetVkAllocator() const
+{
+	return m_pAllocator != nullptr ? m_pAllocator->GetVkAllocator() : nullptr;
+}
+
+Window* BaseLayer::GetWindow() const
+{
+	return m_pWindow;
 }
 
 LogicalDevice* BaseLayer::GetLogicalDevice() const

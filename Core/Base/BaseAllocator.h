@@ -2,7 +2,7 @@
  *  BaseAllocator.h
  *  Copyright (C) 2020 Jayou. All Rights Reserved.
  * 
- *  .
+ *  Current custom allocator will lead to memory leak!
  *********************************************************************/
 
 #pragma once
@@ -30,15 +30,15 @@ private:
 	// Declare the allocator callbacks as static member functions.
 	static void* VKAPI_CALL _Allocation(
 		void*                                       pUserData, 
-		usize                                      size,
-		usize                                      alignment, 
+		usize                                       size,
+		usize                                       alignment, 
 		VkSystemAllocationScope                     allocationScope);
 
 	static void* VKAPI_CALL _Reallocation(
 		void*                                       pUserData, 
 		void*                                       pOriginal, 
-		usize                                      size, 
-		usize                                      alignment, 
+		usize                                       size, 
+		usize                                       alignment, 
 		VkSystemAllocationScope                     allocationScope);
 
 	static void  VKAPI_CALL _Free(
@@ -47,13 +47,13 @@ private:
 
 	static void VKAPI_CALL _InternalAllocation(
 		void*                                       pUserData,
-		usize                                      size,
+		usize                                       size,
 		VkInternalAllocationType                    allocationType,
 		VkSystemAllocationScope                     allocationScope);
 
 	static void VKAPI_CALL _InternalFree(
 		void*                                       pUserData,
-		usize                                      size,
+		usize                                       size,
 		VkInternalAllocationType                    allocationType,
 		VkSystemAllocationScope                     allocationScope);
 

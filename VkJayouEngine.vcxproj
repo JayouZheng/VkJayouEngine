@@ -170,7 +170,6 @@
   <ItemGroup>
     <ClCompile Include="Core\Base\BaseAllocator.cpp" />
     <ClCompile Include="Core\Base\BaseLayer.cpp" />
-    <ClCompile Include="Core\Base\Global.cpp" />
     <ClCompile Include="Core\Base\ResourcePool.cpp" />
     <ClCompile Include="Core\Engine\Engine.cpp" />
     <ClCompile Include="Core\Platform\Windows\Window.cpp" />
@@ -201,7 +200,6 @@
     <ClInclude Include="Core\Base\BaseLayer.h" />
     <ClInclude Include="Core\Base\BaseType.h" />
     <ClInclude Include="Core\Base\Exception.h" />
-    <ClInclude Include="Core\Base\Global.h" />
     <ClInclude Include="Core\Base\Interface\IResourceHandler.h" />
     <ClInclude Include="Core\Base\MemoryLeakCheck.h" />
     <ClInclude Include="Core\Base\ResourcePool.h" />

@@ -8,8 +8,8 @@
 
 #pragma once
 
-#include "Core/Base/Global.h"
 #include "Core/Utility/Log/LogSystem.h"
+#include "vulkan/vulkan.hpp"
 
 #pragma region VkSmartPtr
 
@@ -134,18 +134,30 @@ public:
 	}
 };
 
+class BaseAllocator;
+
 class VkSmartPtr_Private
 {
 
 private:
 
 	template<typename T> friend class VkCounter;
-
-	static int32 m_instanceRefs;
+	friend class BaseLayer;
 
 	static void IncInstanceRef();
 	static void DecInstanceRef();
 	static bool IsInstanceRefZero();
+
+	static void SafeFreeAllocator();
+
+	static void SetVkInstance    (const VkInstance& InInstance);
+	static void SetVkDevice      (const VkDevice& InDevice);
+	static void SetBaseAllocator (BaseAllocator* nAllocator);
+
+	static VkInstance             GetVkInstance();
+	static VkDevice               GetVkDevice();
+	static BaseAllocator*         GetBaseAllocator();
+	static VkAllocationCallbacks* GetVkAllocator();
 };
 
 template<typename T>
@@ -178,14 +190,14 @@ private:
 #ifdef _vk_destroy
 #undef _vk_destroy
 #endif // _vk_destroy
-#define _vk_destroy(object)                                                                          \
-{                                                                                                    \
-	if (m_type == _name_of(Vk##object))                                                              \
-	{                                                                                                \
-		vkDestroy##object(Global::GetVkDevice(), (Vk##object)*m_object, Global::GetVkAllocator());   \
-		_log_common("_vk_destroy: " + _str_name_of(Vk##object), LogSystem::Category::VkSmartPtr);    \
-	}                                                                                                \
-}                                                                                                    \
+#define _vk_destroy(object)                                                                                                \
+{                                                                                                                          \
+	if (m_type == _name_of(Vk##object))                                                                                    \
+	{                                                                                                                      \
+		vkDestroy##object(VkSmartPtr_Private::GetVkDevice(), (Vk##object)*m_object, VkSmartPtr_Private::GetVkAllocator()); \
+		_log_common("_vk_destroy: " + _str_name_of(Vk##object), LogSystem::Category::VkSmartPtr);                          \
+	}                                                                                                                      \
+}                                                                                                                          \
 
 		if (m_object != nullptr && *m_object != NULL && !m_bReleasedObjectOwnership)
 		{
@@ -214,7 +226,7 @@ private:
 			// Using VkInstance...
 			if (m_type == _name_of(VkSurfaceKHR))
 			{
-				vkDestroySurfaceKHR(Global::GetVkInstance(), (VkSurfaceKHR)*m_object, Global::GetVkAllocator());
+				vkDestroySurfaceKHR(VkSmartPtr_Private::GetVkInstance(), (VkSurfaceKHR)*m_object, VkSmartPtr_Private::GetVkAllocator());
 				_log_common("_vk_destroy: " + _str_name_of(VkSurfaceKHR), LogSystem::Category::VkSmartPtr);
 			}
 
@@ -222,9 +234,9 @@ private:
 
 			if (VkSmartPtr_Private::IsInstanceRefZero())
 			{
-				vkDestroyDevice(Global::GetVkDevice(), Global::GetVkAllocator());
-				vkDestroyInstance(Global::GetVkInstance(), Global::GetVkAllocator());
-				Global::SafeFreeAllocator();
+				vkDestroyDevice(VkSmartPtr_Private::GetVkDevice(), VkSmartPtr_Private::GetVkAllocator());
+				vkDestroyInstance(VkSmartPtr_Private::GetVkInstance(), VkSmartPtr_Private::GetVkAllocator());
+				VkSmartPtr_Private::SafeFreeAllocator();
 			}
 
 			delete m_object;

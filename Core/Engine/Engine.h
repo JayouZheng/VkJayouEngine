@@ -9,6 +9,8 @@
 
 #include "Core/Base/BaseType.h"
 
+class BaseLayer;
+
 class Engine
 {
 
@@ -27,6 +29,8 @@ public:
 	void   Init();
 	void   Exit();
 
+	BaseLayer* GetBaseLayer();
+
 	void   CacheModuleInfo(const ModuleInfo& InModuleInfo);
 	string GetModulePath() const;
 	string GetModuleName() const;
@@ -34,6 +38,4 @@ public:
 private:
 
 	Engine() = default;
-	
-	ModuleInfo m_moduleInfo;
 };

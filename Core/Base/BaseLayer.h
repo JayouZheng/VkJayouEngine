@@ -62,6 +62,8 @@ protected:
 
 protected:
 
+	VkInstance                                        m_instance;
+	VkDevice                                          m_device;
 	BaseAllocator*                                    m_pAllocator;
 	LogicalDevice*                                    m_pDevice;
 	Window*                                           m_pWindow;
@@ -79,10 +81,11 @@ protected:
 
 	BaseLayer();
 
-	VkAllocationCallbacks* GetVkAllocator() const;
-
 	void Free();
 	void CachedModulePath();
+	void SafeFreeAllocator();
+	void SetVkInstance(const VkInstance& InInstance);
+	void SetVkDevice(const VkDevice& InDevice);
 
 public:
 
@@ -92,9 +95,11 @@ public:
 	
 	void SetBaseAllocator(BaseAllocator* InAllocator);
 
-	BaseAllocator* GetBaseAllocator();
-	Window*        GetWindow();
-
+	VkInstance                         GetVkInstance()    const;
+	VkDevice                           GetVkDevice()      const;
+	BaseAllocator*                     GetBaseAllocator() const;
+	VkAllocationCallbacks*             GetVkAllocator()   const;
+	Window*                            GetWindow()        const;
 	LogicalDevice*                     GetLogicalDevice() const;
 	const VkPhysicalDeviceLimits&      GetMainPDLimits () const;
 	const VkPhysicalDeviceProperties&  GetMainPDProps  () const;
