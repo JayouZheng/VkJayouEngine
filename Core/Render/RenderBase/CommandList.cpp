@@ -414,6 +414,16 @@ void CommandList::SetDepthBias(float InDepthBiasConstantFactor, float InDepthBia
 	vkCmdSetDepthBias(m_cmdBuffer, InDepthBiasConstantFactor, InDepthBiasClamp, InDepthBiasSlopeFactor);
 }
 
+void CommandList::BeginRenderPass(const VkRenderPassBeginInfo* InRenderPassBeginInfo, VkSubpassContents InContents)
+{
+	vkCmdBeginRenderPass(m_cmdBuffer, InRenderPassBeginInfo, InContents);
+}
+
+void CommandList::EndRenderPass()
+{
+	vkCmdEndRenderPass(m_cmdBuffer);
+}
+
 void CommandList::ResourceBarriers(
 	VkPipelineStageFlags InSrcStageMask, 
 	VkPipelineStageFlags InDstStageMask,

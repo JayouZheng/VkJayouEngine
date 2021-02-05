@@ -100,6 +100,9 @@ public:
 
 	void SetDepthBias           (float InDepthBiasConstantFactor, float InDepthBiasClamp, float InDepthBiasSlopeFactor);
 
+	void BeginRenderPass        (const VkRenderPassBeginInfo* InRenderPassBeginInfo, VkSubpassContents InContents);
+	void EndRenderPass          ();
+
 #pragma region PiplineBarrier
 
 public:

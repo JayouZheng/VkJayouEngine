@@ -418,7 +418,7 @@ bool BaseLayer::Init()
 		// TODO:
 		m_pDevice->CreateGraphicPipelines(PathParser::Parse("Json/graphic_pipeline_info.json"));
 		
-		//m_pWindow->Show();
+		m_pWindow->Show();
 	}
 
 	return true;

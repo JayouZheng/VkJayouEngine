@@ -1463,7 +1463,7 @@ bool LogicalDevice::CreateGraphicPipelines(const string& InJsonPath, VkPipelineC
 
 	std::vector<VkGraphicsPipelineCreateInfo>                     graphicInfos;
 	std::vector<std::vector<VkPipelineShaderStageCreateInfo>>     shaderInfos;
-	std::vector<string>                                      shaderEntrypoints;
+	std::vector<string>                                           shaderEntrypoints;
 	std::vector<VkSmartPtr<VkShaderModule>>                       shaderModules;
 	std::vector<std::vector<VkSpecializationMapEntry>>            specMaps;
 	std::vector<std::vector<uint32>>                              specData;
@@ -1483,7 +1483,7 @@ bool LogicalDevice::CreateGraphicPipelines(const string& InJsonPath, VkPipelineC
 	std::vector<std::vector<VkPipelineColorBlendAttachmentState>> colorBlendAttachmentStates;
 	std::vector<std::vector<VkDynamicState>>                      dynamicStates;
 	std::vector<VkSmartPtr<VkPipelineLayout>>                     pPipelineLayouts;
-	std::unordered_map<string, int32>                        basePipelineNameIDMap;
+	std::unordered_map<string, int32>                             basePipelineNameIDMap;
 
 	graphicInfos.resize(numGInfo);
 	shaderInfos.resize(numGInfo);
@@ -1983,6 +1983,9 @@ bool LogicalDevice::CreateGraphicPipelines(const string& InJsonPath, VkPipelineC
 	}
 
 	_log_common("End creating graphic pipeline with " + InJsonPath, LogSystem::Category::LogicalDevice);
+
+	//ResourcePool::Get()->Free();
+	//exit(1);
 
 	return true;
 }
