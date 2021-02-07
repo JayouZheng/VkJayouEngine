@@ -21,7 +21,7 @@ public:
 	 * 
 	 *  @return absolute path.
 	 */
-	static const string Parse(const string& InPath);
+	static string Parse(const string& InPath);
 };
 
 //---------------------------------------------------------------------------

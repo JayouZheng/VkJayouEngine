@@ -11,6 +11,8 @@
 #include "Core/Platform/Windows/Window.h"
 #include "Core/Render/RenderBase/LogicalDevice.h"
 
+string GTestJaonPath;
+
 _impl_create_interface(BaseLayer)
 
 BaseLayer::BaseLayer() : 
@@ -25,6 +27,8 @@ BaseLayer::BaseLayer() :
 
 	m_pDevice = LogicalDevice::Create(this);
 	m_pWindow = Window::Create(this);
+
+	GTestJaonPath = PathParser::Parse("Json/graphic_pipeline_info.json");
 }
 
 BaseLayer::~BaseLayer()
@@ -416,7 +420,7 @@ bool BaseLayer::Init()
 		}
 
 		// TODO:
-		m_pDevice->CreateGraphicPipelines(PathParser::Parse("Json/graphic_pipeline_info.json"));
+		m_pDevice->CreateGraphicPipelines(GTestJaonPath);
 		
 		m_pWindow->Show();
 	}

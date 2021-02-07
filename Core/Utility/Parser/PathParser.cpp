@@ -7,7 +7,7 @@
 #include "Core/Common.h"
 #include "Core/Engine/Engine.h"
 
-const string PathParser::Parse(const string& InPath)
+string PathParser::Parse(const string& InPath)
 {
 	_log_common("Parse: " + InPath, LogSystem::Category::PathParser);
 
