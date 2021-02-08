@@ -42,3 +42,38 @@ public:
      */
     void Push(VkSmartPtr<VkObjectHandler> InRef);
 };
+
+class LoaclResourcePool
+{
+public:
+
+    /**
+     *  Add a new resource into pool.
+     *
+     *  @param  InRef  the resource reference to add.
+     */
+    void Push(IResourceHandler* InRef);
+
+    /**
+     *  Add a new vulkan object smart pointer into pool.
+     *
+     *  @param  InRef  the vulkan object to add.
+     */
+    void Push(VkSmartPtr<VkObjectHandler> InRef);
+
+    /**
+     *  Free Current Loacl ResourcePool.
+     */
+    void Free();
+
+    ~LoaclResourcePool();
+
+private:
+
+    struct InternalResource
+    {
+        std::vector<IResourceHandler*>           CommonRefs;    ///< Cache common resource references.
+        std::vector<VkSmartPtr<VkObjectHandler>> VkSmartRefs;   ///< Cache vulkan smart object references.
+
+    }m_resource;
+};

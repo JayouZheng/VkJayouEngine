@@ -372,6 +372,9 @@
     <ClInclude Include="Core\Base\Exception.h">
       <Filter>Core\Base</Filter>
     </ClInclude>
+    <ClInclude Include="Core\Render\RenderBase\RenderEnum.h">
+      <Filter>Core\Render\RenderBase</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />

@@ -215,6 +215,7 @@
     <ClInclude Include="Core\Render\RenderBase\CommandQueue.h" />
     <ClInclude Include="Core\Render\RenderBase\LogicalDevice.h" />
     <ClInclude Include="Core\Render\RenderBase\RenderBaseConfig.h" />
+    <ClInclude Include="Core\Render\RenderBase\RenderEnum.h" />
     <ClInclude Include="Core\SmartPtr\SmartPtr.h" />
     <ClInclude Include="Core\SmartPtr\VkSmartPtr.h" />
     <ClInclude Include="Core\TypeDef.h" />

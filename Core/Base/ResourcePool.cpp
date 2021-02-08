@@ -79,3 +79,28 @@ void ResourcePool::Push(VkSmartPtr<VkObjectHandler> InRef)
 
     g_resource.VkSmartRefs.push_back(InRef);
 }
+
+void LoaclResourcePool::Push(IResourceHandler* InRef)
+{
+    m_resource.CommonRefs.push_back(InRef);
+}
+
+void LoaclResourcePool::Push(VkSmartPtr<VkObjectHandler> InRef)
+{
+    m_resource.VkSmartRefs.push_back(InRef);
+}
+
+void LoaclResourcePool::Free()
+{
+    for (auto& ref : m_resource.CommonRefs)
+        if (ref != nullptr)
+        {
+            delete ref;
+            ref = nullptr;
+        }
+}
+
+LoaclResourcePool::~LoaclResourcePool()
+{
+    Free();
+}

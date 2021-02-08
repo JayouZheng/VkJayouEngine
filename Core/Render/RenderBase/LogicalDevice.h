@@ -8,6 +8,7 @@
 #pragma once
 
 #include "Core/Common.h"
+#include "RenderEnum.h"
 
 class BaseLayer;
 class BaseAllocator;
@@ -158,6 +159,10 @@ public:
 	VkRenderPass   GetRenderPass                 (const string& InName);
 	VkPipeline     GetPipeline                   (const string& InName);
 
+	usize          GetPipelineCacheDataSize      (VkPipelineCache  InPipCache);
+	void           GetPipelineCacheData          (VkPipelineCache  InPipCache, usize InDataSize, void* OutData);
+	void           GetPipelineCacheData          (VkPipelineCache  InPipCache, std::vector<uint8>& OutData);
+
 	// Simple Stupid API (In fact, for all create funs, we need to gather all create infos first, do creating next!).
 	void           CreateCommandPool             (const VkCommandPoolCreateInfo& InCreateInfo);
 	void           CreateCommandPool             (uint32 InQueueFamilyIndex, VkCommandPoolCreateFlags InFlags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
@@ -176,9 +181,7 @@ public:
 	void           CreatePipelineCache           (VkPipelineCache* OutPipCache, const void* InData, usize InSize, VkPipelineCacheCreateFlags InFlags = _flag_none);
 	void           CreateEmptyPipelineCache      (VkPipelineCache* OutPipCache);
 	void           CreatePipelineCacheFromFile   (VkPipelineCache* OutPipCache, const Path& InPath);
-	usize          GetPipelineCacheDataSize      (VkPipelineCache  InPipCache);
-	void           GetPipelineCacheData          (VkPipelineCache  InPipCache, usize InDataSize, void* OutData);
-	void           GetPipelineCacheData          (VkPipelineCache  InPipCache, std::vector<uint8>& OutData);
+
 	void           SavePipelineCacheToFile       (const Path&      InPath);
 	void           MergePipelineCaches           (VkPipelineCache  OutMergedPipCache, const VkPipelineCache* InPipCaches, uint32 InSrcPipCacheCount);
 
@@ -214,6 +217,7 @@ public:
 	void           CreateAnisotropicWrapSampler  (VkSampler* OutSampler);
 	void           CreateAnisotropicClampSampler (VkSampler* OutSampler);
 	void           CreatePCFSampler              (VkSampler* OutSampler);
+	void           CreateSampler                 (VkSampler* OutSampler, Render::Sampler InSamplerType);
 
 	void           CreateRenderPass              (VkRenderPass* OutRenderPass, const VkRenderPassCreateInfo& InCreateInfo);
 	void           CreateRenderPass              (const string& InJsonPath);

@@ -859,6 +859,37 @@ void LogicalDevice::CreatePCFSampler(VkSampler* OutSampler)
 	_vk_try(vkCreateSampler(m_device, &samplerCreateInfo, GetVkAllocator(), OutSampler));
 }
 
+void LogicalDevice::CreateSampler(VkSampler* OutSampler, Render::Sampler InSamplerType)
+{
+	switch (InSamplerType)
+	{
+	case Render::Sampler::PointWrap:
+		this->CreatePointWrapSampler(OutSampler);
+		break;
+	case Render::Sampler::PointClamp:
+		this->CreatePointClampSampler(OutSampler);
+		break;
+	case Render::Sampler::LinearWrap:
+		this->CreateLinearWrapSampler(OutSampler);
+		break;
+	case Render::Sampler::LinearClamp:
+		this->CreateLinearClampSampler(OutSampler);
+		break;
+	case Render::Sampler::AnisotropicWrap:
+		this->CreateAnisotropicWrapSampler(OutSampler);
+		break;
+	case Render::Sampler::AnisotropicClamp:
+		this->CreateAnisotropicClampSampler(OutSampler);
+		break;
+	case Render::Sampler::PCF:
+		this->CreatePCFSampler(OutSampler);
+		break;
+	default:
+		this->CreatePointWrapSampler(OutSampler);
+		break;
+	}
+}
+
 void LogicalDevice::CreateRenderPass(VkRenderPass* OutRenderPass, const VkRenderPassCreateInfo& InCreateInfo)
 {
 	_vk_try(vkCreateRenderPass(m_device, &InCreateInfo, GetVkAllocator(), OutRenderPass));
@@ -1461,8 +1492,10 @@ void LogicalDevice::CreateGraphicPipelines(const string& InJsonPath, VkPipelineC
 		uint32 numGInfo = bIsArray ? root[_text_mapper(vk_graphic_pipeline_infos)].size() : _count_1;
 
 		VkViewport currentViewport = {};
-		VkRect2D   currentScissor = {};
+		VkRect2D   currentScissor  = {};
 		this->SetViewport(currentViewport, currentScissor, m_pWindow->GetWindowDesc().Width, m_pWindow->GetWindowDesc().Height);
+
+		LoaclResourcePool localResPool;
 
 		std::vector<VkGraphicsPipelineCreateInfo>                     graphicInfos;
 		std::vector<std::vector<VkPipelineShaderStageCreateInfo>>     shaderInfos;
@@ -1558,7 +1591,7 @@ void LogicalDevice::CreateGraphicPipelines(const string& InJsonPath, VkPipelineC
 				VkShaderStageFlags currentShaderStage, userDefinedShaderStage;
 				this->CreateShaderModule(pShaderModule.MakeInstance(), Path(shaderPath), shaderEntrypoints[i * numStageInfo + j].c_str(), &currentShaderStage);
 
-				this->BindRef(VkCast<VkShaderModule>(pShaderModule));
+				localResPool.Push(VkCast<VkShaderModule>(pShaderModule));
 
 				shaderInfos[i][j].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 				shaderInfos[i][j].pNext = nullptr;
@@ -1920,13 +1953,13 @@ void LogicalDevice::CreateGraphicPipelines(const string& InJsonPath, VkPipelineC
 
 				this->CreateDescriptorSetLayout(pDescSetLayout.MakeInstance(), bindings.data(), (uint32)bindings.size());
 				descSetLayouts.push_back(*pDescSetLayout);
-				this->BindRef(VkCast<VkDescriptorSetLayout>(pDescSetLayout));
+				localResPool.Push(VkCast<VkDescriptorSetLayout>(pDescSetLayout));
 			}
 
 			_declare_vk_smart_ptr(VkPipelineLayout, pPipelineLayout);
 
 			this->CreatePipelineLayout(pPipelineLayout.MakeInstance(), descSetLayouts.data(), (uint32)descSetLayouts.size(), &pushConstantRange, _count_1);
-			this->BindRef(VkCast<VkPipelineLayout>(pPipelineLayout));
+			localResPool.Push(VkCast<VkPipelineLayout>(pPipelineLayout));
 
 			graphicInfos[i].layout = *pPipelineLayout;
 

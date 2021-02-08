@@ -68,6 +68,7 @@ void Engine::Init()
 
 void Engine::RequireExit(int32 InCode)
 {
+    _log_common(StringUtil::Printf("Engine::RequireExit with Code %\n ------>Suddenly exit will confuse memory laek check, never mind.", InCode), LogSystem::Category::Engine);
     exit(InCode);
 }
 
