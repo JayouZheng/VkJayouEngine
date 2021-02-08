@@ -10,23 +10,23 @@
 
 namespace
 {
-    std::array<string, 7> EnWeekName =
+    const std::array<string, 7> EnWeekName =
     {
         "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
     };
 
-    std::array<string, 7> ChWeekName =
+    const std::array<string, 7> ChWeekName =
     {
         _u8_text("星期天"), _u8_text("星期一"), _u8_text("星期二"), _u8_text("星期三"), _u8_text("星期四"), _u8_text("星期五"), _u8_text("星期六")
     };
 
-    std::array<string, 12> EnMonthName =
+    const std::array<string, 12> EnMonthName =
     {
         "January", "February", "March",     "April",   "May",      "June",
         "July",    "August",   "September", "October", "November", "December"
     };
 
-    std::array<string, 12> ChMonthName =
+    const std::array<string, 12> ChMonthName =
     {
         _u8_text("一月"), _u8_text("二月"), _u8_text("三月"), _u8_text("四月"), _u8_text("五月"),   _u8_text("六月"),
         _u8_text("七月"), _u8_text("八月"), _u8_text("九月"), _u8_text("十月"), _u8_text("十一月"), _u8_text("十二月")

@@ -27,11 +27,12 @@ public:
 	static Engine*& Get();
 
 	void   Init();
-	void   Exit();
+
+	void   RequireExit     (int32 InCode);
+	void   CacheModuleInfo (const ModuleInfo& InModuleInfo);
 
 	BaseLayer* GetBaseLayer();
 
-	void   CacheModuleInfo(const ModuleInfo& InModuleInfo);
 	string GetModulePath() const;
 	string GetModuleName() const;
 

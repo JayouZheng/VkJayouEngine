@@ -8,6 +8,7 @@
 #include "CommandList.h"
 #include "RenderBaseConfig.h"
 #include "LogicalDevice.h"
+#include "Core/Engine/Engine.h"
 
 _impl_create_interface(CommandList)
 
@@ -88,27 +89,25 @@ void CommandList::CopyBuffer(VkBuffer InSrcBuffer, VkBuffer InDstBuffer)
 	vkCmdCopyBuffer(m_cmdBuffer, InSrcBuffer, InDstBuffer, _count_1, &region);
 }
 
-bool CommandList::CopyBuffer(VkBuffer InSrcBuffer, VkBuffer InDstBuffer, const VkBufferCopy& InRegion)
+void CommandList::CopyBuffer(VkBuffer InSrcBuffer, VkBuffer InDstBuffer, const VkBufferCopy& InRegion)
 {	
 	if (InRegion.srcOffset % 4 != 0)
 	{
 		_log_error(_str_name_of(CopyBuffer) + ", SrcOffset is not a multiple of 4!", LogSystem::Category::CommandList);
-		return false;
+		Engine::Get()->RequireExit(1);
 	}
 	if (InRegion.dstOffset % 4 != 0)
 	{
 		_log_error(_str_name_of(CopyBuffer) + ", DstOffset is not a multiple of 4!", LogSystem::Category::CommandList);
-		return false;
+		Engine::Get()->RequireExit(1);
 	}
 	if (InRegion.size % 4 != 0)
 	{
 		_log_error(_str_name_of(CopyBuffer) + ", Size is not a multiple of 4!", LogSystem::Category::CommandList);
-		return false;
+		Engine::Get()->RequireExit(1);
 	}
 
 	vkCmdCopyBuffer(m_cmdBuffer, InSrcBuffer, InDstBuffer, _count_1, &InRegion);
-
-	return true;
 }
 
 void CommandList::CopyBuffer(VkBuffer InSrcBuffer, VkBuffer InDstBuffer, uint32 InRegionCount, const VkBufferCopy* InRegions)
@@ -126,63 +125,57 @@ void CommandList::ClearBufferFloat(VkBuffer InBuffer, const float InValue)
 	vkCmdFillBuffer(m_cmdBuffer, InBuffer, _offset_start, VK_WHOLE_SIZE, *(const uint32*)&InValue);
 }
 
-bool CommandList::ClearBufferUint32(VkBuffer InBuffer, VkDeviceSize InOffset, VkDeviceSize InSize, const uint32 InValue)
+void CommandList::ClearBufferUint32(VkBuffer InBuffer, VkDeviceSize InOffset, VkDeviceSize InSize, const uint32 InValue)
 {
 	if (InOffset % 4 != 0)
 	{
 		_log_error(_str_name_of(ClearBufferUint32) + ", Offset is not a multiple of 4!", LogSystem::Category::CommandList);
-		return false;
+		Engine::Get()->RequireExit(1);
 	}
 	if (InSize % 4 != 0)
 	{
 		_log_error(_str_name_of(ClearBufferUint32) + ", Size is not a multiple of 4!", LogSystem::Category::CommandList);
-		return false;
+		Engine::Get()->RequireExit(1);
 	}
 
 	vkCmdFillBuffer(m_cmdBuffer, InBuffer, InOffset, InSize, InValue);
-
-	return true;
 }
 
-bool CommandList::ClearBufferFloat(VkBuffer InBuffer, VkDeviceSize InOffset, VkDeviceSize InSize, const float InValue)
+void CommandList::ClearBufferFloat(VkBuffer InBuffer, VkDeviceSize InOffset, VkDeviceSize InSize, const float InValue)
 {
 	if (InOffset % 4 != 0)
 	{
 		_log_error(_str_name_of(ClearBufferFloat) + ", Offset is not a multiple of 4!", LogSystem::Category::CommandList);
-		return false;
+		Engine::Get()->RequireExit(1);
 	}
 	if (InSize % 4 != 0)
 	{
 		_log_error(_str_name_of(ClearBufferFloat) + ", Size is not a multiple of 4!", LogSystem::Category::CommandList);
-		return false;
+		Engine::Get()->RequireExit(1);
 	}
 
 	vkCmdFillBuffer(m_cmdBuffer, InBuffer, InOffset, InSize, *(const uint32*)&InValue);
-
-	return true;
 }
 
-bool CommandList::UpdateBuffer(VkBuffer InBuffer, VkDeviceSize InOffset, VkDeviceSize InSize, const void* InData)
+void CommandList::UpdateBuffer(VkBuffer InBuffer, VkDeviceSize InOffset, VkDeviceSize InSize, const void* InData)
 {
 	if (InOffset % 4 != 0)
 	{
 		_log_error(_str_name_of(UpdateBuffer) + ", Offset is not a multiple of 4!", LogSystem::Category::CommandList);
-		return false;
+		Engine::Get()->RequireExit(1);
 	}
 	if (InSize % 4 != 0)
 	{
 		_log_error(_str_name_of(UpdateBuffer) + ", Size is not a multiple of 4!", LogSystem::Category::CommandList);
-		return false;
+		Engine::Get()->RequireExit(1);
 	}
 	if (InSize > 65536u)
 	{
 		_log_error(_str_name_of(UpdateBuffer) + ", The maximum size of data that can be placed in a buffer with vkCmdUpdateBuffer() is 65,536 bytes!", LogSystem::Category::CommandList);
-		return false;
+		Engine::Get()->RequireExit(1);
 	}
 
 	vkCmdUpdateBuffer(m_cmdBuffer, InBuffer, InOffset, InSize, InData);
-
-	return true;
 }
 
 void CommandList::CopyBufferToImage(VkBuffer InSrcBuffer, VkImage InDstImage, uint32 InWidth, uint32 InHeight, VkImageAspectFlags InAspectMask /*= VK_IMAGE_ASPECT_COLOR_BIT*/)
@@ -338,12 +331,12 @@ void CommandList::BindGraphicPipeline(VkPipeline InPipeline)
 	vkCmdBindPipeline(m_cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, InPipeline);
 }
 
-bool CommandList::Dispatch(uint32 x, uint32 y, uint32 z)
+void CommandList::Dispatch(uint32 x, uint32 y, uint32 z)
 {
 	if (m_pBaseLayer == nullptr)
 	{
 		_log_error("Func: " + _str_name_of(Dispatch) + " expect to Query Physical Device Limits!", LogSystem::Category::CommandList);
-		return false;
+		Engine::Get()->RequireExit(1);
 	}
 
 	bool bIsOverflow = false;
@@ -354,12 +347,10 @@ bool CommandList::Dispatch(uint32 x, uint32 y, uint32 z)
 	if (bIsOverflow)
 	{
 		_log_error("Func: " + _str_name_of(Dispatch) + " Compute Dispatch Goes Beyond The Physical Limits!", LogSystem::Category::CommandList);
-		return false;
+		Engine::Get()->RequireExit(1);
 	}
 	
 	vkCmdDispatch(m_cmdBuffer, x, y, z);
-
-	return true;
 }
 
 void CommandList::DispatchIndirect(VkBuffer InBuffer, VkDeviceSize InOffset)

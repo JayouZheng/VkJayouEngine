@@ -16,6 +16,7 @@
 #include "LogicalDevice.h"
 #include "RenderBaseConfig.h"
 #include "CommandQueue.h"
+#include "Core/Engine/Engine.h"
 
 #include "LogicalDevice.inl"
 
@@ -1983,8 +1984,7 @@ bool LogicalDevice::CreateGraphicPipelines(const string& InJsonPath, VkPipelineC
 		_log_common("End creating graphic pipeline with " + InJsonPath, LogSystem::Category::LogicalDevice);
 	}
 
-	ResourcePool::Get()->Free();
-	exit(1);
+	Engine::Get()->RequireExit(1);
 
 	return true;
 }

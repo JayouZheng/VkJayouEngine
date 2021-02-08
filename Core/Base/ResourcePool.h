@@ -41,9 +41,4 @@ public:
      *  @param  InRef  the vulkan object to add.
      */
     void Push(VkSmartPtr<VkObjectHandler> InRef);
-
-    /**
-     *  Free the pool.
-     */
-    void Free();
 };

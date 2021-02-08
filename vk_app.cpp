@@ -23,5 +23,5 @@ void vk_app::Begin()
 
 void vk_app::End()
 {
-	Engine::Get()->Exit();
+	Engine::Get()->RequireExit(0);
 }

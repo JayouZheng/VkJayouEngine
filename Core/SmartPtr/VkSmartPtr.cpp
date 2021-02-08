@@ -10,10 +10,10 @@
 
 namespace
 {
-	static VkInstance        g_instance     = VK_NULL_HANDLE;
-	static VkDevice          g_device       = VK_NULL_HANDLE;
-	static BaseAllocator*    g_allocator    = nullptr;
-	static int32             g_instanceRefs = 0;
+	VkInstance        g_instance     = VK_NULL_HANDLE;
+	VkDevice          g_device       = VK_NULL_HANDLE;
+	BaseAllocator*    g_allocator    = nullptr;
+	int32             g_instanceRefs = 0;
 }
 
 void VkSmartPtr_Private::IncInstanceRef()

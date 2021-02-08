@@ -10,10 +10,10 @@
 
 namespace
 {
-    static Engine* g_engine;
+    Engine* g_engine;
 
-    static std::mutex g_enRead;
-    static std::mutex g_enWrite;
+    std::mutex g_enRead;
+    std::mutex g_enWrite;
 
     struct InternalData
     {
@@ -21,14 +21,25 @@ namespace
         Engine::ModuleInfo ModuleInfo;
     }g_data;
 
-    static class EngineHandler
+    class EngineHandler
     {
     public:
 
+        void Free()
+        {
+            std::unique_lock<std::mutex> lock_r(g_enRead);
+            std::unique_lock<std::mutex> lock_w(g_enWrite);
+
+            if (g_engine != nullptr)
+            {
+                delete g_engine;
+                g_engine = nullptr;
+            }
+        }
+
         ~EngineHandler()
         {
-            if (g_engine != nullptr)
-                Engine::Get()->Exit();
+            Free();
         }
     }EngineHandlerInstance;
 }
@@ -55,20 +66,9 @@ void Engine::Init()
     g_data.ModuleInfo = { _str_null, _str_null };
 }
 
-void Engine::Exit()
+void Engine::RequireExit(int32 InCode)
 {
-    std::unique_lock<std::mutex> lock_r(g_enRead);
-    std::unique_lock<std::mutex> lock_w(g_enWrite);
-
-    delete g_engine;
-    g_engine = nullptr;
-
-    ResourcePool::Get()->Free();
-}
-
-BaseLayer* Engine::GetBaseLayer()
-{
-    return g_data.BaseLayerRef;
+    exit(InCode);
 }
 
 void Engine::CacheModuleInfo(const ModuleInfo& InModuleInfo)
@@ -79,6 +79,11 @@ void Engine::CacheModuleInfo(const ModuleInfo& InModuleInfo)
         g_data.ModuleInfo = InModuleInfo;
         bDoOnce = true;
     }
+}
+
+BaseLayer* Engine::GetBaseLayer()
+{
+    return g_data.BaseLayerRef;
 }
 
 string Engine::GetModulePath() const

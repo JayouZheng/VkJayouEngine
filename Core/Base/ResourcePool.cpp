@@ -9,10 +9,10 @@
 
 namespace
 {
-    static ResourcePool* g_resourcePool;
+    ResourcePool* g_resourcePool;
 
-    static std::mutex g_respRead;
-    static std::mutex g_respWrite;
+    std::mutex g_respRead;
+    std::mutex g_respWrite;
 
     struct InternalResource
     {
@@ -21,13 +21,25 @@ namespace
 
     }g_resource;
 
-    static class ResourcePoolHandler
+    class ResourcePoolHandler
     {
     public:
+
+        void Free()
+        {
+            std::unique_lock<std::mutex> lock_r(g_respRead);
+            std::unique_lock<std::mutex> lock_w(g_respWrite);
+
+            if (g_resourcePool != nullptr)
+            {
+                delete g_resourcePool;
+                g_resourcePool = nullptr;
+            }
+        }
+
         ~ResourcePoolHandler()
         {
-            if (g_resourcePool != nullptr)
-                ResourcePool::Get()->Free();
+            Free();
         }
     }RespHandler;
 }
@@ -66,15 +78,4 @@ void ResourcePool::Push(VkSmartPtr<VkObjectHandler> InRef)
     std::unique_lock<std::mutex> lock_w(g_respWrite);
 
     g_resource.VkSmartRefs.push_back(InRef);
-}
-
-void ResourcePool::Free()
-{
-    std::unique_lock<std::mutex> lock_r(g_respRead);
-    std::unique_lock<std::mutex> lock_w(g_respWrite);
-
-    delete g_resourcePool;
-    g_resourcePool = nullptr;
-
-    // Exit...
 }

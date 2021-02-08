@@ -179,4 +179,10 @@ public:
  */
 #define _log_error(log, category)   LogSystem::LogError(StringUtil::Printf("% (Detail at file: %, line %)", log, __FILE__, __LINE__), category);
 
+#else
+
+#define _log_common(log, category)
+#define _log_warning(log, category)
+#define _log_error(log, category)
+
 #endif // ENABLE_LOG_SYSTEM
