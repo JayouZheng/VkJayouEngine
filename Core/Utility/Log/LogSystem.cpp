@@ -7,12 +7,10 @@
 
 namespace
 {
-	static std::vector<LogSystem::LogInfo> g_logs;
-
 	void InternalLog(
-		const string&         InLog,
+		const string&              InLog,
 		const LogSystem::Category& InCategory,
-		const string&         InCustomCategory,
+		const string&              InCustomCategory,
 		const LogSystem::Level&    InLevel, 
 		const ColorUtil::Color&    InColor)
 	{
@@ -34,8 +32,6 @@ namespace
 
 		// TODO: Output log.
 		_cmd_print_line(logInfo.ToString());
-
-		g_logs.push_back(logInfo);
 	}
 }
 
