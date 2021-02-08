@@ -185,14 +185,14 @@ void LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const ui
 	_vk_try(vkCreateShaderModule(m_device, &shaderModuleCreateInfo, GetVkAllocator(), OutShaderModule));
 }
 
-bool LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const Path& InShaderPath, const char* InEntrypoint /*= "main"*/, VkShaderStageFlags* OutShaderStage /*= nullptr*/)
+void LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const Path& InShaderPath, const char* InEntrypoint /*= "main"*/, VkShaderStageFlags* OutShaderStage /*= nullptr*/)
 {
 	string name, ext, dir;
 	StringUtil::ExtractFilePath(InShaderPath.ToString(), &name, &ext, &dir);
 
 	VkShaderStageFlags shaderStage;
 	if (!GetShaderStage(ext, shaderStage))
-		return false;
+		Engine::Get()->RequireExit(1);
 
 	if (OutShaderStage != nullptr)
 	{
@@ -222,18 +222,18 @@ bool LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const Pa
 			_log_error(spvData->debug_log, LogSystem::Category::GLSLCompiler);
 
 			_log_error(StringUtil::Printf("Compiling shader file \"%\" failed!", InShaderPath.ToString()), LogSystem::Category::GLSLCompiler);
-			return false;
+			Engine::Get()->RequireExit(1);
 		}
 	}
 	else
 	{
 		std::vector<uint8> shaderCode;
 		if (!FileUtil::Read(InShaderPath, shaderCode))
-			return false;
+			Engine::Get()->RequireExit(1);
 		this->CreateShaderModule(OutShaderModule, (uint32*)shaderCode.data(), shaderCode.size());
 	}
 	
-	return true;
+	//return true;
 }
 
 void LogicalDevice::CreateComputePipelines(VkPipeline* OutPipeline, const VkComputePipelineCreateInfo* InCreateInfos, uint32 InCreateInfoCount /*= _count_1*/, VkPipelineCache InPipCache /*= VK_NULL_HANDLE*/)
@@ -300,14 +300,14 @@ void LogicalDevice::CreatePipelineCache(VkPipelineCache* OutPipCache, const void
 	this->CreatePipelineCache(OutPipCache, pipelineCacheInfo);
 }
 
-bool LogicalDevice::CreateEmptyPipelineCache(VkPipelineCache* OutPipCache)
+void LogicalDevice::CreateEmptyPipelineCache(VkPipelineCache* OutPipCache)
 {
 	if (m_pBaseLayer == nullptr)
 	{
 		*OutPipCache = VK_NULL_HANDLE;
 
 		_log_error("Func: " + _str_name_of(CreateEmptyPipelineCache) + " expect to Query Physical Device Limits!", LogSystem::Category::LogicalDevice);
-		return false;
+		Engine::Get()->RequireExit(1);
 	}
 
 	PipelineCacheHeader pipCacheHeader = PipelineCacheHeader(m_pBaseLayer->GetMainPDProps());
@@ -319,23 +319,23 @@ bool LogicalDevice::CreateEmptyPipelineCache(VkPipelineCache* OutPipCache)
 
 	_vk_try(vkCreatePipelineCache(m_device, &pipCacheCreateInfo, GetVkAllocator(), OutPipCache));
 
-	return true;
+	//return true;
 }
 
-bool LogicalDevice::CreatePipelineCacheFromFile(VkPipelineCache* OutPipCache, const Path& InPath)
+void LogicalDevice::CreatePipelineCacheFromFile(VkPipelineCache* OutPipCache, const Path& InPath)
 {
 	if (m_pBaseLayer == nullptr)
 	{
 		*OutPipCache = VK_NULL_HANDLE;
 
 		_log_error("Func: " + _str_name_of(CreatePipelineCacheFromFile) + " expect to Query Physical Device Limits!", LogSystem::Category::LogicalDevice);
-		return false;
+		Engine::Get()->RequireExit(1);
 	}
 
 	std::vector<uint8> cacheData;
 
 	if (!FileUtil::Read(InPath, cacheData))
-		return false;
+		Engine::Get()->RequireExit(1);
 
 	if (!cacheData.empty())
 	{
@@ -416,13 +416,13 @@ bool LogicalDevice::CreatePipelineCacheFromFile(VkPipelineCache* OutPipCache, co
 			_log_error(StringUtil::Printf("Deleting cache entry % to repopulate.", InPath.ToString()), LogSystem::Category::LogicalDevice);
 			if (remove(InPath.ToCString()) != 0)
 				_log_error("Deleting error", LogSystem::Category::IO);
-			return false;
+			Engine::Get()->RequireExit(1);
 		}
 	}
 
 	this->CreatePipelineCache(OutPipCache, cacheData.data(), cacheData.size());
 
-	return true;
+	//return true;
 }
 
 usize LogicalDevice::GetPipelineCacheDataSize(VkPipelineCache InPipCache)
@@ -443,11 +443,11 @@ void LogicalDevice::GetPipelineCacheData(VkPipelineCache InPipCache, std::vector
 	this->GetPipelineCacheData(InPipCache, OutData.size(), OutData.data());
 }
 
-bool LogicalDevice::SavePipelineCacheToFile(const Path& InPath)
+void LogicalDevice::SavePipelineCacheToFile(const Path& InPath)
 {
 	_declare_vk_smart_ptr(VkPipelineCache, pMergedPipCache);
-	if (!this->CreateEmptyPipelineCache(pMergedPipCache.MakeInstance()))
-		return false;
+
+	this->CreateEmptyPipelineCache(pMergedPipCache.MakeInstance());
 	
 	// Merge old pipeline caches into new one.
 	if (!m_pipelineCaches.empty())
@@ -463,7 +463,8 @@ bool LogicalDevice::SavePipelineCacheToFile(const Path& InPath)
 	std::vector<uint8> cacheData;
 	this->GetPipelineCacheData(*pMergedPipCache, cacheData);
 
-	return FileUtil::Write(InPath, cacheData);
+	if (!FileUtil::Write(InPath, cacheData))
+		_log_error("Save PipelineCache to file failed!", LogSystem::Category::LogicalDevice);
 }
 
 void LogicalDevice::MergePipelineCaches(VkPipelineCache OutMergedPipCache, const VkPipelineCache* InPipCaches, uint32 InSrcPipCacheCount)
@@ -568,7 +569,7 @@ void LogicalDevice::UpdateDescriptorSets(const VkWriteDescriptorSet* InDescWrite
 	vkUpdateDescriptorSets(m_device, InWriteSetCount, InDescWrites, copySetCount, InDescCopies);
 }
 
-bool LogicalDevice::UpdateImageOfDescSet(VkDescriptorSet InDescSet, uint32 InBindingIndex, VkDescriptorType InImageDescType, const VkDescriptorImageInfo* InImageInfos, uint32 InImageCount /*= _count_1*/, uint32 InSetOffset /*= _offset_0*/)
+void LogicalDevice::UpdateImageOfDescSet(VkDescriptorSet InDescSet, uint32 InBindingIndex, VkDescriptorType InImageDescType, const VkDescriptorImageInfo* InImageInfos, uint32 InImageCount /*= _count_1*/, uint32 InSetOffset /*= _offset_0*/)
 {
 	if ((InImageDescType != VK_DESCRIPTOR_TYPE_SAMPLER) &&
 		(InImageDescType != VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) &&
@@ -577,7 +578,7 @@ bool LogicalDevice::UpdateImageOfDescSet(VkDescriptorSet InDescSet, uint32 InBin
 		(InImageDescType != VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT))
 	{
 		_log_error("Func: " + _str_name_of(UpdateImageOfDescSet) + " expect image descriptor type!", LogSystem::Category::LogicalDevice);
-		return false;
+		Engine::Get()->RequireExit(1);
 	}
 
 	VkWriteDescriptorSet writeDescSet = {};
@@ -593,10 +594,10 @@ bool LogicalDevice::UpdateImageOfDescSet(VkDescriptorSet InDescSet, uint32 InBin
 
 	vkUpdateDescriptorSets(m_device, _count_1, &writeDescSet, _count_0, nullptr);
 	
-	return true;
+	//return true;
 }
 
-bool LogicalDevice::UpdateBufferOfDescSet(VkDescriptorSet InDescSet, uint32 InBindingIndex, VkDescriptorType InBufferDescType, const VkDescriptorBufferInfo* InBufferInfos, uint32 InBufferCount /*= _count_1*/, uint32 InSetOffset /*= _offset_0*/)
+void LogicalDevice::UpdateBufferOfDescSet(VkDescriptorSet InDescSet, uint32 InBindingIndex, VkDescriptorType InBufferDescType, const VkDescriptorBufferInfo* InBufferInfos, uint32 InBufferCount /*= _count_1*/, uint32 InSetOffset /*= _offset_0*/)
 {
 	if ((InBufferDescType != VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER) &&
 		(InBufferDescType != VK_DESCRIPTOR_TYPE_STORAGE_BUFFER) &&
@@ -604,7 +605,7 @@ bool LogicalDevice::UpdateBufferOfDescSet(VkDescriptorSet InDescSet, uint32 InBi
 		(InBufferDescType != VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC))
 	{
 		_log_error("Func: " + _str_name_of(UpdateBufferOfDescSet) + " expect buffer descriptor type!", LogSystem::Category::LogicalDevice);
-		return false;
+		Engine::Get()->RequireExit(1);
 	}
 
 	VkWriteDescriptorSet writeDescSet = {};
@@ -620,16 +621,16 @@ bool LogicalDevice::UpdateBufferOfDescSet(VkDescriptorSet InDescSet, uint32 InBi
 
 	vkUpdateDescriptorSets(m_device, _count_1, &writeDescSet, _count_0, nullptr);
 
-	return true;
+	//return true;
 }
 
-bool LogicalDevice::UpdateTexelBufferOfDescSet(VkDescriptorSet InDescSet, uint32 InBindingIndex, VkDescriptorType InTBufferDescType, const VkBufferView* InTBufferViews, uint32 InTBufferCount /*= _count_1*/, uint32 InSetOffset /*= _offset_0*/)
+void LogicalDevice::UpdateTexelBufferOfDescSet(VkDescriptorSet InDescSet, uint32 InBindingIndex, VkDescriptorType InTBufferDescType, const VkBufferView* InTBufferViews, uint32 InTBufferCount /*= _count_1*/, uint32 InSetOffset /*= _offset_0*/)
 {
 	if ((InTBufferDescType != VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER) &&
 		(InTBufferDescType != VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER))
 	{
 		_log_error("Func: " + _str_name_of(UpdateTexelBufferOfDescSet) + " expect texel buffer descriptor type!", LogSystem::Category::LogicalDevice);
-		return false;
+		Engine::Get()->RequireExit(1);
 	}
 
 	VkWriteDescriptorSet writeDescSet = {};
@@ -645,7 +646,7 @@ bool LogicalDevice::UpdateTexelBufferOfDescSet(VkDescriptorSet InDescSet, uint32
 
 	vkUpdateDescriptorSets(m_device, _count_1, &writeDescSet, _count_0, nullptr);
 
-	return true;
+	//return true;
 }
 
 void LogicalDevice::CopyDescriptorSets(const VkCopyDescriptorSet* InDescCopies, uint32 InCopySetCount /*= _count_1*/)
@@ -765,14 +766,14 @@ void LogicalDevice::CreateLinearClampSampler(VkSampler* OutSampler)
 	_vk_try(vkCreateSampler(m_device, &samplerCreateInfo, GetVkAllocator(), OutSampler));
 }
 
-bool LogicalDevice::CreateAnisotropicWrapSampler(VkSampler* OutSampler)
+void LogicalDevice::CreateAnisotropicWrapSampler(VkSampler* OutSampler)
 {
 	if (m_pBaseLayer == nullptr)
 	{
 		OutSampler = VK_NULL_HANDLE;
 
 		_log_error("Func: " + _str_name_of(CreateAnisotropicWrapSampler) + " expect to Query Physical Device Limits!", LogSystem::Category::LogicalDevice);
-		return false;
+		Engine::Get()->RequireExit(1);
 	}
 
 	float maxAnisotropy = std::min(RenderBaseConfig::Sampler::MaxAnisotropy, m_pBaseLayer->GetMainPDLimits().maxSamplerAnisotropy);
@@ -797,17 +798,17 @@ bool LogicalDevice::CreateAnisotropicWrapSampler(VkSampler* OutSampler)
 
 	_vk_try(vkCreateSampler(m_device, &samplerCreateInfo, GetVkAllocator(), OutSampler));
 
-	return true;
+	//return true;
 }
 
-bool LogicalDevice::CreateAnisotropicClampSampler(VkSampler* OutSampler)
+void LogicalDevice::CreateAnisotropicClampSampler(VkSampler* OutSampler)
 {
 	if (m_pBaseLayer == nullptr)
 	{
 		OutSampler = VK_NULL_HANDLE;
 
 		_log_error("Func: " + _str_name_of(CreateAnisotropicClampSampler) + " expect to Query Physical Device Limits!", LogSystem::Category::LogicalDevice);
-		return false;
+		Engine::Get()->RequireExit(1);
 	}	
 
 	float maxAnisotropy = std::min(RenderBaseConfig::Sampler::MaxAnisotropy, m_pBaseLayer->GetMainPDLimits().maxSamplerAnisotropy);
@@ -832,7 +833,7 @@ bool LogicalDevice::CreateAnisotropicClampSampler(VkSampler* OutSampler)
 
 	_vk_try(vkCreateSampler(m_device, &samplerCreateInfo, GetVkAllocator(), OutSampler));
 
-	return true;
+	//return true;
 }
 
 void LogicalDevice::CreatePCFSampler(VkSampler* OutSampler)
@@ -863,7 +864,7 @@ void LogicalDevice::CreateRenderPass(VkRenderPass* OutRenderPass, const VkRender
 	_vk_try(vkCreateRenderPass(m_device, &InCreateInfo, GetVkAllocator(), OutRenderPass));
 }
 
-bool LogicalDevice::CreateRenderPass(const string& InJsonPath)
+void LogicalDevice::CreateRenderPass(const string& InJsonPath)
 {
 	_log_common("Begin creating renderpass with " + InJsonPath, LogSystem::Category::RenderPass);
 
@@ -888,7 +889,7 @@ bool LogicalDevice::CreateRenderPass(const string& InJsonPath)
 		if (!JsonParser::Parse(InJsonPath, renderPassRoot))
 		{
 			_log_error("JsonParser failed at file: " + InJsonPath, LogSystem::Category::LogicalDevice);
-			return false;
+			Engine::Get()->RequireExit(1);
 		}
 
 		auto& renderPassInfo = renderPassRoot[_text_mapper(vk_renderpass_info)];
@@ -896,7 +897,7 @@ bool LogicalDevice::CreateRenderPass(const string& InJsonPath)
 		if (renderPassInfo == Json::nullValue)
 		{
 			_log_error("json file: [renderpass_info] can not be null!", LogSystem::Category::JsonParser);
-			return false;
+			Engine::Get()->RequireExit(1);
 		}
 
 		renderPassCreateInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
@@ -977,7 +978,7 @@ bool LogicalDevice::CreateRenderPass(const string& InJsonPath)
 					else
 					{
 						_log_error(StringUtil::Printf("Specified attachment name \"%\" was not found!", name), LogSystem::Category::JsonParser);
-						return false;
+						Engine::Get()->RequireExit(1);
 					}
 				}
 			}
@@ -1015,7 +1016,7 @@ bool LogicalDevice::CreateRenderPass(const string& InJsonPath)
 					else
 					{
 						_log_error(StringUtil::Printf("Specified attachment name \"%\" was not found!", name), LogSystem::Category::JsonParser);
-						return false;
+						Engine::Get()->RequireExit(1);
 					}
 				}
 			}
@@ -1052,7 +1053,7 @@ bool LogicalDevice::CreateRenderPass(const string& InJsonPath)
 					else
 					{
 						_log_error(StringUtil::Printf("Specified attachment name \"%\" was not found!", name), LogSystem::Category::JsonParser);
-						return false;
+						Engine::Get()->RequireExit(1);
 					}
 				}
 			}
@@ -1080,7 +1081,7 @@ bool LogicalDevice::CreateRenderPass(const string& InJsonPath)
 					else
 					{
 						_log_error(StringUtil::Printf("Specified attachment name \"%\" was not found!", name), LogSystem::Category::JsonParser);
-						return false;
+						Engine::Get()->RequireExit(1);
 					}
 				}
 			}
@@ -1104,7 +1105,7 @@ bool LogicalDevice::CreateRenderPass(const string& InJsonPath)
 				else
 				{
 					_log_error(StringUtil::Printf("Specified attachment name \"%\" was not found!", name), LogSystem::Category::JsonParser);
-					return false;
+					Engine::Get()->RequireExit(1);
 				}
 			}
 			else
@@ -1135,7 +1136,7 @@ bool LogicalDevice::CreateRenderPass(const string& InJsonPath)
 			else
 			{
 				_log_error(StringUtil::Printf("Specified subpass name \"%\" was not found!", name), LogSystem::Category::JsonParser);
-				return false;
+				Engine::Get()->RequireExit(1);
 			}
 
 			name = JsonParser::GetString(dependency[_text_mapper(vk_dst_subpass_name)]);
@@ -1146,7 +1147,7 @@ bool LogicalDevice::CreateRenderPass(const string& InJsonPath)
 			else
 			{
 				_log_error(StringUtil::Printf("Specified subpass name \"%\" was not found!", name), LogSystem::Category::JsonParser);
-				return false;
+				Engine::Get()->RequireExit(1);
 			}
 
 			renderPassSubpassDependency[j].srcStageMask = GetVkPipelineStageFlags(JsonParser::GetString(dependency[_text_mapper(vk_src_stage_mask)]));
@@ -1190,7 +1191,7 @@ bool LogicalDevice::CreateRenderPass(const string& InJsonPath)
 
 	_log_common("End creating renderpass with " + InJsonPath, LogSystem::Category::RenderPass);
 
-	return true;
+	//return true;
 }
 
 void LogicalDevice::CreateSingleRenderPass(VkRenderPass* OutRenderPass, VkFormat InColorFormat, VkFormat InDepthFormat)
@@ -1265,14 +1266,14 @@ void LogicalDevice::CreateSingleRenderPass(VkRenderPass* OutRenderPass, VkFormat
 	_vk_try(vkCreateRenderPass(m_device, &renderPassInfo, GetVkAllocator(), OutRenderPass));
 }
 
-bool LogicalDevice::CreateFrameBuffer(VkFramebuffer* OutFrameBuffer, const VkFramebufferCreateInfo& InCreateInfo)
+void LogicalDevice::CreateFrameBuffer(VkFramebuffer* OutFrameBuffer, const VkFramebufferCreateInfo& InCreateInfo)
 {
 	if (m_pBaseLayer == nullptr)
 	{
 		OutFrameBuffer = VK_NULL_HANDLE;
 
 		_log_error("Func: " + _str_name_of(CreateFrameBuffer) + " expect to Query Physical Device Limits!", LogSystem::Category::LogicalDevice);
-		return false;
+		Engine::Get()->RequireExit(1);
 	}
 		
 	VkFramebufferCreateInfo frameBufferCreateInfo = InCreateInfo;
@@ -1282,22 +1283,22 @@ bool LogicalDevice::CreateFrameBuffer(VkFramebuffer* OutFrameBuffer, const VkFra
 		InCreateInfo.layers > m_pBaseLayer->GetMainPDLimits().maxFramebufferLayers)
 	{
 		_log_error(StringUtil::Printf("Buffer size exceeds physical device limit at: %", _name_of(CreateFrameBuffer)), LogSystem::Category::LogicalDevice);
-		return false;
+		Engine::Get()->RequireExit(1);
 	}
 
 	_vk_try(vkCreateFramebuffer(m_device, &InCreateInfo, GetVkAllocator(), OutFrameBuffer));
 
-	return true;
+	//return true;
 }
 
-bool LogicalDevice::CreateFrameBuffer(VkFramebuffer* OutFrameBuffer, VkRenderPass InRenderPass, const VkImageView* InImageViews, uint32 InViewCount, VkExtent3D InSize)
+void LogicalDevice::CreateFrameBuffer(VkFramebuffer* OutFrameBuffer, VkRenderPass InRenderPass, const VkImageView* InImageViews, uint32 InViewCount, VkExtent3D InSize)
 {
 	if (m_pBaseLayer == nullptr)
 	{
 		OutFrameBuffer = VK_NULL_HANDLE;
 		
 		_log_error("Func: " + _str_name_of(CreateFrameBuffer) + " expect to Query Physical Device Limits!", LogSystem::Category::LogicalDevice);
-		return false;
+		Engine::Get()->RequireExit(1);
 	}
 		
 	VkFramebufferCreateInfo frameBufferCreateInfo = {};
@@ -1314,12 +1315,12 @@ bool LogicalDevice::CreateFrameBuffer(VkFramebuffer* OutFrameBuffer, VkRenderPas
 		frameBufferCreateInfo.layers > m_pBaseLayer->GetMainPDLimits().maxFramebufferLayers)
 	{
 		_log_error(StringUtil::Printf("Buffer size exceeds physical device limit at: %", _name_of(CreateFrameBuffer)), LogSystem::Category::LogicalDevice);
-		return false;
+		Engine::Get()->RequireExit(1);
 	}
 
 	_vk_try(vkCreateFramebuffer(m_device, &frameBufferCreateInfo, GetVkAllocator(), OutFrameBuffer));
 
-	return true;
+	//return true;
 }
 
 void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const VkGraphicsPipelineCreateInfo* InCreateInfos, uint32 InCreateInfoCount /*= _count_1*/, VkPipelineCache InPipCache /*= VK_NULL_HANDLE*/)
@@ -1429,7 +1430,7 @@ void LogicalDevice::CreateGraphicPipelines(VkPipeline* OutPipeline, const Pipeli
 	_vk_try(vkCreateGraphicsPipelines(m_device, InPipCache, _count_1, &graphicsPipelineCreateInfo, GetVkAllocator(), OutPipeline));
 }
 
-bool LogicalDevice::CreateGraphicPipelines(const string& InJsonPath, VkPipelineCache InPipCache)
+void LogicalDevice::CreateGraphicPipelines(const string& InJsonPath, VkPipelineCache InPipCache)
 {
 	{
 		_log_common("Begin creating graphic pipeline with " + InJsonPath, LogSystem::Category::LogicalDevice);
@@ -1439,7 +1440,7 @@ bool LogicalDevice::CreateGraphicPipelines(const string& InJsonPath, VkPipelineC
 		if (m_pBaseLayer == nullptr)
 		{
 			_log_error("Func: " + _str_name_of(CreateGraphicPipelines) + " expect to Query Physical Device Limits!", LogSystem::Category::LogicalDevice);
-			return false;
+			Engine::Get()->RequireExit(1);
 		}
 
 		Json::Value root;
@@ -1447,13 +1448,13 @@ bool LogicalDevice::CreateGraphicPipelines(const string& InJsonPath, VkPipelineC
 		if (!JsonParser::Parse(InJsonPath, root))
 		{
 			_log_error("Func: " + _str_name_of(CreateGraphicPipelines) + " failed! not a valid json file path!", LogSystem::Category::LogicalDevice);
-			return false;
+			Engine::Get()->RequireExit(1);
 		}
 
 		if (root[_text_mapper(vk_graphic_pipeline_infos)] == Json::nullValue)
 		{
 			_log_error("json file: [graphic_pipeline_infos] can not be null!", LogSystem::Category::JsonParser);
-			return false;
+			Engine::Get()->RequireExit(1);
 		}
 
 		bool   bIsArray = root[_text_mapper(vk_graphic_pipeline_infos)].isArray();
@@ -1528,7 +1529,7 @@ bool LogicalDevice::CreateGraphicPipelines(const string& InJsonPath, VkPipelineC
 			if (graphicInfo[_text_mapper(vk_pipeline_stages_infos)] == Json::nullValue)
 			{
 				_log_error("json file: [pipeline_stages_infos] can not be null!", LogSystem::Category::JsonParser);
-				return false;
+				Engine::Get()->RequireExit(1);
 			}
 
 			bIsArray = graphicInfo[_text_mapper(vk_pipeline_stages_infos)].isArray();
@@ -1548,7 +1549,7 @@ bool LogicalDevice::CreateGraphicPipelines(const string& InJsonPath, VkPipelineC
 				if (shaderPath == _str_null)
 				{
 					_log_error("json file: [stage_code_path] can not be null!", LogSystem::Category::JsonParser);
-					return false;
+					Engine::Get()->RequireExit(1);
 				}
 
 				shaderEntrypoints[i * numStageInfo + j] = JsonParser::GetString(shaderInfo[_text_mapper(vk_entrypoint)], "main");
@@ -1599,7 +1600,7 @@ bool LogicalDevice::CreateGraphicPipelines(const string& InJsonPath, VkPipelineC
 						default:
 						{
 							_log_error("json file: not support [specialization_constants] value type!", LogSystem::Category::JsonParser);
-							return false;
+							Engine::Get()->RequireExit(1);
 						}
 						}
 						//////////////////////////////////////////////////////////////
@@ -1617,7 +1618,7 @@ bool LogicalDevice::CreateGraphicPipelines(const string& InJsonPath, VkPipelineC
 			std::vector<std::vector<VkDescriptorSetLayoutBinding>> descSets;
 
 			if (!m_pCompiler->CheckAndParseSPVData(m_pBaseLayer->GetMainPDLimits().maxBoundDescriptorSets, pushConstantRange, descSets))
-				return false;
+				Engine::Get()->RequireExit(1);
 
 			m_pCompiler->FlushSPVData();
 
@@ -1626,7 +1627,7 @@ bool LogicalDevice::CreateGraphicPipelines(const string& InJsonPath, VkPipelineC
 			if (graphicInfo[_text_mapper(vk_vertex_input_attributes)] == Json::nullValue)
 			{
 				_log_error("json file: [vertex_input_attributes] can not be null!", LogSystem::Category::JsonParser);
-				return false;
+				Engine::Get()->RequireExit(1);
 			}
 
 			// Bindings.
@@ -1730,27 +1731,27 @@ bool LogicalDevice::CreateGraphicPipelines(const string& InJsonPath, VkPipelineC
 					if (!viewport[_text_mapper(vk_position)].isArray())
 					{
 						_log_error("json file: viewport [position] must be an array [ first, second ]!", LogSystem::Category::JsonParser);
-						return false;
+						Engine::Get()->RequireExit(1);
 					}
 					if (!viewport[_text_mapper(vk_size)].isArray())
 					{
 						_log_error("json file: viewport [size] must be an array [ first, second ]!", LogSystem::Category::JsonParser);
-						return false;
+						Engine::Get()->RequireExit(1);
 					}
 					if (!viewport[_text_mapper(vk_depth_range)].isArray())
 					{
 						_log_error("json file: viewport [depth_range] must be an array [ first, second ]!", LogSystem::Category::JsonParser);
-						return false;
+						Engine::Get()->RequireExit(1);
 					}
 					if (!scissor[_text_mapper(vk_offset)].isArray())
 					{
 						_log_error("json file: scissor [offset] must be an array [ first, second ]!", LogSystem::Category::JsonParser);
-						return false;
+						Engine::Get()->RequireExit(1);
 					}
 					if (!scissor[_text_mapper(vk_size)].isArray())
 					{
 						_log_error("json file: scissor [size] must be an array [ first, second ]!", LogSystem::Category::JsonParser);
-						return false;
+						Engine::Get()->RequireExit(1);
 					}
 
 					currentViewport.x = JsonParser::GetFloat(viewport[_text_mapper(vk_position)][0]);
@@ -1946,7 +1947,7 @@ bool LogicalDevice::CreateGraphicPipelines(const string& InJsonPath, VkPipelineC
 				else
 				{
 					_log_error(StringUtil::Printf("Specified subpass name \"%\" was not found!", name), LogSystem::Category::JsonParser);
-					return false;
+					Engine::Get()->RequireExit(1);
 				}
 			}
 			/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1984,9 +1985,10 @@ bool LogicalDevice::CreateGraphicPipelines(const string& InJsonPath, VkPipelineC
 		_log_common("End creating graphic pipeline with " + InJsonPath, LogSystem::Category::LogicalDevice);
 	}
 
-	Engine::Get()->RequireExit(1);
+	// test...
+	// Engine::Get()->RequireExit(1);
 
-	return true;
+	//return true;
 }
 
 void LogicalDevice::FlushAllQueue()

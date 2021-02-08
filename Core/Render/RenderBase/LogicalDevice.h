@@ -166,7 +166,7 @@ public:
 
 	void           CreateShaderModule            (VkShaderModule* OutShaderModule, const VkShaderModuleCreateInfo& InCreateInfo);
 	void           CreateShaderModule            (VkShaderModule* OutShaderModule, const uint32* InCodes, usize InCodeSize);
-	bool           CreateShaderModule            (VkShaderModule* OutShaderModule, const Path& InShaderPath, const char* InEntrypoint = "main", VkShaderStageFlags* OutShaderStage = nullptr);
+	void           CreateShaderModule            (VkShaderModule* OutShaderModule, const Path& InShaderPath, const char* InEntrypoint = "main", VkShaderStageFlags* OutShaderStage = nullptr);
 
 	void           CreateComputePipelines        (VkPipeline* OutPipeline, const VkComputePipelineCreateInfo* InCreateInfos, uint32 InCreateInfoCount = _count_1, VkPipelineCache InPipCache = VK_NULL_HANDLE);
 	void           CreateComputePipeline         (VkPipeline* OutPipeline, VkPipelineLayout InPipLayout, VkShaderModule InShaderModule, const char* InShaderEntryName = "main", const VkSpecializationInfo* InSpecialConstInfo = nullptr, VkPipelineCache InPipCache = VK_NULL_HANDLE);
@@ -174,12 +174,12 @@ public:
 
 	void           CreatePipelineCache           (VkPipelineCache* OutPipCache, const VkPipelineCacheCreateInfo& InCreateInfo);
 	void           CreatePipelineCache           (VkPipelineCache* OutPipCache, const void* InData, usize InSize, VkPipelineCacheCreateFlags InFlags = _flag_none);
-	bool           CreateEmptyPipelineCache      (VkPipelineCache* OutPipCache);
-	bool           CreatePipelineCacheFromFile   (VkPipelineCache* OutPipCache, const Path& InPath);
+	void           CreateEmptyPipelineCache      (VkPipelineCache* OutPipCache);
+	void           CreatePipelineCacheFromFile   (VkPipelineCache* OutPipCache, const Path& InPath);
 	usize          GetPipelineCacheDataSize      (VkPipelineCache  InPipCache);
 	void           GetPipelineCacheData          (VkPipelineCache  InPipCache, usize InDataSize, void* OutData);
 	void           GetPipelineCacheData          (VkPipelineCache  InPipCache, std::vector<uint8>& OutData);
-	bool           SavePipelineCacheToFile       (const Path&      InPath);
+	void           SavePipelineCacheToFile       (const Path&      InPath);
 	void           MergePipelineCaches           (VkPipelineCache  OutMergedPipCache, const VkPipelineCache* InPipCaches, uint32 InSrcPipCacheCount);
 
 	void           CreateDescriptorSetLayout     (VkDescriptorSetLayout* OutLayout, const VkDescriptorSetLayoutCreateInfo& InCreateInfo);
@@ -198,9 +198,9 @@ public:
 	void           ResetDescriptorPool           (VkDescriptorPoolResetFlags InFlags = _flag_none);
 
 	void           UpdateDescriptorSets          (const VkWriteDescriptorSet* InDescWrites, uint32 InWriteSetCount = _count_1, const VkCopyDescriptorSet* InDescCopies = nullptr, uint32 InCopySetCount = _count_0);
-	bool           UpdateImageOfDescSet			 (VkDescriptorSet InDescSet, uint32 InBindingIndex, VkDescriptorType InImageDescType, const VkDescriptorImageInfo* InImageInfos, uint32 InImageCount = _count_1, uint32 InSetOffset = _offset_0);
-	bool           UpdateBufferOfDescSet		 (VkDescriptorSet InDescSet, uint32 InBindingIndex, VkDescriptorType InBufferDescType, const VkDescriptorBufferInfo* InBufferInfos, uint32 InBufferCount = _count_1, uint32 InSetOffset = _offset_0);
-	bool           UpdateTexelBufferOfDescSet    (VkDescriptorSet InDescSet, uint32 InBindingIndex, VkDescriptorType InTBufferDescType, const VkBufferView* InTBufferViews, uint32 InTBufferCount = _count_1, uint32 InSetOffset = _offset_0);
+	void           UpdateImageOfDescSet			 (VkDescriptorSet InDescSet, uint32 InBindingIndex, VkDescriptorType InImageDescType, const VkDescriptorImageInfo* InImageInfos, uint32 InImageCount = _count_1, uint32 InSetOffset = _offset_0);
+	void           UpdateBufferOfDescSet		 (VkDescriptorSet InDescSet, uint32 InBindingIndex, VkDescriptorType InBufferDescType, const VkDescriptorBufferInfo* InBufferInfos, uint32 InBufferCount = _count_1, uint32 InSetOffset = _offset_0);
+	void           UpdateTexelBufferOfDescSet    (VkDescriptorSet InDescSet, uint32 InBindingIndex, VkDescriptorType InTBufferDescType, const VkBufferView* InTBufferViews, uint32 InTBufferCount = _count_1, uint32 InSetOffset = _offset_0);
 	void           CopyDescriptorSets            (const VkCopyDescriptorSet* InDescCopies, uint32 InCopySetCount = _count_1);
 	void           CopyDescriptorSet             (VkDescriptorSet InSrcSet, uint32 InSrcBindingIndex, VkDescriptorSet InDstSet, uint32 InDstBindingIndex, uint32 InCopyDescCount, uint32 InSrcSetOffset = _offset_0, uint32 InDstSetOffset = _offset_0);
 
@@ -211,20 +211,20 @@ public:
 	void           CreatePointClampSampler       (VkSampler* OutSampler);
 	void           CreateLinearWrapSampler       (VkSampler* OutSampler);
 	void           CreateLinearClampSampler      (VkSampler* OutSampler);
-	bool           CreateAnisotropicWrapSampler  (VkSampler* OutSampler);
-	bool           CreateAnisotropicClampSampler (VkSampler* OutSampler);
+	void           CreateAnisotropicWrapSampler  (VkSampler* OutSampler);
+	void           CreateAnisotropicClampSampler (VkSampler* OutSampler);
 	void           CreatePCFSampler              (VkSampler* OutSampler);
 
 	void           CreateRenderPass              (VkRenderPass* OutRenderPass, const VkRenderPassCreateInfo& InCreateInfo);
-	bool           CreateRenderPass              (const string& InJsonPath);
+	void           CreateRenderPass              (const string& InJsonPath);
 	void           CreateSingleRenderPass        (VkRenderPass* OutRenderPass, VkFormat InColorFormat, VkFormat InDepthFormat);
 
-	bool           CreateFrameBuffer             (VkFramebuffer* OutFrameBuffer, const VkFramebufferCreateInfo& InCreateInfo);
-	bool           CreateFrameBuffer             (VkFramebuffer* OutFrameBuffer, VkRenderPass InRenderPass, const VkImageView* InImageViews, uint32 InViewCount, VkExtent3D InSize);
+	void           CreateFrameBuffer             (VkFramebuffer* OutFrameBuffer, const VkFramebufferCreateInfo& InCreateInfo);
+	void           CreateFrameBuffer             (VkFramebuffer* OutFrameBuffer, VkRenderPass InRenderPass, const VkImageView* InImageViews, uint32 InViewCount, VkExtent3D InSize);
 
 	void           CreateGraphicPipelines        (VkPipeline* OutPipeline, const VkGraphicsPipelineCreateInfo* InCreateInfos, uint32 InCreateInfoCount = _count_1, VkPipelineCache InPipCache = VK_NULL_HANDLE);
 	void           CreateGraphicPipelines        (VkPipeline* OutPipeline, const PipelineGraphicDesc* InDescs, uint32 InDescCount = _count_1, VkPipelineCache InPipCache = VK_NULL_HANDLE);
-	bool           CreateGraphicPipelines        (const string& InJsonPath, VkPipelineCache InPipCache = VK_NULL_HANDLE);
+	void           CreateGraphicPipelines        (const string& InJsonPath, VkPipelineCache InPipCache = VK_NULL_HANDLE);
 
 	void           FlushAllQueue();
 	void           ResetCmdPool();
