@@ -187,6 +187,7 @@
     <ClCompile Include="Core\Utility\Misc\Misc.cpp" />
     <ClCompile Include="Core\Utility\Parser\JsonParser.cpp" />
     <ClCompile Include="Core\Utility\Parser\PathParser.cpp" />
+    <ClCompile Include="Core\Utility\Parser\XMLParser.cpp" />
     <ClCompile Include="Core\Utility\String\StringManager.cpp" />
     <ClCompile Include="Core\Utility\Timer\TimerManager.cpp" />
     <ClCompile Include="ThirdParty\jsoncpp\src\lib_json\json_reader.cpp" />
@@ -228,6 +229,7 @@
     <ClInclude Include="Core\Utility\Misc\Misc.h" />
     <ClInclude Include="Core\Utility\Parser\JsonParser.h" />
     <ClInclude Include="Core\Utility\Parser\PathParser.h" />
+    <ClInclude Include="Core\Utility\Parser\XMLParser.h" />
     <ClInclude Include="Core\Utility\String\StringManager.h" />
     <ClInclude Include="Core\Utility\Timer\TimerManager.h" />
     <ClInclude Include="Layers\Fossilize\fossilize.hpp" />

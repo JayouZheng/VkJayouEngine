@@ -75,6 +75,9 @@
     <ClCompile Include="Core\SmartPtr\VkSmartPtr.cpp">
       <Filter>Core\SmartPtr</Filter>
     </ClCompile>
+    <ClCompile Include="Core\Utility\Parser\XMLParser.cpp">
+      <Filter>Core\Utility\Parser</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="vk_app.h" />
@@ -374,6 +377,9 @@
     </ClInclude>
     <ClInclude Include="Core\Render\RenderBase\RenderEnum.h">
       <Filter>Core\Render\RenderBase</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Utility\Parser\XMLParser.h">
+      <Filter>Core\Utility\Parser</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

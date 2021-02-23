@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Vlukan Graphic Pipeline -->
+<graphic_pipeline name="common" flags="0">
+    <pipeline_stage type="vertex" flags="0">
+        <shader_path>Core/Shaders/triangle.vert</shader_path>
+        <entrypoint>main</entrypoint>
+        <specialization_constants>
+            <float>0.235</float>
+            <int>60</int>
+            <bool>false</bool>
+        </specialization_constants>
+    </pipeline_stage>
+    <pipeline_stage type="pixel">
+        <shader_path>Core/Shaders/triangle.frag</shader_path>
+    </pipeline_stage>
+    <vertex_input binding_id="0">
+        <attributes>position</attributes>
+        <attributes>color</attributes>
+    </vertex_input>
+</graphic_pipeline>

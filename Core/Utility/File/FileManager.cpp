@@ -9,11 +9,11 @@
 #include "Core/Utility/Log/LogSystem.h"
 #include "Core/Utility/String/StringManager.h"
 
-bool FileUtil::Read(const Path& InPath, std::vector<uint8>& OutData)
+bool FileUtil::ReadBinary(const Path& InPath, std::vector<uint8>& OutData)
 {
 	_log_common(StringUtil::Printf("Begin read file: %", InPath.ToString()), LogSystem::Category::IO);
 
-#ifndef ENABLE_TRY_CATCH
+#ifndef USING_FSTREAM
 
 	FILE* pFile;
 	pFile = fopen(InPath.ToCString(), "rb");
@@ -84,11 +84,11 @@ bool FileUtil::Read(const Path& InPath, std::vector<uint8>& OutData)
 	return true;
 }
 
-bool FileUtil::Write(const Path& InPath, const std::vector<uint8>& InData)
+bool FileUtil::WriteBinary(const Path& InPath, const std::vector<uint8>& InData)
 {
 	_log_common(StringUtil::Printf("Begin write file: %", InPath.ToString()), LogSystem::Category::IO);
 
-#ifndef ENABLE_TRY_CATCH
+#ifndef USING_FSTREAM
 
 	FILE* pFile;
 	pFile = fopen(InPath.ToCString(), "wb");

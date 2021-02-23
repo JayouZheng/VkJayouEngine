@@ -228,7 +228,7 @@ void LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const Pa
 	else
 	{
 		std::vector<uint8> shaderCode;
-		if (!FileUtil::Read(InShaderPath, shaderCode))
+		if (!FileUtil::ReadBinary(InShaderPath, shaderCode))
 			Engine::Get()->RequireExit(1);
 		this->CreateShaderModule(OutShaderModule, (uint32*)shaderCode.data(), shaderCode.size());
 	}
@@ -334,7 +334,7 @@ void LogicalDevice::CreatePipelineCacheFromFile(VkPipelineCache* OutPipCache, co
 
 	std::vector<uint8> cacheData;
 
-	if (!FileUtil::Read(InPath, cacheData))
+	if (!FileUtil::ReadBinary(InPath, cacheData))
 		Engine::Get()->RequireExit(1);
 
 	if (!cacheData.empty())
@@ -463,7 +463,7 @@ void LogicalDevice::SavePipelineCacheToFile(const Path& InPath)
 	std::vector<uint8> cacheData;
 	this->GetPipelineCacheData(*pMergedPipCache, cacheData);
 
-	if (!FileUtil::Write(InPath, cacheData))
+	if (!FileUtil::WriteBinary(InPath, cacheData))
 		_log_error("Save PipelineCache to file failed!", LogSystem::Category::LogicalDevice);
 }
 

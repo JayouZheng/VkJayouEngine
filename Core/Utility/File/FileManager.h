@@ -22,7 +22,7 @@ public:
 	 * 
 	 *  @return true if success, otherwise false.
 	 */
-	static bool Read(const Path& InPath, std::vector<uint8>& OutData);
+	static bool ReadBinary(const Path& InPath, std::vector<uint8>& OutData);
 
 	/**
 	 *  Open and write a file with specific path.
@@ -32,5 +32,5 @@ public:
 	 * 
 	 *  @return true if success, otherwise false.
 	 */
-	static bool Write (const Path& InPath, const std::vector<uint8>& InData);
+	static bool WriteBinary(const Path& InPath, const std::vector<uint8>& InData);
 };
