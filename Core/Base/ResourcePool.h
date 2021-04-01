@@ -43,7 +43,7 @@ public:
     void Push(VkSmartPtr<VkObjectHandler> InRef);
 };
 
-class LoaclResourcePool
+class LocalResourcePool
 {
 public:
 
@@ -66,7 +66,7 @@ public:
      */
     void Free();
 
-    ~LoaclResourcePool();
+    ~LocalResourcePool();
 
 private:
 

@@ -1495,7 +1495,7 @@ void LogicalDevice::CreateGraphicPipelines(const string& InJsonPath, VkPipelineC
 		VkRect2D   currentScissor  = {};
 		this->SetViewport(currentViewport, currentScissor, m_pWindow->GetWindowDesc().Width, m_pWindow->GetWindowDesc().Height);
 
-		LoaclResourcePool localResPool;
+		LocalResourcePool localResPool;
 
 		std::vector<VkGraphicsPipelineCreateInfo>                     graphicInfos;
 		std::vector<std::vector<VkPipelineShaderStageCreateInfo>>     shaderInfos;
