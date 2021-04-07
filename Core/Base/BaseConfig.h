@@ -24,7 +24,7 @@ namespace BaseConfig
 
 	static const char* EnableLayers[] =
 	{
-		"VK_LAYER_RENDERDOC_Capture",
+		//"VK_LAYER_RENDERDOC_Capture",
 		"VK_LAYER_VALVE_steam_fossilize"
 	};
 

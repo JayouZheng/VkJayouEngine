@@ -107,14 +107,19 @@ bool BaseLayer::Init()
 		VkInstanceCreateInfo instanceCreateInfo = {};
 		instanceCreateInfo.sType                = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 		instanceCreateInfo.pApplicationInfo     = &appInfo;
-		instanceCreateInfo.enabledLayerCount    = _count_0;
-		instanceCreateInfo.ppEnabledLayerNames  = nullptr;
 
 		// Enable Instance Exts.
 		{
 			uint32 numInsSupportExts = (uint32)m_supportInsExts.size();
 			instanceCreateInfo.enabledExtensionCount   = numInsSupportExts;
 			instanceCreateInfo.ppEnabledExtensionNames = numInsSupportExts > 0 ? m_supportInsExts.data() : nullptr;
+		}
+
+		// Enable Instance Layers.
+		{
+			uint32 numInsSupportLayers = (uint32)m_supportInsLayers.size();
+			instanceCreateInfo.enabledLayerCount   = numInsSupportLayers;
+			instanceCreateInfo.ppEnabledLayerNames = numInsSupportLayers > 0 ? m_supportInsLayers.data() : nullptr;
 		}
 
 		VkInstance vkInstance = VK_NULL_HANDLE;
@@ -285,14 +290,19 @@ bool BaseLayer::Init()
 		// deviceCreateInfo.pEnabledFeatures  = &m_requiredPDFeatures;
 		// VkPhysicalDeviceVulkan12Features,    descriptorIndexing.
 		deviceCreateInfo.pNext                = &m_requiredPDFeatures;
-		deviceCreateInfo.enabledLayerCount    = _count_0;
-		deviceCreateInfo.ppEnabledLayerNames  = nullptr;
 
 		// Enable PD Exts.
 		{
 			uint32 numPDSupportExts = (uint32)m_supportPDExts.size();
 			deviceCreateInfo.enabledExtensionCount   = numPDSupportExts;
 			deviceCreateInfo.ppEnabledExtensionNames = numPDSupportExts > 0 ? m_supportPDExts.data() : nullptr;
+		}
+
+		// Enable PD Layers.
+		{
+			uint32 numPDSupportLayers = (uint32)m_supportPDLayers.size();
+			deviceCreateInfo.enabledLayerCount   = numPDSupportLayers;
+			deviceCreateInfo.ppEnabledLayerNames = numPDSupportLayers > 0 ? m_supportPDLayers.data() : nullptr;
 		}
 
 		_vk_try(vkCreateDevice(m_physicalDevices[m_mainPDIndex], &deviceCreateInfo, GetVkAllocator(), m_pDevice->GetAddressOfVkDevice()));
