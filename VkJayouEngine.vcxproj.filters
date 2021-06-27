@@ -381,6 +381,9 @@
     <ClInclude Include="Core\Utility\Parser\XMLParser.h">
       <Filter>Core\Utility\Parser</Filter>
     </ClInclude>
+    <ClInclude Include="Core\Utility\Parser\Interface\IParser.h">
+      <Filter>Core\Utility\Parser\Interface</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -484,6 +487,9 @@
     </Filter>
     <Filter Include="Core\Utility\Misc">
       <UniqueIdentifier>{ece0b864-aee5-4209-be72-e3c0911045da}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Utility\Parser\Interface">
+      <UniqueIdentifier>{a7070c4e-7e2d-4db8-a0e2-a00c66f34850}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

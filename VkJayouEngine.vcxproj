@@ -227,6 +227,7 @@
     <ClInclude Include="Core\Utility\Mapper\TextMapper.h" />
     <ClInclude Include="Core\Utility\Misc\EnumToString.h" />
     <ClInclude Include="Core\Utility\Misc\Misc.h" />
+    <ClInclude Include="Core\Utility\Parser\Interface\IParser.h" />
     <ClInclude Include="Core\Utility\Parser\JsonParser.h" />
     <ClInclude Include="Core\Utility\Parser\PathParser.h" />
     <ClInclude Include="Core\Utility\Parser\XMLParser.h" />
