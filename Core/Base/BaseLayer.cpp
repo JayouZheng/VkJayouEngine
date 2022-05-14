@@ -7,7 +7,6 @@
 #include "BaseConfig.h"
 #include "BaseAllocator.h"
 #include "Core/Engine/Engine.h"
-#include "Core/Utility/Misc/Misc.h"
 #include "Core/Platform/Windows/Window.h"
 #include "Core/Render/RenderBase/LogicalDevice.h"
 

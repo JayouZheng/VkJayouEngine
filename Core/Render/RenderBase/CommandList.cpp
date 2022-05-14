@@ -4,7 +4,6 @@
  *********************************************************************/
 
 #include "Core/Base/BaseLayer.h"
-#include "Core/Utility/File/FileManager.h"
 #include "CommandList.h"
 #include "RenderBaseConfig.h"
 #include "LogicalDevice.h"

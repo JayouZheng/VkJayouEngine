@@ -7,7 +7,8 @@
 
 #pragma once
 
-#include "Core/Common.h"
+#include "Core/TypeDef.h"
+#include "vulkan/vulkan.hpp"
 
 class EnumToString
 {

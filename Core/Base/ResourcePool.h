@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "Core/SmartPtr/VkSmartPtr.h"
+#include "Core/Utilities/SmartPtr/VkSmartPtr.h"
 
 class IResourceHandler;
 

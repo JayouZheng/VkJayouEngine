@@ -7,7 +7,9 @@
 
 #pragma once
 
-#include "Core/Common.h"
+#include "Core/TypeDef.h"
+#include "Core/Platform/Platform.h"
+#include "Core/Base/Interface/IResourceHandler.h"
 
 #if PLATFORM_WINDOW
 

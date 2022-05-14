@@ -4,8 +4,8 @@
  *********************************************************************/
 
 #include "TimerManager.h"
-#include "Core/Utility/String/StringManager.h"
-#include "Core/Utility/Log/LogSystem.h"
+#include "../String/StringManager.h"
+#include "../Log/LogSystem.h"
 #include <ctime>
 
 namespace

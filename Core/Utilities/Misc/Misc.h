@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "Core/Common.h"
+#include "Core/TypeDef.h"
 
 class Misc
 {

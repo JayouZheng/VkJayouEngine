@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include "../Log/LogSystem.h"
+
 template<typename T>
 T ModuleLoader::GetInterface(const string& InName)
 {

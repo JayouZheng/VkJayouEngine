@@ -14,9 +14,7 @@
 
 #include "Core/TypeDef.h"
 #include "Core/Base/Exception.h"
-#include "Core/Utility/Log/LogSystem.h"
-#include "Core/SmartPtr/SmartPtr.h"
-#include "Core/SmartPtr/VkSmartPtr.h"
-#include "Core/Utility/Parser/PathParser.h"
-#include "Core/Base/Interface/IResourceHandler.h"
 #include "Core/Base/MemoryLeakCheck.h"
+#include "Core/Base/Interface/IResourceHandler.h"
+
+#include "Utilities/Utilities.h"

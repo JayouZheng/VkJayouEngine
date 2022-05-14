@@ -8,7 +8,7 @@
 #pragma once
 
 #include "Core/Base/BaseType.h"
-#include "Core/Math/Sequence.h"
+#include "../Math/Sequence.h"
 
 template<typename T>
 class List

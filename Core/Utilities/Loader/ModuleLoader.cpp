@@ -2,7 +2,9 @@
  *  ModuleLoader.cpp
  *  Copyright (C) 2020 Jayou. All Rights Reserved.
  *********************************************************************/
+
 #include "ModuleLoader.h"
+#include "Core/Platform/Platform.h"
 
 _impl_create_interface(ModuleLoader)
 

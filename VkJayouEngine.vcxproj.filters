@@ -18,20 +18,20 @@
     <ClCompile Include="Core\Base\BaseLayer.cpp">
       <Filter>Core\Base</Filter>
     </ClCompile>
-    <ClCompile Include="Core\Utility\File\FileManager.cpp">
-      <Filter>Core\Utility\File</Filter>
+    <ClCompile Include="Core\Utilities\File\FileManager.cpp">
+      <Filter>Core\Utilities\File</Filter>
     </ClCompile>
-    <ClCompile Include="Core\Utility\String\StringManager.cpp">
-      <Filter>Core\Utility\String</Filter>
+    <ClCompile Include="Core\Utilities\String\StringManager.cpp">
+      <Filter>Core\Utilities\String</Filter>
     </ClCompile>
-    <ClCompile Include="Core\Utility\Timer\TimerManager.cpp">
-      <Filter>Core\Utility\Timer</Filter>
+    <ClCompile Include="Core\Utilities\Timer\TimerManager.cpp">
+      <Filter>Core\Utilities\Timer</Filter>
     </ClCompile>
-    <ClCompile Include="Core\Utility\Parser\JsonParser.cpp">
-      <Filter>Core\Utility\Parser</Filter>
+    <ClCompile Include="Core\Utilities\Parser\JsonParser.cpp">
+      <Filter>Core\Utilities\Parser</Filter>
     </ClCompile>
-    <ClCompile Include="Core\Utility\Parser\PathParser.cpp">
-      <Filter>Core\Utility\Parser</Filter>
+    <ClCompile Include="Core\Utilities\Parser\PathParser.cpp">
+      <Filter>Core\Utilities\Parser</Filter>
     </ClCompile>
     <ClCompile Include="Core\Render\GLSLCompiler.cpp">
       <Filter>Core\Render</Filter>
@@ -42,20 +42,20 @@
     <ClCompile Include="Core\Base\ResourcePool.cpp">
       <Filter>Core\Base</Filter>
     </ClCompile>
-    <ClCompile Include="Core\Utility\Color\ColorManager.cpp">
-      <Filter>Core\Utility\Color</Filter>
+    <ClCompile Include="Core\Utilities\Color\ColorManager.cpp">
+      <Filter>Core\Utilities\Color</Filter>
     </ClCompile>
     <ClCompile Include="Core\Engine\Engine.cpp">
       <Filter>Core\Engine</Filter>
     </ClCompile>
-    <ClCompile Include="Core\Utility\Log\LogSystem.cpp">
-      <Filter>Core\Utility\Log</Filter>
+    <ClCompile Include="Core\Utilities\Log\LogSystem.cpp">
+      <Filter>Core\Utilities\Log</Filter>
     </ClCompile>
-    <ClCompile Include="Core\Utility\Loader\ModuleLoader.cpp">
-      <Filter>Core\Utility\Loader</Filter>
+    <ClCompile Include="Core\Utilities\Loader\ModuleLoader.cpp">
+      <Filter>Core\Utilities\Loader</Filter>
     </ClCompile>
-    <ClCompile Include="Core\Utility\Mapper\TextMapper.cpp">
-      <Filter>Core\Utility\Mapper</Filter>
+    <ClCompile Include="Core\Utilities\Mapper\TextMapper.cpp">
+      <Filter>Core\Utilities\Mapper</Filter>
     </ClCompile>
     <ClCompile Include="Core\Render\RenderBase\CommandList.cpp">
       <Filter>Core\Render\RenderBase</Filter>
@@ -66,17 +66,17 @@
     <ClCompile Include="Core\Render\RenderBase\LogicalDevice.cpp">
       <Filter>Core\Render\RenderBase</Filter>
     </ClCompile>
-    <ClCompile Include="Core\Utility\Misc\EnumToString.cpp">
-      <Filter>Core\Utility\Misc</Filter>
+    <ClCompile Include="Core\Utilities\Misc\EnumToString.cpp">
+      <Filter>Core\Utilities\Misc</Filter>
     </ClCompile>
-    <ClCompile Include="Core\Utility\Misc\Misc.cpp">
-      <Filter>Core\Utility\Misc</Filter>
+    <ClCompile Include="Core\Utilities\Misc\Misc.cpp">
+      <Filter>Core\Utilities\Misc</Filter>
     </ClCompile>
-    <ClCompile Include="Core\SmartPtr\VkSmartPtr.cpp">
-      <Filter>Core\SmartPtr</Filter>
+    <ClCompile Include="Core\Utilities\Parser\XMLParser.cpp">
+      <Filter>Core\Utilities\Parser</Filter>
     </ClCompile>
-    <ClCompile Include="Core\Utility\Parser\XMLParser.cpp">
-      <Filter>Core\Utility\Parser</Filter>
+    <ClCompile Include="Core\Utilities\SmartPtr\VkSmartPtr.cpp">
+      <Filter>Core\Utilities\SmartPtr</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -123,15 +123,6 @@
     <ClInclude Include="ThirdParty\iniparser\ini.hpp">
       <Filter>ThirdParty\iniparser</Filter>
     </ClInclude>
-    <ClInclude Include="Core\Containers\List.h">
-      <Filter>Core\Containers</Filter>
-    </ClInclude>
-    <ClInclude Include="Core\Math\Sequence.h">
-      <Filter>Core\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Core\Containers\Tuple.h">
-      <Filter>Core\Containers</Filter>
-    </ClInclude>
     <ClInclude Include="Core\Base\BaseAllocator.h">
       <Filter>Core\Base</Filter>
     </ClInclude>
@@ -144,26 +135,20 @@
     <ClInclude Include="Core\Platform\Platform.h">
       <Filter>Core\Platform</Filter>
     </ClInclude>
-    <ClInclude Include="Core\Utility\File\FileManager.h">
-      <Filter>Core\Utility\File</Filter>
+    <ClInclude Include="Core\Utilities\File\FileManager.h">
+      <Filter>Core\Utilities\File</Filter>
     </ClInclude>
-    <ClInclude Include="Core\Utility\String\StringManager.h">
-      <Filter>Core\Utility\String</Filter>
+    <ClInclude Include="Core\Utilities\String\StringManager.h">
+      <Filter>Core\Utilities\String</Filter>
     </ClInclude>
-    <ClInclude Include="Core\Utility\Timer\TimerManager.h">
-      <Filter>Core\Utility\Timer</Filter>
+    <ClInclude Include="Core\Utilities\Timer\TimerManager.h">
+      <Filter>Core\Utilities\Timer</Filter>
     </ClInclude>
-    <ClInclude Include="Core\SmartPtr\VkSmartPtr.h">
-      <Filter>Core\SmartPtr</Filter>
+    <ClInclude Include="Core\Utilities\Parser\JsonParser.h">
+      <Filter>Core\Utilities\Parser</Filter>
     </ClInclude>
-    <ClInclude Include="Core\SmartPtr\SmartPtr.h">
-      <Filter>Core\SmartPtr</Filter>
-    </ClInclude>
-    <ClInclude Include="Core\Utility\Parser\JsonParser.h">
-      <Filter>Core\Utility\Parser</Filter>
-    </ClInclude>
-    <ClInclude Include="Core\Utility\Parser\PathParser.h">
-      <Filter>Core\Utility\Parser</Filter>
+    <ClInclude Include="Core\Utilities\Parser\PathParser.h">
+      <Filter>Core\Utilities\Parser</Filter>
     </ClInclude>
     <ClInclude Include="Core\Render\GLSLCompiler.h">
       <Filter>Core\Render</Filter>
@@ -180,20 +165,20 @@
     <ClInclude Include="Core\Base\BaseConfig.h">
       <Filter>Core\Base</Filter>
     </ClInclude>
-    <ClInclude Include="Core\Utility\Color\ColorManager.h">
-      <Filter>Core\Utility\Color</Filter>
+    <ClInclude Include="Core\Utilities\Color\ColorManager.h">
+      <Filter>Core\Utilities\Color</Filter>
     </ClInclude>
     <ClInclude Include="Core\Engine\Engine.h">
       <Filter>Core\Engine</Filter>
     </ClInclude>
-    <ClInclude Include="Core\Utility\Log\LogSystem.h">
-      <Filter>Core\Utility\Log</Filter>
+    <ClInclude Include="Core\Utilities\Log\LogSystem.h">
+      <Filter>Core\Utilities\Log</Filter>
     </ClInclude>
-    <ClInclude Include="Core\Utility\Loader\ModuleLoader.h">
-      <Filter>Core\Utility\Loader</Filter>
+    <ClInclude Include="Core\Utilities\Loader\ModuleLoader.h">
+      <Filter>Core\Utilities\Loader</Filter>
     </ClInclude>
-    <ClInclude Include="Core\Utility\Mapper\TextMapper.h">
-      <Filter>Core\Utility\Mapper</Filter>
+    <ClInclude Include="Core\Utilities\Mapper\TextMapper.h">
+      <Filter>Core\Utilities\Mapper</Filter>
     </ClInclude>
     <ClInclude Include="Core\Render\RenderBase\CommandList.h">
       <Filter>Core\Render\RenderBase</Filter>
@@ -210,11 +195,11 @@
     <ClInclude Include="Core\Base\MemoryLeakCheck.h">
       <Filter>Core\Base</Filter>
     </ClInclude>
-    <ClInclude Include="Core\Utility\Misc\EnumToString.h">
-      <Filter>Core\Utility\Misc</Filter>
+    <ClInclude Include="Core\Utilities\Misc\EnumToString.h">
+      <Filter>Core\Utilities\Misc</Filter>
     </ClInclude>
-    <ClInclude Include="Core\Utility\Misc\Misc.h">
-      <Filter>Core\Utility\Misc</Filter>
+    <ClInclude Include="Core\Utilities\Misc\Misc.h">
+      <Filter>Core\Utilities\Misc</Filter>
     </ClInclude>
     <ClInclude Include="Core\Base\Exception.h">
       <Filter>Core\Base</Filter>
@@ -222,11 +207,29 @@
     <ClInclude Include="Core\Render\RenderBase\RenderEnum.h">
       <Filter>Core\Render\RenderBase</Filter>
     </ClInclude>
-    <ClInclude Include="Core\Utility\Parser\XMLParser.h">
-      <Filter>Core\Utility\Parser</Filter>
+    <ClInclude Include="Core\Utilities\Parser\XMLParser.h">
+      <Filter>Core\Utilities\Parser</Filter>
     </ClInclude>
-    <ClInclude Include="Core\Utility\Parser\Interface\IParser.h">
-      <Filter>Core\Utility\Parser\Interface</Filter>
+    <ClInclude Include="Core\Utilities\Parser\Interface\IParser.h">
+      <Filter>Core\Utilities\Parser\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Utilities\SmartPtr\SmartPtr.h">
+      <Filter>Core\Utilities\SmartPtr</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Utilities\SmartPtr\VkSmartPtr.h">
+      <Filter>Core\Utilities\SmartPtr</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Utilities\Math\Sequence.h">
+      <Filter>Core\Utilities\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Utilities\Containers\List.h">
+      <Filter>Core\Utilities\Containers</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Utilities\Containers\Tuple.h">
+      <Filter>Core\Utilities\Containers</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Utilities\Utilities.h">
+      <Filter>Core\Utilities</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -235,9 +238,6 @@
   <ItemGroup>
     <Filter Include="Core">
       <UniqueIdentifier>{9b922a2b-d794-4f31-93f5-30305b5c7e01}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Layers">
-      <UniqueIdentifier>{43032fe6-4e97-4ddb-bc4a-0eee10d65782}</UniqueIdentifier>
     </Filter>
     <Filter Include="ThirdParty">
       <UniqueIdentifier>{c43a1332-d2ca-476a-9145-8baf510d57f8}</UniqueIdentifier>
@@ -251,38 +251,11 @@
     <Filter Include="ThirdParty\iniparser">
       <UniqueIdentifier>{11d8534b-39ab-4183-ac55-75773f010e30}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Core\Containers">
-      <UniqueIdentifier>{64072beb-13f3-47fd-9338-748f04e6a8f1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Math">
-      <UniqueIdentifier>{bbee79fb-b77c-443a-b02e-aa1500e1246f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Core\Base">
       <UniqueIdentifier>{1ed026bf-45ff-42d8-9db5-bcf64b94a273}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Core\SmartPtr">
-      <UniqueIdentifier>{f2d96bbc-961a-4eb0-b9fe-41f8f746cc96}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Utility">
-      <UniqueIdentifier>{ad18c222-0cf5-40c1-bc89-94fa0c7296ec}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Utility\Parser">
-      <UniqueIdentifier>{22c2b398-6680-496a-95b3-fbd6e7de8305}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Utility\Timer">
-      <UniqueIdentifier>{f7b11a9a-3ba4-4151-b6e5-89985d784ef8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Core\Platform">
       <UniqueIdentifier>{4ea2e840-881a-4724-8486-bc3f3804efa9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Utility\Color">
-      <UniqueIdentifier>{130e7bfa-5c4f-4949-8e63-55f92ddaf855}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Utility\File">
-      <UniqueIdentifier>{2f705a22-07e9-45f0-92aa-4c316bf2ce3a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Utility\String">
-      <UniqueIdentifier>{16a73db9-8957-40c3-b4e6-b46d9b023c6f}</UniqueIdentifier>
     </Filter>
     <Filter Include="Core\Platform\Windows">
       <UniqueIdentifier>{55e65968-055d-4af1-b92f-c23b99997dca}</UniqueIdentifier>
@@ -299,40 +272,70 @@
     <Filter Include="Core\Engine">
       <UniqueIdentifier>{95ee44a1-f92d-4b72-a3e9-c118dbbc5eb8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Core\Utility\Log">
-      <UniqueIdentifier>{4d7a043b-b721-4082-a0c9-7b2d63fd42fd}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Utility\Loader">
-      <UniqueIdentifier>{d6b71f78-026f-4779-8772-a6eacc5d56b7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Utility\Mapper">
-      <UniqueIdentifier>{009db284-2a89-4506-9572-63f3e7a56eb4}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Core\Render\RenderBase">
       <UniqueIdentifier>{ccc55751-f5cb-4bcb-84eb-1a5fba0e5605}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Core\Utility\Misc">
+    <Filter Include="Core\Scene">
+      <UniqueIdentifier>{aa5631c1-70e8-4ebb-bebc-65ebb09eea2e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Utilities">
+      <UniqueIdentifier>{ad18c222-0cf5-40c1-bc89-94fa0c7296ec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Utilities\Parser">
+      <UniqueIdentifier>{22c2b398-6680-496a-95b3-fbd6e7de8305}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Utilities\Parser\Interface">
+      <UniqueIdentifier>{a7070c4e-7e2d-4db8-a0e2-a00c66f34850}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Utilities\Timer">
+      <UniqueIdentifier>{f7b11a9a-3ba4-4151-b6e5-89985d784ef8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Utilities\Color">
+      <UniqueIdentifier>{130e7bfa-5c4f-4949-8e63-55f92ddaf855}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Utilities\File">
+      <UniqueIdentifier>{2f705a22-07e9-45f0-92aa-4c316bf2ce3a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Utilities\String">
+      <UniqueIdentifier>{16a73db9-8957-40c3-b4e6-b46d9b023c6f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Utilities\Log">
+      <UniqueIdentifier>{4d7a043b-b721-4082-a0c9-7b2d63fd42fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Utilities\Loader">
+      <UniqueIdentifier>{d6b71f78-026f-4779-8772-a6eacc5d56b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Utilities\Mapper">
+      <UniqueIdentifier>{009db284-2a89-4506-9572-63f3e7a56eb4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Utilities\Misc">
       <UniqueIdentifier>{ece0b864-aee5-4209-be72-e3c0911045da}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Core\Utility\Parser\Interface">
-      <UniqueIdentifier>{a7070c4e-7e2d-4db8-a0e2-a00c66f34850}</UniqueIdentifier>
+    <Filter Include="Core\Utilities\Math">
+      <UniqueIdentifier>{bbee79fb-b77c-443a-b02e-aa1500e1246f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Utilities\Containers">
+      <UniqueIdentifier>{64072beb-13f3-47fd-9338-748f04e6a8f1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Utilities\SmartPtr">
+      <UniqueIdentifier>{f2d96bbc-961a-4eb0-b9fe-41f8f746cc96}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ThirdParty\jsoncpp\src\lib_json\json_valueiterator.inl">
       <Filter>ThirdParty\jsoncpp\src</Filter>
     </None>
-    <None Include="Core\Utility\String\StringManager.inl">
-      <Filter>Core\Utility\String</Filter>
+    <None Include="Core\Utilities\String\StringManager.inl">
+      <Filter>Core\Utilities\String</Filter>
     </None>
-    <None Include="Core\Utility\Loader\ModuleLoader.inl">
-      <Filter>Core\Utility\Loader</Filter>
+    <None Include="Core\Utilities\Loader\ModuleLoader.inl">
+      <Filter>Core\Utilities\Loader</Filter>
     </None>
     <None Include="Core\Render\RenderBase\LogicalDevice.inl">
       <Filter>Core\Render\RenderBase</Filter>
     </None>
-    <None Include="Core\Utility\Misc\Misc.inl">
-      <Filter>Core\Utility\Misc</Filter>
+    <None Include="Core\Utilities\Misc\Misc.inl">
+      <Filter>Core\Utilities\Misc</Filter>
     </None>
   </ItemGroup>
 </Project>

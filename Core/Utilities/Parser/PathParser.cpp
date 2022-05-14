@@ -4,8 +4,8 @@
  *********************************************************************/
 
 #include "PathParser.h"
-#include "Core/Common.h"
 #include "Core/Engine/Engine.h"
+#include "../Log/LogSystem.h"
 
 string PathParser::Parse(const string& InPath)
 {

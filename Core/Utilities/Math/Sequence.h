@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "Core/BaseType.h"
+#include "Core/Base/BaseType.h"
 
 namespace Math
 {
@@ -48,8 +48,8 @@ namespace Math
                 if (m_sequence != nullptr)
                     Clear();
 
-                m_sequence = new int[m_length];
-                for (int i = 0; i < m_length; i++)
+                m_sequence = new uint32[m_length];
+                for (uint32 i = 0; i < m_length; i++)
                     m_sequence[i] = i;
             }
 

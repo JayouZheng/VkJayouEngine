@@ -8,7 +8,7 @@
 #pragma once
 
 #include "Core/TypeDef.h"
-#include "Core/Utility/Log/LogSystem.h"
+#include "Core/Utilities/Log/LogSystem.h"
 
 class vkException
 {

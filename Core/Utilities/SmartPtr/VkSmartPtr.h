@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "Core/Utility/Log/LogSystem.h"
+#include "../Log/LogSystem.h"
 #include "vulkan/vulkan.hpp"
 
 #pragma region VkSmartPtr

@@ -7,9 +7,9 @@
 
 #pragma once
 
-#include "Core/Utility/Color/ColorManager.h"
-#include "Core/Utility/Timer/TimerManager.h"
-#include "Core/Utility/String/StringManager.h"
+#include "../Color/ColorManager.h"
+#include "../Timer/TimerManager.h"
+#include "../String/StringManager.h"
 
 class LogSystem
 {

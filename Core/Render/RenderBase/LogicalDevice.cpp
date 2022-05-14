@@ -4,14 +4,9 @@
  *********************************************************************/
 
 #include "Core/Base/BaseLayer.h"
-#include "Core/Utility/Misc/Misc.h"
 #include "Core/Base/ResourcePool.h"
 #include "Core/Base/BaseAllocator.h"
-#include "Core/Utility/Mapper/TextMapper.h"
 #include "Core/Platform/Windows/Window.h"
-#include "Core/Utility/File/FileManager.h"
-#include "Core/Utility/Parser/JsonParser.h"
-#include "Core/Utility/String/StringManager.h"
 #include "Core/Render/GLSLCompiler.h"
 #include "LogicalDevice.h"
 #include "RenderBaseConfig.h"

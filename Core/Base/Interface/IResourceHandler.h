@@ -10,8 +10,8 @@
 #include <string>
 #include <vector>
 
-#include "Core/SmartPtr/SmartPtr.h"
-#include "Core/SmartPtr/VkSmartPtr.h"
+#include "Core/Utilities/SmartPtr/SmartPtr.h"
+#include "Core/Utilities/SmartPtr/VkSmartPtr.h"
 
 class IResourceHandler
 {
