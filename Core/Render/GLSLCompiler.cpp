@@ -15,7 +15,7 @@ GLSLCompiler::GLSLCompiler()
 {
 	m_pModule = ModuleLoader::Create(this);
 
-    if (m_pModule->Load(Path(StringUtil::Printf("Tools/CMBuild/GLSLCompiler/%/GLSLCompiler.dll", _platform))))
+    if (m_pModule->Load(Path(StringUtil::Printf("Tools/Binaries/GLSLCompiler/%/GLSLCompiler.dll", _platform))))
     {
         m_pInterface = m_pModule->GetInterface<PFGetGLSLCompilerInterface>("GetInterface");
 

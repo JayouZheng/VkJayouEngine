@@ -87,51 +87,6 @@
     <ClInclude Include="Core\TypeDef.h">
       <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="Layers\Fossilize\fossilize.hpp">
-      <Filter>Layers\Fossilize</Filter>
-    </ClInclude>
-    <ClInclude Include="Layers\Fossilize\fossilize_application_filter.hpp">
-      <Filter>Layers\Fossilize</Filter>
-    </ClInclude>
-    <ClInclude Include="Layers\Fossilize\fossilize_db.hpp">
-      <Filter>Layers\Fossilize</Filter>
-    </ClInclude>
-    <ClInclude Include="Layers\Fossilize\fossilize_errors.hpp">
-      <Filter>Layers\Fossilize</Filter>
-    </ClInclude>
-    <ClInclude Include="Layers\Fossilize\fossilize_external_replayer.hpp">
-      <Filter>Layers\Fossilize</Filter>
-    </ClInclude>
-    <ClInclude Include="Layers\Fossilize\fossilize_external_replayer_control_block.hpp">
-      <Filter>Layers\Fossilize</Filter>
-    </ClInclude>
-    <ClInclude Include="Layers\Fossilize\fossilize_external_replayer_linux.hpp">
-      <Filter>Layers\Fossilize</Filter>
-    </ClInclude>
-    <ClInclude Include="Layers\Fossilize\fossilize_external_replayer_windows.hpp">
-      <Filter>Layers\Fossilize</Filter>
-    </ClInclude>
-    <ClInclude Include="Layers\Fossilize\fossilize_inttypes.h">
-      <Filter>Layers\Fossilize</Filter>
-    </ClInclude>
-    <ClInclude Include="Layers\Fossilize\fossilize_types.hpp">
-      <Filter>Layers\Fossilize</Filter>
-    </ClInclude>
-    <ClInclude Include="Layers\Fossilize\path.hpp">
-      <Filter>Layers\Fossilize</Filter>
-    </ClInclude>
-    <ClInclude Include="Layers\Fossilize\varint.hpp">
-      <Filter>Layers\Fossilize</Filter>
-    </ClInclude>
-    <ClInclude Include="Layers\Fossilize\util\intrusive_list.hpp">
-      <Filter>Layers\Fossilize\util</Filter>
-    </ClInclude>
-    <ClInclude Include="Layers\Fossilize\util\object_cache.hpp">
-      <Filter>Layers\Fossilize\util</Filter>
-    </ClInclude>
-    <ClInclude Include="Layers\Fossilize\util\object_pool.hpp">
-      <Filter>Layers\Fossilize\util</Filter>
-    </ClInclude>
     <ClInclude Include="ThirdParty\jsoncpp\include\json\allocator.h">
       <Filter>ThirdParty\jsoncpp</Filter>
     </ClInclude>
@@ -161,117 +116,6 @@
     </ClInclude>
     <ClInclude Include="ThirdParty\jsoncpp\include\json\writer.h">
       <Filter>ThirdParty\jsoncpp</Filter>
-    </ClInclude>
-    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\allocators.h">
-      <Filter>Layers\Fossilize\rapidjson</Filter>
-    </ClInclude>
-    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\cursorstreamwrapper.h">
-      <Filter>Layers\Fossilize\rapidjson</Filter>
-    </ClInclude>
-    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\document.h">
-      <Filter>Layers\Fossilize\rapidjson</Filter>
-    </ClInclude>
-    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\encodedstream.h">
-      <Filter>Layers\Fossilize\rapidjson</Filter>
-    </ClInclude>
-    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\encodings.h">
-      <Filter>Layers\Fossilize\rapidjson</Filter>
-    </ClInclude>
-    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\filereadstream.h">
-      <Filter>Layers\Fossilize\rapidjson</Filter>
-    </ClInclude>
-    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\filewritestream.h">
-      <Filter>Layers\Fossilize\rapidjson</Filter>
-    </ClInclude>
-    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\fwd.h">
-      <Filter>Layers\Fossilize\rapidjson</Filter>
-    </ClInclude>
-    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\istreamwrapper.h">
-      <Filter>Layers\Fossilize\rapidjson</Filter>
-    </ClInclude>
-    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\memorybuffer.h">
-      <Filter>Layers\Fossilize\rapidjson</Filter>
-    </ClInclude>
-    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\memorystream.h">
-      <Filter>Layers\Fossilize\rapidjson</Filter>
-    </ClInclude>
-    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\ostreamwrapper.h">
-      <Filter>Layers\Fossilize\rapidjson</Filter>
-    </ClInclude>
-    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\pointer.h">
-      <Filter>Layers\Fossilize\rapidjson</Filter>
-    </ClInclude>
-    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\prettywriter.h">
-      <Filter>Layers\Fossilize\rapidjson</Filter>
-    </ClInclude>
-    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\rapidjson.h">
-      <Filter>Layers\Fossilize\rapidjson</Filter>
-    </ClInclude>
-    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\reader.h">
-      <Filter>Layers\Fossilize\rapidjson</Filter>
-    </ClInclude>
-    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\schema.h">
-      <Filter>Layers\Fossilize\rapidjson</Filter>
-    </ClInclude>
-    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\stream.h">
-      <Filter>Layers\Fossilize\rapidjson</Filter>
-    </ClInclude>
-    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\stringbuffer.h">
-      <Filter>Layers\Fossilize\rapidjson</Filter>
-    </ClInclude>
-    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\writer.h">
-      <Filter>Layers\Fossilize\rapidjson</Filter>
-    </ClInclude>
-    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\msinttypes\inttypes.h">
-      <Filter>Layers\Fossilize\rapidjson\msinttypes</Filter>
-    </ClInclude>
-    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\msinttypes\stdint.h">
-      <Filter>Layers\Fossilize\rapidjson\msinttypes</Filter>
-    </ClInclude>
-    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\internal\biginteger.h">
-      <Filter>Layers\Fossilize\rapidjson\internal</Filter>
-    </ClInclude>
-    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\internal\clzll.h">
-      <Filter>Layers\Fossilize\rapidjson\internal</Filter>
-    </ClInclude>
-    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\internal\diyfp.h">
-      <Filter>Layers\Fossilize\rapidjson\internal</Filter>
-    </ClInclude>
-    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\internal\dtoa.h">
-      <Filter>Layers\Fossilize\rapidjson\internal</Filter>
-    </ClInclude>
-    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\internal\ieee754.h">
-      <Filter>Layers\Fossilize\rapidjson\internal</Filter>
-    </ClInclude>
-    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\internal\itoa.h">
-      <Filter>Layers\Fossilize\rapidjson\internal</Filter>
-    </ClInclude>
-    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\internal\meta.h">
-      <Filter>Layers\Fossilize\rapidjson\internal</Filter>
-    </ClInclude>
-    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\internal\pow10.h">
-      <Filter>Layers\Fossilize\rapidjson\internal</Filter>
-    </ClInclude>
-    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\internal\regex.h">
-      <Filter>Layers\Fossilize\rapidjson\internal</Filter>
-    </ClInclude>
-    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\internal\stack.h">
-      <Filter>Layers\Fossilize\rapidjson\internal</Filter>
-    </ClInclude>
-    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\internal\strfunc.h">
-      <Filter>Layers\Fossilize\rapidjson\internal</Filter>
-    </ClInclude>
-    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\internal\strtod.h">
-      <Filter>Layers\Fossilize\rapidjson\internal</Filter>
-    </ClInclude>
-    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\internal\swap.h">
-      <Filter>Layers\Fossilize\rapidjson\internal</Filter>
-    </ClInclude>
-    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\error\en.h">
-      <Filter>Layers\Fossilize\rapidjson\error</Filter>
-    </ClInclude>
-    <ClInclude Include="Layers\Fossilize\rapidjson\include\rapidjson\error\error.h">
-      <Filter>Layers\Fossilize\rapidjson\error</Filter>
     </ClInclude>
     <ClInclude Include="ThirdParty\jsoncpp\src\lib_json\json_tool.h">
       <Filter>ThirdParty\jsoncpp\src</Filter>
@@ -394,24 +238,6 @@
     </Filter>
     <Filter Include="Layers">
       <UniqueIdentifier>{43032fe6-4e97-4ddb-bc4a-0eee10d65782}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Layers\Fossilize">
-      <UniqueIdentifier>{b7e51aed-6a9e-4ede-9c5f-7c697bea3024}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Layers\Fossilize\util">
-      <UniqueIdentifier>{c3e72381-9d3f-4da7-a9d9-2cf6af361ead}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Layers\Fossilize\rapidjson">
-      <UniqueIdentifier>{153908b8-0410-4aa1-80d8-c3ea3a3a4126}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Layers\Fossilize\rapidjson\error">
-      <UniqueIdentifier>{c0f7e606-6957-43f6-9cee-9e680ea3364d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Layers\Fossilize\rapidjson\internal">
-      <UniqueIdentifier>{099fda60-b82b-43be-960e-0e3ff0de8b38}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Layers\Fossilize\rapidjson\msinttypes">
-      <UniqueIdentifier>{e61789a8-c84e-4dda-86fc-d0de009564e4}</UniqueIdentifier>
     </Filter>
     <Filter Include="ThirdParty">
       <UniqueIdentifier>{c43a1332-d2ca-476a-9145-8baf510d57f8}</UniqueIdentifier>

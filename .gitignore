@@ -5,6 +5,7 @@ Release/
 Texture/
 VTune Profiler Results/
 GPUCache/
+CMBuild/
 
 # Other files and folders
 .vs/
