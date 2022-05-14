@@ -28,7 +28,7 @@ BaseLayer::BaseLayer() :
 	m_pDevice = LogicalDevice::Create(this);
 	m_pWindow = Window::Create(this);
 
-	GTestJaonPath = PathParser::Parse("Json/graphic_pipeline_info.json");
+	GTestJaonPath = PathParser::Parse("Json/graphic_pipeline_info_simplify.json");
 }
 
 BaseLayer::~BaseLayer()

@@ -16,8 +16,7 @@
                 "stencil_store_op": "dont_care",
                 "in_state": "undefined",
                 "out_state": "present"
-            },
-            {}
+            }
         ],
         "subpass_descriptions":
         [
