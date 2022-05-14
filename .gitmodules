@@ -14,5 +14,5 @@
 	path = ThirdParty/glm
 	url = https://github.com/g-truc/glm.git
 [submodule "ThirdParty/glfw"]
-	path = ThirdParty/glm
+	path = ThirdParty/glfw
 	url = https://github.com/glfw/glfw.git	
