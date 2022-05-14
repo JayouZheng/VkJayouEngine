@@ -910,7 +910,7 @@ void LogicalDevice::CreateRenderPass(const string& InJsonPath)
 		std::vector<VkAttachmentReference>               renderPassSubpassDepthAttachments;
 		std::vector<VkSubpassDependency>                 renderPassSubpassDependency;
 
-		std::unordered_map<string, uint32>          attachmentNameIDMap;
+		std::unordered_map<string, uint32>               attachmentNameIDMap;
 
 		VkRenderPassCreateInfo renderPassCreateInfo = {};
 
@@ -933,6 +933,8 @@ void LogicalDevice::CreateRenderPass(const string& InJsonPath)
 
 		renderPassCreateInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
 		renderPassCreateInfo.flags = JsonParser::GetUInt32(renderPassInfo[_text_mapper(vk_flags)]);
+
+		string renderPassName = JsonParser::GetString(renderPassInfo[_text_mapper(vk_name)]);
 
 		// Attachment.
 		bIsArray = renderPassInfo[_text_mapper(vk_attachment_descriptions)].isArray();
@@ -974,11 +976,14 @@ void LogicalDevice::CreateRenderPass(const string& InJsonPath)
 		renderPassCreateInfo.subpassCount = numSubpassDesc;
 		renderPassCreateInfo.pSubpasses = renderPassSubpassDescs.data();
 
+		std::unordered_map<string, uint32> subpassNameIDMap;
+
 		for (uint32 j = 0; j < numSubpassDesc; j++)
 		{
+			bIsArray = renderPassInfo[_text_mapper(vk_subpass_descriptions)].isArray();
 			auto& subpass = bIsArray ? renderPassInfo[_text_mapper(vk_subpass_descriptions)][j] : renderPassInfo[_text_mapper(vk_subpass_descriptions)];
 
-			m_subpassNameIDMap.emplace(JsonParser::GetString(subpass[_text_mapper(vk_name)]), j);
+			subpassNameIDMap.emplace(JsonParser::GetString(subpass[_text_mapper(vk_name)]), j);
 
 			renderPassSubpassDescs[j].flags = JsonParser::GetUInt32(subpass[_text_mapper(vk_flags)]);
 			renderPassSubpassDescs[j].pipelineBindPoint = GetVkPipelineBindPoint(JsonParser::GetString(subpass[_text_mapper(vk_pipeline_bind_point)]));
@@ -1018,7 +1023,7 @@ void LogicalDevice::CreateRenderPass(const string& InJsonPath)
 				renderPassSubpassDescs[j].inputAttachmentCount = _count_0;
 				renderPassSubpassDescs[j].pInputAttachments    = nullptr;
 
-				_log_warning("Input Attachment Reference is NULL!", LogSystem::Category::RenderPass);
+				//_log_warning("Input Attachment Reference is NULL!", LogSystem::Category::RenderPass);
 			}
 
 			// Color Attachment Reference.
@@ -1116,7 +1121,11 @@ void LogicalDevice::CreateRenderPass(const string& InJsonPath)
 					}
 				}
 			}
-			else renderPassSubpassDescs[j].pPreserveAttachments = nullptr;
+			else
+			{
+				renderPassSubpassDescs[j].preserveAttachmentCount = _count_0;
+				renderPassSubpassDescs[j].pPreserveAttachments = nullptr;
+			}
 
 			// Depth Attachment Reference.
 			if (subpass[_text_mapper(vk_depth_attachment)] != Json::nullValue)
@@ -1147,6 +1156,8 @@ void LogicalDevice::CreateRenderPass(const string& InJsonPath)
 			}
 		}
 
+		m_renderPassNameMapsubpassNameIDMap.emplace(renderPassName, subpassNameIDMap);
+
 		// Dependency.
 		bIsArray = renderPassInfo[_text_mapper(vk_subpass_dependencies)].isArray();
 		uint32 numDependency = bIsArray ? renderPassInfo[_text_mapper(vk_subpass_dependencies)].size() : _count_1;
@@ -1157,29 +1168,44 @@ void LogicalDevice::CreateRenderPass(const string& InJsonPath)
 
 		for (uint32 j = 0; j < numDependency; j++)
 		{
+			bIsArray = renderPassInfo[_text_mapper(vk_subpass_dependencies)].isArray();
 			auto& dependency = bIsArray ? renderPassInfo[_text_mapper(vk_subpass_dependencies)][j] : renderPassInfo[_text_mapper(vk_subpass_dependencies)];
 
 			string name = JsonParser::GetString(dependency[_text_mapper(vk_src_subpass_name)]);
 
-			auto found_src = m_subpassNameIDMap.find(name);
-			if (found_src != m_subpassNameIDMap.end())
-				renderPassSubpassDependency[j].srcSubpass = (*found_src).second;
+			if (name != _str_null)
+			{
+				auto found_src = subpassNameIDMap.find(name);
+				if (found_src != subpassNameIDMap.end())
+					renderPassSubpassDependency[j].srcSubpass = (*found_src).second;
+				else
+				{
+					_log_error(StringUtil::Printf("Specified subpass name \"%\" was not found!", name), LogSystem::Category::JsonParser);
+					Engine::Get()->RequireExit(1);
+				}
+			}
 			else
 			{
-				_log_error(StringUtil::Printf("Specified subpass name \"%\" was not found!", name), LogSystem::Category::JsonParser);
-				Engine::Get()->RequireExit(1);
+				renderPassSubpassDependency[j].srcSubpass = VK_SUBPASS_EXTERNAL;
 			}
 
 			name = JsonParser::GetString(dependency[_text_mapper(vk_dst_subpass_name)]);
 
-			auto found_dst = m_subpassNameIDMap.find(name);
-			if (found_dst != m_subpassNameIDMap.end())
-				renderPassSubpassDependency[j].dstSubpass = (*found_dst).second;
+			if (name != _str_null)
+			{
+				auto found_dst = subpassNameIDMap.find(name);
+				if (found_dst != subpassNameIDMap.end())
+					renderPassSubpassDependency[j].dstSubpass = (*found_dst).second;
+				else
+				{
+					_log_error(StringUtil::Printf("Specified subpass name \"%\" was not found!", name), LogSystem::Category::JsonParser);
+					Engine::Get()->RequireExit(1);
+				}
+			}
 			else
 			{
-				_log_error(StringUtil::Printf("Specified subpass name \"%\" was not found!", name), LogSystem::Category::JsonParser);
-				Engine::Get()->RequireExit(1);
-			}
+				renderPassSubpassDependency[j].dstSubpass = VK_SUBPASS_EXTERNAL;
+			}			
 
 			renderPassSubpassDependency[j].srcStageMask = GetVkPipelineStageFlags(JsonParser::GetString(dependency[_text_mapper(vk_src_stage_mask)]));
 			renderPassSubpassDependency[j].dstStageMask = GetVkPipelineStageFlags(JsonParser::GetString(dependency[_text_mapper(vk_dst_stage_mask)]));
@@ -1215,9 +1241,8 @@ void LogicalDevice::CreateRenderPass(const string& InJsonPath)
 
 		_declare_vk_smart_ptr(VkRenderPass, pRenderPass);
 		this->CreateRenderPass(pRenderPass.MakeInstance(), renderPassCreateInfo);
-
-		string name = JsonParser::GetString(renderPassInfo[_text_mapper(vk_name)]);
-		m_renderPassNamePtrMap.emplace(name, pRenderPass);
+	
+		m_renderPassNamePtrMap.emplace(renderPassName, pRenderPass);
 	}
 
 	_log_common("End creating renderpass with " + InJsonPath, LogSystem::Category::RenderPass);
@@ -1550,6 +1575,7 @@ void LogicalDevice::CreateGraphicPipelines(const string& InJsonPath, VkPipelineC
 			pipelineColorBlendStateInfos[i] = RenderBaseConfig::Pipeline::DefaultColorBlendStateInfo;
 			pipelineDynamicStateInfos[i] = RenderBaseConfig::Pipeline::DefaultDynamicStateInfo;
 
+			bIsArray = root[_text_mapper(vk_graphic_pipeline_infos)].isArray();
 			auto& graphicInfo = bIsArray ? root[_text_mapper(vk_graphic_pipeline_infos)][i] : root[_text_mapper(vk_graphic_pipeline_infos)];
 
 			basePipelineNameIDMap.emplace(JsonParser::GetString(graphicInfo[_text_mapper(vk_name)]), i);
@@ -1576,6 +1602,7 @@ void LogicalDevice::CreateGraphicPipelines(const string& InJsonPath, VkPipelineC
 
 			for (uint32 j = 0; j < numStageInfo; j++)
 			{
+				bIsArray = graphicInfo[_text_mapper(vk_pipeline_stages_infos)].isArray();
 				auto& shaderInfo = bIsArray ? graphicInfo[_text_mapper(vk_pipeline_stages_infos)][j] : graphicInfo[_text_mapper(vk_pipeline_stages_infos)];
 
 				string shaderPath = JsonParser::GetString(shaderInfo[_text_mapper(vk_stage_code_path)]);
@@ -1626,15 +1653,15 @@ void LogicalDevice::CreateGraphicPipelines(const string& InJsonPath, VkPipelineC
 						// json value reinterpretation.
 						switch (value.type())
 						{
-						case Json::ValueType::intValue:     specMaps[i][k].size = sizeof(int32);    _reinterpret_data(specData[i][k], value.asInt());   break;
-						case Json::ValueType::uintValue:    specMaps[i][k].size = sizeof(uint32);   _reinterpret_data(specData[i][k], value.asUInt());  break;
-						case Json::ValueType::realValue:    specMaps[i][k].size = sizeof(float);    _reinterpret_data(specData[i][k], value.asFloat()); break;
-						case Json::ValueType::booleanValue: specMaps[i][k].size = sizeof(VkBool32); _reinterpret_data(specData[i][k], value.asBool());  break;
-						default:
-						{
-							_log_error("json file: not support [specialization_constants] value type!", LogSystem::Category::JsonParser);
-							Engine::Get()->RequireExit(1);
-						}
+							case Json::ValueType::intValue:     specMaps[i][k].size = sizeof(int32);    _reinterpret_data(specData[i][k], value.asInt());   break;
+							case Json::ValueType::uintValue:    specMaps[i][k].size = sizeof(uint32);   _reinterpret_data(specData[i][k], value.asUInt());  break;
+							case Json::ValueType::realValue:    specMaps[i][k].size = sizeof(float);    _reinterpret_data(specData[i][k], value.asFloat()); break;
+							case Json::ValueType::booleanValue: specMaps[i][k].size = sizeof(VkBool32); _reinterpret_data(specData[i][k], value.asBool());  break;
+							default:
+							{
+								_log_error("json file: not support [specialization_constants] value type!", LogSystem::Category::JsonParser);
+								Engine::Get()->RequireExit(1);
+							}
 						}
 						//////////////////////////////////////////////////////////////
 					}
@@ -1671,6 +1698,7 @@ void LogicalDevice::CreateGraphicPipelines(const string& InJsonPath, VkPipelineC
 
 			for (uint32 j = 0; j < numBinding; j++)
 			{
+				bIsArray = graphicInfo[_text_mapper(vk_vertex_input_attributes)].isArray();
 				auto& binding = bIsArray ? graphicInfo[_text_mapper(vk_vertex_input_attributes)][j] : graphicInfo[_text_mapper(vk_vertex_input_attributes)];
 
 				uint32 bindingID = binding[_text_mapper(vk_binding_id)] != Json::nullValue ? binding[_text_mapper(vk_binding_id)].asUInt() : j;
@@ -1966,16 +1994,20 @@ void LogicalDevice::CreateGraphicPipelines(const string& InJsonPath, VkPipelineC
 			/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			// RenderPass.
 			{
-				string renderPassJson = PathParser::Parse("Json/renderpass_info.json");
+				string renderPassJson = PathParser::Parse("Json/Triangle/renderpass_info.json");
 				this->CreateRenderPass(renderPassJson);
 
-				graphicInfos[i].renderPass = this->GetRenderPass(JsonParser::GetString(graphicInfo[_text_mapper(vk_renderpass)]));
+				string renderPassName = JsonParser::GetString(graphicInfo[_text_mapper(vk_renderpass)]);
+
+				graphicInfos[i].renderPass = this->GetRenderPass(renderPassName);
 
 				// Subpass ID.
 				string name = JsonParser::GetString(graphicInfo[_text_mapper(vk_subpass)]);
 
-				auto found = m_subpassNameIDMap.find(name);
-				if (found != m_subpassNameIDMap.end())
+				auto& subpassNameIDMap = m_renderPassNameMapsubpassNameIDMap[renderPassName];
+
+				auto found = subpassNameIDMap.find(name);
+				if (found != subpassNameIDMap.end())
 					graphicInfos[i].subpass = (*found).second;
 				else
 				{

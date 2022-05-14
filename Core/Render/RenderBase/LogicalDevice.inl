@@ -638,6 +638,7 @@ namespace
 		{ "host",                          VK_PIPELINE_STAGE_HOST_BIT                             },
 		{ "all_graphics",                  VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT                     },
 		{ "all_commands",                  VK_PIPELINE_STAGE_ALL_COMMANDS_BIT                     },
+		{ "none",                          VK_PIPELINE_STAGE_NONE                                 },
 		{ "transform_feedback",            VK_PIPELINE_STAGE_TRANSFORM_FEEDBACK_BIT_EXT           },
 		{ "conditional_rendering",         VK_PIPELINE_STAGE_CONDITIONAL_RENDERING_BIT_EXT        },
 		{ "ray_tracing",                   VK_PIPELINE_STAGE_RAY_TRACING_SHADER_BIT_KHR           },
@@ -666,8 +667,9 @@ namespace
 		{ "transfer_write",                     VK_ACCESS_TRANSFER_WRITE_BIT                        },
 		{ "host_read",                          VK_ACCESS_HOST_READ_BIT                             },
 		{ "host_write",                         VK_ACCESS_HOST_WRITE_BIT                            },
-		{ "memory_read",                        VK_ACCESS_MEMORY_READ_BIT                           },
+		{ "memory_read",                        VK_ACCESS_MEMORY_READ_BIT                           },		
 		{ "memory_write",                       VK_ACCESS_MEMORY_WRITE_BIT                          },
+		{ "none",                               VK_ACCESS_NONE                                      },
 		{ "transform_feedback_write",           VK_ACCESS_TRANSFORM_FEEDBACK_WRITE_BIT_EXT          },
 		{ "transform_feedback_counter_read",    VK_ACCESS_TRANSFORM_FEEDBACK_COUNTER_READ_BIT_EXT   },
 		{ "transform_feedback_counter_write",   VK_ACCESS_TRANSFORM_FEEDBACK_COUNTER_WRITE_BIT_EXT  },
@@ -705,8 +707,8 @@ namespace
 	const string DefaultVkAttachmentStoreOp  = "dont_care";
 	const string DefaultVkImageLayout        = "undefined";
 	const string DefaultVkPipelineBindPoint  = "graphics";
-	const string DefaultVkPipelineStageFlags = "all_commands";
-	const string DefaultVkAccessFlags        = "memory_read";
+	const string DefaultVkPipelineStageFlags = "none";
+	const string DefaultVkAccessFlags        = "none";
 	const string DefaultVkDependencyFlags    = "region";
 
 

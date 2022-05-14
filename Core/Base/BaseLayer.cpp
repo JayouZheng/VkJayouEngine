@@ -28,7 +28,7 @@ BaseLayer::BaseLayer() :
 	m_pDevice = LogicalDevice::Create(this);
 	m_pWindow = Window::Create(this);
 
-	GTestJaonPath = PathParser::Parse("Json/graphic_pipeline_info_simplify.json");
+	GTestJaonPath = PathParser::Parse("Json/Triangle/graphic_pipeline_info_simplify.json");
 }
 
 BaseLayer::~BaseLayer()
@@ -36,7 +36,7 @@ BaseLayer::~BaseLayer()
 	Free();
 }
 
-bool BaseLayer::Init()
+void BaseLayer::Init()
 {
 	_enable_runtime_memory_leak_check();
 
@@ -133,7 +133,7 @@ bool BaseLayer::Init()
 		if (physicalDeviceCount == 0)
 		{
 			_log_error("Can't find any physical devices on the host!", LogSystem::Category::BaseLayer);
-			return false;
+			Engine::Get()->RequireExit(1);
 		}
 
 		m_physicalDevices.resize(physicalDeviceCount);
@@ -218,7 +218,7 @@ bool BaseLayer::Init()
 		if (m_mainPDIndex == -1)
 		{
 			_log_error("Can't find any valid physical devices on the host!", LogSystem::Category::BaseLayer);
-			return false;
+			Engine::Get()->RequireExit(1);
 		}
 	}
 
@@ -237,7 +237,7 @@ bool BaseLayer::Init()
 		if (m_mainQFIndex == -1)
 		{
 			_log_error("Can't find any Valid Graphic & Compute Queue Family!", LogSystem::Category::BaseLayer);
-			return false;
+			Engine::Get()->RequireExit(1);
 		}
 		
 		VkDeviceQueueCreateInfo deviceQueueCreateInfo = {};
@@ -321,10 +321,11 @@ bool BaseLayer::Init()
 			if (bIsDefaultQueueSupportPresentation == VK_FALSE)
 			{
 				_log_error("The Default Queue Do Not Support Presentation (Win32)!", LogSystem::Category::BaseLayer);
-				return false;
+				Engine::Get()->RequireExit(1);
 			}
 			
-			if (!m_pWindow->Init()) return false;
+			m_pWindow->Init();
+
 			VkWin32SurfaceCreateInfoKHR win32SurfaceCreateInfo = {};
 			win32SurfaceCreateInfo.sType = VK_STRUCTURE_TYPE_DISPLAY_SURFACE_CREATE_INFO_KHR;
 			win32SurfaceCreateInfo.hinstance = (HINSTANCE)m_pWindow->GetHinstance();
@@ -356,7 +357,7 @@ bool BaseLayer::Init()
 				if (formatCount == 0)
 				{
 					_log_error("No Surface Format Support!", LogSystem::Category::BaseLayer);
-					return false;
+					Engine::Get()->RequireExit(1);
 				}
 
 				m_surfaceFormats.resize(formatCount);
@@ -389,7 +390,7 @@ bool BaseLayer::Init()
 				if (!(m_surfaceCapabilities.supportedUsageFlags & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT))
 				{
 					_log_error("Surface Do Not Support Color Attachment Usage!", LogSystem::Category::BaseLayer);
-					return false;
+					Engine::Get()->RequireExit(1);
 				}
 
 				m_swapchainCreateInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT & BaseConfig::DefaultSwapchainCreateInfo.imageUsage;
@@ -418,7 +419,7 @@ bool BaseLayer::Init()
 				if (surfacePresentationSupport == VK_FALSE)
 				{
 					_log_error("The Default Queue Do Not Support Presentation!", LogSystem::Category::BaseLayer);
-					return false;
+					Engine::Get()->RequireExit(1);
 				}
 			}
 			
@@ -426,7 +427,7 @@ bool BaseLayer::Init()
 		else
 		{
 			_log_error("Create Swapchain Failed! Application Terminate!", LogSystem::Category::BaseLayer);
-			return false;
+			Engine::Get()->RequireExit(1);
 		}
 
 		// TODO:
@@ -434,8 +435,6 @@ bool BaseLayer::Init()
 		
 		m_pWindow->Show();
 	}
-
-	return true;
 }
 
 void BaseLayer::CachedModulePath()

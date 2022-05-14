@@ -35,10 +35,10 @@ protected:
 	std::vector<VkPipelineCache>             m_pipelineCaches;
 	std::vector<VkSmartPtr<VkPipelineCache>> m_pipelineCachePtrs;
 
-	std::unordered_map<string, uint32>  m_subpassNameIDMap;
-
 	std::unordered_map<string, VkSmartPtr<VkRenderPass>> m_renderPassNamePtrMap;
 	std::unordered_map<string, VkSmartPtr<VkPipeline>>   m_pipelineNamePtrMap;
+
+	std::unordered_map<string, std::unordered_map<string, uint32>>  m_renderPassNameMapsubpassNameIDMap;
 
 	LogicalDevice();
 

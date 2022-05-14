@@ -91,7 +91,7 @@ public:
 
 	virtual ~BaseLayer();
 
-	bool Init();
+	void Init();
 	
 	void SetBaseAllocator(BaseAllocator* InAllocator);
 

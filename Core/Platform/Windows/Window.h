@@ -33,7 +33,7 @@ public:
 
 	virtual ~Window();
 
-	bool Init();
+	void Init();
 
 	void* GetHinstance() const;
 	void* GetHwnd() const;

@@ -1,0 +1,74 @@
+{
+    "renderpass_info":
+    {
+        "name": "common",
+        "flags": 0,
+        "attachment_descriptions":
+        [
+            {
+                "name": "attachment_name",
+                "flags": 0,
+                "format": "R8G8B8_UNORM",
+                "sample_count": 1,
+                "load_op": "clear",
+                "store_op": "store",
+                "stencil_load_op": "dont_care",
+                "stencil_store_op": "dont_care",
+                "in_state": "undefined",
+                "out_state": "present"
+            }
+        ],
+        "subpass_descriptions":
+        [
+            {
+                "name": "subpass_name",
+                "flags": 0,
+                "pipeline_bind_point": "graphics",
+                "input_attachments":
+                [
+                    {
+                        "attachment_name": "",
+                        "state": "shader_readonly"
+                    },
+                    {}
+                ],
+                "color_attachments":
+                [
+                    {
+                        "attachment_name": "",
+                        "state": "shader_readonly"
+                    },
+                    {}
+                ],
+                "resolve_attachments":
+                [
+                    {
+                        "attachment_name": "",
+                        "state": "shader_readonly"
+                    },
+                    {}
+                ],
+                "preserve_attachment_names": [ "", "" ],
+                "depth_attachment":
+                {
+                    "attachment_name": "",
+                    "state": "shader_readonly"
+                }
+            },
+            {}
+        ],
+        "subpass_dependencies":
+        [
+            {
+                "src_subpass_name": "",
+                "dst_subpass_name": "",
+                "src_stage_mask": "bottom",
+                "dst_stage_mask": "color_output",
+                "src_access_mask": "memory_read",
+                "dst_access_mask": [ "color_attachment_read", "color_attachment_write" ],
+                "dependency_flags": "region"
+            },
+            {}
+        ]
+    }
+}

@@ -1,0 +1,57 @@
+{
+    "renderpass_info":
+    {
+        "name": "triangle_renderpass",
+        "attachment_descriptions":
+        [
+            {
+                "name": "color",
+                "format": "B8G8R8A8_UNORM",
+                "load_op": "clear",
+                "store_op": "store",
+                "in_state": "undefined",
+                "out_state": "present"
+            },
+            {
+                "name": "depth",
+                "format": "D24_UNORM_S8_UINT",
+                "load_op": "clear",
+                "store_op": "dont_care",
+                "stencil_load_op": "dont_care",
+                "stencil_store_op": "dont_care",
+                "in_state": "undefined",
+                "out_state": "depth_stencil_write"
+            }
+        ],
+        "subpass_descriptions":
+        {
+            "name": "triangle_subpass",
+            "pipeline_bind_point": "graphics",
+            "color_attachments":
+            {
+                "attachment_name": "color",
+                "state": "color_write"
+            },
+            "depth_attachment":
+            {
+                "attachment_name": "depth",
+                "state": "depth_stencil_write"
+            }
+        },
+        "subpass_dependencies":
+        [
+            {
+                "dst_subpass_name": "triangle_subpass",
+                "src_stage_mask": "color_output",
+                "dst_stage_mask": "color_output",
+                "dst_access_mask": "color_attachment_write"
+            },
+            {
+                "src_subpass_name": "triangle_subpass",
+                "src_stage_mask": "color_output",
+                "dst_stage_mask": "bottom",
+                "src_access_mask": "color_attachment_write"
+            }
+        ]
+    }
+}

@@ -4,6 +4,7 @@
  *********************************************************************/
 
 #include "Window.h"
+#include "Core/Engine/Engine.h"
 
 #if PLATFORM_WINDOW
 
@@ -225,7 +226,7 @@ Window::~Window()
 
 }
 
-bool Window::Init()
+void Window::Init()
 {
 	// Register class and create window
 	{
@@ -246,7 +247,7 @@ bool Window::Init()
 		if (!RegisterClassExW(&wcex))
 		{
 			_log_error("Register Class Failed When Create Window!", "RegisterClassExW");
-			return false;
+			Engine::Get()->RequireExit(1);
 		}
 
 		// Create window
@@ -267,7 +268,7 @@ bool Window::Init()
 		if (!m_pHwnd)
 		{
 			_log_error("Create Window Failed!", "CreateWindowExW");
-			return false;
+			Engine::Get()->RequireExit(1);
 		}
 
 		// TODO: Change nCmdShow to SW_SHOWMAXIMIZED to default to fullscreen.
@@ -276,8 +277,6 @@ bool Window::Init()
 
 		//GetClientRect(m_pHwnd, &rc);
 	}
-
-	return true;
 }
 
 void* Window::GetHinstance() const
