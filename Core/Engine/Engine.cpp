@@ -4,21 +4,30 @@
  *********************************************************************/
 
 #include "Engine.h"
-#include "Core/Base/BaseLayer.h"
 #include "Core/Base/ResourcePool.h"
+#include "Core/Base/BaseLayer.h"
+#include "Core/Platform/Windows/Window.h"
+#include "Core/Scene/Scene.h"
 #include <mutex>
 
 namespace
 {
-    Engine* g_engine;
+    Engine* g_engine = nullptr;
 
     std::mutex g_enRead;
     std::mutex g_enWrite;
 
     struct InternalData
     {
-        BaseLayer* BaseLayerRef;
-        Engine::ModuleInfo ModuleInfo;
+        // Global resource pointer.
+        BaseLayer*            BaseLayerRef = nullptr;
+        Window*               WindowRef    = nullptr;
+        Scene*                SceneRef     = nullptr;
+        TimerUtil::GameTimer* TimerRef     = nullptr;
+
+        Engine::ModuleInfo    ModuleInfo;
+
+        bool bIsEngineInitialized = false;
     }g_data;
 
     class EngineHandler
@@ -46,6 +55,11 @@ namespace
 
 Engine::~Engine()
 {
+    if (g_data.TimerRef != nullptr)
+    {
+        delete g_data.TimerRef;
+        g_data.TimerRef = nullptr;
+    }
 }
 
 Engine*& Engine::Get()
@@ -61,9 +75,51 @@ Engine*& Engine::Get()
 void Engine::Init()
 {
     g_data.BaseLayerRef = BaseLayer::Create(nullptr);
-    ResourcePool::Get()->Push(g_data.BaseLayerRef);
     g_data.BaseLayerRef->Init();
+
+    ResourcePool::Get()->Push(g_data.BaseLayerRef);
+
+    g_data.WindowRef = Window::Create(g_data.BaseLayerRef);
+    g_data.WindowRef->Init();
+
+    g_data.BaseLayerRef->CreateSurface(Engine::Get()->GetWindow());
+    g_data.BaseLayerRef->CreateSwapChain();
+
+    g_data.SceneRef = Scene::Create(g_data.BaseLayerRef);
+    g_data.SceneRef->Init();
+
+    g_data.TimerRef = new TimerUtil::GameTimer;
+  
     g_data.ModuleInfo = { _str_null, _str_null };
+
+    g_data.bIsEngineInitialized = true;
+}
+
+void Engine::Run()
+{
+    if (!g_data.bIsEngineInitialized)
+    {
+        _log_error("The Engine is uninitialized!", LogSystem::Category::Engine);
+        RequireExit(1);
+    }
+
+    g_data.WindowRef->Show();
+}
+
+void Engine::Tick()
+{
+    // Engine Loop.
+    if (!g_data.bIsEngineInitialized)
+    {
+        _log_error("The Engine is uninitialized!", LogSystem::Category::Engine);
+        RequireExit(1);
+    }
+
+    g_data.TimerRef->Tick([&]()
+    {
+        g_data.SceneRef->Update(g_data.TimerRef);
+        g_data.SceneRef->Render(g_data.TimerRef);
+    });
 }
 
 void Engine::RequireExit(int32 InCode)
@@ -87,6 +143,16 @@ BaseLayer* Engine::GetBaseLayer()
     return g_data.BaseLayerRef;
 }
 
+Window* Engine::GetWindow()
+{
+    return g_data.WindowRef;
+}
+
+Scene* Engine::GetScene()
+{
+    return g_data.SceneRef;
+}
+
 string Engine::GetModulePath() const
 {
     return g_data.ModuleInfo.Path;
@@ -95,4 +161,16 @@ string Engine::GetModulePath() const
 string Engine::GetModuleName() const
 {
     return g_data.ModuleInfo.Name;
+}
+
+WindowDesc Engine::GetWindowDesc() const
+{
+    if (g_data.WindowRef != nullptr)
+    {
+        return g_data.WindowRef->GetWindowDesc();
+    }
+    else
+    {
+        return WindowDesc();
+    }
 }

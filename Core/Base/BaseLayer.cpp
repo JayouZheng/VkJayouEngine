@@ -25,7 +25,6 @@ BaseLayer::BaseLayer() :
 	_zero_memory_struct(m_swapchainCreateInfo);
 
 	m_pDevice = LogicalDevice::Create(this);
-	m_pWindow = Window::Create(this);
 
 	GTestJaonPath = PathParser::Parse("Json/Triangle/graphic_pipeline_info_simplify.json");
 }
@@ -310,6 +309,16 @@ void BaseLayer::Init()
 
 		m_pDevice->CreateCommandPool(m_mainQFIndex);
 
+		// TODO:
+
+		m_pDevice->CreateGraphicPipelines(GTestJaonPath);
+	}
+}
+
+void BaseLayer::CreateSurface(Window* InWindow)
+{
+	if (InWindow != nullptr && InWindow->IsValid())
+	{
 #if PLATFORM_WINDOW
 
 		// Create Win32 Surface.
@@ -322,117 +331,123 @@ void BaseLayer::Init()
 				_log_error("The Default Queue Do Not Support Presentation (Win32)!", LogSystem::Category::BaseLayer);
 				Engine::Get()->RequireExit(1);
 			}
-			
-			m_pWindow->Init();
 
 			VkWin32SurfaceCreateInfoKHR win32SurfaceCreateInfo = {};
 			win32SurfaceCreateInfo.sType = VK_STRUCTURE_TYPE_DISPLAY_SURFACE_CREATE_INFO_KHR;
-			win32SurfaceCreateInfo.hinstance = (HINSTANCE)m_pWindow->GetHinstance();
-			win32SurfaceCreateInfo.hwnd = (HWND)m_pWindow->GetHwnd();
+			win32SurfaceCreateInfo.hinstance = (HINSTANCE)InWindow->GetHinstance();
+			win32SurfaceCreateInfo.hwnd = (HWND)InWindow->GetHwnd();
 
 			_vk_try(vkCreateWin32SurfaceKHR(GetVkInstance(), &win32SurfaceCreateInfo, GetVkAllocator(), m_pSurface.MakeInstance()));
 		}
-		
 #endif
+	}
+	else
+	{
+		_log_error("The Window is NULL!", LogSystem::Category::BaseLayer);
+		Engine::Get()->RequireExit(1);
+	}
+}
 
-		// Create Swapchain. // OnResize Recreate Needed!!!
-		if (Misc::IsVecContain<const char*>(m_supportPDExts, VK_KHR_SWAPCHAIN_EXTENSION_NAME, _lambda_is_cstr_equal))
+void BaseLayer::CreateSwapChain()
+{
+	if (!m_pSurface.IsValid())
+	{
+		_log_error("The VkSurfaceKHR is NULL!", LogSystem::Category::BaseLayer);
+		Engine::Get()->RequireExit(1);
+	}
+
+	// Create Swapchain. // OnResize Recreate Needed!!!
+	if (Misc::IsVecContain<const char*>(m_supportPDExts, VK_KHR_SWAPCHAIN_EXTENSION_NAME, _lambda_is_cstr_equal))
+	{
+		m_swapchainCreateInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+		m_swapchainCreateInfo.surface = *m_pSurface;
+		m_swapchainCreateInfo.imageArrayLayers = 1;        // Only 1 Layer.
+		m_swapchainCreateInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+		m_swapchainCreateInfo.queueFamilyIndexCount = 0;
+		m_swapchainCreateInfo.pQueueFamilyIndices = nullptr;
+		m_swapchainCreateInfo.presentMode = BaseConfig::DefaultSwapchainCreateInfo.presentMode;
+		m_swapchainCreateInfo.clipped = BaseConfig::DefaultSwapchainCreateInfo.clipped;
+		m_swapchainCreateInfo.oldSwapchain = VK_NULL_HANDLE;  // First time to Create.
+
+		// Check Support Surface Format For Swapchain.
 		{
-			m_swapchainCreateInfo.sType                 = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-			m_swapchainCreateInfo.surface               = *m_pSurface;
-			m_swapchainCreateInfo.imageArrayLayers      = 1;        // Only 1 Layer.
-			m_swapchainCreateInfo.imageSharingMode      = VK_SHARING_MODE_EXCLUSIVE;
-			m_swapchainCreateInfo.queueFamilyIndexCount = 0;
-			m_swapchainCreateInfo.pQueueFamilyIndices   = nullptr;
-			m_swapchainCreateInfo.presentMode           = BaseConfig::DefaultSwapchainCreateInfo.presentMode;
-			m_swapchainCreateInfo.clipped               = BaseConfig::DefaultSwapchainCreateInfo.clipped;
-			m_swapchainCreateInfo.oldSwapchain          = VK_NULL_HANDLE;  // First time to Create.
+			uint32 formatCount = _count_0;
+			_vk_try(vkGetPhysicalDeviceSurfaceFormatsKHR(m_physicalDevices[m_mainPDIndex], *m_pSurface, &formatCount, nullptr));
 
-			// Check Support Surface Format For Swapchain.
+			if (formatCount == 0)
 			{
-				uint32 formatCount = _count_0;
-				_vk_try(vkGetPhysicalDeviceSurfaceFormatsKHR(m_physicalDevices[m_mainPDIndex], *m_pSurface, &formatCount, nullptr));
-
-				if (formatCount == 0)
-				{
-					_log_error("No Surface Format Support!", LogSystem::Category::BaseLayer);
-					Engine::Get()->RequireExit(1);
-				}
-
-				m_surfaceFormats.resize(formatCount);
-				_vk_try(vkGetPhysicalDeviceSurfaceFormatsKHR(m_physicalDevices[m_mainPDIndex], *m_pSurface, &formatCount, m_surfaceFormats.data()));
-
-				m_swapchainCreateInfo.imageFormat = m_surfaceFormats.front().format;
-				m_swapchainCreateInfo.imageColorSpace = m_surfaceFormats.front().colorSpace;
-
-				if (Misc::IsVecContain<VkSurfaceFormatKHR>(
-					m_surfaceFormats, 
-					BaseConfig::DefaultSwapchainCreateInfo.surfaceFormat, 
-					[&](const VkSurfaceFormatKHR& a, const VkSurfaceFormatKHR& b) { return (a.format == b.format) && (a.colorSpace == b.colorSpace); }))
-				{
-					m_swapchainCreateInfo.imageFormat = BaseConfig::DefaultSwapchainCreateInfo.surfaceFormat.format;
-					m_swapchainCreateInfo.imageColorSpace = BaseConfig::DefaultSwapchainCreateInfo.surfaceFormat.colorSpace;
-				}
+				_log_error("No Surface Format Support!", LogSystem::Category::BaseLayer);
+				Engine::Get()->RequireExit(1);
 			}
 
-			// Query Surface Capabilities.
+			m_surfaceFormats.resize(formatCount);
+			_vk_try(vkGetPhysicalDeviceSurfaceFormatsKHR(m_physicalDevices[m_mainPDIndex], *m_pSurface, &formatCount, m_surfaceFormats.data()));
+
+			m_swapchainCreateInfo.imageFormat = m_surfaceFormats.front().format;
+			m_swapchainCreateInfo.imageColorSpace = m_surfaceFormats.front().colorSpace;
+
+			if (Misc::IsVecContain<VkSurfaceFormatKHR>(
+				m_surfaceFormats,
+				BaseConfig::DefaultSwapchainCreateInfo.surfaceFormat,
+				[&](const VkSurfaceFormatKHR& a, const VkSurfaceFormatKHR& b) { return (a.format == b.format) && (a.colorSpace == b.colorSpace); }))
 			{
-				_vk_try(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_physicalDevices[m_mainPDIndex], *m_pSurface, &m_surfaceCapabilities));
-
-				m_swapchainCreateInfo.imageExtent = m_surfaceCapabilities.currentExtent;
-
-				if ((BaseConfig::DefaultSwapchainCreateInfo.frameCount > m_surfaceCapabilities.minImageCount) && 
-					(BaseConfig::DefaultSwapchainCreateInfo.frameCount < m_surfaceCapabilities.maxImageCount))
-					m_swapchainCreateInfo.minImageCount = BaseConfig::DefaultSwapchainCreateInfo.frameCount;
-				else m_swapchainCreateInfo.minImageCount = m_surfaceCapabilities.minImageCount;
-
-				if (!(m_surfaceCapabilities.supportedUsageFlags & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT))
-				{
-					_log_error("Surface Do Not Support Color Attachment Usage!", LogSystem::Category::BaseLayer);
-					Engine::Get()->RequireExit(1);
-				}
-
-				m_swapchainCreateInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT & BaseConfig::DefaultSwapchainCreateInfo.imageUsage;
-
-				if (BaseConfig::DefaultSwapchainCreateInfo.surfacePreTransform & m_surfaceCapabilities.supportedTransforms)
-					m_swapchainCreateInfo.preTransform = BaseConfig::DefaultSwapchainCreateInfo.surfacePreTransform;
-				else m_swapchainCreateInfo.preTransform = m_surfaceCapabilities.currentTransform;
-
-				if (BaseConfig::DefaultSwapchainCreateInfo.compositeAlpha & m_surfaceCapabilities.supportedCompositeAlpha)
-					m_swapchainCreateInfo.compositeAlpha = BaseConfig::DefaultSwapchainCreateInfo.compositeAlpha;
-				else m_swapchainCreateInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+				m_swapchainCreateInfo.imageFormat = BaseConfig::DefaultSwapchainCreateInfo.surfaceFormat.format;
+				m_swapchainCreateInfo.imageColorSpace = BaseConfig::DefaultSwapchainCreateInfo.surfaceFormat.colorSpace;
 			}
-			
-			m_pDevice->CreateSwapchainKHR(m_pSwapchainKHR.MakeInstance(), m_swapchainCreateInfo);
-
-			uint32 swapchainImageCount = _count_0;
-			m_pDevice->GetSwapchainImagesKHR(*m_pSwapchainKHR, &swapchainImageCount, nullptr);
-			m_swapchainImages.resize(swapchainImageCount);
-			m_pDevice->GetSwapchainImagesKHR(*m_pSwapchainKHR, &swapchainImageCount, m_swapchainImages.data());
-
-			// This Code May Be Redundant... Win32 Surface Presentation Support Has Been Queried.
-			{
-				VkBool32 surfacePresentationSupport = VK_FALSE;
-				_vk_try(vkGetPhysicalDeviceSurfaceSupportKHR(m_physicalDevices[m_mainPDIndex], m_mainQFIndex, *m_pSurface, &surfacePresentationSupport));
-
-				if (surfacePresentationSupport == VK_FALSE)
-				{
-					_log_error("The Default Queue Do Not Support Presentation!", LogSystem::Category::BaseLayer);
-					Engine::Get()->RequireExit(1);
-				}
-			}
-			
-		}
-		else
-		{
-			_log_error("Create Swapchain Failed! Application Terminate!", LogSystem::Category::BaseLayer);
-			Engine::Get()->RequireExit(1);
 		}
 
-		// TODO:
-		m_pDevice->CreateGraphicPipelines(GTestJaonPath);
-		
-		m_pWindow->Show();
+		// Query Surface Capabilities.
+		{
+			_vk_try(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_physicalDevices[m_mainPDIndex], *m_pSurface, &m_surfaceCapabilities));
+
+			m_swapchainCreateInfo.imageExtent = m_surfaceCapabilities.currentExtent;
+
+			if ((BaseConfig::DefaultSwapchainCreateInfo.frameCount > m_surfaceCapabilities.minImageCount) &&
+				(BaseConfig::DefaultSwapchainCreateInfo.frameCount < m_surfaceCapabilities.maxImageCount))
+				m_swapchainCreateInfo.minImageCount = BaseConfig::DefaultSwapchainCreateInfo.frameCount;
+			else m_swapchainCreateInfo.minImageCount = m_surfaceCapabilities.minImageCount;
+
+			if (!(m_surfaceCapabilities.supportedUsageFlags & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT))
+			{
+				_log_error("Surface Do Not Support Color Attachment Usage!", LogSystem::Category::BaseLayer);
+				Engine::Get()->RequireExit(1);
+			}
+
+			m_swapchainCreateInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT & BaseConfig::DefaultSwapchainCreateInfo.imageUsage;
+
+			if (BaseConfig::DefaultSwapchainCreateInfo.surfacePreTransform & m_surfaceCapabilities.supportedTransforms)
+				m_swapchainCreateInfo.preTransform = BaseConfig::DefaultSwapchainCreateInfo.surfacePreTransform;
+			else m_swapchainCreateInfo.preTransform = m_surfaceCapabilities.currentTransform;
+
+			if (BaseConfig::DefaultSwapchainCreateInfo.compositeAlpha & m_surfaceCapabilities.supportedCompositeAlpha)
+				m_swapchainCreateInfo.compositeAlpha = BaseConfig::DefaultSwapchainCreateInfo.compositeAlpha;
+			else m_swapchainCreateInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+		}
+
+		m_pDevice->CreateSwapchainKHR(m_pSwapchainKHR.MakeInstance(), m_swapchainCreateInfo);
+
+		uint32 swapchainImageCount = _count_0;
+		m_pDevice->GetSwapchainImagesKHR(*m_pSwapchainKHR, &swapchainImageCount, nullptr);
+		m_swapchainImages.resize(swapchainImageCount);
+		m_pDevice->GetSwapchainImagesKHR(*m_pSwapchainKHR, &swapchainImageCount, m_swapchainImages.data());
+
+		// This Code May Be Redundant... Win32 Surface Presentation Support Has Been Queried.
+		{
+			VkBool32 surfacePresentationSupport = VK_FALSE;
+			_vk_try(vkGetPhysicalDeviceSurfaceSupportKHR(m_physicalDevices[m_mainPDIndex], m_mainQFIndex, *m_pSurface, &surfacePresentationSupport));
+
+			if (surfacePresentationSupport == VK_FALSE)
+			{
+				_log_error("The Default Queue Do Not Support Presentation!", LogSystem::Category::BaseLayer);
+				Engine::Get()->RequireExit(1);
+			}
+		}
+
+	}
+	else
+	{
+		_log_error("Create Swapchain Failed! Application Terminate!", LogSystem::Category::BaseLayer);
+		Engine::Get()->RequireExit(1);
 	}
 }
 
@@ -528,11 +543,6 @@ BaseAllocator* BaseLayer::GetBaseAllocator() const
 VkAllocationCallbacks* BaseLayer::GetVkAllocator() const
 {
 	return m_pAllocator != nullptr ? m_pAllocator->GetVkAllocator() : nullptr;
-}
-
-Window* BaseLayer::GetWindow() const
-{
-	return m_pWindow;
 }
 
 LogicalDevice* BaseLayer::GetLogicalDevice() const

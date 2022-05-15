@@ -36,6 +36,11 @@ public:
 		return m_counter->m_object;
 	}
 
+	bool IsValid() const
+	{
+		return m_counter != nullptr && m_counter->m_object != nullptr;
+	}
+
 public:
 
 	VkSmartPtr(const char* type)

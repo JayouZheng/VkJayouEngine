@@ -78,6 +78,9 @@
     <ClCompile Include="Core\Utilities\SmartPtr\VkSmartPtr.cpp">
       <Filter>Core\Utilities\SmartPtr</Filter>
     </ClCompile>
+    <ClCompile Include="Core\Scene\Scene.cpp">
+      <Filter>Core\Scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="vk_app.h" />
@@ -230,6 +233,9 @@
     </ClInclude>
     <ClInclude Include="Core\Utilities\Utilities.h">
       <Filter>Core\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Scene\Scene.h">
+      <Filter>Core\Scene</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

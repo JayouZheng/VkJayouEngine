@@ -177,6 +177,7 @@
     <ClCompile Include="Core\Render\RenderBase\CommandList.cpp" />
     <ClCompile Include="Core\Render\RenderBase\CommandQueue.cpp" />
     <ClCompile Include="Core\Render\RenderBase\LogicalDevice.cpp" />
+    <ClCompile Include="Core\Scene\Scene.cpp" />
     <ClCompile Include="Core\Utilities\Color\ColorManager.cpp" />
     <ClCompile Include="Core\Utilities\File\FileManager.cpp" />
     <ClCompile Include="Core\Utilities\Loader\ModuleLoader.cpp" />
@@ -214,6 +215,7 @@
     <ClInclude Include="Core\Render\RenderBase\LogicalDevice.h" />
     <ClInclude Include="Core\Render\RenderBase\RenderBaseConfig.h" />
     <ClInclude Include="Core\Render\RenderBase\RenderEnum.h" />
+    <ClInclude Include="Core\Scene\Scene.h" />
     <ClInclude Include="Core\TypeDef.h" />
     <ClInclude Include="Core\Utilities\Color\ColorManager.h" />
     <ClInclude Include="Core\Utilities\Containers\List.h" />

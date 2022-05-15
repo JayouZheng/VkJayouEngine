@@ -19,15 +19,12 @@ class Window : public IResourceHandler
 
 protected:
 
+	bool bIsValid;
+
 	void* m_pHinstance;
 	void* m_pHwnd;
 
-	struct WindowDesc
-	{
-		uint32 Width;
-		uint32 Height;
-
-	}m_defaultDesc;
+	WindowDesc m_defaultDesc;
 
 	Window();
 
@@ -36,6 +33,8 @@ public:
 	virtual ~Window();
 
 	void Init();
+
+	bool IsValid() const { return bIsValid; }
 
 	void* GetHinstance() const;
 	void* GetHwnd() const;

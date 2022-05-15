@@ -24,14 +24,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	static bool s_minimized = false;
 	static bool s_fullscreen = false;
 
-	void* app = nullptr;
-
 	switch (message)
 	{
 	case WM_PAINT:
-		if (s_in_sizemove && app)
+		if (s_in_sizemove)
 		{
-			//app->Tick();
+			Engine::Get()->Tick();
 		}
 		else
 		{
@@ -41,10 +39,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case WM_MOVE:
-		if (app)
-		{
-			//app->OnWindowMoved();
-		}
+		//app->OnWindowMoved();
 		break;
 
 	case WM_SIZE:
@@ -53,7 +48,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			if (!s_minimized)
 			{
 				s_minimized = true;
-				if (!s_in_suspend && app)
+				if (!s_in_suspend)
 					//app->OnSuspending();
 					s_in_suspend = true;
 			}
@@ -61,11 +56,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		else if (s_minimized)
 		{
 			s_minimized = false;
-			if (s_in_suspend && app)
+			if (s_in_suspend)
 				//app->OnResuming();
 				s_in_suspend = false;
 		}
-		else if (!s_in_sizemove && app)
+		else if (!s_in_sizemove)
 		{
 			//app->OnWindowSizeChanged(LOWORD(lParam), HIWORD(lParam));
 		}
@@ -77,13 +72,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 	case WM_EXITSIZEMOVE:
 		s_in_sizemove = false;
-		if (app)
-		{
-			RECT rc;
-			GetClientRect(hWnd, &rc);
 
-			//app->OnWindowSizeChanged(rc.right - rc.left, rc.bottom - rc.top);
-		}
+		RECT rc;
+		GetClientRect(hWnd, &rc);
+
+		//app->OnWindowSizeChanged(rc.right - rc.left, rc.bottom - rc.top);
 		break;
 
 	case WM_GETMINMAXINFO:
@@ -95,16 +88,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	break;
 
 	case WM_ACTIVATEAPP:
-		if (app)
+		if (wParam)
 		{
-			if (wParam)
-			{
-				//app->OnActivated();
-			}
-			else
-			{
-				//app->OnDeactivated();
-			}
+			//app->OnActivated();
+		}
+		else
+		{
+			//app->OnDeactivated();
 		}
 		break;
 
@@ -112,7 +102,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		switch (wParam)
 		{
 		case PBT_APMQUERYSUSPEND:
-			if (!s_in_suspend && app)
+			if (!s_in_suspend)
 				//app->OnSuspending();
 				s_in_suspend = true;
 			return TRUE;
@@ -120,7 +110,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case PBT_APMRESUMESUSPEND:
 			if (!s_minimized)
 			{
-				if (s_in_suspend && app)
+				if (s_in_suspend)
 					//app->OnResuming();
 					s_in_suspend = false;
 			}
@@ -214,11 +204,12 @@ _impl_create_interface(Window)
 
 // Class Window.
 Window::Window() : 
-	m_defaultDesc ( {1280, 720} ),
+	bIsValid      ( false ),
 	m_pHinstance  (nullptr),
 	m_pHwnd       (nullptr)
 {
-
+	m_defaultDesc.Width  = 1280;
+	m_defaultDesc.Height = 720;
 }
 
 Window::~Window()
@@ -277,6 +268,8 @@ void Window::Init()
 
 		//GetClientRect(m_pHwnd, &rc);
 	}
+
+	bIsValid = true;
 }
 
 void* Window::GetHinstance() const
@@ -289,7 +282,7 @@ void* Window::GetHwnd() const
 	return m_pHwnd;
 }
 
-Window::WindowDesc Window::GetWindowDesc() const
+WindowDesc Window::GetWindowDesc() const
 {
 	return m_defaultDesc;
 }
@@ -314,7 +307,7 @@ void Window::Show()
 		}
 		else
 		{
-			//m_app->Tick();
+			Engine::Get()->Tick();
 		}
 	}
 }

@@ -25,7 +25,6 @@ protected:
 	VkDevice        m_device;
 	BaseLayer*      m_pBaseLayer;
 	BaseAllocator*  m_pAllocator;
-	Window*         m_pWindow;
 	GLSLCompiler*   m_pCompiler;
 	CommandQueue*   m_pCmdQueue;
 
@@ -229,6 +228,8 @@ public:
 	void           CreateGraphicPipelines        (VkPipeline* OutPipeline, const VkGraphicsPipelineCreateInfo* InCreateInfos, uint32 InCreateInfoCount = _count_1, VkPipelineCache InPipCache = VK_NULL_HANDLE);
 	void           CreateGraphicPipelines        (VkPipeline* OutPipeline, const PipelineGraphicDesc* InDescs, uint32 InDescCount = _count_1, VkPipelineCache InPipCache = VK_NULL_HANDLE);
 	void           CreateGraphicPipelines        (const string& InJsonPath, VkPipelineCache InPipCache = VK_NULL_HANDLE);
+
+	// TODO: Image and buffer creators should not put here.
 
 	void           FlushAllQueue();
 	void           ResetCmdPool();

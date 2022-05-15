@@ -66,7 +66,6 @@ protected:
 	VkDevice                                          m_device;
 	BaseAllocator*                                    m_pAllocator;
 	LogicalDevice*                                    m_pDevice;
-	Window*                                           m_pWindow;
 
 	int32                                             m_mainPDIndex;
 	int32                                             m_mainQFIndex;
@@ -92,6 +91,8 @@ public:
 	virtual ~BaseLayer();
 
 	void Init();
+	void CreateSurface(Window* InWindow);
+	void CreateSwapChain();
 	
 	void SetBaseAllocator(BaseAllocator* InAllocator);
 
@@ -99,7 +100,6 @@ public:
 	VkDevice                           GetVkDevice()      const;
 	BaseAllocator*                     GetBaseAllocator() const;
 	VkAllocationCallbacks*             GetVkAllocator()   const;
-	Window*                            GetWindow()        const;
 	LogicalDevice*                     GetLogicalDevice() const;
 	const VkPhysicalDeviceLimits&      GetMainPDLimits () const;
 	const VkPhysicalDeviceProperties&  GetMainPDProps  () const;

@@ -20,8 +20,7 @@ _impl_create_interface(LogicalDevice)
 LogicalDevice::LogicalDevice() : 
 	m_device     (VK_NULL_HANDLE),
 	m_pBaseLayer (nullptr),
-	m_pAllocator (nullptr),
-	m_pWindow    (nullptr)
+	m_pAllocator (nullptr)
 {
 	m_pCompiler = GLSLCompiler::Create(this);
 	m_pCmdQueue = CommandQueue::Create(this);
@@ -67,7 +66,6 @@ void LogicalDevice::Init(BaseLayer* InBaseLayer)
 {
 	m_pBaseLayer = InBaseLayer;
 	m_pAllocator = InBaseLayer->GetBaseAllocator();
-	m_pWindow    = InBaseLayer->GetWindow();
 }
 
 bool LogicalDevice::IsNoneAllocator() const
@@ -1511,9 +1509,11 @@ void LogicalDevice::CreateGraphicPipelines(const string& InJsonPath, VkPipelineC
 		bool   bIsArray = root[_text_mapper(vk_graphic_pipeline_infos)].isArray();
 		uint32 numGInfo = bIsArray ? root[_text_mapper(vk_graphic_pipeline_infos)].size() : _count_1;
 
+		WindowDesc windowDesc = Engine::Get()->GetWindowDesc();
+
 		VkViewport currentViewport = {};
 		VkRect2D   currentScissor  = {};
-		this->SetViewport(currentViewport, currentScissor, m_pWindow->GetWindowDesc().Width, m_pWindow->GetWindowDesc().Height);
+		this->SetViewport(currentViewport, currentScissor, windowDesc.Width, windowDesc.Height);
 
 		LocalResourcePool localResPool;
 
@@ -1812,15 +1812,15 @@ void LogicalDevice::CreateGraphicPipelines(const string& InJsonPath, VkPipelineC
 
 					currentViewport.x = JsonParser::GetFloat(viewport[_text_mapper(vk_position)][0]);
 					currentViewport.y = JsonParser::GetFloat(viewport[_text_mapper(vk_position)][1]);
-					currentViewport.width = JsonParser::GetString(viewport[_text_mapper(vk_size)][0]) == "auto" ? (float)m_pWindow->GetWindowDesc().Width : JsonParser::GetFloat(viewport[_text_mapper(vk_size)][0]);
-					currentViewport.height = JsonParser::GetString(viewport[_text_mapper(vk_size)][1]) == "auto" ? (float)m_pWindow->GetWindowDesc().Height : JsonParser::GetFloat(viewport[_text_mapper(vk_size)][1]);
+					currentViewport.width = JsonParser::GetString(viewport[_text_mapper(vk_size)][0]) == "auto" ? (float)windowDesc.Width : JsonParser::GetFloat(viewport[_text_mapper(vk_size)][0]);
+					currentViewport.height = JsonParser::GetString(viewport[_text_mapper(vk_size)][1]) == "auto" ? (float)windowDesc.Height : JsonParser::GetFloat(viewport[_text_mapper(vk_size)][1]);
 					currentViewport.minDepth = JsonParser::GetFloat(viewport[_text_mapper(vk_depth_range)][0]);
 					currentViewport.maxDepth = JsonParser::GetFloat(viewport[_text_mapper(vk_depth_range)][1]);
 
 					currentScissor.offset.x = JsonParser::GetInt32(scissor[_text_mapper(vk_offset)][0]);
 					currentScissor.offset.y = JsonParser::GetInt32(scissor[_text_mapper(vk_offset)][1]);
-					currentScissor.extent.width = JsonParser::GetString(scissor[_text_mapper(vk_size)][0]) == "auto" ? m_pWindow->GetWindowDesc().Width : JsonParser::GetUInt32(scissor[_text_mapper(vk_size)][0]);
-					currentScissor.extent.height = JsonParser::GetString(scissor[_text_mapper(vk_size)][1]) == "auto" ? m_pWindow->GetWindowDesc().Height : JsonParser::GetUInt32(scissor[_text_mapper(vk_size)][1]);
+					currentScissor.extent.width = JsonParser::GetString(scissor[_text_mapper(vk_size)][0]) == "auto" ? windowDesc.Width : JsonParser::GetUInt32(scissor[_text_mapper(vk_size)][0]);
+					currentScissor.extent.height = JsonParser::GetString(scissor[_text_mapper(vk_size)][1]) == "auto" ? windowDesc.Height : JsonParser::GetUInt32(scissor[_text_mapper(vk_size)][1]);
 				}
 			}
 

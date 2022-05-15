@@ -19,6 +19,7 @@ vk_app::~vk_app()
 void vk_app::Begin()
 {
 	Engine::Get()->Init();
+	Engine::Get()->Run();
 }
 
 void vk_app::End()

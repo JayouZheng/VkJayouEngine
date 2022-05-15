@@ -42,3 +42,15 @@ using isize = int32;
 using usize = uint32;
 
 #endif // _WIN64
+
+struct WindowDesc
+{
+	uint32 Width;
+	uint32 Height;
+
+	WindowDesc()
+		: Width(0)
+		, Height(0)
+	{
+	}
+};

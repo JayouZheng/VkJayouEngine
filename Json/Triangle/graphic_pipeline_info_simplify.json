@@ -5,11 +5,11 @@
         [
             {
                 "stage_type":      "vertex",
-                "stage_code_path": "Core/Shaders/triangle.vert"
+                "stage_code_path": "Core/Shaders/Triangle/triangle.vert"
             },
             {
                 "stage_type":      "pixel",
-                "stage_code_path": "Core/Shaders/triangle.frag"
+                "stage_code_path": "Core/Shaders/Triangle/triangle.frag"
             }
         ],
         "vertex_input_attributes": 
