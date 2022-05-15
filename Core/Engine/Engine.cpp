@@ -75,15 +75,14 @@ Engine*& Engine::Get()
 void Engine::Init()
 {
     g_data.BaseLayerRef = BaseLayer::Create(nullptr);
-    g_data.BaseLayerRef->Init();
+    g_data.BaseLayerRef->PreInit();
 
     ResourcePool::Get()->Push(g_data.BaseLayerRef);
 
     g_data.WindowRef = Window::Create(g_data.BaseLayerRef);
     g_data.WindowRef->Init();
 
-    g_data.BaseLayerRef->CreateSurface(Engine::Get()->GetWindow());
-    g_data.BaseLayerRef->CreateSwapChain();
+    g_data.BaseLayerRef->PostInit();
 
     g_data.SceneRef = Scene::Create(g_data.BaseLayerRef);
     g_data.SceneRef->Init();

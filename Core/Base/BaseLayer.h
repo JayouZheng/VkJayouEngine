@@ -90,7 +90,8 @@ public:
 
 	virtual ~BaseLayer();
 
-	void Init();
+	void PreInit();
+	void PostInit();
 	void CreateSurface(Window* InWindow);
 	void CreateSwapChain();
 	

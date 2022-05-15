@@ -34,7 +34,7 @@ BaseLayer::~BaseLayer()
 	Free();
 }
 
-void BaseLayer::Init()
+void BaseLayer::PreInit()
 {
 	_enable_runtime_memory_leak_check();
 
@@ -313,6 +313,12 @@ void BaseLayer::Init()
 
 		m_pDevice->CreateGraphicPipelines(GTestJaonPath);
 	}
+}
+
+void BaseLayer::PostInit()
+{
+	this->CreateSurface(Engine::Get()->GetWindow());
+	this->CreateSwapChain();
 }
 
 void BaseLayer::CreateSurface(Window* InWindow)
