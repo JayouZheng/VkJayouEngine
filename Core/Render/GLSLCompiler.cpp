@@ -73,15 +73,18 @@ bool GLSLCompiler::CheckAndParseSPVData(uint32 InMaxDescSets, VkPushConstantRang
 		}
 	}
 
-	// Sort the setIDArray using operator <.
-	std::sort(setIDArray.begin(), setIDArray.end());
-	// Check the continuity of setID.
-	for (uint8 i = 0u; i < setIDArray.size() - 1u; i++)
+	if (!setIDArray.empty())
 	{
-		if ((setIDArray[i] + 1u) != setIDArray[i + 1u])
+		// Sort the setIDArray using operator <.
+		std::sort(setIDArray.begin(), setIDArray.end());
+		// Check the continuity of setID.
+		for (uint8 i = 0u; i < setIDArray.size() - 1u; i++)
 		{
-			_log_error("The creating pipeline has discontinuous DescriptorSet ID!", LogSystem::Category::GLSLCompiler);
-			return false;
+			if ((setIDArray[i] + 1u) != setIDArray[i + 1u])
+			{
+				_log_error("The creating pipeline has discontinuous DescriptorSet ID!", LogSystem::Category::GLSLCompiler);
+				return false;
+			}
 		}
 	}
 

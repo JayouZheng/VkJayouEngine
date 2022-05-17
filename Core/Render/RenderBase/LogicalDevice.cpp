@@ -192,6 +192,7 @@ void LogicalDevice::CreateShaderModule(VkShaderModule* OutShaderModule, const Pa
 		*OutShaderStage = shaderStage;
 	}
 
+	// TODO: Use .spv shader source direclty will not get the shader refection info.
 	if (shaderStage != VK_SHADER_STAGE_FLAG_BITS_MAX_ENUM)
 	{
 		const char* include_dirs[_count_1] = { dir.data() };

@@ -21,12 +21,10 @@ void Scene::Init()
 {
 }
 
-void Scene::Update(const TimerUtil::GameTimer* InGameTimer)
+void Scene::Update(const TimerUtil::GameTimer& InGameTimer)
 {
-	static int32 count = 0;
-	count++;
 }
 
-void Scene::Render(const TimerUtil::GameTimer* InGameTimer)
+void Scene::Render(const TimerUtil::GameTimer& InGameTimer)
 {
 }

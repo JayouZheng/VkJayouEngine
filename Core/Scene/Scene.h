@@ -19,6 +19,6 @@ public:
 	~Scene();
 
 	void Init();
-	void Update(const TimerUtil::GameTimer* InGameTimer);
-	void Render(const TimerUtil::GameTimer* InGameTimer);
+	void Update(const TimerUtil::GameTimer& InGameTimer);
+	void Render(const TimerUtil::GameTimer& InGameTimer);
 };

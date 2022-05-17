@@ -71,7 +71,7 @@ public:
 
 	struct PipelineComputeDesc
 	{
-		string           EntryPoint;
+		string                EntryPoint;
 		VkShaderModule        ShaderModule;
 		VkPipelineLayout      PipLayout;	
 		VkSpecializationInfo* pSpecialConstInfo;
@@ -96,7 +96,7 @@ public:
 	{
 		VkRenderPass          RenderPass;
 
-		string           EntryPoint;
+		string                EntryPoint;
 		VkShaderModule        ShaderModule;
 		VkPipelineLayout      PipLayout;
 		VkSpecializationInfo* pSpecialConstInfo;
