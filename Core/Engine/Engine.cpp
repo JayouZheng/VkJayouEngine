@@ -166,3 +166,61 @@ WindowDesc Engine::GetWindowDesc() const
         return WindowDesc();
     }
 }
+
+//---------------------------------------------------------------------------
+// Viewport intersection event handle.
+//---------------------------------------------------------------------------
+
+void Engine::OnWindowMoved()
+{
+}
+
+void Engine::OnWindowSizeChanged(int32 InWidth, int32 InHeight)
+{
+}
+
+void Engine::OnActivated()
+{
+    // TODO: Game is becoming active window.
+}
+
+void Engine::OnDeactivated()
+{
+    // TODO: Game is becoming background window.
+}
+
+void Engine::OnSuspending()
+{
+    // TODO: Game is being power-suspended (or minimized).
+}
+
+void Engine::OnResuming()
+{
+    // TODO: Game is being power-resumed (or returning from minimize).
+
+    g_data.gameTimer.Reset();
+}
+
+void Engine::OnKeyDown(int32 InKeyState)
+{
+}
+
+void Engine::OnKeyUp(int32 InKeyState)
+{
+}
+
+void Engine::OnMouseDown(int32 InMouseState, int32 InXAxis, int32 InYAxis)
+{
+}
+
+void Engine::OnMouseUp(int32 InMouseState, int32 InXAxis, int32 InYAxis)
+{
+}
+
+void Engine::OnMouseMove(int32 InMouseState, int32 InXAxis, int32 InYAxis)
+{
+}
+
+void Engine::OnMouseWheel(int32 InMouseState, int32 InWheelDelta, int32 InXAxis, int32 InYAxis)
+{
+}

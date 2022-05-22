@@ -39,7 +39,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case WM_MOVE:
-		//app->OnWindowMoved();
+		Engine::Get()->OnWindowMoved();
 		break;
 
 	case WM_SIZE:
@@ -49,7 +49,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			{
 				s_minimized = true;
 				if (!s_in_suspend)
-					//app->OnSuspending();
+					Engine::Get()->OnSuspending();
 					s_in_suspend = true;
 			}
 		}
@@ -57,12 +57,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 			s_minimized = false;
 			if (s_in_suspend)
-				//app->OnResuming();
+				Engine::Get()->OnResuming();
 				s_in_suspend = false;
 		}
 		else if (!s_in_sizemove)
 		{
-			//app->OnWindowSizeChanged(LOWORD(lParam), HIWORD(lParam));
+			Engine::Get()->OnWindowSizeChanged(LOWORD(lParam), HIWORD(lParam));
 		}
 		break;
 
@@ -76,7 +76,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		RECT rc;
 		GetClientRect(hWnd, &rc);
 
-		//app->OnWindowSizeChanged(rc.right - rc.left, rc.bottom - rc.top);
+		Engine::Get()->OnWindowSizeChanged(rc.right - rc.left, rc.bottom - rc.top);
 		break;
 
 	case WM_GETMINMAXINFO:
@@ -90,11 +90,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_ACTIVATEAPP:
 		if (wParam)
 		{
-			//app->OnActivated();
+			Engine::Get()->OnActivated();
 		}
 		else
 		{
-			//app->OnDeactivated();
+			Engine::Get()->OnDeactivated();
 		}
 		break;
 
@@ -103,7 +103,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 		case PBT_APMQUERYSUSPEND:
 			if (!s_in_suspend)
-				//app->OnSuspending();
+				Engine::Get()->OnSuspending();
 				s_in_suspend = true;
 			return TRUE;
 
@@ -111,7 +111,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			if (!s_minimized)
 			{
 				if (s_in_suspend)
-					//app->OnResuming();
+					Engine::Get()->OnResuming();
 					s_in_suspend = false;
 			}
 			return TRUE;
@@ -131,14 +131,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				SetWindowLongPtr(hWnd, GWL_STYLE, WS_OVERLAPPEDWINDOW);
 				SetWindowLongPtr(hWnd, GWL_EXSTYLE, 0);
 
-				uint32 width = 800;
-				uint32 height = 600;
-				//if (app)
-					//app->GetDefaultSize(width, height);
+				WindowDesc windowDesc = Engine::Get()->GetWindowDesc();
 
 				ShowWindow(hWnd, SW_SHOWNORMAL);
 
-				SetWindowPos(hWnd, HWND_TOP, 0, 0, width, height, SWP_NOMOVE | SWP_NOZORDER | SWP_FRAMECHANGED);
+				SetWindowPos(hWnd, HWND_TOP, 0, 0, windowDesc.Width, windowDesc.Height, SWP_NOMOVE | SWP_NOZORDER | SWP_FRAMECHANGED);
 			}
 			else
 			{
@@ -160,7 +157,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		return MAKELRESULT(0, MNC_CLOSE);
 
 	case WM_KEYDOWN:
-		//app->OnKeyDown(wParam);
+		Engine::Get()->OnKeyDown(GET_KEYSTATE_WPARAM(wParam));
 		switch (wParam)
 		{
 		case VK_ESCAPE:
@@ -171,28 +168,28 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		break;
 	case WM_KEYUP:
-		//app->OnKeyUp(wParam);
+		Engine::Get()->OnKeyUp(GET_KEYSTATE_WPARAM(wParam));
 		break;
 
 	case WM_LBUTTONDOWN:
 	case WM_MBUTTONDOWN:
 	case WM_RBUTTONDOWN:
-		//app->OnMouseDown(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		Engine::Get()->OnMouseDown(GET_KEYSTATE_WPARAM(wParam), GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		break;
 
 	case WM_LBUTTONUP:
 	case WM_MBUTTONUP:
 	case WM_RBUTTONUP:
-		//app->OnMouseUp(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		Engine::Get()->OnMouseUp(GET_KEYSTATE_WPARAM(wParam), GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		break;
 
 	case WM_MOUSEMOVE:
-		//app->OnMouseMove(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		Engine::Get()->OnMouseMove(GET_KEYSTATE_WPARAM(wParam), GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		break;
 
 	case WM_MOUSEWHEEL:
 		// x, y is not the coordinate of the cursor but pointer.
-		//app->OnMouseWheel(GET_WHEEL_DELTA_WPARAM(wParam), GET_KEYSTATE_WPARAM(wParam), GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		Engine::Get()->OnMouseWheel(GET_KEYSTATE_WPARAM(wParam), GET_WHEEL_DELTA_WPARAM(wParam), GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		break;
 
 	}
