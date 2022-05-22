@@ -107,6 +107,7 @@ string TextMapper::Map[usize(TextMapper::ID::RANGE_SIZE)] =
 
 	// Begin renderpass_info.
 
+	"renderpass_path",
 	"renderpass_info",
 	"attachment_descriptions",
 	"format",

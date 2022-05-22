@@ -115,7 +115,8 @@ public:
 		// End graphic_pipeline_infos.
 
 		// Begin renderpass_info.
-
+		
+		vk_renderpass_path,
 		vk_renderpass_info,
 		vk_attachment_descriptions,
 		vk_format,

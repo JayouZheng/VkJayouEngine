@@ -1989,7 +1989,14 @@ void LogicalDevice::CreateGraphicPipelines(const string& InJsonPath, VkPipelineC
 			/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			// RenderPass.
 			{
-				string renderPassJson = PathParser::Parse("Json/Triangle/renderpass_info.json");
+				string renderPassPath = JsonParser::GetString(graphicInfo[_text_mapper(vk_renderpass_path)]);
+				if (renderPassPath == _str_null)
+				{
+					_log_error("json file: [renderpass_path] can not be null!", LogSystem::Category::JsonParser);
+					Engine::Get()->RequireExit(1);
+				}
+
+				string renderPassJson = PathParser::Parse(renderPassPath);
 				this->CreateRenderPass(renderPassJson);
 
 				string renderPassName = JsonParser::GetString(graphicInfo[_text_mapper(vk_renderpass)]);

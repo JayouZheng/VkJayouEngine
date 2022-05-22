@@ -26,6 +26,7 @@
             "cull_mode":    "cull_front",
             "front_face":   "counter_clockwise"
         },
+        "renderpass_path": "Json/Triangle/renderpass_info.json",
         "renderpass": "triangle_renderpass",
         "subpass": "triangle_subpass"
     }
