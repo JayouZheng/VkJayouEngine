@@ -17,9 +17,9 @@ class GLSLCompiler : public IResourceHandler
 
 public:
 
-    static const uint32 NumDescriptorType  = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT + 1u + 2u; // One for push_constant, one for subpass_input.
-    static const uint32 ResID_PushConstant = NumDescriptorType - 2;
-    static const uint32 ResID_SubpassInput = NumDescriptorType - 1;
+    static constexpr uint32 NumDescriptorType  = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT + 1u + 2u; // One for push_constant, one for subpass_input.
+    static constexpr uint32 ResID_PushConstant = NumDescriptorType - 2;
+    static constexpr uint32 ResID_SubpassInput = NumDescriptorType - 1;
 
     enum class ShaderType
     {
@@ -114,7 +114,7 @@ public:
     ~GLSLCompiler();
 
     void CompileShader(VkShaderStageFlags InStageType, const Path& InShaderPath, const CompileInfo* InCompileInfo);
-    bool CheckAndParseSPVData(uint32 InMaxDescSets, VkPushConstantRange& OutPushConstantRange, std::vector<std::vector<VkDescriptorSetLayoutBinding>>& OutDescSets);
+    bool CheckAndParseSPVData(uint32 InMaxDescSets, std::vector<VkPushConstantRange>& OutPushConstantRanges, std::vector<std::vector<VkDescriptorSetLayoutBinding>>& OutDescSets);
 
     void                   FlushSPVData();
     bool                   HasValidSPVData();   

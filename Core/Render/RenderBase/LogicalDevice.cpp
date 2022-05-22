@@ -510,7 +510,7 @@ void LogicalDevice::CreatePipelineLayout(VkPipelineLayout* OutLayout, const VkDe
 	pipLayoutCreateInfo.setLayoutCount         = InSetCount;
 	pipLayoutCreateInfo.pSetLayouts            = InDescSetLayouts;
 	pipLayoutCreateInfo.pushConstantRangeCount = ((InPushConstants != nullptr) && (InConstCount == 0)) ? _count_1 : InConstCount;
-	pipLayoutCreateInfo.pPushConstantRanges    = InPushConstants;
+	pipLayoutCreateInfo.pPushConstantRanges    = InConstCount == 0 ? nullptr : InPushConstants;
 
 	_vk_try(vkCreatePipelineLayout(m_device, &pipLayoutCreateInfo, GetVkAllocator(), OutLayout));
 }
@@ -1669,11 +1669,10 @@ void LogicalDevice::CreateGraphicPipelines(const string& InJsonPath, VkPipelineC
 			}
 
 			// Pipeline Layout.
-			// There can only be one push constant block.
-			VkPushConstantRange pushConstantRange;
+			std::vector<VkPushConstantRange> pushConstantRanges;
 			std::vector<std::vector<VkDescriptorSetLayoutBinding>> descSets;
 
-			if (!m_pCompiler->CheckAndParseSPVData(m_pBaseLayer->GetMainPDLimits().maxBoundDescriptorSets, pushConstantRange, descSets))
+			if (!m_pCompiler->CheckAndParseSPVData(m_pBaseLayer->GetMainPDLimits().maxBoundDescriptorSets, pushConstantRanges, descSets))
 				Engine::Get()->RequireExit(1);
 
 			m_pCompiler->FlushSPVData();
@@ -1982,7 +1981,7 @@ void LogicalDevice::CreateGraphicPipelines(const string& InJsonPath, VkPipelineC
 
 			_declare_vk_smart_ptr(VkPipelineLayout, pPipelineLayout);
 
-			this->CreatePipelineLayout(pPipelineLayout.MakeInstance(), descSetLayouts.data(), (uint32)descSetLayouts.size(), &pushConstantRange, _count_1);
+			this->CreatePipelineLayout(pPipelineLayout.MakeInstance(), descSetLayouts.data(), (uint32)descSetLayouts.size(), pushConstantRanges.data(), (uint32)pushConstantRanges.size());
 			localResPool.Push(VkCast<VkPipelineLayout>(pPipelineLayout));
 
 			graphicInfos[i].layout = *pPipelineLayout;

@@ -809,7 +809,7 @@ type Get##type(const string& InKey)                             \
 		return (*result).second;                                      \
 	else                                                              \
 	{                                                                 \
-		_log_warning("Specified key is not exit! default set to \"" + \
+		_log_common("Specified key is not exit! default set to \"" + \
 			Default##type + "\"!", _name_of(Get##type));              \
 		return type##Map.at(Default##type);                           \
 	}                                                                 \

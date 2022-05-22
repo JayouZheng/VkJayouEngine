@@ -96,6 +96,9 @@ std::vector<T> StringUtil::WStringToArray(const wstring& InString, const wchar_t
 	return temp_array;
 }
 
+// #include <format> C++20
+// template<class... Args>
+// std::string format(/*format_string<Args...>*/ fmt, Args&&... args);
 template<typename T, typename ...Targs>
 string StringUtil::Printf(const char* InFormat, T InValue, Targs ...InArgs)
 {

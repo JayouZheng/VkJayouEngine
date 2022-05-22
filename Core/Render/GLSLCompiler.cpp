@@ -50,7 +50,7 @@ void GLSLCompiler::CompileShader(VkShaderStageFlags InStageType, const Path& InS
     }
 }
 
-bool GLSLCompiler::CheckAndParseSPVData(uint32 InMaxDescSets, VkPushConstantRange& OutPushConstantRange, std::vector<std::vector<VkDescriptorSetLayoutBinding>>& OutDescSets)
+bool GLSLCompiler::CheckAndParseSPVData(uint32 InMaxDescSets, std::vector<VkPushConstantRange>& OutPushConstantRanges, std::vector<std::vector<VkDescriptorSetLayoutBinding>>& OutDescSets)
 {
 	std::vector<std::vector<uint8>> descSetsBindingID;
 
@@ -93,20 +93,30 @@ bool GLSLCompiler::CheckAndParseSPVData(uint32 InMaxDescSets, VkPushConstantRang
 	descSetsBindingID.resize(numSets);
 	OutDescSets.resize(numSets);
 
+	std::vector<VkShaderStageFlags> uniqueShaderStageFlag;
 	for (auto& spvData : m_pSPVData)
 	{
+		if (std::find(uniqueShaderStageFlag.begin(), uniqueShaderStageFlag.end(), spvData->shader_stage) != uniqueShaderStageFlag.end())
+		{
+			_log_warning(StringUtil::Printf("The compiled spv data have duplicated shader stage %!", EnumToString::VkShaderStageToString(spvData->shader_stage)), LogSystem::Category::GLSLCompiler);
+			continue;
+		}
+
+		uniqueShaderStageFlag.push_back(spvData->shader_stage);
+
 		GLSLCompiler::ShaderResourceData resData = spvData->resource[GLSLCompiler::ResID_PushConstant];
 
-		static bool bPushConstantInit = false;
-		if (!bPushConstantInit && resData.count > 0u)
+		// There can be only one push constant block per pipeline stage.
+		if (resData.count > 0u)
 		{
-			OutPushConstantRange.stageFlags = spvData->shader_stage;
-			OutPushConstantRange.offset = _offset_0;
-			OutPushConstantRange.size = resData.items[_index_0].size;
+			VkPushConstantRange pushConstantRange;
+			pushConstantRange.stageFlags = spvData->shader_stage;
+			pushConstantRange.offset = _offset_0;
+			pushConstantRange.size = resData.items[_index_0].size;
+
+			OutPushConstantRanges.push_back(pushConstantRange);
 
 			if (resData.count > 1u) _log_warning("The creating pipeline has too many push constant blocks!", LogSystem::Category::GLSLCompiler);
-
-			bPushConstantInit = true; // There can only be one push constant block.
 		}
 
 		for (uint32 descType = VK_DESCRIPTOR_TYPE_SAMPLER; descType < VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT; descType++)
